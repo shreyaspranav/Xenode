@@ -102,7 +102,7 @@ project "SandboxApp"
 		flags { "MultiProcessorCompile" }
 
 		includedirs {
-			"Xenode/src/platform/windows"
+			"Xenode/src/platform/windows",
 		}
 
 		defines { "XEN_PLATFORM_WINDOWS", "XEN_BUILD_EXE" }
@@ -113,7 +113,6 @@ project "SandboxApp"
 
 		includedirs {
 			"Xenode/src/platform/linux",
-			"Xenode/src/"
 		}
 
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXEC" }
