@@ -17,7 +17,7 @@
     #else
       #error Visual Studio only accepted in Windows!
     #endif
-
+  #endif
 #endif
 
 #ifdef XEN_PLATFORM_LINUX
@@ -32,10 +32,10 @@
   #endif
   #ifdef XEN_BUILD_EXEC
 
-    #ifdef _MSC_VER
+    #ifdef __GNUG__
       #define XEN_API
     #else
       #error GCC only accepted in Linux!
     #endif
-
+  #endif
 #endif
