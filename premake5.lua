@@ -23,11 +23,15 @@ project "Xenode"
 	}
 
 	includedirs {
-		"Xenode/src/"
+		"Xenode/src/",
+		"Xenode/src/pch/"
 	}
 
 	cppdialect "C++20"
 	pic "on"
+
+	pchheader "pch.h"
+	pchsource "Xenode/src/pch/pch.cpp"
 
 	filter "system:windows"
 
