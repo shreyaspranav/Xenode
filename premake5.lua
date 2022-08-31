@@ -13,9 +13,15 @@ project "Xenode"
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/")
 
+	pchheader "pch.h"
+	pchsource "Xenode/src/pch/pch.cpp"
+
 	files {
 		"Xenode/src/core/**.cpp",
 		"Xenode/src/core/**.h",
+
+		"Xenode/src/pch/pch.cpp",
+		"Xenode/src/pch/pch.h",
 
 		"Xenode/src/Xenode.h",
 		"Xenode/src/Xenode.cpp",
@@ -30,9 +36,6 @@ project "Xenode"
 	cppdialect "C++20"
 	pic "on"
 
-	pchheader "pch.h"
-	pchsource "Xenode/src/pch/pch.cpp"
-
 	filter "system:windows"
 
 		systemversion "latest"
@@ -40,7 +43,7 @@ project "Xenode"
 
 		files { 
 			"Xenode/platform/windows/**.cpp",
-			"Xenode/platform/windows/**.h"  
+			"Xenode/platform/windows/**.h",  
 		}
 
 		defines { "XEN_PLATFORM_WINDOWS", "XEN_BUILD_DLL" }
@@ -107,6 +110,7 @@ project "SandboxApp"
 
 		includedirs {
 			"Xenode/src/platform/windows",
+			"Xenode/src"
 		}
 
 		defines { "XEN_PLATFORM_WINDOWS", "XEN_BUILD_EXE" }
