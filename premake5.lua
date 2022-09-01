@@ -24,7 +24,6 @@ project "Xenode"
 		"Xenode/src/pch/pch.h",
 
 		"Xenode/src/Xenode.h",
-		"Xenode/src/Xenode.cpp",
 		"Xenode/src/Core.h"
 	}
 
@@ -121,6 +120,7 @@ project "SandboxApp"
 
 		includedirs {
 			"Xenode/src/platform/linux",
+			"Xenode/src"
 		}
 
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXEC" }
