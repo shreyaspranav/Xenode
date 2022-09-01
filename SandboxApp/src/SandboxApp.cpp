@@ -1,13 +1,11 @@
-#include <iostream>
 #include <Xenode.h>
 
-int main()
+class SandboxApp : public Xen::GameApplication
 {
+public:
+	SandboxApp(){}
+	~SandboxApp(){}
+	
+};
 
-  float a, b;
-  std::cout << "Enter two numbers: ";
-  std::cin >> a >> b;
-  std::cout << "Answer: " << Add(a, b) << std::endl;
-
-  return 0;
-}
+Xen::GameApplication* Xen::CreateApplication() { return new SandboxApp(); }

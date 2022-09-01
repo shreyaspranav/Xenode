@@ -13,7 +13,7 @@ project "Xenode"
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/")
 
-	pchheader "pch.h"
+	pchheader "pch"
 	pchsource "Xenode/src/pch/pch.cpp"
 
 	files {

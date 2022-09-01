@@ -1,4 +1,5 @@
 #pragma once
+#include <pch/pch>
 
 #ifdef XEN_PLATFORM_WINDOWS
   #ifdef XEN_BUILD_DLL
@@ -39,3 +40,11 @@
     #endif
   #endif
 #endif
+
+namespace Xen {
+    template<typename T>
+    using Scope = std::unique_ptr<T>;
+
+    template<typename T>
+    using Ref = std::shared_ptr<T>;
+}
