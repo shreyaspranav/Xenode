@@ -1,6 +1,6 @@
 #pragma once
 #include <Core.h>
-#include <core/GameApplication.h>
+#include "GameApplication.h"
 
 extern Xen::GameApplication* Xen::CreateApplication();
 

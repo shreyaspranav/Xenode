@@ -17,11 +17,11 @@ project "Xenode"
 	pchsource "Xenode/src/pch/pch.cpp"
 
 	files {
-		"Xenode/src/core/**.cpp",
-		"Xenode/src/core/**.h",
+		"Xenode/src/core/app/**.cpp",
+		"Xenode/src/core/app/**.h",
 
 		"Xenode/src/pch/pch.cpp",
-		"Xenode/src/pch/pch.h",
+		"Xenode/src/pch/pch",
 
 		"Xenode/src/Xenode.h",
 		"Xenode/src/Core.h"
