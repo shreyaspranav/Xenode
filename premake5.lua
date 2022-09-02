@@ -4,6 +4,8 @@ workspace "Xenode"
 
 	bin_folder = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+include "Xenode/deps/glfw"
+
 project "Xenode"
 
 	kind "SharedLib"
@@ -40,9 +42,9 @@ project "Xenode"
 		systemversion "latest"
 		flags { "MultiProcessorCompile" }
 
-		files { 
+		files {
 			"Xenode/platform/windows/**.cpp",
-			"Xenode/platform/windows/**.h",  
+			"Xenode/platform/windows/**.h",
 		}
 
 		defines { "XEN_PLATFORM_WINDOWS", "XEN_BUILD_DLL" }
@@ -51,9 +53,9 @@ project "Xenode"
 
 		systemversion "latest"
 
-		files { 
+		files {
 			"Xenode/platform/linux/**.cpp",
-			"Xenode/platform/linux/**.h"  
+			"Xenode/platform/linux/**.h"
 		}
 
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_SL" }
@@ -70,7 +72,7 @@ project "Xenode"
         defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
         optimize "On"
 
-    filter { "configurations:Debug", "system:windows" } 
+    filter { "configurations:Debug", "system:windows" }
         buildoptions "/MDd"
 
     filter { "configurations:Release_Debug", "system:windows" }
@@ -137,7 +139,7 @@ project "SandboxApp"
         defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
         optimize "On"
 
-    filter { "configurations:Debug", "system:windows" } 
+    filter { "configurations:Debug", "system:windows" }
         buildoptions "/MDd"
 
     filter { "configurations:Release_Debug", "system:windows" }
@@ -145,4 +147,3 @@ project "SandboxApp"
 
     filter { "configurations:Production", "system:windows" }
         buildoptions "/MD"
-
