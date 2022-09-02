@@ -1,0 +1,6 @@
+[submodule "Xenode/deps/glfw"]
+	path = Xenode/deps/glfw
+	url = https://github.com/shreyaspranav/glfw.git
+[submodule "Xenode/deps/spdlog"]
+	path = Xenode/deps/spdlog
+	url = https://github.com/shreyaspranav/spdlog.git
