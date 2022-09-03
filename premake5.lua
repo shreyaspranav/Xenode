@@ -4,7 +4,7 @@ workspace "Xenode"
 
 	bin_folder = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
-include "Xenode/deps/glfw"
+--include "Xenode/deps/glfw"
 
 project "Xenode"
 
