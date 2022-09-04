@@ -24,6 +24,8 @@ namespace Xen {
 	};									 
 }
 
+#define XEN_INIT_LOGGER Xen::Log::Init();
+
 #define XEN_ENGINE_LOG_ERROR_SEVERE(...)	Xen::Log::GetEngineLogger()->critical(__VA_ARGS__);
 #define XEN_ENGINE_LOG_ERROR(...)			Xen::Log::GetEngineLogger()->error(__VA_ARGS__);
 #define XEN_ENGINE_LOG_WARN(...)			Xen::Log::GetEngineLogger()->warn(__VA_ARGS__);	
@@ -36,7 +38,22 @@ namespace Xen {
 #define XEN_APP_LOG_INFO(...)				Xen::Log::GetAppLogger()->info(__VA_ARGS__);	
 #define XEN_APP_LOG_TRACE(...)				Xen::Log::GetAppLogger()->trace(__VA_ARGS__);	
 
-#endif // XEN_LOG_ON
+#elif XEN_LOG_OFF
 
+#define XEN_INIT_LOGGER 
+
+#define XEN_ENGINE_LOG_ERROR_SEVERE(...)	
+#define XEN_ENGINE_LOG_ERROR(...)			
+#define XEN_ENGINE_LOG_WARN(...)			
+#define XEN_ENGINE_LOG_INFO(...)			
+#define XEN_ENGINE_LOG_TRACE(...)			
+																							
+#define XEN_APP_LOG_ERROR_SEVERE(...)		
+#define XEN_APP_LOG_ERROR(...)				
+#define XEN_APP_LOG_WARN(...)					
+#define XEN_APP_LOG_INFO(...)					
+#define XEN_APP_LOG_TRACE(...)		
+
+#endif // XEN_LOG_ON		
 
 

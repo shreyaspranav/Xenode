@@ -1,5 +1,5 @@
 workspace "Xenode"
-	configurations { "Debug", "Release_Debug", "Distribution" }
+	configurations { "Debug", "Release_Debug", "Production" }
 	architecture "x64"
 
 	bin_folder = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
