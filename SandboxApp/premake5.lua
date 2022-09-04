@@ -2,7 +2,6 @@ project "SandboxApp"
 
 	kind "ConsoleApp"
 	language "C++"
-	location "SandboxApp/"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/")

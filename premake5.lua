@@ -4,8 +4,13 @@ workspace "Xenode"
 
 	bin_folder = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+	startproject "SandboxApp"
+
 -- dependencies:
 --include "Xenode/deps/glfw"
+
+IncludeDir = {}
+IncludeDir["spdlog"] = "%{wks.location}/Xenode/deps/spdlog/include"
 
 -- Main projects:
 

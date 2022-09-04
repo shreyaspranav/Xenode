@@ -22,7 +22,9 @@ project "Xenode"
 
 	includedirs {
 		"src/",
-		"src/pch/"
+		"src/pch/",
+
+		"%{IncludeDir.spdlog}"
 	}
 
 	cppdialect "C++20"
