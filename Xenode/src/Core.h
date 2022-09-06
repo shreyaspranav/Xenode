@@ -41,6 +41,9 @@
   #endif
 #endif
 
+#define NO_PROBLEM 0
+#define BIT(x) 1 << x
+
 namespace Xen {
     template<typename T>
     using Scope = std::unique_ptr<T>;

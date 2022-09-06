@@ -13,6 +13,9 @@ project "Xenode"
 		"src/core/app/**.cpp",
 		"src/core/app/**.h",
 
+		"src/core/event/**.cpp",
+		"src/core/event/**.h",
+
 		"src/pch/pch.cpp",
 		"src/pch/pch",
 

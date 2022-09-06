@@ -40,7 +40,7 @@ namespace Xen {
 
 #elif XEN_LOG_OFF
 
-#define XEN_INIT_LOGGER 
+#define XEN_INIT_LOGGER ;
 
 #define XEN_ENGINE_LOG_ERROR_SEVERE(...)	
 #define XEN_ENGINE_LOG_ERROR(...)			

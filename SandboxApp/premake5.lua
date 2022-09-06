@@ -13,6 +13,8 @@ project "SandboxApp"
 
 	includedirs {
 		"%{wks.location}/Xenode/src/core/",
+
+		"%{IncludeDir.spdlog}"
 	}
 
 	links { "Xenode" }
