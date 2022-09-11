@@ -44,6 +44,13 @@
 #define NO_PROBLEM 0
 #define BIT(x) 1 << x
 
+#ifdef XEN_PLATFORM_WINDOWS
+    #define TRIGGER_BREAKPOINT __debugbreak()
+#elif XEN_PLATFORM_LINUX
+    #include <csignal>
+    #define TRIGGER_BREAKPOINT std::raise(SIGINT)
+#endif
+
 namespace Xen {
     template<typename T>
     using Scope = std::unique_ptr<T>;

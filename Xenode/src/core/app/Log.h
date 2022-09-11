@@ -26,17 +26,17 @@ namespace Xen {
 
 #define XEN_INIT_LOGGER Xen::Log::Init();
 
-#define XEN_ENGINE_LOG_ERROR_SEVERE(...)	Xen::Log::GetEngineLogger()->critical(__VA_ARGS__);
-#define XEN_ENGINE_LOG_ERROR(...)			Xen::Log::GetEngineLogger()->error(__VA_ARGS__);
-#define XEN_ENGINE_LOG_WARN(...)			Xen::Log::GetEngineLogger()->warn(__VA_ARGS__);	
-#define XEN_ENGINE_LOG_INFO(...)			Xen::Log::GetEngineLogger()->info(__VA_ARGS__);	
-#define XEN_ENGINE_LOG_TRACE(...)			Xen::Log::GetEngineLogger()->trace(__VA_ARGS__);
+#define XEN_ENGINE_LOG_ERROR_SEVERE(...)	Xen::Log::GetEngineLogger()->critical(__VA_ARGS__)
+#define XEN_ENGINE_LOG_ERROR(...)			Xen::Log::GetEngineLogger()->error(__VA_ARGS__)
+#define XEN_ENGINE_LOG_WARN(...)			Xen::Log::GetEngineLogger()->warn(__VA_ARGS__)
+#define XEN_ENGINE_LOG_INFO(...)			Xen::Log::GetEngineLogger()->info(__VA_ARGS__)
+#define XEN_ENGINE_LOG_TRACE(...)			Xen::Log::GetEngineLogger()->trace(__VA_ARGS__)
 																							
-#define XEN_APP_LOG_ERROR_SEVERE(...)		Xen::Log::GetAppLogger()->critical(__VA_ARGS__);
-#define XEN_APP_LOG_ERROR(...)				Xen::Log::GetAppLogger()->error(__VA_ARGS__);	
-#define XEN_APP_LOG_WARN(...)				Xen::Log::GetAppLogger()->warn(__VA_ARGS__);	
-#define XEN_APP_LOG_INFO(...)				Xen::Log::GetAppLogger()->info(__VA_ARGS__);	
-#define XEN_APP_LOG_TRACE(...)				Xen::Log::GetAppLogger()->trace(__VA_ARGS__);	
+#define XEN_APP_LOG_ERROR_SEVERE(...)		Xen::Log::GetAppLogger()->critical(__VA_ARGS__)
+#define XEN_APP_LOG_ERROR(...)				Xen::Log::GetAppLogger()->error(__VA_ARGS__)
+#define XEN_APP_LOG_WARN(...)				Xen::Log::GetAppLogger()->warn(__VA_ARGS__)
+#define XEN_APP_LOG_INFO(...)				Xen::Log::GetAppLogger()->info(__VA_ARGS__)	
+#define XEN_APP_LOG_TRACE(...)				Xen::Log::GetAppLogger()->trace(__VA_ARGS__)
 
 #elif XEN_LOG_OFF
 

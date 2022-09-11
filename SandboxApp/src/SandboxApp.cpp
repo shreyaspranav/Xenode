@@ -3,10 +3,7 @@
 class SandboxApp : public Xen::GameApplication
 {
 public:
-	SandboxApp(){
-		XEN_INIT_LOGGER
-		XEN_APP_LOG_WARN("efsdjklakl")
-	}
+	SandboxApp(){}
 	~SandboxApp(){}
 	
 };
