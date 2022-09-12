@@ -10,7 +10,7 @@ namespace Xen {
 	{
 	private:
 		LayerVector stack;
-		int* m_Layers;
+		Ref<Layer>* m_Layers;
 
 		uint32_t m_CurrentElementCount, m_MaxSize;
 
@@ -18,10 +18,10 @@ namespace Xen {
 		LayerStack(uint32_t size = 10);
 		~LayerStack();
 
-		void PushLayer(int layer);
-		void PushLayer(int layer, uint8_t loc);
+		void PushLayer(const Ref<Layer>& layer);
+		void PushLayer(const Ref<Layer>& layer, uint8_t loc);
 
-		void Te();
+		const Ref<Layer>& GetLayer(uint32_t loc);
 
 		void PopLayer();
 		void PopLayer(uint32_t loc);

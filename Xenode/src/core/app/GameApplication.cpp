@@ -14,27 +14,6 @@ namespace Xen {
 		XEN_ENGINE_LOG_TRACE("Hello!!");
 
 		LayerStack s(100);
-		s.PushLayer(2);
-		s.PushLayer(4);
-		s.PushLayer(5);
-		s.PushLayer(5);
-		s.PushLayer(33452);
-		s.PushLayer(645);
-		s.PushLayer(554);
-		s.PushLayer(55);
-		s.PushLayer(523);
-		s.PushLayer(5);
-		s.PushLayer(4325);
-		s.PushLayer(255);
-		s.PushLayer(52432423);
-
-		s.PushLayer(69696969);
-		s.PushLayer(420, 3);
-		s.PushLayer(420, 101);
-		s.PopLayer(2);
-		s.PopLayer(7);
-		s.PopLayer();
-		s.Te();
 
 		TRIGGER_BREAKPOINT;
 
