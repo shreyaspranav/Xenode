@@ -23,11 +23,14 @@ project "Xenode"
 		"src/Core.h"
 	}
 
+	links { "GLFW" }
+
 	includedirs {
 		"src/",
 		"src/pch/",
 
-		"%{IncludeDir.spdlog}"
+		"%{IncludeDir.spdlog}",
+		"%{IncludeDir.GLFW}",
 	}
 
 	cppdialect "C++20"

@@ -7,10 +7,11 @@ workspace "Xenode"
 	startproject "SandboxApp"
 
 -- dependencies:
---include "Xenode/deps/glfw"
+include "Xenode/deps/glfw"
 
 IncludeDir = {}
 IncludeDir["spdlog"] = "%{wks.location}/Xenode/deps/spdlog/include"
+IncludeDir["GLFW"] = "%{wks.location}/Xenode/deps/glfw/include"
 
 -- Main projects:
 
