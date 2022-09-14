@@ -45,6 +45,8 @@ project "SandboxApp"
 
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXEC" }
 
+		links { "pthread", "dl" } -- IMP: GLFW fails to link without these
+
 	filter "configurations:Debug"
         defines {"XEN_DEBUG", "XEN_LOG_ON"}
         symbols "On"
