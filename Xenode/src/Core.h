@@ -48,7 +48,7 @@
     #define TRIGGER_BREAKPOINT __debugbreak()
 #elif XEN_PLATFORM_LINUX
     #include <csignal>
-    #define TRIGGER_BREAKPOINT std::raise(SIGINT)
+    #define TRIGGER_BREAKPOINT std::raise(SIGTRAP)
 #endif
 
 namespace Xen {

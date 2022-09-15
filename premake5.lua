@@ -12,6 +12,21 @@ include "Xenode/deps/glfw"
 IncludeDir = {}
 IncludeDir["spdlog"] = "%{wks.location}/Xenode/deps/spdlog/include"
 IncludeDir["GLFW"] = "%{wks.location}/Xenode/deps/glfw/include"
+IncludeDir["glad"] = "%{wks.location}/Xenode/deps/glad/include"
+
+newoption {
+	trigger     = "gfxapi",
+	value       = "API",
+	description = "Choose a particular 3D API for rendering",
+	default     = "opengl",
+	allowed = {
+	   { "opengl",		"OpenGL" },
+	   { "vulkan",		"Vulkan" },
+	   { "directx",		"Direct3D (Windows only)" },
+	   { "metal",		"Metal (Macintosh only)"},
+	   { "opengles",	"OpenGL ES (Mobile platforms only)" }
+	}
+}
 
 -- Main projects:
 
