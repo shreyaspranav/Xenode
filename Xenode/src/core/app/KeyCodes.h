@@ -1,6 +1,7 @@
 #pragma once
+
 namespace Xen {
-	enum class KeyCode
+	enum KeyCode
 	{
 		KEY_SPACE = 32,
 		KEY_APOSTROPHE = 39,
@@ -101,6 +102,18 @@ namespace Xen {
 		KEY_F24 = 313,
 		KEY_F25 = 314,
 
+		KEY_LEFT_SHIFT = 340,
+		KEY_LEFT_CONTROL = 341,
+		KEY_LEFT_ALT = 342,
+		KEY_LEFT_SUPER = 343,
+		KEY_RIGHT_SHIFT = 344,
+		KEY_RIGHT_CONTROL = 345,
+		KEY_RIGHT_ALT = 346,
+		KEY_RIGHT_SUPER = 347,
+		KEY_MENU = 348,
+
+		KEY_LAST = KEY_MENU,
+
 		KEYPAD_0 = 320,
 		KEYPAD_1 = 321,
 		KEYPAD_2 = 322,
@@ -118,20 +131,10 @@ namespace Xen {
 		KEYPAD_ADD = 334,
 		KEYPAD_ENTER = 335,
 		KEYPAD_EQUAL = 336,
+	};
+	
 
-		KEY_LEFT_SHIFT = 340,
-		KEY_LEFT_CONTROL = 341,
-		KEY_LEFT_ALT = 342,
-		KEY_LEFT_SUPER = 343,
-		KEY_RIGHT_SHIFT = 344,
-		KEY_RIGHT_CONTROL = 345,
-		KEY_RIGHT_ALT = 346,
-		KEY_RIGHT_SUPER = 347,
-		KEY_MENU = 348,
-
-		KEY_LAST = KEY_MENU,
-
-
+	enum MouseKeyCode {
 		MOUSE_BUTTON_1 = 0,
 		MOUSE_BUTTON_2 = 1,
 		MOUSE_BUTTON_3 = 2,

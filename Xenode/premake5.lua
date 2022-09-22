@@ -13,8 +13,8 @@ project "Xenode"
 		"src/core/app/**.cpp",
 		"src/core/app/**.h",
 
-		"src/core/event/**.cpp",
-		"src/core/event/**.h",
+		"src/core/renderer/**.cpp",
+		"src/core/renderer/**.h",
 
 		"src/pch/pch.cpp",
 		"src/pch/pch",
@@ -67,11 +67,25 @@ project "Xenode"
 		files {
 			"src/gfxapi/OpenGL/**.cpp",
 			"src/gfxapi/OpenGL/**.h",
+
+			"src/gfxapi/window/glfw/**.cpp",
+			"src/gfxapi/window/glfw/**.h",
 		}
 
 		includedirs { "%{IncludeDir.glad}" }
 
-		defines {"XEN_USE_OPENGL_API"}
+		defines {"XEN_USE_OPENGL_API", "GLAD_GL_IMPLEMENTATION"}
+
+	filter "options:gfxapi=vulkan"
+
+		files {
+			"src/gfxapi/Vulkan/**.cpp",
+			"src/gfxapi/Vulkan/**.h",
+		}
+
+		includedirs { "%{IncludeDir.glad}" }
+
+		defines {"XEN_USE_VULKAN_API", "GLAD_VULKAN_IMPLEMENTATION"}
 
 	filter "configurations:Debug"
         defines {"XEN_DEBUG", "XEN_LOG_ON"}

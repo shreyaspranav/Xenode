@@ -23,7 +23,7 @@ newoption {
 	   { "opengl",		"OpenGL" },
 	   { "vulkan",		"Vulkan" },
 	   { "directx",		"Direct3D (Windows only)" },
-	   { "metal",		"Metal (Macintosh only)"},
+	   { "metal",		"Metal (iOS only)"},
 	   { "opengles",	"OpenGL ES (Mobile platforms only)" }
 	}
 }
