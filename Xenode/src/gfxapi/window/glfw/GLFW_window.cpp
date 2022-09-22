@@ -154,8 +154,20 @@ namespace Xen {
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();
 	}
-	void GLFW_window::SetVsync(bool enabled)
-	{
+	void GLFW_window::SetWindowResolution(uint32_t width, uint32_t height)			{ glfwSetWindowSize(m_Window, width, height); }
+	void GLFW_window::SetWindowMaxResolution(uint32_t width, uint32_t height)		{ glfwSetWindowSizeLimits(m_Window, GLFW_DONT_CARE, GLFW_DONT_CARE, width, height); }
+	void GLFW_window::SetWindowMinResolution(uint32_t width, uint32_t height)		{ glfwSetWindowSizeLimits(m_Window, width, height, GLFW_DONT_CARE, GLFW_DONT_CARE); }
+	void GLFW_window::SetWindowTitle(const std::string& title)						{ glfwSetWindowTitle(m_Window, title.c_str()); }
+	void GLFW_window::MinimizeWindow()												{ glfwIconifyWindow(m_Window); }
+	void GLFW_window::MaximizeWindow()												{ glfwMaximizeWindow(m_Window); }
 
+	void GLFW_window::ShowWindow(bool show)
+	{
+		if (show)
+			glfwShowWindow(m_Window);
+		else
+			glfwHideWindow(m_Window);
 	}
+	void GLFW_window::FocusWindow()													{ glfwFocusWindow(m_Window); }
+	void GLFW_window::SetVsync(bool enabled)										{ glfwSwapInterval(enabled); }
 }

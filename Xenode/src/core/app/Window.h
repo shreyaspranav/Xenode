@@ -27,6 +27,17 @@ namespace Xen {
 		virtual void Update() = 0;
 		virtual void Shutdown() = 0;
 
+		virtual void SetWindowResolution(uint32_t width, uint32_t height) = 0;
+		virtual void SetWindowMaxResolution(uint32_t width, uint32_t height) = 0;
+		virtual void SetWindowMinResolution(uint32_t width, uint32_t height) = 0;
+		virtual void SetWindowTitle(const std::string& title) = 0;
+
+		virtual void MinimizeWindow() = 0;
+		virtual void MaximizeWindow() = 0;
+
+		virtual void ShowWindow(bool show) = 0;
+		virtual void FocusWindow() = 0;
+
 		inline virtual void SetVsync(bool enabled) = 0;
 
 		inline virtual void* GetNativeWindow() const = 0;

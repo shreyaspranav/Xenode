@@ -31,6 +31,17 @@ namespace Xen {
 		void Update() override;
 		void Shutdown() override;
 
+		void SetWindowResolution(uint32_t width, uint32_t height) override;
+		void SetWindowMaxResolution(uint32_t width, uint32_t height) override;
+		void SetWindowMinResolution(uint32_t width, uint32_t height) override;
+		void SetWindowTitle(const std::string& title) override;
+
+		void MinimizeWindow() override;
+		void MaximizeWindow() override;
+
+		void ShowWindow(bool show) override;
+		void FocusWindow() override;
+
 		void SetVsync(bool enabled) override;
 
 		virtual void* GetNativeWindow() const override { return m_Window; }

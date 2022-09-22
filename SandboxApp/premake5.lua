@@ -15,7 +15,6 @@ project "SandboxApp"
 		"%{wks.location}/Xenode/src/core/",
 
 		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.enum}"
 	}
 
 	links { "Xenode" }
