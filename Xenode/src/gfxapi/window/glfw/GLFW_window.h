@@ -36,6 +36,9 @@ namespace Xen {
 		void SetWindowMinResolution(uint32_t width, uint32_t height) override;
 		void SetWindowTitle(const std::string& title) override;
 
+		void SetWindowIcon(const std::string& icon_path) override;
+		void SetCursorIcon(const std::string& icon_path) override;
+
 		void MinimizeWindow() override;
 		void MaximizeWindow() override;
 

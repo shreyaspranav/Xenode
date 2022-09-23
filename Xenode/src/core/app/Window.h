@@ -32,6 +32,9 @@ namespace Xen {
 		virtual void SetWindowMinResolution(uint32_t width, uint32_t height) = 0;
 		virtual void SetWindowTitle(const std::string& title) = 0;
 
+		virtual void SetWindowIcon(const std::string& icon_path) = 0;
+		virtual void SetCursorIcon(const std::string& icon_path) = 0;
+
 		virtual void MinimizeWindow() = 0;
 		virtual void MaximizeWindow() = 0;
 

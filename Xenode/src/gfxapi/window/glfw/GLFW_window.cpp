@@ -4,6 +4,9 @@
 #include <core/app/Log.h>
 #include <core/app/GameApplication.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 namespace Xen {
 	 
 	Scope<Window> Window::GetWindow(const WindowProps& props) { return std::make_unique<GLFW_window>(props); }
@@ -142,6 +145,18 @@ namespace Xen {
 				}
 			});
 		
+	}
+
+	void GLFW_window::SetWindowIcon(const std::string& icon_path)
+	{
+		GLFWimage image[1];
+		image[0].pixels = stbi_load(icon_path.c_str(), &image[0].width, &image[0].height, 0, 4);
+		glfwSetWindowIcon(m_Window, 1, image);
+	}
+
+	void GLFW_window::SetCursorIcon(const std::string& icon_path)
+	{
+
 	}
 
 	void GLFW_window::Update()

@@ -13,6 +13,7 @@ IncludeDir = {}
 IncludeDir["spdlog"] = "%{wks.location}/Xenode/deps/spdlog/include"
 IncludeDir["GLFW"] = "%{wks.location}/Xenode/deps/glfw/include"
 IncludeDir["glad"] = "%{wks.location}/Xenode/deps/glad/include"
+IncludeDir["stb"] = "%{wks.location}/Xenode/deps/stb"
 
 newoption {
 	trigger     = "gfxapi",

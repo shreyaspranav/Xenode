@@ -31,6 +31,7 @@ project "Xenode"
 
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.stb}",
 	}
 
 	cppdialect "C++20"

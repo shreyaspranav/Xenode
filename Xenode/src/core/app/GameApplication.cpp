@@ -123,6 +123,8 @@ namespace Xen {
 		window->Create();
 		window->SetupEventListeners(dispatcher);
 
+		window->SetWindowIcon("assets/icons/window_icon.png");
+
 		Scope<Input> input = Input::GetInputInterface();
 		input->SetWindow(window);
 		input->SetupInputListeners();
