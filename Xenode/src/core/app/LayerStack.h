@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Layer.h"
+#include "Core.h"
 
 namespace Xen {
 
 	using LayerVector = std::vector<Ref<Layer>>;
 
-	class LayerStack
+	class XEN_API LayerStack
 	{
 	private:
 		LayerVector stack;
@@ -25,6 +26,8 @@ namespace Xen {
 
 		void PopLayer();
 		void PopLayer(uint32_t loc);
+
+		inline uint8_t GetCount() { return m_CurrentElementCount; }
 
 		inline const LayerVector& GetLayerStack() const { return stack; }
 	};
