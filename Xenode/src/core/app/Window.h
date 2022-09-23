@@ -33,7 +33,7 @@ namespace Xen {
 		virtual void SetWindowTitle(const std::string& title) = 0;
 
 		virtual void SetWindowIcon(const std::string& icon_path) = 0;
-		virtual void SetCursorIcon(const std::string& icon_path) = 0;
+		virtual void SetCursorIcon(const std::string& icon_path, uint16_t pointer_x, uint16_t pointer_y) = 0;
 
 		virtual void MinimizeWindow() = 0;
 		virtual void MaximizeWindow() = 0;

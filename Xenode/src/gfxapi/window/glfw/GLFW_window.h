@@ -39,7 +39,7 @@ namespace Xen {
 		void SetWindowTitle(const std::string& title) override;
 
 		void SetWindowIcon(const std::string& icon_path) override;
-		void SetCursorIcon(const std::string& icon_path) override;
+		void SetCursorIcon(const std::string& icon_path, uint16_t pointer_x, uint16_t pointer_y) override;
 
 		void MinimizeWindow() override;
 		void MaximizeWindow() override;

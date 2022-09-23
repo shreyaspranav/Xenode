@@ -124,6 +124,7 @@ namespace Xen {
 		window->SetupEventListeners(dispatcher);
 
 		window->SetWindowIcon("assets/icons/window_icon.png");
+		window->SetCursorIcon("assets/icons/cursor_icon.png", 0, 0);
 
 		Scope<Input> input = Input::GetInputInterface();
 		input->SetWindow(window);

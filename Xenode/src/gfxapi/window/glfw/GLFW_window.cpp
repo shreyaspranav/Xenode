@@ -157,11 +157,11 @@ namespace Xen {
 		glfwSetWindowIcon(m_Window, 1, image);
 	}
 
-	void GLFW_window::SetCursorIcon(const std::string& icon_path)
+	void GLFW_window::SetCursorIcon(const std::string& icon_path, uint16_t pointer_x, uint16_t pointer_y)
 	{
 		GLFWimage image[1];
 		image[0].pixels = stbi_load(icon_path.c_str(), &image[0].width, &image[0].height, 0, 4);
-		m_Cursor = glfwCreateCursor(image, 0, 0);
+		m_Cursor = glfwCreateCursor(image, pointer_x, pointer_y);
 
 		glfwSetCursor(m_Window, m_Cursor);
 	}
