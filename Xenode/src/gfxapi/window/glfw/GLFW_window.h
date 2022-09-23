@@ -20,6 +20,8 @@ namespace Xen {
 	{
 	private:
 		GLFWwindow* m_Window;
+		GLFWcursor* m_Cursor;
+
 		UserPointer m_UserPointer;
 
 	public:

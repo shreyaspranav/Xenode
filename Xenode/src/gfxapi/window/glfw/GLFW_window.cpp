@@ -54,6 +54,9 @@ namespace Xen {
 		//
 		//}
 
+		m_Cursor = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+		glfwSetCursor(m_Window, m_Cursor);
+
 		XEN_ENGINE_LOG_ERROR_SEVERE("Width: {0}", modes->width);
 		XEN_ENGINE_LOG_ERROR_SEVERE("Height: {0}", modes->height);
 		XEN_ENGINE_LOG_ERROR_SEVERE("Refresh Rate: {0}", modes->refreshRate);
@@ -156,7 +159,11 @@ namespace Xen {
 
 	void GLFW_window::SetCursorIcon(const std::string& icon_path)
 	{
+		GLFWimage image[1];
+		image[0].pixels = stbi_load(icon_path.c_str(), &image[0].width, &image[0].height, 0, 4);
+		m_Cursor = glfwCreateCursor(image, 0, 0);
 
+		glfwSetCursor(m_Window, m_Cursor);
 	}
 
 	void GLFW_window::Update()
