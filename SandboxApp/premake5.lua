@@ -58,10 +58,10 @@ project "SandboxApp"
         optimize "On"
 
     filter { "configurations:Debug", "system:windows" }
-        buildoptions "/MTd"
+        buildoptions "/MDd"
 
     filter { "configurations:Release_Debug", "system:windows" }
-        buildoptions "/MT"
+        buildoptions "/MD"
 
     filter { "configurations:Production", "system:windows" }
-        buildoptions "/MT"
+        buildoptions "/MD"

@@ -89,22 +89,22 @@ project "Xenode"
 		defines {"XEN_USE_VULKAN_API", "GLAD_VULKAN_IMPLEMENTATION"}
 
 	filter "configurations:Debug"
-        defines {"XEN_DEBUG", "XEN_LOG_ON"}
-        symbols "On"
+		defines {"XEN_DEBUG", "XEN_LOG_ON"}
+		symbols "On"
 
-    filter "configurations:Release_Debug"
-        defines {"XEN_RELEASE", "XEN_LOG_ON"}
-        optimize "On"
+	filter "configurations:Release_Debug"
+		defines {"XEN_RELEASE", "XEN_LOG_ON"}
+		optimize "On"
 
-    filter "configurations:Production"
-        defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
-        optimize "On"
+	filter "configurations:Production"
+		defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
+		optimize "On"
 
-    filter { "configurations:Debug", "system:windows" }
-        buildoptions "/MDd"
-
-    filter { "configurations:Release_Debug", "system:windows" }
-        buildoptions "/MD"
-
-    filter { "configurations:Production", "system:windows" }
-        buildoptions "/MD"
+	filter { "configurations:Debug", "system:windows" }
+		buildoptions "/MDd"
+	
+	filter { "configurations:Release_Debug", "system:windows" }
+		buildoptions "/MD"
+	
+	filter { "configurations:Production", "system:windows" }
+		buildoptions "/MD"
