@@ -34,14 +34,14 @@ namespace Xen {
 		window_width = 1280;
 		window_height = 720;
 		window_title = "Xenode Application";
-		vsync = 0;
+		vsync = 1;
 
 		fullscreen_monitor = 0;
 	}
 
 	GameApplication::~GameApplication()
 	{
-		
+		delete m_Context;
 	}
 
 	void GameApplication::PushLayer(const Ref<Layer>& layer)				{ stack->PushLayer(layer); }
@@ -66,11 +66,16 @@ namespace Xen {
 			window->SetFullScreenMonitor(monitors[fullscreen_monitor - 1]);
 
 		window->SetWindowIcon("assets/icons/window_icon.png");
-		window->SetCursorIcon("assets/icons/cursor_icon.png", 14, 10);
+		//window->SetCursorIcon("assets/icons/cursor_icon.png", 14, 10);
 
 		Scope<Input> input = Input::GetInputInterface();
 		input->SetWindow(window);
 		input->SetupInputListeners();
+
+		m_Context = GraphicsContext::CreateContext(window);
+		m_Context->Init();
+
+		window->SetVsync(vsync);
 
 		OnStart();
 	}
@@ -78,6 +83,7 @@ namespace Xen {
 	{
 		OnUpdate(timestep);
 		window->Update();
+		m_Context->SwapBuffers();
 	}
 
 	void GameApplication::OnWindowMoveEvent(Event& event)

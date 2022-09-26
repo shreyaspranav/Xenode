@@ -41,20 +41,11 @@ namespace Xen {
 		m_UserPointer.monitor_count = (uint8_t)monitor_c;
 
 		glfwSetMonitorUserPointer(glfwGetPrimaryMonitor(), &m_UserPointer);
-
+		
+		glfwSwapInterval(m_UserPointer.props.vsync);
 
 		int count;
 		const GLFWvidmode* modes = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-		glfwMakeContextCurrent(m_Window);
-		glfwSwapInterval(m_UserPointer.props.vsync);
-
-		//for (int i = 0; i < count; i++) {
-		//	XEN_ENGINE_LOG_WARN("{0}: Width:{1}", i, modes[i].width);
-		//	XEN_ENGINE_LOG_WARN("{0}: Height:{1}", i, modes[i].height);
-		//	XEN_ENGINE_LOG_WARN("{0}: RefreshRate:{1}", i, modes[i].refreshRate);
-		//
-		//}
 
 		m_Cursor = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
 		glfwSetCursor(m_Window, m_Cursor);
@@ -170,7 +161,6 @@ namespace Xen {
 
 	void GLFW_window::Update()
 	{
-		glfwSwapBuffers(m_Window);
 		glfwPollEvents();
 	}
 	void GLFW_window::Shutdown()

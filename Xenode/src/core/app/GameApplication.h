@@ -6,6 +6,8 @@
 
 #include "Window.h"
 
+#include <core/renderer/GraphicsContext.h>
+
 namespace Xen {
 	class XEN_API GameApplication
 	{
@@ -14,6 +16,8 @@ namespace Xen {
 		bool is_Running;
 		Scope<LayerStack> stack;
 		Scope<Window> window;
+		GraphicsContext* m_Context;
+
 	public:
 		uint32_t window_width, window_height;
 		std::string window_title;

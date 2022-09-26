@@ -2,6 +2,8 @@ project "Xenode"
 
 	kind "SharedLib"
 	language "C++"
+	cppdialect "C++20"
+	pic "on"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/")
@@ -34,8 +36,7 @@ project "Xenode"
 		"%{IncludeDir.stb}",
 	}
 
-	cppdialect "C++20"
-	pic "on"
+	
 
 	filter "system:windows"
 
