@@ -42,10 +42,12 @@ namespace Xen {
 
 		glfwSetMonitorUserPointer(glfwGetPrimaryMonitor(), &m_UserPointer);
 
-		glfwSwapInterval(m_UserPointer.props.vsync);
 
 		int count;
 		const GLFWvidmode* modes = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+		glfwMakeContextCurrent(m_Window);
+		glfwSwapInterval(m_UserPointer.props.vsync);
 
 		//for (int i = 0; i < count; i++) {
 		//	XEN_ENGINE_LOG_WARN("{0}: Width:{1}", i, modes[i].width);

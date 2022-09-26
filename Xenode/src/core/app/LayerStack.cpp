@@ -16,7 +16,7 @@ namespace Xen {
 
 	LayerStack::~LayerStack()
 	{
-		delete[] m_Layers;
+		FreeMem();
 	}
 
 	void LayerStack::PushLayer(const Ref<Layer>& layer)
@@ -55,7 +55,7 @@ namespace Xen {
 	{
 		if (loc < 1 || loc > m_CurrentElementCount) { XEN_ENGINE_LOG_ERROR("loc is out of bounds"); TRIGGER_BREAKPOINT; }
 		
-		m_Layers[loc - 1]->OnDetach();
+		m_Layers[loc - 1]->OnDetach(); 
 
 		for (int i = loc - 1; i < m_CurrentElementCount - 1; i++)
 			m_Layers[i] = m_Layers[i + 1]; 
@@ -68,5 +68,10 @@ namespace Xen {
 	{
 		if (loc < 1 || loc > m_CurrentElementCount) { XEN_ENGINE_LOG_ERROR("loc is out of bounds"); TRIGGER_BREAKPOINT; }
 		return m_Layers[loc - 1];
+	}
+
+	void LayerStack::FreeMem() const
+	{
+		delete[] m_Layers;
 	}
 }

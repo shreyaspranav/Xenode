@@ -5,14 +5,10 @@
 
 namespace Xen {
 
-	using LayerVector = std::vector<Ref<Layer>>;
-
 	class XEN_API LayerStack
 	{
 	private:
-		LayerVector stack;
 		Ref<Layer>* m_Layers;
-
 		uint32_t m_CurrentElementCount, m_MaxSize;
 
 	public:
@@ -28,8 +24,9 @@ namespace Xen {
 		void PopLayer(uint32_t loc);
 
 		inline uint8_t GetCount() { return m_CurrentElementCount; }
+		inline void FreeMem() const;
 
-		inline const LayerVector& GetLayerStack() const { return stack; }
+		inline const Ref<Layer>* GetLayerStack() const { return m_Layers; }
 	};
 }
 

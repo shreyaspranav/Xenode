@@ -4,13 +4,21 @@
 #include "EventDispatcher.h"
 #include "LayerStack.h"
 
+#include "Window.h"
+
 namespace Xen {
 	class XEN_API GameApplication
 	{
 	private:
 		EventDispatcher dispatcher;
 		bool is_Running;
-		LayerStack stack;
+		Scope<LayerStack> stack;
+		Scope<Window> window;
+	public:
+		uint32_t window_width, window_height;
+		std::string window_title;
+		bool vsync;
+		uint8_t fullscreen_monitor;
 
 	public:
 		GameApplication();
