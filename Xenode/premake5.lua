@@ -18,6 +18,9 @@ project "Xenode"
 		"src/core/renderer/**.cpp",
 		"src/core/renderer/**.h",
 
+		"src/imgui/**.cpp",
+		"src/imgui/**.h",
+
 		"src/pch/pch.cpp",
 		"src/pch/pch",
 
@@ -25,7 +28,7 @@ project "Xenode"
 		"src/Core.h"
 	}
 
-	links { "GLFW" }
+	links { "GLFW", "ImGui" }
 
 	includedirs {
 		"src/",
@@ -34,6 +37,8 @@ project "Xenode"
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.stb}",
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glad}",
 	}
 
 	
@@ -62,32 +67,6 @@ project "Xenode"
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_SL" }
 
 		links { "pthread", "dl" } -- IMP: GLFW fails to link without these
-
-	-- Implement other graphics api loading stuff here:
-	filter "options:gfxapi=opengl"
-
-		files {
-			"src/gfxapi/OpenGL/**.cpp",
-			"src/gfxapi/OpenGL/**.h",
-
-			"src/gfxapi/window/glfw/**.cpp",
-			"src/gfxapi/window/glfw/**.h",
-		}
-
-		includedirs { "%{IncludeDir.glad}" }
-
-		defines {"XEN_USE_OPENGL_API", "GLAD_GL_IMPLEMENTATION"}
-
-	filter "options:gfxapi=vulkan"
-
-		files {
-			"src/gfxapi/Vulkan/**.cpp",
-			"src/gfxapi/Vulkan/**.h",
-		}
-
-		includedirs { "%{IncludeDir.glad}" }
-
-		defines {"XEN_USE_VULKAN_API", "GLAD_VULKAN_IMPLEMENTATION"}
 
 	filter "configurations:Debug"
 		defines {"XEN_DEBUG", "XEN_LOG_ON"}

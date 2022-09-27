@@ -5,10 +5,16 @@
 #include "LayerStack.h"
 
 #include "Window.h"
-
 #include <core/renderer/GraphicsContext.h>
 
 namespace Xen {
+
+	enum class GraphicsAPI 
+	{
+		XEN_OPENGL_API, XEN_VULKAN_API, XEN_DIRECT3D_API, XEN_METAL_API, XEN_OPENGLES_API
+	};
+
+
 	class XEN_API GameApplication
 	{
 	private:
@@ -17,6 +23,7 @@ namespace Xen {
 		Scope<LayerStack> stack;
 		Scope<Window> window;
 		GraphicsContext* m_Context;
+		inline static GraphicsAPI m_Api = GraphicsAPI::XEN_OPENGL_API;
 
 	public:
 		uint32_t window_width, window_height;
@@ -40,6 +47,8 @@ namespace Xen {
 		virtual void OnStart();
 		virtual void OnUpdate(double timestep);
 
+		void* GetNativeWindow();
+
 		// Events:
 		void OnWindowMoveEvent(Event& event);
 		void OnWindowResizeEvent(Event& event);
@@ -56,6 +65,9 @@ namespace Xen {
 		void OnMouseButtonPressEvent(Event& event);
 		void OnMouseButtonReleaseEvent(Event& event);
 		void OnMouseScrollEvent(Event& event);
+
+		static inline void SetGraphicsAPI(GraphicsAPI api) { m_Api = api; }
+		static inline GraphicsAPI GetGraphicsAPI()         { return m_Api; }
 	};
 
 	XEN_API GameApplication* CreateApplication();

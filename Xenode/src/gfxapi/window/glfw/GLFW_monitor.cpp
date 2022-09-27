@@ -4,9 +4,7 @@
 
 namespace Xen {
 
-	Ref<Monitor> Monitor::GetMonitor(uint8_t index) { return std::make_shared<GLFW_monitor>(index); }
-
-	std::vector<Ref<Monitor>> Monitor::GetAvailableMonitors()
+	std::vector<Ref<Monitor>> GLFW_monitor::GetAvailableMonitors()
 	{
 		std::vector<Ref<Monitor>> to_return;
 
@@ -31,7 +29,7 @@ namespace Xen {
 		m_CurrentMonitorVidMode = glfwGetVideoMode(m_Monitor);
 	}
 
-	uint8_t Monitor::GetMonitorCount()
+	uint8_t GLFW_monitor::GetMonitorCount()
 	{
 		int count;
 		glfwGetMonitors(&count);

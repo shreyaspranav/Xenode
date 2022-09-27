@@ -51,6 +51,7 @@ public:
 	void OnStart() override
 	{
 		PushLayer(std::make_shared<ExampleLayer>());
+		PushLayer(std::make_shared<Xen::ImGuiLayer>((GLFWwindow*)GetNativeWindow()));
 	}
 	void OnUpdate(double timestep) override
 	{

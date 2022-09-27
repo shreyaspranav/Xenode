@@ -9,7 +9,6 @@
 
 namespace Xen {
 	 
-	Scope<Window> Window::GetWindow(const WindowProps& props) { return std::make_unique<GLFW_window>(props); }
 	GLFW_window::GLFW_window(const WindowProps& props)
 	{
 		m_UserPointer.props = props;

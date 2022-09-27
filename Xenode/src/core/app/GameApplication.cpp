@@ -7,6 +7,7 @@
 #include "Timer.h"
 
 #include "File.h"
+#include <imgui/ImGuiLayer.h>
 
 namespace Xen {
 
@@ -31,10 +32,10 @@ namespace Xen {
 
 		stack = std::make_unique<LayerStack>(20);
 
-		window_width = 1280;
-		window_height = 720;
+		window_width = 1600;
+		window_height = 900;
 		window_title = "Xenode Application";
-		vsync = 1;
+		vsync = 0;
 
 		fullscreen_monitor = 0;
 	}
@@ -61,6 +62,11 @@ namespace Xen {
 		window->SetupEventListeners(dispatcher);
 
 		std::vector<Ref<Monitor>> monitors = Monitor::GetAvailableMonitors();
+		uint8_t d = Monitor::GetMonitorCount();
+		Ref<Monitor> s = Monitor::GetMonitor(2);
+
+		XEN_ENGINE_LOG_WARN("Monitor Count: {0}", d);
+		XEN_ENGINE_LOG_WARN("Second Monitor Refresh Rate: {0}", s->GetMonitorRefreshRate());
 
 		if (fullscreen_monitor != 0)
 			window->SetFullScreenMonitor(monitors[fullscreen_monitor - 1]);
@@ -77,6 +83,8 @@ namespace Xen {
 
 		window->SetVsync(vsync);
 
+		Ref<ImGuiLayer> layer = std::make_shared<ImGuiLayer>((GLFWwindow*)window->GetNativeWindow());
+
 		OnStart();
 	}
 	void GameApplication::OnUpdate(double timestep)
@@ -84,6 +92,16 @@ namespace Xen {
 		OnUpdate(timestep);
 		window->Update();
 		m_Context->SwapBuffers();
+
+		for (int i = 1; i <= stack->GetCount(); i++)
+		{
+			stack->GetLayer(i)->OnUpdate(timestep);
+		}
+	}
+
+	void* GameApplication::GetNativeWindow()
+	{
+		return window->GetNativeWindow();
 	}
 
 	void GameApplication::OnWindowMoveEvent(Event& event)
@@ -175,7 +193,12 @@ namespace Xen {
 			double b = Timer::GetTimeMS();
 			GameApplication::OnUpdate(a - b);
 			a = Timer::GetTimeMS();
-			XEN_ENGINE_LOG_INFO(a - b);
+			//XEN_ENGINE_LOG_INFO(a - b);
+		}
+
+		for (int i = 1; i <= stack->GetCount(); i++)
+		{
+			stack->GetLayer(i)->OnDetach();
 		}
 	}
 }

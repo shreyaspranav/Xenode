@@ -6,8 +6,6 @@
 
 namespace Xen {
 
-	Scope<Input> Input::GetInputInterface() { return std::make_unique<GLFW_input>(); }
-
 	void GLFW_input::SetupInputListeners() const
 	{
 		// Key Callback:------
