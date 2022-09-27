@@ -4,3 +4,6 @@
 [submodule "Xenode/deps/spdlog"]
 	path = Xenode/deps/spdlog
 	url = https://github.com/shreyaspranav/spdlog.git
+[submodule "Xenode/deps/imgui"]
+	path = Xenode/deps/imgui
+	url = https://github.com/shreyaspranav/imgui.git
