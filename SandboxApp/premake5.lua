@@ -19,7 +19,7 @@ project "SandboxApp"
 		"%{IncludeDir.ImGui}",
 	}
 
-	links { "Xenode", "ImGui" }
+	links { "Xenode" }
 
 	cppdialect "C++20"
 	pic "on"
