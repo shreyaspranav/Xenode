@@ -9,7 +9,7 @@ namespace Xen {
 	{
 	public:
 		virtual void SetNativeWindow(void* window) = 0;
-		virtual void SetWindow(const Scope<Window>& window) = 0;
+		virtual void SetWindow(const Ref<Window>& window) = 0;
 
 		virtual void SetupInputListeners() const = 0;
 

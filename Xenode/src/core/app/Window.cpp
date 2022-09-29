@@ -5,14 +5,14 @@
 #include <gfxapi/window/glfw/GLFW_window.h>
 
 namespace Xen {
-	Scope<Window> Window::GetWindow(const WindowProps& props)
+	Ref<Window> Window::GetWindow(const WindowProps& props)
 	{
 		GraphicsAPI api = GameApplication::GetGraphicsAPI();
 
 		switch (api)
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
-			return std::make_unique<GLFW_window>(props);
+			return std::make_shared<GLFW_window>(props);
 
 		case GraphicsAPI::XEN_VULKAN_API:
 			return nullptr;

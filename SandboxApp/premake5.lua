@@ -16,9 +16,10 @@ project "SandboxApp"
 
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.ImGui}",
 	}
 
-	links { "Xenode" }
+	links { "Xenode", "ImGui" }
 
 	cppdialect "C++20"
 	pic "on"

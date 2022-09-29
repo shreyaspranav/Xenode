@@ -11,7 +11,7 @@ namespace Xen {
 
 	public:
 		void SetNativeWindow(void* window) override { m_Window = (GLFWwindow*)window; }
-		void SetWindow(const Scope<Window>& window) override { m_Window = (GLFWwindow*)window->GetNativeWindow(); }
+		void SetWindow(const Ref<Window>& window) override { m_Window = (GLFWwindow*)window->GetNativeWindow(); }
 
 		void SetupInputListeners() const override;
 

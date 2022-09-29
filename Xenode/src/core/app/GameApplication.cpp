@@ -83,8 +83,9 @@ namespace Xen {
 
 		window->SetVsync(vsync);
 
-		Ref<ImGuiLayer> layer = std::make_shared<ImGuiLayer>((GLFWwindow*)window->GetNativeWindow());
-
+		//Ref<ImGuiLayer> layer = std::make_shared<ImGuiLayer>();
+		//layer->SetWindow(window);
+		//PushLayer(layer);
 		OnStart();
 	}
 	void GameApplication::OnUpdate(double timestep)

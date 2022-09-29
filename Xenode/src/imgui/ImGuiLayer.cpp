@@ -2,8 +2,8 @@
 #include "ImGuiLayer.h"
 
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 
 namespace Xen {
 	void ImGuiLayer::OnAttach()
@@ -17,7 +17,7 @@ namespace Xen {
 
 		io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans.ttf", 15);
 
-		ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
+		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)m_Window->GetNativeWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 330 core");
 	}
 	void ImGuiLayer::OnDetach()
@@ -26,6 +26,11 @@ namespace Xen {
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
+
+	void ImGuiLayer::OnImGuiUpdate()
+	{
+	}
+
 	void ImGuiLayer::OnUpdate(double timestep)
 	{
 		ImGui_ImplOpenGL3_NewFrame();

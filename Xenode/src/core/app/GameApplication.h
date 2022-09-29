@@ -21,7 +21,7 @@ namespace Xen {
 		EventDispatcher dispatcher;
 		bool is_Running;
 		Scope<LayerStack> stack;
-		Scope<Window> window;
+		Ref<Window> window;
 		GraphicsContext* m_Context;
 		inline static GraphicsAPI m_Api = GraphicsAPI::XEN_OPENGL_API;
 
@@ -48,6 +48,7 @@ namespace Xen {
 		virtual void OnUpdate(double timestep);
 
 		void* GetNativeWindow();
+		Ref<Window> GetWindow() { return window; }
 
 		// Events:
 		void OnWindowMoveEvent(Event& event);

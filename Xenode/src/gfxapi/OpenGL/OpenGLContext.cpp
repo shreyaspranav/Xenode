@@ -4,7 +4,7 @@
 #include <core/app/Log.h>
 
 namespace Xen {
-	GraphicsContext* GraphicsContext::CreateContext(const Scope<Window>& window) { return new OpenGLContext((GLFWwindow*)window->GetNativeWindow()); }
+	GraphicsContext* GraphicsContext::CreateContext(const Ref<Window>& window) { return new OpenGLContext((GLFWwindow*)window->GetNativeWindow()); }
 
 	void OpenGLContext::Init()
 	{

@@ -3,16 +3,20 @@
 #include <core/app/Layer.h>
 #include <Core.h>
 
-#include <GLFW/glfw3.h>
+#include <core/app/Window.h>
 
 namespace Xen {
 	class XEN_API ImGuiLayer : public Layer
 	{
 	private:
-		GLFWwindow* m_Window;
+		Ref<Window> m_Window;
 	public:
-		ImGuiLayer(GLFWwindow* window) : m_Window(window) {}
+		ImGuiLayer() {}
 		virtual ~ImGuiLayer() {}
+
+		void SetWindow(const Ref<Window>& window) { m_Window = window; }
+
+		virtual void OnImGuiUpdate();
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;

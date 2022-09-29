@@ -21,6 +21,12 @@ project "Xenode"
 		"src/imgui/**.cpp",
 		"src/imgui/**.h",
 
+		"src/gfxapi/OpenGL/**.cpp",
+		"src/gfxapi/OpenGL/**.h",
+
+		"src/gfxapi/window/glfw/**.cpp",
+		"src/gfxapi/OpenGL/glfw/**.h",
+
 		"src/pch/pch.cpp",
 		"src/pch/pch",
 

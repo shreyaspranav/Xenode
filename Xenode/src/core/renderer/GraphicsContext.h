@@ -10,6 +10,6 @@ namespace Xen {
 		virtual void Init() = 0;
 		virtual void SwapBuffers() = 0;
 
-		static GraphicsContext* CreateContext(const Scope<Window>& window);
+		static GraphicsContext* CreateContext(const Ref<Window>& window);
 	};
 }

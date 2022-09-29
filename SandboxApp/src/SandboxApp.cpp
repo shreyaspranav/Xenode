@@ -8,7 +8,7 @@ public:
 
 	}
 
-	~ExampleLayer()
+	virtual ~ExampleLayer()
 	{
 
 	}
@@ -50,8 +50,10 @@ public:
 	}
 	void OnStart() override
 	{
+		Xen::Ref<Xen::ImGuiLayer> layer = std::make_shared<Xen::ImGuiLayer>();
+		layer->SetWindow(GetWindow());
+		PushLayer(layer);
 		PushLayer(std::make_shared<ExampleLayer>());
-		PushLayer(std::make_shared<Xen::ImGuiLayer>((GLFWwindow*)GetNativeWindow()));
 	}
 	void OnUpdate(double timestep) override
 	{
