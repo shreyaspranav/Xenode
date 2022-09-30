@@ -1,21 +1,21 @@
 #include "pch"
-#include "Window.h"
-#include "GameApplication.h"
+#include "GraphicsContext.h"
+#include <core/app/GameApplication.h>
 
-#include <gfxapi/window/glfw/GLFW_window.h>
+#include "gfxapi/OpenGL/OpenGLContext.h"
 
 namespace Xen {
-	Ref<Window> Window::GetWindow(const WindowProps& props)
+	GraphicsContext* GraphicsContext::CreateContext(const Ref<Window>& window)
 	{
 		GraphicsAPI api = GameApplication::GetGraphicsAPI();
 
 		switch (api)
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
-			return std::make_shared<GLFW_window>(props);
+			return new OpenGLContext((GLFWwindow*)window->GetNativeWindow());
 
 		case GraphicsAPI::XEN_VULKAN_API:
-			return std::make_shared<GLFW_window>(props);
+			//return new VulkanContext(window);
 
 		case GraphicsAPI::XEN_DIRECT3D_API:
 			return nullptr;

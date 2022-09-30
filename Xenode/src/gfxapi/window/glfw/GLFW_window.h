@@ -33,6 +33,8 @@ namespace Xen {
 		void Update() override;
 		void Shutdown() override;
 
+		void SetRenderingAPI(GraphicsAPI api) override { m_UserPointer.props.api = api; }
+
 		void SetWindowResolution(uint32_t width, uint32_t height) override;
 		void SetWindowMaxResolution(uint32_t width, uint32_t height) override;
 		void SetWindowMinResolution(uint32_t width, uint32_t height) override;

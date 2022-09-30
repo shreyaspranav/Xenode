@@ -1,6 +1,6 @@
 project "Xenode"
 
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
 	cppdialect "C++20"
 	pic "on"
@@ -25,7 +25,7 @@ project "Xenode"
 		"src/gfxapi/OpenGL/**.h",
 
 		"src/gfxapi/window/glfw/**.cpp",
-		"src/gfxapi/OpenGL/glfw/**.h",
+		"src/gfxapi/window/glfw/**.h",
 
 		"src/pch/pch.cpp",
 		"src/pch/pch",
@@ -34,7 +34,12 @@ project "Xenode"
 		"src/Core.h"
 	}
 
-	links { "GLFW", "ImGui" }
+	links { 
+		"GLFW", 
+		"ImGui",
+		--"%{VULKAN_SDK_ROOT}/Lib/vulkan-1.lib",
+		--"%{VULKAN_SDK_ROOT}/Lib/VkLayer_utils.lib",
+	}
 
 	includedirs {
 		"src/",
@@ -45,6 +50,7 @@ project "Xenode"
 		"%{IncludeDir.stb}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glad}",
+		--"%{IncludeDir.VulkanSDK}",
 	}
 
 	

@@ -35,9 +35,11 @@ namespace Xen {
 		window_width = 1600;
 		window_height = 900;
 		window_title = "Xenode Application";
-		vsync = 0;
-
+		vsync = 1;
+		resizable = 0;
 		fullscreen_monitor = 0;
+
+		m_Api = GraphicsAPI::XEN_VULKAN_API;
 	}
 
 	GameApplication::~GameApplication()
@@ -56,17 +58,13 @@ namespace Xen {
 	}
 	void GameApplication::OnStart()
 	{
-		WindowProps props(window_title, window_width, window_height, vsync);
+		WindowProps props(window_title, window_width, window_height, vsync, resizable, m_Api);
 		window = Window::GetWindow(props);
 		window->Create();
 		window->SetupEventListeners(dispatcher);
 
 		std::vector<Ref<Monitor>> monitors = Monitor::GetAvailableMonitors();
 		uint8_t d = Monitor::GetMonitorCount();
-		Ref<Monitor> s = Monitor::GetMonitor(2);
-
-		XEN_ENGINE_LOG_WARN("Monitor Count: {0}", d);
-		XEN_ENGINE_LOG_WARN("Second Monitor Refresh Rate: {0}", s->GetMonitorRefreshRate());
 
 		if (fullscreen_monitor != 0)
 			window->SetFullScreenMonitor(monitors[fullscreen_monitor - 1]);
@@ -81,11 +79,14 @@ namespace Xen {
 		m_Context = GraphicsContext::CreateContext(window);
 		m_Context->Init();
 
-		window->SetVsync(vsync);
-
 		//Ref<ImGuiLayer> layer = std::make_shared<ImGuiLayer>();
 		//layer->SetWindow(window);
 		//PushLayer(layer);
+
+		//uint32_t count = 0;
+		//vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+		//XEN_ENGINE_LOG_TRACE("Vulkan Extensions supported: {0}", count);
+
 		OnStart();
 	}
 	void GameApplication::OnUpdate(double timestep)
@@ -201,5 +202,7 @@ namespace Xen {
 		{
 			stack->GetLayer(i)->OnDetach();
 		}
+
+		m_Context->DestroyContext();
 	}
 }

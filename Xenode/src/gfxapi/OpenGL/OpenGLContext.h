@@ -1,16 +1,14 @@
 #pragma once
 
-#define GLAD_GL_IMPLEMENTATION
-#include <glad/gl.h>
-
 #include <core/renderer/GraphicsContext.h>
-#include <GLFW/glfw3.h>
+
+struct GLFWwindow;
 
 namespace Xen {
 	class OpenGLContext : public GraphicsContext
 	{
 	private:
-		GLFWwindow* m_CurrentWindow;
+		GLFWwindow* m_CurrentWindow; 
 
 	public:
 		OpenGLContext(GLFWwindow* window) : m_CurrentWindow(window) {}
@@ -18,5 +16,7 @@ namespace Xen {
 
 		void Init() override;
 		void SwapBuffers() override;
+
+		void DestroyContext() override;
 	};
 }

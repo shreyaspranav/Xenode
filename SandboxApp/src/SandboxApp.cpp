@@ -50,9 +50,9 @@ public:
 	}
 	void OnStart() override
 	{
-		Xen::Ref<Xen::ImGuiLayer> layer = std::make_shared<Xen::ImGuiLayer>();
-		layer->SetWindow(GetWindow());
-		PushLayer(layer);
+		//Xen::Ref<Xen::ImGuiLayer> layer = std::make_shared<Xen::ImGuiLayer>();
+		//layer->SetWindow(GetWindow());
+		//PushLayer(layer);
 		PushLayer(std::make_shared<ExampleLayer>());
 	}
 	void OnUpdate(double timestep) override

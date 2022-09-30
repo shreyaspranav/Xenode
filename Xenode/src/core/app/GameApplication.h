@@ -9,12 +9,6 @@
 
 namespace Xen {
 
-	enum class GraphicsAPI 
-	{
-		XEN_OPENGL_API, XEN_VULKAN_API, XEN_DIRECT3D_API, XEN_METAL_API, XEN_OPENGLES_API
-	};
-
-
 	class XEN_API GameApplication
 	{
 	private:
@@ -28,7 +22,7 @@ namespace Xen {
 	public:
 		uint32_t window_width, window_height;
 		std::string window_title;
-		bool vsync;
+		bool vsync, resizable;
 		uint8_t fullscreen_monitor;
 
 	public:

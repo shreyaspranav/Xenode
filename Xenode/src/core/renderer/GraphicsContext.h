@@ -11,5 +11,6 @@ namespace Xen {
 		virtual void SwapBuffers() = 0;
 
 		static GraphicsContext* CreateContext(const Ref<Window>& window);
+		virtual void DestroyContext() = 0;
 	};
 }

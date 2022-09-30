@@ -13,7 +13,7 @@ namespace Xen {
 			return std::make_unique<GLFW_input>();
 
 		case GraphicsAPI::XEN_VULKAN_API:
-			return nullptr;
+			return std::make_unique<GLFW_input>();
 
 		case GraphicsAPI::XEN_DIRECT3D_API:
 			return nullptr;

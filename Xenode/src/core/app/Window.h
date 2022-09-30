@@ -6,15 +6,25 @@
 
 namespace Xen {
 
+	enum class GraphicsAPI
+	{
+		XEN_OPENGL_API, XEN_VULKAN_API, XEN_DIRECT3D_API, XEN_METAL_API, XEN_OPENGLES_API
+	};
+
+
 	struct WindowProps {
 		uint16_t width, height;
 		std::string title;
-		bool vsync;
+		bool vsync, resizable;
+
+		GraphicsAPI api;
 
 		WindowProps(const std::string& title = "Xenode Application",
 						uint16_t width = 1024,
 						uint16_t height = 576,
-						bool vsync = 0) : title(title), width(width), height(height), vsync(vsync)
+						bool vsync = 0, bool resizable = 1, GraphicsAPI api = GraphicsAPI::XEN_OPENGL_API) 
+						
+						: title(title), width(width), height(height), vsync(vsync), api(api), resizable(resizable)
 		{}
 	};
 
@@ -26,6 +36,8 @@ namespace Xen {
 		virtual void Create() = 0;
 		virtual void Update() = 0;
 		virtual void Shutdown() = 0;
+
+		virtual void SetRenderingAPI(GraphicsAPI api) = 0;
 
 		virtual void SetWindowResolution(uint32_t width, uint32_t height) = 0;
 		virtual void SetWindowMaxResolution(uint32_t width, uint32_t height) = 0;

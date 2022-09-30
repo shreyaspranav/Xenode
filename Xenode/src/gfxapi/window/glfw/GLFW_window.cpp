@@ -21,6 +21,17 @@ namespace Xen {
 
 	void GLFW_window::Create()
 	{
+		if (m_UserPointer.props.resizable)
+			glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+		else 
+			glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+		if (m_UserPointer.props.api == GraphicsAPI::XEN_OPENGL_API)
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+
+		else
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
 		m_Window = glfwCreateWindow(m_UserPointer.props.width, m_UserPointer.props.height, m_UserPointer.props.title.c_str(), NULL, NULL);
 
 		if (!m_Window)

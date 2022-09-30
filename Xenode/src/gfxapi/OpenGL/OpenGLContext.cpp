@@ -1,14 +1,21 @@
 #include "pch"
 #include "OpenGLContext.h"
+#include "gfxapi/window/glfw/GLFW_window.h"
 
 #include <core/app/Log.h>
 
-namespace Xen {
-	GraphicsContext* GraphicsContext::CreateContext(const Ref<Window>& window) { return new OpenGLContext((GLFWwindow*)window->GetNativeWindow()); }
+#define GLAD_GL_IMPLEMENTATION
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
 
+namespace Xen {
 	void OpenGLContext::Init()
 	{
 		glfwMakeContextCurrent(m_CurrentWindow);
+
+		UserPointer p = *(UserPointer*)glfwGetWindowUserPointer(m_CurrentWindow);
+		bool vsync = p.props.vsync;
+		glfwSwapInterval(vsync);
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -27,6 +34,12 @@ namespace Xen {
 		XEN_ENGINE_LOG_INFO("GLSL: {0}", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 	}
+
+	void OpenGLContext::DestroyContext()
+	{
+
+	}
+
 	void OpenGLContext::SwapBuffers()
 	{
 		glfwSwapBuffers(m_CurrentWindow);

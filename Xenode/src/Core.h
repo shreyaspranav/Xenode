@@ -5,7 +5,7 @@
   #ifdef XEN_BUILD_DLL
 
     #ifdef _MSC_VER
-      #define XEN_API __declspec(dllexport)
+      #define XEN_API //__declspec(dllexport)
     #else
       #error Visual Studio only accepted in Windows!
     #endif
@@ -14,7 +14,7 @@
   #ifdef XEN_BUILD_EXE
 
     #ifdef _MSC_VER
-      #define XEN_API __declspec(dllimport)
+      #define XEN_API //__declspec(dllimport)
     #else
       #error Visual Studio only accepted in Windows!
     #endif
