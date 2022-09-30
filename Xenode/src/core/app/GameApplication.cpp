@@ -39,7 +39,7 @@ namespace Xen {
 		resizable = 0;
 		fullscreen_monitor = 0;
 
-		m_Api = GraphicsAPI::XEN_VULKAN_API;
+		m_Api = GraphicsAPI::XEN_OPENGL_API;
 	}
 
 	GameApplication::~GameApplication()
