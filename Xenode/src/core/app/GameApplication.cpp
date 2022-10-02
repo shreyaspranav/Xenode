@@ -85,13 +85,6 @@ namespace Xen {
 		m_Context = GraphicsContext::CreateContext(window);
 		m_Context->Init();
 
-		FileReader fr("assets/Makefile");
-
-		while (!fr.HasNextLine())
-		{
-			XEN_ENGINE_LOG_TRACE(fr.NextLine());
-		}
-
 		m_ImGuiLayer = std::make_shared<ImGuiLayer>();
 		m_ImGuiLayer->SetWindow(window);
 		PushLayer(m_ImGuiLayer);
