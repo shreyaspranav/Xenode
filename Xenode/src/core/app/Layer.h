@@ -15,6 +15,8 @@ namespace Xen {
 		virtual void OnDetach() {}
 		virtual void OnUpdate(double timestep) {}
 
+		virtual void OnImGuiUpdate() {}
+
 		virtual void OnWindowMoveEvent(WindowMoveEvent& event) {}
 		virtual void OnWindowResizeEvent(WindowResizeEvent& event) {}
 		virtual void OnWindowCloseEvent(WindowCloseEvent& event) {}
@@ -24,6 +26,7 @@ namespace Xen {
 
 		virtual void OnKeyPressEvent(KeyPressEvent& event) {}
 		virtual void OnKeyReleaseEvent(KeyReleaseEvent& event) {}
+		virtual void OnCharEnterEvent(CharEnterEvent& event) {}
 
 		virtual void OnMouseEnterEvent(MouseEnterEvent& event) {}
 		virtual void OnMouseMoveEvent(MouseMoveEvent& event) {}

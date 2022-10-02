@@ -12,7 +12,7 @@ namespace Xen {
 		WindowMoveEvent, WindowResizeEvent, WindowCloseEvent, WindowFocusEvent, WindowMinimizeEvent, WindowMaximizeEvent,
 
 		// Keyboard Events:
-		KeyPressEvent, KeyReleaseEvent,
+		KeyPressEvent, KeyReleaseEvent, CharEnterEvent,
 
 		// Mouse Events:
 		MouseEnterEvent, MouseMoveEvent, MouseButtonPressEvent, MouseButtonReleaseEvent, MouseScrollEvent,
@@ -225,6 +225,25 @@ namespace Xen {
 		}
 	};
 
+	class CharEnterEvent : public Event
+	{
+	private:
+		uint32_t m_CharCode;
+	public:
+		CharEnterEvent(uint32_t code) : m_CharCode(code) {}
+		virtual ~CharEnterEvent() {}
+
+		uint32_t GetChar() const { return m_CharCode; }
+
+		EventType GetEventName() const override { return EventType::CharEnterEvent; }
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "CharEnter: " << m_CharCode;
+			return ss.str();
+		}
+	};
+
 	//----------------------Mouse Events:------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------
 
@@ -237,6 +256,8 @@ namespace Xen {
 	public:
 		MouseEnterEvent(bool entered) : m_IsInWindow(entered) {}
 		virtual ~MouseEnterEvent() {}
+
+		bool IsInWindow() { return m_IsInWindow; }
 
 		EventType GetEventName() const override { return EventType::MouseEnterEvent; }
 		std::string ToString() const override
@@ -257,8 +278,8 @@ namespace Xen {
 		MouseMoveEvent(uint16_t x, uint16_t y) : m_X(x), m_Y(y) {}
 		virtual ~MouseMoveEvent() {}
 
-		uint16_t GetWidth() const { return m_X; }
-		uint16_t GetHeight() const { return m_Y; }
+		uint16_t GetX() const { return m_X; }
+		uint16_t GetY() const { return m_Y; }
 
 		EventType GetEventName() const override { return EventType::MouseMoveEvent; }
 		std::string ToString() const override
@@ -302,7 +323,7 @@ namespace Xen {
 
 		MouseKeyCode GetMouseKeyCode() { return m_Code; }
 
-		EventType GetEventName() const override { return EventType::MouseButtonPressEvent; }
+		EventType GetEventName() const override { return EventType::MouseButtonReleaseEvent; }
 		std::string ToString() const override
 		{
 			std::stringstream ss;
@@ -320,6 +341,9 @@ namespace Xen {
 	public:
 		MouseScrollEvent(float xoff, float yoff) : m_XOffset(xoff), m_YOffset(yoff) {}
 		virtual ~MouseScrollEvent() {}
+
+		float GetXOffset() { return m_XOffset; }
+		float GetYOffset() { return m_YOffset; }
 
 		EventType GetEventName() const override { return EventType::MouseScrollEvent; }
 		std::string ToString() const override

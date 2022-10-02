@@ -4,6 +4,9 @@
 #include <Core.h>
 
 #include <core/app/Window.h>
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 
 namespace Xen {
 	class XEN_API ImGuiLayer : public Layer
@@ -16,11 +19,14 @@ namespace Xen {
 
 		void SetWindow(const Ref<Window>& window) { m_Window = window; }
 
-		virtual void OnImGuiUpdate();
-
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 		virtual void OnUpdate(double timestep) override;
+
+		virtual void OnImGuiUpdate() override;
+
+		void Begin();
+		void End();
 
 		virtual void OnWindowMoveEvent(WindowMoveEvent& event) override;
 		virtual void OnWindowResizeEvent(WindowResizeEvent& event) override;
@@ -31,6 +37,7 @@ namespace Xen {
 
 		virtual void OnKeyPressEvent(KeyPressEvent& event) override;
 		virtual void OnKeyReleaseEvent(KeyReleaseEvent& event) override;
+		virtual void OnCharEnterEvent(CharEnterEvent& event) override;
 
 		virtual void OnMouseEnterEvent(MouseEnterEvent& event) override;
 		virtual void OnMouseMoveEvent(MouseMoveEvent& event) override;

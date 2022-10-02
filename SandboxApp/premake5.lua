@@ -16,6 +16,7 @@ project "SandboxApp"
 
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.glad}",
 		"%{IncludeDir.ImGui}",
 	}
 

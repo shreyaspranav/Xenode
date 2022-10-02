@@ -43,6 +43,5 @@ namespace Xen {
 	void OpenGLContext::SwapBuffers()
 	{
 		glfwSwapBuffers(m_CurrentWindow);
-		glClear(GL_COLOR_BUFFER_BIT);
 	}
 }

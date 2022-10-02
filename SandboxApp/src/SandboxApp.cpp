@@ -2,10 +2,14 @@
 
 class ExampleLayer : public Xen::Layer
 {
+private:
+	bool window_handle = 1;
+	float my_color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
 public:
 	ExampleLayer()
 	{
-
+		
 	}
 
 	virtual ~ExampleLayer()
@@ -23,12 +27,15 @@ public:
 	}
 	void OnUpdate(double timestep) override
 	{
+	}
 
+	void OnImGuiUpdate() override
+	{
+		
 	}
 
 	void OnKeyPressEvent(Xen::KeyPressEvent& event) override
 	{
-		XEN_APP_LOG_WARN(event.ToString());
 	}
 };
 

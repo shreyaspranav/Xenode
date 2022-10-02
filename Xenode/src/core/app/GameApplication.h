@@ -6,6 +6,7 @@
 
 #include "Window.h"
 #include <core/renderer/GraphicsContext.h>
+#include "imgui/ImGuiLayer.h" 
 
 namespace Xen {
 
@@ -19,10 +20,12 @@ namespace Xen {
 		GraphicsContext* m_Context;
 		inline static GraphicsAPI m_Api = GraphicsAPI::XEN_OPENGL_API;
 
+		Ref<ImGuiLayer> m_ImGuiLayer;
+
 	public:
 		uint32_t window_width, window_height;
 		std::string window_title;
-		bool vsync, resizable;
+		bool vsync, resizable, imgui_render;
 		uint8_t fullscreen_monitor;
 
 	public:
@@ -54,6 +57,7 @@ namespace Xen {
 
 		void OnKeyPressEvent(Event& event);
 		void OnKeyReleaseEvent(Event& event);
+		void OnCharEnterEvent(Event& event);
 
 		void OnMouseEnterEvent(Event& event);
 		void OnMouseMoveEvent(Event& event);

@@ -9,6 +9,9 @@
 #include "File.h"
 #include <imgui/ImGuiLayer.h>
 
+// Temporary Test Files!
+#include "test/TestLayer.h"
+
 namespace Xen {
 
 	GameApplication::GameApplication()
@@ -19,10 +22,11 @@ namespace Xen {
 		dispatcher.SetEventCallbackFn(EventType::WindowCloseEvent, std::bind(&GameApplication::OnWindowCloseEvent, this, std::placeholders::_1));
 		dispatcher.SetEventCallbackFn(EventType::WindowFocusEvent, std::bind(&GameApplication::OnWindowFocusEvent, this, std::placeholders::_1));
 		dispatcher.SetEventCallbackFn(EventType::WindowMinimizeEvent, std::bind(&GameApplication::OnWindowMinimizeEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::WindowMaximizeEvent, std::bind(&GameApplication::OnWindowMaximizeEvent, this, std::placeholders::_1)); 
+		dispatcher.SetEventCallbackFn(EventType::WindowMaximizeEvent, std::bind(&GameApplication::OnWindowMaximizeEvent, this, std::placeholders::_1));
 
 		dispatcher.SetEventCallbackFn(EventType::KeyPressEvent, std::bind(&GameApplication::OnKeyPressEvent, this, std::placeholders::_1));
 		dispatcher.SetEventCallbackFn(EventType::KeyReleaseEvent, std::bind(&GameApplication::OnKeyReleaseEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::CharEnterEvent, std::bind(&GameApplication::OnCharEnterEvent, this, std::placeholders::_1));
 
 		dispatcher.SetEventCallbackFn(EventType::MouseEnterEvent, std::bind(&GameApplication::OnMouseEnterEvent, this, std::placeholders::_1));
 		dispatcher.SetEventCallbackFn(EventType::MouseMoveEvent, std::bind(&GameApplication::OnMouseMoveEvent, this, std::placeholders::_1));
@@ -36,8 +40,10 @@ namespace Xen {
 		window_height = 900;
 		window_title = "Xenode Application";
 		vsync = 1;
-		resizable = 0;
+		resizable = 1;
 		fullscreen_monitor = 0;
+
+		imgui_render = 0;
 
 		m_Api = GraphicsAPI::XEN_OPENGL_API;
 	}
@@ -47,10 +53,10 @@ namespace Xen {
 		delete m_Context;
 	}
 
-	void GameApplication::PushLayer(const Ref<Layer>& layer)				{ stack->PushLayer(layer); }
-	void GameApplication::PushLayer(const Ref<Layer>& layer, uint8_t loc)	{ stack->PushLayer(layer, loc); }
-	void GameApplication::PopLayer()										{ stack->PopLayer(); }
-	void GameApplication::PopLayer(uint8_t loc)								{ stack->PopLayer(loc); }
+	void GameApplication::PushLayer(const Ref<Layer>& layer) { stack->PushLayer(layer); }
+	void GameApplication::PushLayer(const Ref<Layer>& layer, uint8_t loc) { stack->PushLayer(layer, loc); }
+	void GameApplication::PopLayer() { stack->PopLayer(); }
+	void GameApplication::PopLayer(uint8_t loc) { stack->PopLayer(loc); }
 
 	void GameApplication::OnCreate()
 	{
@@ -70,22 +76,28 @@ namespace Xen {
 			window->SetFullScreenMonitor(monitors[fullscreen_monitor - 1]);
 
 		window->SetWindowIcon("assets/icons/window_icon.png");
-		//window->SetCursorIcon("assets/icons/cursor_icon.png", 14, 10);
+		window->SetCursorIcon("assets/icons/cursor_icon.png", 14, 10);
 
 		Scope<Input> input = Input::GetInputInterface();
 		input->SetWindow(window);
 		input->SetupInputListeners();
-
+		
 		m_Context = GraphicsContext::CreateContext(window);
 		m_Context->Init();
 
-		//Ref<ImGuiLayer> layer = std::make_shared<ImGuiLayer>();
-		//layer->SetWindow(window);
-		//PushLayer(layer);
+		FileReader fr("assets/Makefile");
 
-		//uint32_t count = 0;
-		//vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
-		//XEN_ENGINE_LOG_TRACE("Vulkan Extensions supported: {0}", count);
+		while (!fr.HasNextLine())
+		{
+			XEN_ENGINE_LOG_TRACE(fr.NextLine());
+		}
+
+		m_ImGuiLayer = std::make_shared<ImGuiLayer>();
+		m_ImGuiLayer->SetWindow(window);
+		PushLayer(m_ImGuiLayer);
+
+		Ref<Layer> testLayer = std::make_shared<TestLayer>();
+		PushLayer(testLayer);
 
 		OnStart();
 	}
@@ -93,12 +105,19 @@ namespace Xen {
 	{
 		OnUpdate(timestep);
 		window->Update();
-		m_Context->SwapBuffers();
 
 		for (int i = 1; i <= stack->GetCount(); i++)
-		{
 			stack->GetLayer(i)->OnUpdate(timestep);
+
+		if (imgui_render)
+		{
+			m_ImGuiLayer->Begin();
+			for (int i = 1; i <= stack->GetCount(); i++)
+				stack->GetLayer(i)->OnImGuiUpdate();
+			m_ImGuiLayer->End();
 		}
+
+		m_Context->SwapBuffers();
 	}
 
 	void* GameApplication::GetNativeWindow()
@@ -146,6 +165,12 @@ namespace Xen {
 	void GameApplication::OnKeyPressEvent(Event& event)
 	{
 		KeyPressEvent& evt = static_cast<KeyPressEvent&>(event);
+
+		if (evt.GetKey() == KeyCode::KEY_GRAVE_ACCENT && imgui_render == 0)
+			imgui_render = 1;
+		else if (evt.GetKey() == KeyCode::KEY_GRAVE_ACCENT && imgui_render == 1)
+			imgui_render = 0;
+
 		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnKeyPressEvent(evt); }
 	}
 
@@ -154,6 +179,13 @@ namespace Xen {
 		KeyReleaseEvent& evt = static_cast<KeyReleaseEvent&>(event);
 		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnKeyReleaseEvent(evt); }
 	}
+
+	void GameApplication::OnCharEnterEvent(Event& event)
+	{
+		CharEnterEvent& evt = static_cast<CharEnterEvent&>(event);
+		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnCharEnterEvent(evt); }
+	}
+
 	void GameApplication::OnMouseEnterEvent(Event& event)
 	{
 		MouseEnterEvent& evt = static_cast<MouseEnterEvent&>(event);

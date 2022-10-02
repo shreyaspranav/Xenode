@@ -33,6 +33,13 @@ namespace Xen {
 				}
 			});
 
+		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int char_code)
+			{
+				UserPointer pointer = *(UserPointer*)glfwGetWindowUserPointer(window);
+				CharEnterEvent e(char_code);
+				pointer.dispatcher.PostEvent(e);
+			});
+
 		// Mouse Callbacks:------
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
 			{
