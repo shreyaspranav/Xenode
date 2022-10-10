@@ -50,6 +50,7 @@ project "Xenode"
 		"%{IncludeDir.stb}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glad}",
+		"%{IncludeDir.glm}",
 		--"%{IncludeDir.VulkanSDK}",
 	}
 

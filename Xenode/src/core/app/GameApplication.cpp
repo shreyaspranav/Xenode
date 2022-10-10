@@ -6,7 +6,6 @@
 #include "Monitor.h"
 #include "Timer.h"
 
-#include "File.h"
 #include <imgui/ImGuiLayer.h>
 
 // Temporary Test Files!
@@ -76,7 +75,7 @@ namespace Xen {
 			window->SetFullScreenMonitor(monitors[fullscreen_monitor - 1]);
 
 		window->SetWindowIcon("assets/icons/window_icon.png");
-		window->SetCursorIcon("assets/icons/cursor_icon.png", 14, 10);
+		//window->SetCursorIcon("assets/icons/cursor_icon.png", 14, 10);
 
 		Scope<Input> input = Input::GetInputInterface();
 		input->SetWindow(window);
@@ -85,12 +84,12 @@ namespace Xen {
 		m_Context = GraphicsContext::CreateContext(window);
 		m_Context->Init();
 
+		Ref<Layer> testLayer = std::make_shared<TestLayer>();
+		PushLayer(testLayer);
+
 		m_ImGuiLayer = std::make_shared<ImGuiLayer>();
 		m_ImGuiLayer->SetWindow(window);
 		PushLayer(m_ImGuiLayer);
-
-		Ref<Layer> testLayer = std::make_shared<TestLayer>();
-		PushLayer(testLayer);
 
 		OnStart();
 	}
@@ -99,16 +98,10 @@ namespace Xen {
 		OnUpdate(timestep);
 		window->Update();
 
-		for (int i = 1; i <= stack->GetCount(); i++)
+		for(int i = stack->GetCount(); i >=1; i--)
 			stack->GetLayer(i)->OnUpdate(timestep);
 
-		if (imgui_render)
-		{
-			m_ImGuiLayer->Begin();
-			for (int i = 1; i <= stack->GetCount(); i++)
-				stack->GetLayer(i)->OnImGuiUpdate();
-			m_ImGuiLayer->End();
-		}
+		ImGuiRender();
 
 		m_Context->SwapBuffers();
 	}
@@ -118,41 +111,52 @@ namespace Xen {
 		return window->GetNativeWindow();
 	}
 
+	void GameApplication::ImGuiRender()
+	{
+		if (imgui_render)
+		{
+			m_ImGuiLayer->Begin();
+			for (int i = stack->GetCount(); i >= 1; i--)
+				stack->GetLayer(i)->OnImGuiUpdate();
+			m_ImGuiLayer->End();
+		}
+	}
+
 	void GameApplication::OnWindowMoveEvent(Event& event)
 	{
 		WindowMoveEvent& evt = static_cast<WindowMoveEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnWindowMoveEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowMoveEvent(evt); }
 	}
 
 	void GameApplication::OnWindowResizeEvent(Event& event)
 	{
 		WindowResizeEvent& evt = static_cast<WindowResizeEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnWindowResizeEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowResizeEvent(evt); }
 	}
 
 	void GameApplication::OnWindowCloseEvent(Event& event)
 	{
 		WindowCloseEvent& evt = static_cast<WindowCloseEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnWindowCloseEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowCloseEvent(evt); }
 		is_Running = 0;
 	}
 
 	void GameApplication::OnWindowFocusEvent(Event& event)
 	{
 		WindowFocusEvent& evt = static_cast<WindowFocusEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnWindowFocusEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowFocusEvent(evt); }
 	}
 
 	void GameApplication::OnWindowMinimizeEvent(Event& event)
 	{
 		WindowMinimizeEvent& evt = static_cast<WindowMinimizeEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnWindowMinimizeEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowMinimizeEvent(evt); }
 	}
 
 	void GameApplication::OnWindowMaximizeEvent(Event& event)
 	{
 		WindowMaximizeEvent& evt = static_cast<WindowMaximizeEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnWindowMaximizeEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowMaximizeEvent(evt); }
 	}
 
 	void GameApplication::OnKeyPressEvent(Event& event)
@@ -164,49 +168,49 @@ namespace Xen {
 		else if (evt.GetKey() == KeyCode::KEY_GRAVE_ACCENT && imgui_render == 1)
 			imgui_render = 0;
 
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnKeyPressEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnKeyPressEvent(evt); }
 	}
 
 	void GameApplication::OnKeyReleaseEvent(Event& event)
 	{
 		KeyReleaseEvent& evt = static_cast<KeyReleaseEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnKeyReleaseEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnKeyReleaseEvent(evt); }
 	}
 
 	void GameApplication::OnCharEnterEvent(Event& event)
 	{
 		CharEnterEvent& evt = static_cast<CharEnterEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnCharEnterEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnCharEnterEvent(evt); }
 	}
 
 	void GameApplication::OnMouseEnterEvent(Event& event)
 	{
 		MouseEnterEvent& evt = static_cast<MouseEnterEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnMouseEnterEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnMouseEnterEvent(evt); }
 	}
 
 	void GameApplication::OnMouseMoveEvent(Event& event)
 	{
 		MouseMoveEvent& evt = static_cast<MouseMoveEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnMouseMoveEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnMouseMoveEvent(evt); }
 	}
 
 	void GameApplication::OnMouseButtonPressEvent(Event& event)
 	{
 		MouseButtonPressEvent& evt = static_cast<MouseButtonPressEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnMouseButtonPressEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnMouseButtonPressEvent(evt); }
 	}
 
 	void GameApplication::OnMouseButtonReleaseEvent(Event& event)
 	{
 		MouseButtonReleaseEvent& evt = static_cast<MouseButtonReleaseEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnMouseButtonReleaseEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnMouseButtonReleaseEvent(evt); }
 	}
 
 	void GameApplication::OnMouseScrollEvent(Event& event)
 	{
 		MouseScrollEvent& evt = static_cast<MouseScrollEvent&>(event);
-		for (int i = 1; i <= stack->GetCount(); i++) { stack->GetLayer(i)->OnMouseScrollEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnMouseScrollEvent(evt); }
 	}
 
 
@@ -223,7 +227,7 @@ namespace Xen {
 			//XEN_ENGINE_LOG_INFO(a - b);
 		}
 
-		for (int i = 1; i <= stack->GetCount(); i++)
+		for(int i = stack->GetCount(); i >=1; i--)
 		{
 			stack->GetLayer(i)->OnDetach();
 		}

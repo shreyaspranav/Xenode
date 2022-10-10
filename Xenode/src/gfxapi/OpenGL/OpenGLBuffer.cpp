@@ -42,10 +42,10 @@ namespace Xen {
 		glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
 		glBufferSubData(GL_ARRAY_BUFFER, offsetCount * sizeof(float), count * sizeof(float), data);
 	}
-	inline void OpenGLFloatBuffer::Bind()					{ glBindBuffer(GL_ARRAY_BUFFER, m_BufferID); }
-	inline void OpenGLFloatBuffer::Unbind()					{ glBindBuffer(GL_ARRAY_BUFFER, 0); }
-	inline uint32_t OpenGLFloatBuffer::GetCount()			{ return m_Count; }
-	inline uint32_t OpenGLFloatBuffer::GetSize()			{ return m_Size; }
+	inline void OpenGLFloatBuffer::Bind() const				{ glBindBuffer(GL_ARRAY_BUFFER, m_BufferID); }
+	inline void OpenGLFloatBuffer::Unbind()	const			{ glBindBuffer(GL_ARRAY_BUFFER, 0); }
+	inline uint32_t OpenGLFloatBuffer::GetCount() const		{ return m_Count; }
+	inline uint32_t OpenGLFloatBuffer::GetSize() const		{ return m_Size; }
 
 	//-------OpenGLElementBuffer---------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------
@@ -55,6 +55,8 @@ namespace Xen {
 		glGenBuffers(1, &m_BufferID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Size, nullptr, GL_DYNAMIC_DRAW);
+
+		m_ActiveCount = 0;
 	}
 	OpenGLElementBuffer::~OpenGLElementBuffer()
 	{
@@ -69,7 +71,9 @@ namespace Xen {
 		}
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), data, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Size, data, GL_DYNAMIC_DRAW);
+
+		m_ActiveCount += count;
 	}
 	void OpenGLElementBuffer::Put(uint32_t offsetCount, uint32_t* data, uint32_t count)
 	{
@@ -82,10 +86,14 @@ namespace Xen {
 		}
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
-		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offsetCount * sizeof(float), count * sizeof(float), data);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offsetCount * sizeof(uint32_t), count * sizeof(uint32_t), data);
+
+		m_ActiveCount += count;
 	}
-	inline void OpenGLElementBuffer::Bind()					{ glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID); }
-	inline void OpenGLElementBuffer::Unbind()				{ glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
-	inline uint32_t OpenGLElementBuffer::GetCount()			{ return m_Count; }
-	inline uint32_t OpenGLElementBuffer::GetSize()			{ return m_Size; }
+	inline void OpenGLElementBuffer::Bind() const					{ glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID); }
+	inline void OpenGLElementBuffer::Unbind() const					{ glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
+	inline uint32_t OpenGLElementBuffer::GetCount() const			{ return m_Count; }
+	inline uint32_t OpenGLElementBuffer::GetActiveCount() const		{ return m_ActiveCount; }
+
+	inline uint32_t OpenGLElementBuffer::GetSize() const	{ return m_Size; }
 }

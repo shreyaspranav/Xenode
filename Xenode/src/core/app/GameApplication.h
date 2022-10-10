@@ -47,6 +47,8 @@ namespace Xen {
 		void* GetNativeWindow();
 		Ref<Window> GetWindow() { return window; }
 
+		void ImGuiRender();
+
 		// Events:
 		void OnWindowMoveEvent(Event& event);
 		void OnWindowResizeEvent(Event& event);

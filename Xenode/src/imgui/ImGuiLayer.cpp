@@ -25,11 +25,12 @@ namespace Xen {
 		io.Fonts->AddFontFromFileTTF("assets/fonts/sui.ttf", 16);
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-		io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport;
+		//io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport;
+		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
 
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)m_Window->GetNativeWindow(), false);
-		ImGui_ImplOpenGL3_Init("#version 330 core");
+		ImGui_ImplOpenGL3_Init("#version 460 core");
 	}
 	void ImGuiLayer::OnDetach()
 	{

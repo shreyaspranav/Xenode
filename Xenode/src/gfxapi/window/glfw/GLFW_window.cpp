@@ -57,7 +57,7 @@ namespace Xen {
 		int count;
 		const GLFWvidmode* modes = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-		m_Cursor = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+		m_Cursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 		glfwSetCursor(m_Window, m_Cursor);
 
 		XEN_ENGINE_LOG_ERROR_SEVERE("Width: {0}", modes->width);
@@ -157,6 +157,13 @@ namespace Xen {
 	{
 		GLFWimage image[1];
 		image[0].pixels = stbi_load(icon_path.c_str(), &image[0].width, &image[0].height, 0, 4);
+
+		if (image[0].pixels == NULL)
+		{
+			XEN_ENGINE_LOG_ERROR("Failed to Load Window Icon!");
+			TRIGGER_BREAKPOINT;
+		}
+
 		glfwSetWindowIcon(m_Window, 1, image);
 	}
 
@@ -164,6 +171,13 @@ namespace Xen {
 	{
 		GLFWimage image[1];
 		image[0].pixels = stbi_load(icon_path.c_str(), &image[0].width, &image[0].height, 0, 4);
+
+		if(image[0].pixels == NULL)
+		{
+			XEN_ENGINE_LOG_ERROR("Failed to Load Cursor Icon!");
+			TRIGGER_BREAKPOINT;
+		}
+
 		m_Cursor = glfwCreateCursor(image, pointer_x, pointer_y);
 
 		glfwSetCursor(m_Window, m_Cursor);
