@@ -25,7 +25,7 @@ public:
 		layout.AddBufferElement(Xen::BufferElement("Position", 0, 3, 0, Xen::BufferDataType::Float, false));
 		layout.AddBufferElement(Xen::BufferElement("Color", 1, 4, 3, Xen::BufferDataType::Float, false));
 
-		m_Shader = Xen::Shader::CreateShader("assets/shaders/vertex.shader", "assets/shaders/fragment.shader", Xen::ShaderType::Source);
+		m_Shader = Xen::Shader::CreateShader("assets/shaders/Shader.s");
 		m_Shader->LoadShader();
 		m_Shader->Bind();
 

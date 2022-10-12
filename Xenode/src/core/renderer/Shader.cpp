@@ -11,7 +11,7 @@ namespace Xen {
 		switch (GameApplication::GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
-			return nullptr;
+			return std::make_shared<OpenGLShader>(filePath);
 		case GraphicsAPI::XEN_VULKAN_API:
 			return nullptr;
 		}

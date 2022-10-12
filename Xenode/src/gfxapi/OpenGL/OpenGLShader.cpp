@@ -6,8 +6,84 @@
 #include <glad/gl.h>
 
 namespace Xen {
+
+	// Might not be that efficient!
+	// make sure that you insert a extra newline at the end of file!
+
 	OpenGLShader::OpenGLShader(const std::string& filePath)
 	{
+		std::ifstream stream;
+		stream.open(filePath);
+
+		std::stringstream vs, fs;
+		bool read_vs = 0;
+		bool read_fs = 0;
+
+		while (!stream.eof())
+		{
+			std::string s;
+			std::getline(stream, s);
+			
+
+			while (s.contains("#shadertype: "))
+			{
+				if (s.contains("#shadertype: vertex"))
+				{
+					readvs:
+					while (!read_vs)
+					{
+						std::string s1;
+						std::getline(stream, s1);
+
+						XEN_ENGINE_LOG_INFO(s1);
+
+						if (s1.contains("#shadertype: ") || stream.eof())
+						{
+							read_vs = 1;
+							if (s1.contains("#shadertype: fragment"))
+								goto readfs;
+						}
+
+						vs << s1 << "\n";
+
+					}
+					if (read_vs && read_fs)
+					{
+						s = "";
+					}
+				}
+				if (s.contains("#shadertype: fragment"))
+				{
+					readfs:
+					while (!read_fs)
+					{
+						std::string s1;
+						std::getline(stream, s1);
+
+						XEN_ENGINE_LOG_INFO(s1);
+
+						if (s1.contains("#shadertype: ") || stream.eof())
+						{
+							read_fs = 1;
+							if (s1.contains("#shadertype: vertex"))
+								goto readvs;
+						}
+
+						fs << s1 << "\n";
+
+					}
+					if (read_vs && read_fs)
+					{
+						s = "";
+					}
+				}
+			}
+		}
+
+		vertexShaderSrc = vs.str();
+		fragmentShaderSrc = fs.str();
+
+		m_ShaderID = glCreateProgram();
 	}
 	OpenGLShader::OpenGLShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath, ShaderType type)
 	{
