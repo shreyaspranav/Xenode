@@ -20,7 +20,7 @@ project "SandboxApp"
 		"%{IncludeDir.ImGui}",
 	}
 
-	links { "Xenode" }
+	links { "Xenode", "GLFW", "ImGui" }
 
 	cppdialect "C++20"
 	pic "on"
@@ -45,7 +45,7 @@ project "SandboxApp"
 			"%{wks.location}/Xenode/src/platform/linux",
 			"%{wks.location}/Xenode/src"
 		}
-
+		buildoptions "-std=gnu++2b"
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXEC" }
 
 	filter "configurations:Debug"

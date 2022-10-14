@@ -2,7 +2,7 @@ project "Xenode"
 
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++20"
+	cppdialect "C++17"
 	pic "on"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
@@ -78,7 +78,7 @@ project "Xenode"
 		}
 
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_SL" }
-
+		buildoptions "-std=gnu++2b"
 		links { "pthread", "dl" } -- IMP: GLFW fails to link without these
 
 	filter "configurations:Debug"
