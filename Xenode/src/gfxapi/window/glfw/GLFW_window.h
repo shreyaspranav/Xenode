@@ -53,19 +53,10 @@ namespace Xen {
 
 		virtual void* GetNativeWindow() const override { return m_Window; }
 
-		inline uint32_t GetWidth() const override 
-		{
-			int width;
-			glfwGetWindowSize(m_Window, &width, nullptr);
-			return (uint32_t)width;
-		}
-
-		inline uint32_t GetHeight() const override
-		{
-			int height;
-			glfwGetWindowSize(m_Window, nullptr, &height);
-			return (uint32_t)height;
-		}
+		inline uint32_t GetWidth() const override;
+		inline uint32_t GetHeight() const override;
+		inline uint32_t GetFrameBufferWidth() const override;
+		inline uint32_t GetFrameBufferHeight() const override;
 
 		void SetFullScreenMonitor(const Ref<Monitor>& monitor) override;
 		void SetWindowed() override;

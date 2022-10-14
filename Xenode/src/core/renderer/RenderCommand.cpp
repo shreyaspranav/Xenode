@@ -39,6 +39,11 @@ namespace Xen {
 		s_Api->SetClearColor(color);
 	}
 
+	void RenderCommand::OnWindowResize(uint32_t width, uint32_t height)
+	{
+		s_Api->OnWindowResize(width, height);
+	}
+
 	void RenderCommand::DrawIndexed(const Ref<VertexArray>& vertexArray)
 	{
 		s_Api->DrawIndexed(vertexArray);

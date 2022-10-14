@@ -9,6 +9,7 @@ namespace Xen {
 	public:
 		static void Clear();
 		static void SetClearColor(const Color& color);
+		static void OnWindowResize(uint32_t width, uint32_t height);
 
 		// Draw Commands:
 		static void DrawIndexed(const Ref<VertexArray>& vertexArray);

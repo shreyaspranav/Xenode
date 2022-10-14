@@ -16,7 +16,7 @@ namespace Xen {
 		EventDispatcher dispatcher;
 		bool is_Running;
 		Scope<LayerStack> stack;
-		Ref<Window> window;
+		inline static Ref<Window> window;
 		GraphicsContext* m_Context;
 		inline static GraphicsAPI m_Api = GraphicsAPI::XEN_OPENGL_API;
 
@@ -45,7 +45,7 @@ namespace Xen {
 		virtual void OnUpdate(double timestep);
 
 		void* GetNativeWindow();
-		Ref<Window> GetWindow() { return window; }
+		static Ref<Window> GetWindow() { return window; }
 
 		void ImGuiRender();
 

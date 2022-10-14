@@ -15,6 +15,10 @@ namespace Xen {
 	{
 		glClearColor(color.r, color.g, color.b, color.a);
 	}
+	void OpenGLRendererAPI::OnWindowResize(uint32_t width, uint32_t height)
+	{
+		glViewport(0, 0, width, height);
+	}
 	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray)
 	{
 		glDrawElements(GL_TRIANGLES, vertexArray->GetElementBuffer()->GetActiveCount(), GL_UNSIGNED_INT, 0);

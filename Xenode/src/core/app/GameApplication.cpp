@@ -38,7 +38,7 @@ namespace Xen {
 		window_width = 1600;
 		window_height = 900;
 		window_title = "Xenode Application";
-		vsync = 1;
+		vsync = 0;
 		resizable = 1;
 		fullscreen_monitor = 0;
 
@@ -224,7 +224,7 @@ namespace Xen {
 			double b = Timer::GetTimeMS();
 			GameApplication::OnUpdate(a - b);
 			a = Timer::GetTimeMS();
-			//XEN_ENGINE_LOG_INFO(a - b);
+			//XEN_ENGINE_LOG_INFO((1.0/(a - b)) * 1000.0);
 		}
 
 		for(int i = stack->GetCount(); i >=1; i--)

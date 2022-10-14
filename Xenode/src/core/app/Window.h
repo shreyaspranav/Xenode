@@ -59,6 +59,8 @@ namespace Xen {
 
 		inline virtual uint32_t GetWidth() const = 0;
 		inline virtual uint32_t GetHeight() const = 0;
+		inline virtual uint32_t GetFrameBufferWidth() const = 0;
+		inline virtual uint32_t GetFrameBufferHeight() const = 0;
 		inline virtual const std::string& GetTitle() const = 0;
 		inline virtual bool IsVsync() const = 0;
 

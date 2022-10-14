@@ -18,8 +18,10 @@ layout (location = 1) in vec4 aColor;
 
 out vec4 oColor;
 
+uniform mat4 u_ViewProjectionMatrix;
+
 void main()
 {
-	gl_Position = vec4(aPosition, 1.0f);
+	gl_Position = u_ViewProjectionMatrix * vec4(aPosition, 1.0f);
 	oColor = aColor;
 }

@@ -65,6 +65,7 @@ namespace Xen {
 		XEN_ENGINE_LOG_ERROR_SEVERE("Refresh Rate: {0}", modes->refreshRate);
 	}
 
+
 	void GLFW_window::SetFullScreenMonitor(const Ref<Monitor>& monitor)
 	{
 		glfwSetWindowMonitor(m_Window, (GLFWmonitor*)monitor->GetNativeMonitor(), 0, 0, m_UserPointer.props.width, m_UserPointer.props.height, GLFW_DONT_CARE);
@@ -192,6 +193,35 @@ namespace Xen {
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();
 	}
+
+	inline uint32_t GLFW_window::GetWidth() const
+	{
+		int width;
+		glfwGetWindowSize(m_Window, &width, nullptr);
+		return (uint32_t)width;
+	}
+
+	inline uint32_t GLFW_window::GetHeight() const
+	{
+		int height;
+		glfwGetWindowSize(m_Window, nullptr, &height);
+		return (uint32_t)height;
+	}
+
+	inline uint32_t GLFW_window::GetFrameBufferWidth() const
+	{
+		int width;
+		glfwGetFramebufferSize(m_Window, &width, nullptr);
+		return (uint32_t)width;
+	}
+
+	inline uint32_t GLFW_window::GetFrameBufferHeight() const
+	{
+		int height;
+		glfwGetFramebufferSize(m_Window, nullptr, &height);
+		return (uint32_t)height;
+	}
+
 	void GLFW_window::SetWindowResolution(uint32_t width, uint32_t height)			{ glfwSetWindowSize(m_Window, width, height); }
 	void GLFW_window::SetWindowMaxResolution(uint32_t width, uint32_t height)		{ glfwSetWindowSizeLimits(m_Window, GLFW_DONT_CARE, GLFW_DONT_CARE, width, height); }
 	void GLFW_window::SetWindowMinResolution(uint32_t width, uint32_t height)		{ glfwSetWindowSizeLimits(m_Window, width, height, GLFW_DONT_CARE, GLFW_DONT_CARE); }
