@@ -43,6 +43,7 @@ namespace Xen {
 		virtual void OnCreate();
 		virtual void OnStart();
 		virtual void OnUpdate(double timestep);
+		virtual void OnRender();
 
 		void* GetNativeWindow();
 		static Ref<Window> GetWindow() { return window; }
