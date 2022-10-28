@@ -21,10 +21,13 @@ namespace Xen {
 		inline Ref<FloatBuffer> GetVertexBuffer() override { return m_VertexBuffer; }
 		inline Ref<ElementBuffer> GetElementBuffer() override { return m_ElementBuffer; }
 
+		inline uint8_t GetStrideCount() override { return m_StrideCount; }
+
 	private:
 		Ref<FloatBuffer> m_VertexBuffer;
 		Ref<ElementBuffer> m_ElementBuffer;
 
 		uint32_t m_VertexArrayID;
+		uint8_t m_StrideCount;
 	};
 }

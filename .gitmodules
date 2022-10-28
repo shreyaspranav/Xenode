@@ -7,3 +7,6 @@
 [submodule "Xenode/deps/imgui"]
 	path = Xenode/deps/imgui
 	url = https://github.com/shreyaspranav/imgui.git
+[submodule "Xenode/deps/taskflow"]
+	path = Xenode/deps/taskflow
+	url = https://github.com/shreyaspranav/taskflow.git

@@ -20,20 +20,13 @@ namespace Xen {
 	}
 	void OpenGLFloatBuffer::Put(float* data, uint32_t count)
 	{
-		if (count * sizeof(float) > m_Size)
-		{
-			XEN_ENGINE_LOG_ERROR("The specified array of data is larger than specified!");
-			TRIGGER_BREAKPOINT;
-		}
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
-		glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), data, GL_DYNAMIC_DRAW);
+		OpenGLFloatBuffer::Put(0, data, count);
 	}
 	void OpenGLFloatBuffer::Put(uint32_t offsetCount, float* data, uint32_t count)
 	{
 		uint32_t available_count = m_Count - offsetCount;
 
-		if(available_count > count)
+		if(available_count < count)
 		{
 			XEN_ENGINE_LOG_ERROR("The specified array of data is larger than specified!");
 			TRIGGER_BREAKPOINT;
@@ -64,22 +57,14 @@ namespace Xen {
 	}
 	void OpenGLElementBuffer::Put(uint32_t* data, uint32_t count)
 	{
-		if (count * sizeof(float) > m_Size)
-		{
-			XEN_ENGINE_LOG_ERROR("The specified array of data is larger than specified!");
-			TRIGGER_BREAKPOINT;
-		}
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Size, data, GL_DYNAMIC_DRAW);
-
+		OpenGLElementBuffer::Put(0, data, count);
 		m_ActiveCount += count;
 	}
 	void OpenGLElementBuffer::Put(uint32_t offsetCount, uint32_t* data, uint32_t count)
 	{
 		uint32_t available_count = m_Count - offsetCount;
 
-		if (available_count > count)
+		if (available_count < count)
 		{
 			XEN_ENGINE_LOG_ERROR("The specified array of data is larger than specified!");
 			TRIGGER_BREAKPOINT;

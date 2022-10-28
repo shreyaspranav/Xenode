@@ -11,6 +11,8 @@
 #include <core/renderer/Shader.h>
 #include <core/renderer/Renderer2D.h>
 #include <core/renderer/OrthographicCamera.h>
+#include <core/renderer/Texture.h>
+#include <core/renderer/Primitives.h>
 
 class TestLayer : public Xen::Layer
 {
@@ -20,34 +22,10 @@ public:
 
 	void OnAttach() override
 	{
-		m_VertexArray = Xen::VertexArray::GetVertexArray();
-
-		Xen::BufferLayout layout;
-		layout.AddBufferElement(Xen::BufferElement("Position", 0, 3, 0, Xen::BufferDataType::Float, false));
-		layout.AddBufferElement(Xen::BufferElement("Color", 1, 4, 3, Xen::BufferDataType::Float, false));
-
-		m_Shader = Xen::Shader::CreateShader("assets/shaders/Shader.s");
-		m_Shader->LoadShader();
-		m_Shader->Bind();
-
-		m_FloatBuffer = Xen::FloatBuffer::CreateFloatBuffer(28);
-		m_FloatBuffer->Put(vertices, 28);
-		m_FloatBuffer->SetBufferLayout(layout);
-
-		m_ElementBuffer = Xen::ElementBuffer::CreateElementBuffer(6);
-		m_ElementBuffer->Put(indices, 6);
-
-		m_VertexArray->SetVertexBuffer(m_FloatBuffer);
-		m_VertexArray->SetElementBuffer(m_ElementBuffer);
-
-		m_VertexArray->Load();
-		m_ShaderID = m_Shader->GetShaderID();
-
 		m_Camera = std::make_shared<Xen::OrthographicCamera>(Xen::GameApplication::GetWindow()->GetFrameBufferWidth(), Xen::GameApplication::GetWindow()->GetFrameBufferHeight());
+		Xen::Renderer2D::Init();
 
-		Xen::GameApplication::GetWindow()->GetHeight();
-
-		XEN_ENGINE_LOG_TRACE("{0}, {1}", Xen::GameApplication::GetWindow()->GetHeight(), Xen::GameApplication::GetWindow()->GetFrameBufferHeight());
+		quad = Xen::_2D::Quad();
 		input = Xen::Input::GetInputInterface();
 		input->SetWindow(Xen::GameApplication::GetWindow());
 	}
@@ -59,39 +37,54 @@ public:
 
 	void OnUpdate(double timestep) override
 	{
+		quad.CalculateVerticesAndIndices();
 		if (input->IsKeyPressed(Xen::KeyCode::KEY_SPACE))
-			quad_scale += 1.0 * timestep;
+			cam_zoom += 1.0 * (timestep / 1.0f);
 		if (input->IsKeyPressed(Xen::KeyCode::KEY_TAB))
-			quad_scale -= 1.0 * timestep;
+			cam_zoom -= 1.0 * (timestep / 10.0f);
 		if (input->IsKeyPressed(Xen::KeyCode::KEY_1))
-			quad_rotate += 10.0 * timestep;
+			quad.scale.x += 10.0 * (timestep / 1.0f);
 		if (input->IsKeyPressed(Xen::KeyCode::KEY_2))
-			quad_rotate -= 10.0 * timestep;
+			quad.scale.x -= 10.0 * (timestep / 1.0f);
+		if (input->IsKeyPressed(Xen::KeyCode::KEY_1))
+			quad.scale.y += 10.0 * (timestep / 1.0f);
+		if (input->IsKeyPressed(Xen::KeyCode::KEY_2))
+			quad.scale.y -= 10.0 * (timestep / 1.0f);
 
 		if (input->IsKeyPressed(Xen::KeyCode::KEY_W))
-			cam_pos.y += 1.0 * timestep;
+			quad.position.y += 1.0 * (timestep / 1.0f);
 		if (input->IsKeyPressed(Xen::KeyCode::KEY_S))
-			cam_pos.y -= 1.0 * timestep;
+			quad.position.y -= 1.0 * (timestep / 1.0f);
 		if (input->IsKeyPressed(Xen::KeyCode::KEY_A))
-			cam_pos.x += 1.0 * timestep;
+			quad.position.x -= 1.0 * (timestep / 1.0f);
 		if (input->IsKeyPressed(Xen::KeyCode::KEY_D))
-			cam_pos.x -= 1.0 * timestep;
+			quad.position.x += 1.0 * (timestep / 1.0f);
 
-		m_Camera->SetScale(quad_scale);
+		if (input->IsKeyPressed(Xen::KeyCode::KEY_UP))
+			cam_pos.y += 1.0 * (timestep / 1.0f);
+		if (input->IsKeyPressed(Xen::KeyCode::KEY_DOWN))
+			cam_pos.y -= 1.0 * (timestep / 1.0f);
+		if (input->IsKeyPressed(Xen::KeyCode::KEY_LEFT))
+			cam_pos.x -= 1.0 * (timestep / 1.0f);
+		if (input->IsKeyPressed(Xen::KeyCode::KEY_RIGHT))
+			cam_pos.x += 1.0 * (timestep / 1.0f);
+
 		m_Camera->SetPosition(cam_pos);
-		m_Camera->SetRotation(quad_rotate);
-
-		m_Shader->SetMat4("u_ViewProjectionMatrix", m_Camera->GetViewProjectionMatrix());
-		m_Shader->SetFloat4("u_QuadColor", glm::vec4(color_quad[0], color_quad[1], color_quad[2], color_quad[3]));
+		m_Camera->SetScale(cam_zoom);
 		m_Camera->Update();
+		
+		Xen::Renderer2D::BeginScene(m_Camera);
 
-		m_VertexArray->Bind();
-
+		for (int i = 0; i < squares; i++)
+		{
+			for (int j = 0; j < squares; j++)
+			{
+				Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)i, (float)j, 0.0f), Xen::Vec2(square_scale), 0.0f, Xen::Color(color_quad[0] * j, color_quad[1] * i, color_quad[2], color_quad[3]));
+			}
+		}
+		
 		Xen::RenderCommand::Clear();
 		Xen::RenderCommand::SetClearColor(Xen::Color(color_bg[0], color_bg[1], color_bg[2], color_bg[3]));
-
-		Xen::Renderer2D::BeginScene();
-		Xen::Renderer2D::Submit(m_VertexArray);
 		Xen::Renderer2D::EndScene();
 	}
 
@@ -100,9 +93,19 @@ public:
 		ImGui::Begin("Color Test");
 		ImGui::ColorEdit4("Background Color", color_bg);
 		ImGui::ColorEdit4("Quad Color", color_quad);
+
+		ImGui::SliderFloat("Square Scale", &square_scale, 0.0f, 1.0f);
+		ImGui::SliderInt("No of Squares", &squares, 1, 32);
+
 		ImGui::End();
 
 		ImGui::ShowMetricsWindow();
+	}
+
+	void OnRender() override
+	{
+		Xen::Renderer2D::RenderFrame();
+
 	}
 
 	void OnWindowResizeEvent(Xen::WindowResizeEvent& evt) override
@@ -110,58 +113,19 @@ public:
 		Xen::RenderCommand::OnWindowResize(evt.GetWidth(), evt.GetHeight());
 		m_Camera->OnWindowResize(evt.GetWidth(), evt.GetHeight());
 	}
-
-	void OnKeyPressEvent(Xen::KeyPressEvent& evt) override
-	{
-		if (evt.GetKey() == Xen::KeyCode::KEY_SPACE)
-		{
-			
-		}
-	}
 private:
-	Xen::Ref<Xen::FloatBuffer> m_FloatBuffer;
-	Xen::Ref<Xen::ElementBuffer> m_ElementBuffer;
-
-	Xen::Ref<Xen::VertexArray> m_VertexArray;
-
-	Xen::Ref<Xen::Shader> m_Shader;
+	Xen::_2D::Quad quad;
 	Xen::Ref<Xen::OrthographicCamera> m_Camera;
-	uint32_t m_ShaderID;
 
-	float vertices[28] =
-	{
-		 0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top right
-		 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, // bottom right
-		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // bottom left
-		-0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f // top left 
-	};
+	Xen::Ref<Xen::Input> input;
 
-	unsigned int indices[6] = 
-	{   0, 1, 3,  // first Triangle
-		1, 2, 3   // second Triangle
-	};
+	Xen::Vec3 cam_pos;
 
-	unsigned int m_VertexArrayID;
-
-	const char* vertexShaderSource = "#version 460 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
-		"void main()\n"
-		"{\n"
-		"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-		"}\0";
-	const char* fragmentShaderSource = "#version 460 core\n"
-		"out vec4 FragColor;\n"
-		"void main()\n"
-		"{\n"
-		"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-		"}\n\0";
-
-	unsigned int shaderProgram;
 	float color_bg[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	float color_quad[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
 
-	float quad_scale = 1.0f, quad_rotate = 0.0f;
-	glm::vec3 cam_pos = glm::vec3(0.0, 0.0f, 0.0f);
+	float cam_zoom = 1.0f;
+	float square_scale = 0.6f;
 
-	Xen::Ref<Xen::Input> input;
+	int squares = 1;
 };

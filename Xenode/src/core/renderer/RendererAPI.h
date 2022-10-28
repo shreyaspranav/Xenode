@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Color.h"
+#include "Structs.h"
 #include "VertexArray.h"
 
 namespace Xen {
@@ -13,6 +13,6 @@ namespace Xen {
 			
 
 		//Draw Commands
-		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray) = 0;
+		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices) = 0;
 	};
 }

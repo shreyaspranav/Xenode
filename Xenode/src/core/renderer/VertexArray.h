@@ -18,6 +18,8 @@ namespace Xen {
 		virtual inline Ref<FloatBuffer> GetVertexBuffer() = 0;
 		virtual inline Ref<ElementBuffer> GetElementBuffer() = 0;
 
+		virtual inline uint8_t GetStrideCount() = 0;
+
 		static Ref<VertexArray> GetVertexArray();
 	};
 }

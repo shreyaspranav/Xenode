@@ -96,14 +96,9 @@ namespace Xen {
 	void GameApplication::OnUpdate(double timestep)
 	{
 		OnUpdate(timestep);
-		window->Update();
-
 		for(int i = stack->GetCount(); i >=1; i--)
 			stack->GetLayer(i)->OnUpdate(timestep);
 
-		ImGuiRender();
-
-		m_Context->SwapBuffers();
 	}
 
 	void* GameApplication::GetNativeWindow()
@@ -213,18 +208,42 @@ namespace Xen {
 		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnMouseScrollEvent(evt); }
 	}
 
+	void GameApplication::OnRender()
+	{
+		for (int i = stack->GetCount(); i >= 1; i--) { stack->GetLayer(i)->OnRender(); }
+	}
 
 	void GameApplication::Run()
 	{
+		const double S_PER_UPDATE = 0.01666666666666;
+
 		GameApplication::OnCreate();
 		GameApplication::OnStart();
 
-		double a = Timer::GetTimeMS();
+		double previous = Window::GetTime();
+		double lag = 0.0;
+
 		while (is_Running) {
-			double b = Timer::GetTimeMS();
-			GameApplication::OnUpdate(a - b);
-			a = Timer::GetTimeMS();
-			//XEN_ENGINE_LOG_INFO((1.0/(a - b)) * 1000.0);
+			double current = Window::GetTime();
+			double timestep = current - previous;
+			previous = current;
+
+			GameApplication::OnUpdate(timestep);
+			lag += timestep;
+
+			//XEN_ENGINE_LOG_INFO("FPS: {0}", (1.0 / timestep));
+
+			while (lag >= S_PER_UPDATE)
+			{
+				// Implement a OnFixedUpdate Function here
+				lag -= S_PER_UPDATE;
+			}
+			// Run this function in a different thread:
+			GameApplication::OnRender();
+			ImGuiRender();
+
+			m_Context->SwapBuffers();
+			window->Update();
 		}
 
 		for(int i = stack->GetCount(); i >=1; i--)

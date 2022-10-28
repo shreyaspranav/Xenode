@@ -19,6 +19,8 @@ IncludeDir["glad"] = "%{wks.location}/Xenode/deps/glad/include"
 IncludeDir["glm"] = "%{wks.location}/Xenode/deps/glm/include"
 IncludeDir["stb"] = "%{wks.location}/Xenode/deps/stb"
 IncludeDir["ImGui"] = "%{wks.location}/Xenode/deps/imgui"
+IncludeDir["Taskflow"] = "%{wks.location}/Xenode/deps/taskflow"
+
 --IncludeDir["VulkanSDK"] = "%{VULKAN_SDK_ROOT}/Include"
 
 -- Main projects:

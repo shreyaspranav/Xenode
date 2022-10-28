@@ -14,6 +14,6 @@ namespace Xen {
 		void OnWindowResize(uint32_t width, uint32_t height) override;
 
 		//Draw Commands
-		void DrawIndexed(const Ref<VertexArray>& vertexArray) override;
+		void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices) override;
 	};
 }

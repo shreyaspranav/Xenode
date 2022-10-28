@@ -44,8 +44,8 @@ namespace Xen {
 		s_Api->OnWindowResize(width, height);
 	}
 
-	void RenderCommand::DrawIndexed(const Ref<VertexArray>& vertexArray)
+	void RenderCommand::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices)
 	{
-		s_Api->DrawIndexed(vertexArray);
+		s_Api->DrawIndexed(vertexArray, indices);
 	}
 }

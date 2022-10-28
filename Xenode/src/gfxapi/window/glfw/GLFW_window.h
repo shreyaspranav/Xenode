@@ -65,6 +65,8 @@ namespace Xen {
 		inline bool IsVsync() const override { return m_UserPointer.props.vsync; }
 
 		void SetupEventListeners(const EventDispatcher& dispacher) override;
+
+		static double GetTime();
 	};
 
 }

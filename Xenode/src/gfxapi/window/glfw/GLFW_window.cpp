@@ -27,7 +27,12 @@ namespace Xen {
 			glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		if (m_UserPointer.props.api == GraphicsAPI::XEN_OPENGL_API)
+		{
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+			#ifdef XEN_DEBUG
+				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+			#endif // XEN_DEBUG
+		}
 
 		else
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -238,4 +243,6 @@ namespace Xen {
 	}
 	void GLFW_window::FocusWindow()													{ glfwFocusWindow(m_Window); }
 	void GLFW_window::SetVsync(bool enabled)										{ glfwSwapInterval(enabled); }
+
+	double GLFW_window::GetTime()													{ return glfwGetTime(); }
 }

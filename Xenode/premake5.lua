@@ -2,7 +2,7 @@ project "Xenode"
 
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	pic "on"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
@@ -51,6 +51,8 @@ project "Xenode"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glad}",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.Taskflow}",
+		
 		--"%{IncludeDir.VulkanSDK}",
 	}
 

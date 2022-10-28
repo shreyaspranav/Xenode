@@ -12,7 +12,7 @@ namespace Xen {
 		static void OnWindowResize(uint32_t width, uint32_t height);
 
 		// Draw Commands:
-		static void DrawIndexed(const Ref<VertexArray>& vertexArray);
+		static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices = 0);
 
 	private:
 		static Scope<RendererAPI> GetRendererAPI();

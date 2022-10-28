@@ -8,6 +8,8 @@ namespace Xen {
 	{
 		glCreateVertexArrays(1, &m_VertexArrayID);
 		glBindVertexArray(m_VertexArrayID);
+
+		m_StrideCount = 0;
 	}
 	OpenGLVertexArray::~OpenGLVertexArray()
 	{
@@ -26,10 +28,8 @@ namespace Xen {
 		BufferLayout layout = m_VertexBuffer->GetBufferLayout();
 		std::vector<BufferElement> buffer_elements = layout.GetBufferElements();
 
-		uint8_t stride_count = 0;
-
 		for (const BufferElement& element : buffer_elements)
-			stride_count += element.count_per_vertex;
+			m_StrideCount += element.count_per_vertex;
 
 		m_VertexBuffer->Bind();
 		m_ElementBuffer->Bind();
@@ -42,7 +42,7 @@ namespace Xen {
 				glVertexAttribPointer(element.shader_location,
 					element.count_per_vertex, GL_FLOAT,
 					element.normalized ? GL_TRUE : GL_FALSE,
-					stride_count * sizeof(float),
+					m_StrideCount * sizeof(float),
 					(const void*)(element.offset_count * sizeof(float)));
 				break;
 
@@ -50,7 +50,7 @@ namespace Xen {
 				glVertexAttribPointer(element.shader_location,
 					element.count_per_vertex, GL_INT,
 					element.normalized ? GL_TRUE : GL_FALSE,
-					stride_count * sizeof(int),
+					m_StrideCount * sizeof(int),
 					(const void*)(element.offset_count * sizeof(int)));
 				break;
 			
@@ -58,7 +58,7 @@ namespace Xen {
 				glVertexAttribPointer(element.shader_location,
 					element.count_per_vertex, GL_UNSIGNED_INT,
 					element.normalized ? GL_TRUE : GL_FALSE,
-					stride_count * sizeof(unsigned int),
+					m_StrideCount * sizeof(unsigned int),
 					(const void*)(element.offset_count * sizeof(unsigned int)));
 				break;
 			}

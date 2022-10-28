@@ -19,8 +19,12 @@ namespace Xen {
 	{
 		glViewport(0, 0, width, height);
 	}
-	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray)
+	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices)
 	{
-		glDrawElements(GL_TRIANGLES, vertexArray->GetElementBuffer()->GetActiveCount(), GL_UNSIGNED_INT, 0);
+		//XEN_ENGINE_LOG_ERROR(glGetError());
+		if(indices == 0)
+			glDrawElements(GL_TRIANGLES, vertexArray->GetElementBuffer()->GetActiveCount(), GL_UNSIGNED_INT, 0);
+		else
+			glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, 0);
 	}
 }

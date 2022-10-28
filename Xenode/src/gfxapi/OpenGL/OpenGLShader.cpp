@@ -194,7 +194,7 @@ namespace Xen {
 		m_Uniforms[name] = location;
 		glUniform1f(m_Uniforms[name], value);
 	}
-	void OpenGLShader::SetFloat2(const std::string& name, const glm::vec2& value) 
+	void OpenGLShader::SetFloat2(const std::string& name, const Vec2& value) 
 	{
 		if (m_Uniforms.contains(name))
 		{
@@ -209,7 +209,7 @@ namespace Xen {
 		m_Uniforms[name] = location;
 		glUniform2f(m_Uniforms[name], value.x, value.y);
 	}
-	void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value) 
+	void OpenGLShader::SetFloat3(const std::string& name, const Vec3& value) 
 	{
 		if (m_Uniforms.contains(name))
 		{
@@ -224,7 +224,7 @@ namespace Xen {
 		m_Uniforms[name] = location;
 		glUniform3f(m_Uniforms[name], value.x, value.y, value.z);
 	}
-	void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value) 
+	void OpenGLShader::SetFloat4(const std::string& name, const Vec4& value) 
 	{
 		if (m_Uniforms.contains(name))
 		{
@@ -240,6 +240,22 @@ namespace Xen {
 		glUniform4f(m_Uniforms[name], value.x, value.y, value.z, value.w);
 	}
 
+	void OpenGLShader::SetIntArray(const std::string& name, int* array, uint32_t count)
+	{
+		if (m_Uniforms.contains(name))
+		{
+			glUniform1iv(m_Uniforms[name], count, array);
+			return;
+		}
+
+		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		if (location == -1)
+			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
+
+		m_Uniforms[name] = location;
+		glUniform1iv(m_Uniforms[name], count, array);
+
+	}
 	void OpenGLShader::SetInt(const std::string& name, int value) 
 	{
 		if (m_Uniforms.contains(name))
@@ -255,11 +271,11 @@ namespace Xen {
 		m_Uniforms[name] = location;
 		glUniform1i(m_Uniforms[name], value);
 	}
-	void OpenGLShader::SetInt2(const std::string& name, const glm::vec2& value) 
+	void OpenGLShader::SetInt2(const std::string& name, const Vec2& value) 
 	{
 		if (m_Uniforms.contains(name))
 		{
-			glUniform2i(m_Uniforms[name], value.x, value.y);
+			glUniform2i(m_Uniforms[name], (int)value.x, (int)value.y);
 			return;
 		}
 
@@ -268,13 +284,13 @@ namespace Xen {
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
 		m_Uniforms[name] = location;
-		glUniform2i(m_Uniforms[name], value.x, value.y);
+		glUniform2i(m_Uniforms[name], (int)value.x, (int)value.y);
 	}
-	void OpenGLShader::SetInt3(const std::string& name, const glm::vec3& value) 
+	void OpenGLShader::SetInt3(const std::string& name, const Vec3& value) 
 	{
 		if (m_Uniforms.contains(name))
 		{
-			glUniform3i(m_Uniforms[name], value.x, value.y, value.z);
+			glUniform3i(m_Uniforms[name], (int)value.x, (int)value.y, (int)value.z);
 			return;
 		}
 
@@ -283,13 +299,13 @@ namespace Xen {
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
 		m_Uniforms[name] = location;
-		glUniform3i(m_Uniforms[name], value.x, value.y, value.z);
+		glUniform3i(m_Uniforms[name], (int)value.x, (int)value.y, (int)value.z);
 	}
-	void OpenGLShader::SetInt4(const std::string& name, const glm::vec4& value) 
+	void OpenGLShader::SetInt4(const std::string& name, const Vec4& value) 
 	{
 		if (m_Uniforms.contains(name))
 		{
-			glUniform4i(m_Uniforms[name], value.x, value.y, value.z, value.w);
+			glUniform4i(m_Uniforms[name], (int)value.x, (int)value.y, (int)value.z, (int)value.w);
 			return;
 		}
 
@@ -298,7 +314,7 @@ namespace Xen {
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
 		m_Uniforms[name] = location;
-		glUniform4i(m_Uniforms[name], value.x, value.y, value.z, value.w);
+		glUniform4i(m_Uniforms[name], (int)value.x, (int)value.y, (int)value.z, (int)value.w);
 	}
 
 	void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value) 

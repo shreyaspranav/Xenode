@@ -3,6 +3,8 @@
 #include <Core.h>
 #include <glm/glm.hpp>
 
+#include "Structs.h"
+
 namespace Xen {
 	class XEN_API OrthographicCamera
 	{
@@ -10,9 +12,9 @@ namespace Xen {
 		OrthographicCamera(uint32_t framebuffer_width, uint32_t framebuffer_height);
 		~OrthographicCamera();
 
-		inline void SetPosition(const glm::vec3& postion)		{ m_CameraPosition = postion; }
+		inline void SetPosition(const Vec3& postion)			{ m_CameraPosition = postion; }
 		inline void SetRotation(float rotation)					{ m_RotationZ = rotation; m_Rotation.z = rotation; }
-		inline void SetRotation(const glm::vec3& rotation)		{ m_Rotation = rotation; }
+		inline void SetRotation(const Vec3& rotation)			{ m_Rotation = rotation; }
 
 		inline void SetScale(float scale)						{ m_CameraScale = scale; }
 
@@ -30,8 +32,8 @@ namespace Xen {
 		glm::mat4 m_ViewMatrix;
 		glm::mat4 m_ViewProjectionMatrix;
 
-		glm::vec3 m_CameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-		glm::vec3 m_Rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+		Vec3 m_CameraPosition;
+		Vec3 m_Rotation;
 		float m_RotationZ = 0.0f, m_CameraScale = 1.0f;
 	};
 }

@@ -16,14 +16,16 @@ namespace Xen {
 		inline uint32_t GetShaderID() override { return m_ShaderID; }
 
 		void SetFloat(const std::string& name, float value) override;
-		void SetFloat2(const std::string& name, const glm::vec2& value) override;
-		void SetFloat3(const std::string& name, const glm::vec3& value) override;
-		void SetFloat4(const std::string& name, const glm::vec4& value) override;
+		void SetFloat2(const std::string& name, const Vec2& value) override;
+		void SetFloat3(const std::string& name, const Vec3& value) override;
+		void SetFloat4(const std::string& name, const Vec4& value) override;
+
+		void SetIntArray(const std::string& name, int* array, uint32_t count) override;
 
 		void SetInt(const std::string& name, int value) override;
-		void SetInt2(const std::string& name, const glm::vec2& value) override;
-		void SetInt3(const std::string& name, const glm::vec3& value) override;
-		void SetInt4(const std::string& name, const glm::vec4& value) override;
+		void SetInt2(const std::string& name, const Vec2& value) override;
+		void SetInt3(const std::string& name, const Vec3& value) override;
+		void SetInt4(const std::string& name, const Vec4& value) override;
 
 		void SetMat4(const std::string& name, const glm::mat4& value) override;
 
