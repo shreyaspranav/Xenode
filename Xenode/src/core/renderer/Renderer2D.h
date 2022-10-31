@@ -23,7 +23,15 @@ namespace Xen {
 		static void Submit(Ref<VertexArray> vertexArray);
 		static void Submit(_2D::Quad& quad);
 
-		static void DrawClearQuad(const Vec3& position, const Vec2& scale = Vec2(1.0f, 1.0f), float rotation = 0.0f, const Color& color = Color());
-
+		// Draw Functions:
+		static void DrawClearQuad(const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f), const Color& color = Color());
+		static void DrawClearQuad(const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f), const Color* color = nullptr);
+		
+		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f), const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f);
+		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const float* tex_coords, const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f), const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f);
+	
+	private:
+		static void AddQuad(const Vec3& position, float rotation, const Vec2& scale);
 	};
+
 }

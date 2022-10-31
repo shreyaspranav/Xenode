@@ -7,6 +7,7 @@
 #include "Buffer.h"
 #include "OrthographicCamera.h"
 #include "Shader.h"
+#include "Texture.h"
 
 namespace Xen {
 

@@ -76,7 +76,7 @@ namespace Xen {
 
 				glEnable(GL_DEBUG_OUTPUT);
 				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-				glDebugMessageCallback(DebugOutput, nullptr);
+				glDebugMessageCallback(&DebugOutput, nullptr);
 
 				glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 			}
@@ -93,6 +93,11 @@ namespace Xen {
 		int data;
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &data);
 		XEN_ENGINE_LOG_INFO("Texture Slots: {0}", data);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glEnable(GL_DEPTH_TEST);
 
 	}
 

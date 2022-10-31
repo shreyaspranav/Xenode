@@ -6,7 +6,6 @@ namespace Xen {
 	private:
 		std::string m_FilePath;
 		uint32_t m_TextureID;
-		uint8_t m_TextureSlot;
 
 		uint32_t m_Width, m_Height;
 		uint8_t m_Channels;
@@ -17,7 +16,9 @@ namespace Xen {
 		uint8_t* m_TextureData;
 
 	public:
-		OpenGLTexture(const std::string& textureFilePath, uint8_t texture_slot, bool flip_on_load);
+		OpenGLTexture(const std::string& textureFilePath, bool flip_on_load);
+		OpenGLTexture(uint32_t width, uint32_t height, void* data, uint32_t size);
+
 		virtual ~OpenGLTexture();
 
 		void LoadTexture() override;
@@ -25,12 +26,16 @@ namespace Xen {
 		void SetTextureWrapMode(TextureWrapMode mode) override;
 		void SetTextureFilterMode(TextureFilterMode mode) override;
 
+		inline uint32_t GetNativeTextureID() const override { return m_TextureID; }
+
 		inline uint32_t GetWidth() const override		{ return m_Width; }
 		inline uint32_t GetHeight() const override		{ return m_Height; }
 
 		inline uint8_t GetChannelCount() const override { return m_Channels; }
 
-		void Bind() const override;
+		void Bind(uint8_t slot) const override;
+
+		bool operator==(const Ref<Texture2D> texture) const override { return texture->GetNativeTextureID() == m_TextureID ? true : false; }
 
 	public:
 		bool store_in_cpu_mem = 0;

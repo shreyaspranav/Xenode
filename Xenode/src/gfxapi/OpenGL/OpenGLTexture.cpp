@@ -7,9 +7,10 @@
 #include <glad/gl.h>
 
 namespace Xen {
-	OpenGLTexture::OpenGLTexture(const std::string& textureFilePath, uint8_t texture_slot, bool flip_on_load) : m_TextureSlot(texture_slot), m_FilePath(textureFilePath)
+	OpenGLTexture::OpenGLTexture(const std::string& textureFilePath, bool flip_on_load) : m_FilePath(textureFilePath)
 	{
 		int width, height, channels;
+		stbi_set_flip_vertically_on_load((int)flip_on_load);
 		m_TextureData = stbi_load(textureFilePath.c_str(), &width, &height, &channels, 0);
 
 		if (m_TextureData == NULL)
@@ -23,8 +24,22 @@ namespace Xen {
 		m_Channels = channels;
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
-		glTextureStorage2D(m_TextureID, 1, GL_RGB8, m_Width, m_Height);
+		glTextureStorage2D(m_TextureID, 1, GL_RGBA8, m_Width, m_Height);
 	}
+
+	OpenGLTexture::OpenGLTexture(uint32_t width, uint32_t height, void* data, uint32_t size)
+	{
+		m_Width = width;
+		m_Height = height;
+		m_Channels = 4;
+		//m_TextureData = (uint8_t*)data;  // Dangerous?
+
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
+		glTextureStorage2D(m_TextureID, 1, GL_RGBA8, m_Width, m_Height);
+		glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)data);
+
+	}
+
 	OpenGLTexture::~OpenGLTexture()
 	{
 		glDeleteTextures(1, &m_TextureID);
@@ -73,9 +88,9 @@ namespace Xen {
 			}
 
 		}
-
+		
 		if(m_Channels == 4)
-			glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, GL_RED, GL_UNSIGNED_BYTE, (const void*)m_TextureData);
+			glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)m_TextureData);
 		else if (m_Channels == 3)
 			glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, GL_RGB, GL_UNSIGNED_BYTE, (const void*)m_TextureData);
 
@@ -91,8 +106,8 @@ namespace Xen {
 		m_T_FilterMode = mode;
 	}
 
-	void OpenGLTexture::Bind() const
+	void OpenGLTexture::Bind(uint8_t slot) const
 	{
-		glBindTextureUnit(m_TextureSlot, m_TextureID);
+		glBindTextureUnit(slot, m_TextureID);
 	}
 }
