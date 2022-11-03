@@ -84,9 +84,6 @@ namespace Xen {
 		m_Context = GraphicsContext::CreateContext(window);
 		m_Context->Init();
 
-		Ref<Layer> testLayer = std::make_shared<TestLayer>();
-		PushLayer(testLayer);
-
 		m_ImGuiLayer = std::make_shared<ImGuiLayer>();
 		m_ImGuiLayer->SetWindow(window);
 		PushLayer(m_ImGuiLayer);

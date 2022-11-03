@@ -1,7 +1,7 @@
 #shadertype: fragment
 #version 460 core
 in vec4 color;
-in float TexSlot;
+flat in float TexSlot;
 in vec2 TextureCoords;
 
 out vec4 fragColor;
@@ -24,7 +24,7 @@ layout (location = 3) in float aTexSlot;
 
 out vec4 color;
 out vec2 TextureCoords;
-out float TexSlot;
+flat out float TexSlot; // 'flat' To avoid Texture Flickering
 
 uniform mat4 u_ViewProjectionMatrix;
 

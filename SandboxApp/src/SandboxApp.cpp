@@ -1,5 +1,7 @@
 #include <Xenode.h>
 
+#include "Test.h"
+
 class ExampleLayer : public Xen::Layer
 {
 private:
@@ -61,6 +63,8 @@ public:
 		//layer->SetWindow(GetWindow());
 		//PushLayer(layer);
 		PushLayer(std::make_shared<ExampleLayer>());
+		Xen::Ref<Xen::Layer> testLayer = std::make_shared<TestLayer>();
+		PushLayer(testLayer);
 	}
 	void OnUpdate(double timestep) override
 	{

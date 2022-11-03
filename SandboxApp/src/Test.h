@@ -41,7 +41,7 @@ public:
 			textures.push_back(Xen::Texture2D::CreateTexture2D("assets/textures/opengl.png", 1));
 			textures[i]->LoadTexture();
 		}
-		
+
 	}
 
 	void OnDetach() override
@@ -95,7 +95,7 @@ public:
 				Xen::Renderer2D::DrawTexturedQuad(textures[i], Xen::Vec3((float)i * 3.0f, (float)j, 0.0f), a, Xen::Vec2(square_scale, 1.0f), Xen::Color(color_quad[0] * j, color_quad[1] * i, color_quad[2], color_quad[3]));
 			}
 		}
-		
+
 		Xen::RenderCommand::Clear();
 		Xen::RenderCommand::SetClearColor(Xen::Color(color_bg[0], color_bg[1], color_bg[2], color_bg[3]));
 		Xen::Renderer2D::EndScene();

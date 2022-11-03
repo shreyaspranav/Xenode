@@ -18,7 +18,7 @@ project "SandboxApp"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.glad}",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.Taskflow}",
+		"%{IncludeDir.glm}",
 	}
 
 	links { "Xenode", "GLFW", "ImGui" }

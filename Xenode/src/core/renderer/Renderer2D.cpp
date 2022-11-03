@@ -7,11 +7,26 @@ namespace Xen {
 
 	SceneData Renderer2D::s_Data;
 
-	uint32_t max_quads = 1000;
+	uint32_t max_quads_per_batch = 10000;
 	uint8_t max_texture_slots = 32; // TODO: Automate this
 
 	uint32_t default_quad_indices[6] = { 0, 1, 2, 0, 2, 3 };
 	uint32_t current_quad_index;
+
+	uint32_t batch_index = 0;
+
+	uint32_t data = 0xffffffff;
+	Ref<Texture2D> white_texture;
+
+	uint32_t batches_allocated = 1;
+
+	glm::vec4 temp_vert[4] =
+	{
+		glm::vec4(0.5f,  0.5f, 0.0f, 1.0f),
+		glm::vec4(-0.5f,  0.5f, 0.0f, 1.0f),
+		glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f),
+		glm::vec4(0.5f, -0.5f, 0.0f, 1.0f),
+	};
 
 	struct Renderer2DStorage
 	{
@@ -19,41 +34,35 @@ namespace Xen {
 		uint32_t* quad_indices;
 		uint32_t quad_index;
 
-		int* texture_slots;
 		std::vector<Ref<Texture2D>> textures;
-
 		uint8_t texture_slot_index;
-
-		Ref<Texture2D> white_texture;
 
 		Renderer2DStorage()
 		{
-			uint32_t data = 0xffffffff;
-			white_texture = Texture2D::CreateTexture2D(1, 1, &data, sizeof(uint32_t));
-
-			quad_verts = new float[max_quads * 40];
-			quad_indices = new uint32_t[max_quads * 6];
+			quad_verts = new float[max_quads_per_batch * 40];
+			quad_indices = new uint32_t[max_quads_per_batch * 6];
 
 			quad_index = 0;
 
-			texture_slots = new int[max_texture_slots];
+			texture_slot_index = 1;
 		}
 
 		~Renderer2DStorage()
 		{
-			//delete[] quads;
-
 			delete[] quad_verts;
 			delete[] quad_indices;
-			delete[] texture_slots;
 		}
 	};
 
-	static Scope<Renderer2DStorage> storage;
+	int texture_slots[32];
+
+	static std::vector<Ref<Renderer2DStorage>> batch_storage;
+
+	Renderer2D::Renderer2DStatistics stats;
 
 	void Renderer2D::Init()
 	{
-		storage = std::make_unique<Renderer2DStorage>();
+		white_texture =  Texture2D::CreateTexture2D(1, 1, &data, sizeof(uint32_t));
 
 		s_Data.shader = Xen::Shader::CreateShader("assets/shaders/Shader.s");
 		s_Data.shader->LoadShader();
@@ -69,9 +78,9 @@ namespace Xen {
 		bufferLayout.AddBufferElement(BufferElement("texture_coordinates", 2, 2, 7, BufferDataType::Float, false));
 		bufferLayout.AddBufferElement(BufferElement("texture_ID", 3, 1, 9, BufferDataType::Float, false));
 
-		s_Data.vertexBuffer = Xen::FloatBuffer::CreateFloatBuffer(max_quads * 40);
+		s_Data.vertexBuffer = Xen::FloatBuffer::CreateFloatBuffer(max_quads_per_batch * 40);
 		s_Data.vertexBuffer->SetBufferLayout(bufferLayout);
-		s_Data.indexBuffer = Xen::ElementBuffer::CreateElementBuffer(max_quads * 6);
+		s_Data.indexBuffer = Xen::ElementBuffer::CreateElementBuffer(max_quads_per_batch * 6);
 
 		s_Data.vertexArray->SetVertexBuffer(s_Data.vertexBuffer);
 		s_Data.vertexArray->SetElementBuffer(s_Data.indexBuffer);
@@ -81,14 +90,14 @@ namespace Xen {
 		s_Data.vertexArray->Bind();
 		s_Data.shader->Bind();
 
-		storage->textures.push_back(storage->white_texture);
+		batch_storage.push_back(std::make_shared<Renderer2DStorage>());
+		batch_storage[0]->textures.push_back(white_texture);
 
-		//storage->textures[0]->Bind(0); //Bind White Texture to 0th slot
-
-		// Set all Texture Slots to 0
 		for (int i = 0; i < max_texture_slots; i++)
-			storage->texture_slots[i] = i;
+			texture_slots[i] = i;
 
+		stats.vertex_buffer_size = s_Data.vertexBuffer->GetSize();
+		stats.index_buffer_size = s_Data.indexBuffer->GetSize();
 
 	}
 
@@ -104,77 +113,91 @@ namespace Xen {
 	{
 		s_Data.camera = camera;
 
-		storage->quad_index = 0;
-		storage->texture_slot_index = 1;
+		for (int i = 0; i < batch_index + 1; i++)
+		{
+			batch_storage[i]->quad_index = 0;
+			batch_storage[i]->texture_slot_index = 1;
+		}
+		batch_index = 0;
+		memset(&stats, 0, sizeof(Renderer2D::Renderer2DStatistics));
+
+		stats.vertex_buffer_size = s_Data.vertexBuffer->GetSize();
+		stats.index_buffer_size = s_Data.indexBuffer->GetSize();
 	}
 
 	void Renderer2D::EndScene()
 	{
-		for (int i = 0; i < storage->textures.size(); i++)
-			storage->textures[i]->Bind(i);
-
-		s_Data.vertexBuffer->Put(storage->quad_verts, storage->quad_index * 40);
-
-		if (current_quad_index != storage->quad_index)
-			s_Data.indexBuffer->Put(storage->quad_indices, storage->quad_index * 6);
-
-		current_quad_index = storage->quad_index;
+		//for (int i = 0; i < storage->texture_slot_index; i++)
+		//	storage->textures[i]->Bind(i);
+		//
+		//s_Data.vertexBuffer->Put(storage->quad_verts, storage->quad_index * 40);
+		//
+		//if (current_quad_index != storage->quad_index)
+		//	s_Data.indexBuffer->Put(storage->quad_indices, storage->quad_index * 6);
+		//
+		//current_quad_index = storage->quad_index;
 	}
 	void Renderer2D::RenderFrame()
 	{
-		s_Data.shader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-		s_Data.shader->SetIntArray("tex", storage->texture_slots, max_texture_slots);
+		stats.draw_calls = 0;
 
-		RenderCommand::DrawIndexed(s_Data.vertexArray, (storage->quad_index) * 6);
+		for (int i = 0; i < max_texture_slots; i++)
+			texture_slots[i] = i;
+
+		s_Data.shader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+		s_Data.shader->SetIntArray("tex", texture_slots, max_texture_slots);
+
+		for (int i = 0; i <= batch_index; i++)
+		{
+			for (int j = 0; j < batch_storage[i]->texture_slot_index; j++)
+				batch_storage[i]->textures[j]->Bind(j);
+
+			s_Data.vertexBuffer->Put(batch_storage[i]->quad_verts, batch_storage[i]->quad_index * 40);
+
+			if (current_quad_index != batch_storage[i]->quad_index)
+				s_Data.indexBuffer->Put(batch_storage[i]->quad_indices, batch_storage[i]->quad_index * 6);
+
+			current_quad_index = batch_storage[i]->quad_index;
+
+			RenderCommand::DrawIndexed(s_Data.vertexArray, (batch_storage[i]->quad_index) * 6);
+
+			stats.draw_calls++;
+		}
+
 	}
-	void Renderer2D::Submit(Ref<VertexArray> vertexArray)
-	{
-		//s_Data.vertexArray = vertexArray;
-		//RenderCommandQueue::Submit(s_Data);
-	}
-	void Renderer2D::Submit(_2D::Quad& quad)
-	{
-		//for (int i = 0; i < 6; i++)
-		//	quad.indices[i] += (active_quads * 4);
-		//
-		//float quad_vertices[40];
-		//
-		//s_Data.vertexBuffer->Put(4 * 10 * active_quads, quad_vertices, 40);
-		//s_Data.indexBuffer->Put(6 * active_quads, quad.indices, 6);
-		//RenderCommandQueue::Submit(s_Data);
-	}
+
 	void Renderer2D::DrawClearQuad(const Vec3& position, float rotation, const Vec2& scale, const Color& color)
 	{
 		// Deal with Vertices and Indices:
 		Renderer2D::AddQuad(position, rotation, scale);
 
 		// Texture Coodinates
-		storage->quad_verts[(storage->quad_index * 40) + 7] = 1.0f;
-		storage->quad_verts[(storage->quad_index * 40) + 8] = 1.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = 1.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 8] = 1.0f;
 
-		storage->quad_verts[(storage->quad_index * 40) + 17] = 0.0f;
-		storage->quad_verts[(storage->quad_index * 40) + 18] = 1.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 17] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 18] = 1.0f;
 
-		storage->quad_verts[(storage->quad_index * 40) + 27] = 0.0f;
-		storage->quad_verts[(storage->quad_index * 40) + 28] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 27] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 28] = 0.0f;
 
-		storage->quad_verts[(storage->quad_index * 40) + 37] = 1.0f;
-		storage->quad_verts[(storage->quad_index * 40) + 38] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
 		
 		// Color, Z coordinate, and texture ID:
 		for (int i = 0; i < 40; i += 10)
 		{
-			storage->quad_verts[(storage->quad_index * 40) + (i + 2)] = position.z;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
 
-			storage->quad_verts[(storage->quad_index * 40) + (i + 3)] = color.r;
-			storage->quad_verts[(storage->quad_index * 40) + (i + 4)] = color.g;
-			storage->quad_verts[(storage->quad_index * 40) + (i + 5)] = color.b;
-			storage->quad_verts[(storage->quad_index * 40) + (i + 6)] = color.a;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = color.r;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = color.g;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = color.b;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = color.a;
 
-			storage->quad_verts[(storage->quad_index * 40) + (i + 9)] = 0.0f;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = 0.0f;
 		}
 
-		storage->quad_index++;
+		batch_storage[batch_index]->quad_index++;
 	}
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, float rotation, const Vec2& scale, const Color* color)
@@ -182,17 +205,17 @@ namespace Xen {
 		Renderer2D::AddQuad(position, rotation, scale);
 
 		// Texture Coodinates
-		storage->quad_verts[(storage->quad_index * 40) + 7] = 1.0f;
-		storage->quad_verts[(storage->quad_index * 40) + 8] = 1.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = 1.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 8] = 1.0f;
 
-		storage->quad_verts[(storage->quad_index * 40) + 17] = 0.0f;
-		storage->quad_verts[(storage->quad_index * 40) + 18] = 1.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 17] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 18] = 1.0f;
 
-		storage->quad_verts[(storage->quad_index * 40) + 27] = 0.0f;
-		storage->quad_verts[(storage->quad_index * 40) + 28] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 27] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 28] = 0.0f;
 
-		storage->quad_verts[(storage->quad_index * 40) + 37] = 1.0f;
-		storage->quad_verts[(storage->quad_index * 40) + 38] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
 
 		// Color, Z coordinate, and texture ID:
 
@@ -200,33 +223,33 @@ namespace Xen {
 		{
 			for (int i = 0; i < 40; i += 10)
 			{
-				storage->quad_verts[(storage->quad_index * 40) + (i + 2)] = position.z;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
 
-				storage->quad_verts[(storage->quad_index * 40) + (i + 3)] = 1.0f;
-				storage->quad_verts[(storage->quad_index * 40) + (i + 4)] = 1.0f;
-				storage->quad_verts[(storage->quad_index * 40) + (i + 5)] = 1.0f;
-				storage->quad_verts[(storage->quad_index * 40) + (i + 6)] = 1.0f;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = 1.0f;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = 1.0f;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = 1.0f;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = 1.0f;
 
-				storage->quad_verts[(storage->quad_index * 40) + (i + 9)] = 0.0f;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = 0.0f;
 			}
 		}
 		else
 		{
 			for (int i = 0; i < 40; i += 10)
 			{
-				storage->quad_verts[(storage->quad_index * 40) + (i + 2)] = position.z;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
 
-				storage->quad_verts[(storage->quad_index * 40) + (i + 3)] = color[i / 10].r;
-				storage->quad_verts[(storage->quad_index * 40) + (i + 4)] = color[i / 10].g;
-				storage->quad_verts[(storage->quad_index * 40) + (i + 5)] = color[i / 10].b;
-				storage->quad_verts[(storage->quad_index * 40) + (i + 6)] = color[i / 10].a;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = color[i / 10].r;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = color[i / 10].g;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = color[i / 10].b;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = color[i / 10].a;
 
-				storage->quad_verts[(storage->quad_index * 40) + (i + 9)] = 0.0f;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = 0.0f;
 			}
 		}
 		
 
-		storage->quad_index++;
+		batch_storage[batch_index]->quad_index++;
 	}
 
 
@@ -236,37 +259,40 @@ namespace Xen {
 		Renderer2D::AddQuad(position, rotation, scale);
 
 		// Texture Coodinates
-		storage->quad_verts[(storage->quad_index * 40) + 7] = 1.0f * tiling_factor;
-		storage->quad_verts[(storage->quad_index * 40) + 8] = 1.0f * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = 1.0f * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 8] = 1.0f * tiling_factor;
 
-		storage->quad_verts[(storage->quad_index * 40) + 17] = 0.0f;
-		storage->quad_verts[(storage->quad_index * 40) + 18] = 1.0f * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 17] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 18] = 1.0f * tiling_factor;
 
-		storage->quad_verts[(storage->quad_index * 40) + 27] = 0.0f;
-		storage->quad_verts[(storage->quad_index * 40) + 28] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 27] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 28] = 0.0f;
 
-		storage->quad_verts[(storage->quad_index * 40) + 37] = 1.0f * tiling_factor;
-		storage->quad_verts[(storage->quad_index * 40) + 38] = 0.0f;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
 
-		// Check to see if 'texture' is already in the vector
-		if (std::find(storage->textures.begin(), storage->textures.end(), texture) == storage->textures.end()) 
-			storage->textures.push_back(texture);
 
 		for (int i = 0; i < 40; i += 10)
 		{
-			storage->quad_verts[(storage->quad_index * 40) + (i + 2)] = position.z;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
 
-			storage->quad_verts[(storage->quad_index * 40) + (i + 3)] = tintcolor.r;
-			storage->quad_verts[(storage->quad_index * 40) + (i + 4)] = tintcolor.g;
-			storage->quad_verts[(storage->quad_index * 40) + (i + 5)] = tintcolor.b;
-			storage->quad_verts[(storage->quad_index * 40) + (i + 6)] = tintcolor.a;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = tintcolor.r;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = tintcolor.g;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = tintcolor.b;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = tintcolor.a;
 
-			storage->quad_verts[(storage->quad_index * 40) + (i + 9)] = (float)storage->texture_slot_index;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = (float)batch_storage[batch_index]->texture_slot_index;
 		}
-		//texture->Bind(storage->texture_slot_index);
-		storage->texture_slot_index++;
+		//texture->Bind(batch_storage[batch_index]->texture_slot_index);
 
-		storage->quad_index++;
+		// Check to see if 'texture' is NOT in the vector
+		if (std::find(batch_storage[batch_index]->textures.begin(), batch_storage[batch_index]->textures.end(), texture) == batch_storage[batch_index]->textures.end())
+		{
+			batch_storage[batch_index]->textures.push_back(texture);
+			stats.texture_count++;
+			batch_storage[batch_index]->texture_slot_index++;
+		}
+		batch_storage[batch_index]->quad_index++;
 	}
 
 	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const float* tex_coords, const Vec3& position, float rotation, const Vec2& scale, const Color& tintcolor, float tiling_factor)
@@ -275,58 +301,100 @@ namespace Xen {
 		Renderer2D::AddQuad(position, rotation, scale);
 
 		// Texture Coodinates
-		storage->quad_verts[(storage->quad_index * 40) + 7] = tex_coords[0] * tiling_factor;
-		storage->quad_verts[(storage->quad_index * 40) + 8] = tex_coords[1] * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = tex_coords[0] * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 8] = tex_coords[1] * tiling_factor;
 
-		storage->quad_verts[(storage->quad_index * 40) + 17] = tex_coords[2] * tiling_factor;
-		storage->quad_verts[(storage->quad_index * 40) + 18] = tex_coords[3] * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 17] = tex_coords[2] * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 18] = tex_coords[3] * tiling_factor;
 
-		storage->quad_verts[(storage->quad_index * 40) + 27] = tex_coords[4] * tiling_factor;
-		storage->quad_verts[(storage->quad_index * 40) + 28] = tex_coords[5] * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 27] = tex_coords[4] * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 28] = tex_coords[5] * tiling_factor;
 
-		storage->quad_verts[(storage->quad_index * 40) + 37] = tex_coords[6] * tiling_factor;
-		storage->quad_verts[(storage->quad_index * 40) + 38] = tex_coords[7] * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = tex_coords[6] * tiling_factor;
+		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = tex_coords[7] * tiling_factor;
 
-		if (std::find(storage->textures.begin(), storage->textures.end(), texture) == storage->textures.end())
-		{
-			storage->textures.push_back(texture);
-			storage->texture_slot_index++;
-		}
 
 		for (int i = 0; i < 40; i += 10)
 		{
-			storage->quad_verts[(storage->quad_index * 40) + (i + 2)] = position.z;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
 
-			storage->quad_verts[(storage->quad_index * 40) + (i + 3)] = tintcolor.r;
-			storage->quad_verts[(storage->quad_index * 40) + (i + 4)] = tintcolor.g;
-			storage->quad_verts[(storage->quad_index * 40) + (i + 5)] = tintcolor.b;
-			storage->quad_verts[(storage->quad_index * 40) + (i + 6)] = tintcolor.a;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = tintcolor.r;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = tintcolor.g;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = tintcolor.b;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = tintcolor.a;
 
-			storage->quad_verts[(storage->quad_index * 40) + (i + 9)] = (float)storage->texture_slot_index;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = (float)batch_storage[batch_index]->texture_slot_index;
 		}
-		storage->texture_slot_index++;
 
-		storage->quad_index++;
+		if (std::find(batch_storage[batch_index]->textures.begin(), batch_storage[batch_index]->textures.end(), texture) == batch_storage[batch_index]->textures.end())
+		{
+			batch_storage[batch_index]->textures.push_back(texture);
+			batch_storage[batch_index]->texture_slot_index++;
+			batch_storage[batch_index]->texture_slot_index++;
+		}
+
+		batch_storage[batch_index]->quad_index++;
+	}
+
+	Renderer2D::Renderer2DStatistics& Renderer2D::GetStatistics()
+	{
+		return stats;
 	}
 
 	// Private methods
 
 	void Renderer2D::AddQuad(const Vec3& position, float rotation, const Vec2& scale)
 	{
+		if (batch_storage[batch_index]->texture_slot_index >= max_texture_slots || batch_storage[batch_index]->quad_index >= max_quads_per_batch - 1)
+		{
+			batch_index++;
+			
+			// Increase the size of the vector if needed
+			if (batch_index >= batches_allocated)
+			{
+				batch_storage.push_back(std::make_shared<Renderer2DStorage>());
+				batch_storage[batch_index]->textures.push_back(white_texture);
+				batches_allocated = batch_index + 1;
+			}
+		}
+
 		for (int i = 0; i < 6; i++)
-			storage->quad_indices[(storage->quad_index * 6) + i] = (storage->quad_index * 4) + default_quad_indices[i];
+			batch_storage[batch_index]->quad_indices[(batch_storage[batch_index]->quad_index * 6) + i] = (batch_storage[batch_index]->quad_index * 4) + default_quad_indices[i];
 
 		// Vertices
-		storage->quad_verts[(storage->quad_index * 40) + 0] = position.x + (0.5f * scale.x);
-		storage->quad_verts[(storage->quad_index * 40) + 1] = position.y + (0.5f * scale.y);
 
-		storage->quad_verts[(storage->quad_index * 40) + 10] = position.x - (0.5f * scale.x);
-		storage->quad_verts[(storage->quad_index * 40) + 11] = position.y + (0.5f * scale.y);
+		if (rotation == 0.0f)
+		{
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 0] = position.x + (0.5f * scale.x);
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 1] = position.y + (0.5f * scale.y);
 
-		storage->quad_verts[(storage->quad_index * 40) + 20] = position.x - (0.5f * scale.x);
-		storage->quad_verts[(storage->quad_index * 40) + 21] = position.y - (0.5f * scale.y);
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 10] = position.x - (0.5f * scale.x);
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 11] = position.y + (0.5f * scale.y);
 
-		storage->quad_verts[(storage->quad_index * 40) + 30] = position.x + (0.5f * scale.x);
-		storage->quad_verts[(storage->quad_index * 40) + 31] = position.y - (0.5f * scale.y);
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 20] = position.x - (0.5f * scale.x);
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 21] = position.y - (0.5f * scale.y);
+
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 30] = position.x + (0.5f * scale.x);
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 31] = position.y - (0.5f * scale.y);
+		}
+
+		else {
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), position.GetVec())
+				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0, 0, 1))
+				* glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f));
+
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 0]  = (transform * temp_vert[0]).x;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 1]  = (transform * temp_vert[0]).y;
+
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 10] = (transform * temp_vert[1]).x;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 11] = (transform * temp_vert[1]).y;
+
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 20] = (transform * temp_vert[2]).x;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 21] = (transform * temp_vert[2]).y;
+
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 30] = (transform * temp_vert[3]).x;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 31] = (transform * temp_vert[3]).y;
+		}
+		stats.quad_count++;
 	}
 }
