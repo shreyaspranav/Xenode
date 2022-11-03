@@ -383,17 +383,12 @@ namespace Xen {
 				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0, 0, 1))
 				* glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f));
 
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 0]  = (transform * temp_vert[0]).x;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 1]  = (transform * temp_vert[0]).y;
 
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 10] = (transform * temp_vert[1]).x;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 11] = (transform * temp_vert[1]).y;
-
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 20] = (transform * temp_vert[2]).x;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 21] = (transform * temp_vert[2]).y;
-
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 30] = (transform * temp_vert[3]).x;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 31] = (transform * temp_vert[3]).y;
+			for (int i = 0; i < 4; i++)
+			{
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i * 10) + 0] = (transform * temp_vert[i]).x;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i * 10) + 1] = (transform * temp_vert[i]).y;
+			}
 		}
 		stats.quad_count++;
 	}

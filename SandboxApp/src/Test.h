@@ -51,6 +51,8 @@ public:
 
 	void OnUpdate(double timestep) override
 	{
+		Xen::RenderCommand::Clear();
+		Xen::RenderCommand::SetClearColor(Xen::Color(color_bg[0], color_bg[1], color_bg[2], color_bg[3]));
 		r += a * timestep;
 
 		color_gradient_quad_color[2].r = a;
@@ -79,25 +81,24 @@ public:
 
 		//Xen::Renderer2D::DrawTexturedQuad(tex, Xen::Vec3(0.0f, 0.0f, 0.0f), r, Xen::Vec2(1.0f), Xen::Color(1.0f), square_scale);
 
-		//Xen::Renderer2D::DrawTexturedQuad(tex, Xen::Vec3(0.0f, 0.0f, 0.0f), r, Xen::Vec2(1.0f), Xen::Color(1.0f), square_scale);
+		Xen::Renderer2D::DrawTexturedQuad(tex, Xen::Vec3(0.0f, 0.0f, 0.0f), r, Xen::Vec2(1000.0f), Xen::Color(1.0f), 20.0f);
 
-		//for (int i = 0; i < squares; i++)
-		//{
-		//	for (int j = 0; j < squares; j++)
-		//	{
-		//		Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)i, (float)j, -1.0f), a, Xen::Vec2(square_scale), Xen::Color(color_quad[0] * j, color_quad[1] * i, color_quad[2], color_quad[3]));
-		//	}
-		//}
-		for (int j = 0; j < squares; j++)
+		for (int i = 0; i < squares; i++)
 		{
-			for (int i = 0; i < 32; i++)
+			for (int j = 0; j < squares; j++)
 			{
-				Xen::Renderer2D::DrawTexturedQuad(textures[i], Xen::Vec3((float)i * 3.0f, (float)j, 0.0f), a, Xen::Vec2(square_scale, 1.0f), Xen::Color(color_quad[0] * j, color_quad[1] * i, color_quad[2], color_quad[3]));
+				Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)i, (float)j, z), a, Xen::Vec2(square_scale), Xen::Color(color_quad[0], color_quad[1], color_quad[2], color_quad[3]));
 			}
 		}
+		//for (int j = 0; j < squares; j++)
+		//{
+		//	for (int i = 0; i < 32; i++)
+		//	{
+		//		Xen::Renderer2D::DrawTexturedQuad(textures[i], Xen::Vec3((float)i * 3.0f, (float)j, 0.0f), a, Xen::Vec2(square_scale, 1.0f), Xen::Color(color_quad[0] * j, color_quad[1] * i, color_quad[2], color_quad[3]));
+		//	}
+		//}
 
-		Xen::RenderCommand::Clear();
-		Xen::RenderCommand::SetClearColor(Xen::Color(color_bg[0], color_bg[1], color_bg[2], color_bg[3]));
+		
 		Xen::Renderer2D::EndScene();
 
 	}
@@ -110,6 +111,8 @@ public:
 
 		ImGui::SliderFloat("Square Scale", &square_scale, 0.0f, 2.6f);
 		ImGui::SliderFloat("Rotation", &a, -180.0f, 180.0f);
+
+		ImGui::SliderFloat("Z Position", &z, -1.0f, 1.0f);
 
 		ImGui::SliderInt("No of Squares", &squares, 1, 1000);
 
@@ -172,9 +175,10 @@ private:
 	};
 
 	float cam_zoom = 1.0f;
-	float square_scale = 2.6f;
+	float square_scale = 0.6f;
 
 	int squares = 1;
 
 	float r = 0.0f;
+	float z = 0.0f;
 };
