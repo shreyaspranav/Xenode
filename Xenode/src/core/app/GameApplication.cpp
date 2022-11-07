@@ -8,9 +8,6 @@
 
 #include <imgui/ImGuiLayer.h>
 
-// Temporary Test Files!
-#include "test/TestLayer.h"
-
 namespace Xen {
 
 	GameApplication::GameApplication()

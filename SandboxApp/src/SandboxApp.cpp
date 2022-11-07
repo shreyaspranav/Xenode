@@ -1,6 +1,6 @@
 #include <Xenode.h>
 
-#include "Test.h"
+#include "FlappyBird.h"
 
 class ExampleLayer : public Xen::Layer
 {
@@ -55,7 +55,8 @@ public:
 
 	void OnCreate() override
 	{
-
+		window_title = "Flappy Bird";
+		imgui_render = true;
 	}
 	void OnStart() override
 	{
@@ -63,7 +64,7 @@ public:
 		//layer->SetWindow(GetWindow());
 		//PushLayer(layer);
 		PushLayer(std::make_shared<ExampleLayer>());
-		Xen::Ref<Xen::Layer> testLayer = std::make_shared<TestLayer>();
+		Xen::Ref<Xen::Layer> testLayer = std::make_shared<FlappyBirdLayer>();
 		PushLayer(testLayer);
 	}
 	void OnUpdate(double timestep) override

@@ -124,6 +124,7 @@ public:
 		ImGui::Text("Quads Rendered: %d", Xen::Renderer2D::GetStatistics().quad_count);
 		ImGui::Text("Vertex Buffer Size: %d bytes", Xen::Renderer2D::GetStatistics().vertex_buffer_size);
 		ImGui::Text("Index Buffer Size: %d bytes", Xen::Renderer2D::GetStatistics().index_buffer_size);
+		ImGui::Text("Dynamic batch storage size: %d bytes", Xen::Renderer2D::GetStatistics().predefined_batches);
 
 		ImGui::End();
 

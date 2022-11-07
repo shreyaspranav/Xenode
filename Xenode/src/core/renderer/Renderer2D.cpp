@@ -113,7 +113,7 @@ namespace Xen {
 	{
 		s_Data.camera = camera;
 
-		for (int i = 0; i < batch_index + 1; i++)
+		for (int i = 0; i <= batch_index; i++)
 		{
 			batch_storage[i]->quad_index = 0;
 			batch_storage[i]->texture_slot_index = 1;
@@ -123,6 +123,8 @@ namespace Xen {
 
 		stats.vertex_buffer_size = s_Data.vertexBuffer->GetSize();
 		stats.index_buffer_size = s_Data.indexBuffer->GetSize();
+
+		stats.predefined_batches = sizeof(Renderer2DStorage);
 	}
 
 	void Renderer2D::EndScene()
@@ -163,7 +165,7 @@ namespace Xen {
 
 			stats.draw_calls++;
 		}
-
+		stats.predefined_batches = sizeof(Renderer2DStorage) * stats.draw_calls;
 	}
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, float rotation, const Vec2& scale, const Color& color)
