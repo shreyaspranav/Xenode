@@ -14,6 +14,7 @@ namespace Xen {
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 		virtual void OnUpdate(double timestep) {}
+		virtual void OnFixedUpdate() {}
 		virtual void OnRender() {}
 
 		virtual void OnImGuiUpdate() {}

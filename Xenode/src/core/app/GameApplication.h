@@ -22,11 +22,13 @@ namespace Xen {
 
 		Ref<ImGuiLayer> m_ImGuiLayer;
 
+
 	public:
 		uint32_t window_width, window_height;
 		std::string window_title;
 		bool vsync, resizable, imgui_render;
 		uint8_t fullscreen_monitor;
+		bool imgui_always_render = 0;
 
 	public:
 		GameApplication();
@@ -43,6 +45,7 @@ namespace Xen {
 		virtual void OnCreate();
 		virtual void OnStart();
 		virtual void OnUpdate(double timestep);
+		virtual void OnFixedUpdate();
 		virtual void OnRender();
 
 		void* GetNativeWindow();

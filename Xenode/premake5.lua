@@ -18,6 +18,9 @@ project "Xenode"
 		"src/core/renderer/**.cpp",
 		"src/core/renderer/**.h",
 
+		"src/core/scene/**.cpp",
+		"src/core/scene/**.h",
+
 		"src/imgui/**.cpp",
 		"src/imgui/**.h",
 
@@ -52,6 +55,7 @@ project "Xenode"
 		"%{IncludeDir.glad}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.Taskflow}",
+		"%{IncludeDir.entt}",
 		
 		--"%{IncludeDir.VulkanSDK}",
 	}

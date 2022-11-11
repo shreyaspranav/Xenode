@@ -86,7 +86,7 @@ public:
 				}
 
 				player_y_pos -= d * timestep;
-				d += 0.001f;
+				d += 1.2f * timestep;
 			}
 		}
 

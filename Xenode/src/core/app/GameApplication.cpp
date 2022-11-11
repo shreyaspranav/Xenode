@@ -35,7 +35,7 @@ namespace Xen {
 		window_width = 1600;
 		window_height = 900;
 		window_title = "Xenode Application";
-		vsync = 0;
+		vsync = 1;
 		resizable = 1;
 		fullscreen_monitor = 0;
 
@@ -92,7 +92,6 @@ namespace Xen {
 		OnUpdate(timestep);
 		for(int i = stack->GetCount(); i >=1; i--)
 			stack->GetLayer(i)->OnUpdate(timestep);
-
 	}
 
 	void* GameApplication::GetNativeWindow()
@@ -102,7 +101,7 @@ namespace Xen {
 
 	void GameApplication::ImGuiRender()
 	{
-		if (imgui_render)
+		if (imgui_render || imgui_always_render)
 		{
 			m_ImGuiLayer->Begin();
 			for (int i = stack->GetCount(); i >= 1; i--)
@@ -114,38 +113,62 @@ namespace Xen {
 	void GameApplication::OnWindowMoveEvent(Event& event)
 	{
 		WindowMoveEvent& evt = static_cast<WindowMoveEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowMoveEvent(evt); }
+		for(int i = stack->GetCount(); i >=1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnWindowMoveEvent(evt); 
+		}
 	}
 
 	void GameApplication::OnWindowResizeEvent(Event& event)
 	{
 		WindowResizeEvent& evt = static_cast<WindowResizeEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowResizeEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnWindowResizeEvent(evt);
+		}
 	}
 
 	void GameApplication::OnWindowCloseEvent(Event& event)
 	{
 		WindowCloseEvent& evt = static_cast<WindowCloseEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowCloseEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnWindowCloseEvent(evt);
+		}
 		is_Running = 0;
 	}
 
 	void GameApplication::OnWindowFocusEvent(Event& event)
 	{
 		WindowFocusEvent& evt = static_cast<WindowFocusEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowFocusEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnWindowFocusEvent(evt);
+		}
 	}
 
 	void GameApplication::OnWindowMinimizeEvent(Event& event)
 	{
 		WindowMinimizeEvent& evt = static_cast<WindowMinimizeEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowMinimizeEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnWindowMinimizeEvent(evt);
+		}
 	}
 
 	void GameApplication::OnWindowMaximizeEvent(Event& event)
 	{
 		WindowMaximizeEvent& evt = static_cast<WindowMaximizeEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnWindowMaximizeEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnWindowMaximizeEvent(evt);
+		}
 	}
 
 	void GameApplication::OnKeyPressEvent(Event& event)
@@ -157,59 +180,98 @@ namespace Xen {
 		else if (evt.GetKey() == KeyCode::KEY_GRAVE_ACCENT && imgui_render == 1)
 			imgui_render = 0;
 
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnKeyPressEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnKeyPressEvent(evt);
+		}
 	}
 
 	void GameApplication::OnKeyReleaseEvent(Event& event)
 	{
 		KeyReleaseEvent& evt = static_cast<KeyReleaseEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnKeyReleaseEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnKeyReleaseEvent(evt);
+		}
 	}
 
 	void GameApplication::OnCharEnterEvent(Event& event)
 	{
 		CharEnterEvent& evt = static_cast<CharEnterEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnCharEnterEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnCharEnterEvent(evt);
+		}
 	}
 
 	void GameApplication::OnMouseEnterEvent(Event& event)
 	{
 		MouseEnterEvent& evt = static_cast<MouseEnterEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnMouseEnterEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnMouseEnterEvent(evt);
+		}
 	}
 
 	void GameApplication::OnMouseMoveEvent(Event& event)
 	{
 		MouseMoveEvent& evt = static_cast<MouseMoveEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnMouseMoveEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnMouseMoveEvent(evt);
+		}
 	}
 
 	void GameApplication::OnMouseButtonPressEvent(Event& event)
 	{
 		MouseButtonPressEvent& evt = static_cast<MouseButtonPressEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnMouseButtonPressEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnMouseButtonPressEvent(evt);
+		}
 	}
 
 	void GameApplication::OnMouseButtonReleaseEvent(Event& event)
 	{
 		MouseButtonReleaseEvent& evt = static_cast<MouseButtonReleaseEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnMouseButtonReleaseEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnMouseButtonReleaseEvent(evt);
+		}
 	}
 
 	void GameApplication::OnMouseScrollEvent(Event& event)
 	{
 		MouseScrollEvent& evt = static_cast<MouseScrollEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) { stack->GetLayer(i)->OnMouseScrollEvent(evt); }
+		for (int i = stack->GetCount(); i >= 1; i--) {
+			if (evt.handled)
+				break;
+			stack->GetLayer(i)->OnMouseScrollEvent(evt);
+		}
 	}
 
 	void GameApplication::OnRender()
 	{
+		OnRender();
 		for (int i = stack->GetCount(); i >= 1; i--) { stack->GetLayer(i)->OnRender(); }
+	}
+
+	void GameApplication::OnFixedUpdate()
+	{
+		OnFixedUpdate();
+		for (int i = stack->GetCount(); i >= 1; i--) { stack->GetLayer(i)->OnFixedUpdate(); }
 	}
 
 	void GameApplication::Run()
 	{
-		const double S_PER_UPDATE = 0.01666666666666;
+		const double S_PER_UPDATE = 1.0 / 60.0;
 
 		GameApplication::OnCreate();
 		GameApplication::OnStart();
@@ -229,7 +291,7 @@ namespace Xen {
 
 			while (lag >= S_PER_UPDATE)
 			{
-				// Implement a OnFixedUpdate Function here
+				GameApplication::OnFixedUpdate();
 				lag -= S_PER_UPDATE;
 			}
 			// Run this function in a different thread:

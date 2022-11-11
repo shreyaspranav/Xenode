@@ -1,4 +1,4 @@
-project "SandboxApp"
+project "Xen"
 
 	kind "ConsoleApp"
 	language "C++"

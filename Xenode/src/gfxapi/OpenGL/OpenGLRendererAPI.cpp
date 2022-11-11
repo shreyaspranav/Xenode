@@ -21,7 +21,6 @@ namespace Xen {
 	}
 	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices)
 	{
-		//XEN_ENGINE_LOG_ERROR(glGetError());
 		if(indices == 0)
 			glDrawElements(GL_TRIANGLES, vertexArray->GetElementBuffer()->GetActiveCount(), GL_UNSIGNED_INT, 0);
 		else

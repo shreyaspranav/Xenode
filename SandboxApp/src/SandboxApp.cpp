@@ -1,5 +1,5 @@
 #include <Xenode.h>
-
+#include <core/app/EntryPoint.h>
 #include "FlappyBird.h"
 
 class ExampleLayer : public Xen::Layer
@@ -29,15 +29,17 @@ public:
 	}
 	void OnUpdate(double timestep) override
 	{
-	}
 
+	}
+	
 	void OnImGuiUpdate() override
 	{
 		
 	}
 
-	void OnKeyPressEvent(Xen::KeyPressEvent& event) override
+	void OnMouseScrollEvent(Xen::MouseScrollEvent& event) override
 	{
+		event.handled = 1;
 	}
 };
 
@@ -56,22 +58,28 @@ public:
 	void OnCreate() override
 	{
 		window_title = "Flappy Bird";
-		imgui_render = true;
+		imgui_render = false;
 	}
 	void OnStart() override
 	{
-		//Xen::Ref<Xen::ImGuiLayer> layer = std::make_shared<Xen::ImGuiLayer>();
-		//layer->SetWindow(GetWindow());
-		//PushLayer(layer);
-		PushLayer(std::make_shared<ExampleLayer>());
 		Xen::Ref<Xen::Layer> testLayer = std::make_shared<FlappyBirdLayer>();
 		PushLayer(testLayer);
+		PushLayer(std::make_shared<ExampleLayer>());
 	}
 	void OnUpdate(double timestep) override
 	{
 
 	}
 
+	void OnRender() override
+	{
+
+	}
+
+	void OnFixedUpdate() override
+	{
+
+	}
 
 private:
 

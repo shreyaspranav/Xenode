@@ -24,6 +24,8 @@ namespace Xen {
 	class XEN_API Event
 	{
 	public:
+		bool handled = 0;
+
 		virtual ~Event() {}
 		
 		virtual EventType GetEventName() const = 0;

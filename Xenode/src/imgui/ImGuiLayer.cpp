@@ -21,11 +21,11 @@ namespace Xen {
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 
-		//io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans.ttf", 15);
-		io.Fonts->AddFontFromFileTTF("assets/fonts/sui.ttf", 45);
+		io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans.ttf", 15);
+		//io.Fonts->AddFontFromFileTTF("assets/fonts/sui.ttf", 17);
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-		//io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport;
+		io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport;
 		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
 		ImGuiStyle* style = &ImGui::GetStyle();

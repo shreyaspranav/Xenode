@@ -64,10 +64,6 @@ namespace Xen {
 
 		m_Cursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 		glfwSetCursor(m_Window, m_Cursor);
-
-		XEN_ENGINE_LOG_ERROR_SEVERE("Width: {0}", modes->width);
-		XEN_ENGINE_LOG_ERROR_SEVERE("Height: {0}", modes->height);
-		XEN_ENGINE_LOG_ERROR_SEVERE("Refresh Rate: {0}", modes->refreshRate);
 	}
 
 
