@@ -1,13 +1,15 @@
 #include "EditorLayer.h"
+#include "core/scene/ScriptableEntity.h"
 
 float rotation = 0.0f;
 
 float bg_color[4] = { 0.0, 0.0f, 0.0f, 1.0f };
-float bg_quad[4] = { 1.0, 1.0f, 1.0f, 1.0f };
 
-float quad_position[2] = { 0.0f, 0.0f };
+float quad_position[3] = { 0.0f, 0.0f, 0.0f };
 
 bool dark = 0, light = 1, classic = 0;
+
+Xen::Ref<Xen::Texture2D> tex_2d;
 
 EditorLayer::EditorLayer()
 {
@@ -24,19 +26,49 @@ void EditorLayer::OnAttach()
 	specs.width = Xen::GameApplication::GetWindow()->GetWidth();
 	specs.height = Xen::GameApplication::GetWindow()->GetHeight();
 
-	m_EditorCamera = std::make_shared<Xen::OrthographicCamera>(viewport_framebuffer_width, viewport_framebuffer_width);
+	m_EditorCamera = std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, viewport_framebuffer_width, viewport_framebuffer_height);
 	m_ViewportFrameBuffer = Xen::FrameBuffer::CreateFrameBuffer(specs);
 
 	Xen::Renderer2D::Init();
 
 	m_ActiveScene = std::make_shared<Xen::Scene>();
+	quad_entity_1 = m_ActiveScene->CreateEntity("Quad_1");
 	quad_entity = m_ActiveScene->CreateEntity("Quad");
+	camera_entity = m_ActiveScene->CreateEntity("Camera");
 
-	tex = Xen::Texture2D::CreateTexture2D("assets/textures/microsoft.png", 1);
+	tex = Xen::Texture2D::CreateTexture2D("assets/textures/CheckerBoardTexture.png", 1);
+	//tex_2d = Xen::Texture2D::CreateTexture2D("assets/textures/Consolas.png", 1);
+	//tex_2d->LoadTexture();
 	tex->LoadTexture();
 
-	//quad_entity.AddComponent<Xen::Component::Transform>(Xen::Vec3(quad_position[0], quad_position[1], 0.0f), glm::degrees(rotation), Xen::Vec2(1.0f));
-	quad_entity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(bg_quad[0], bg_quad[1], bg_quad[2], bg_quad[3]), tex);
+	quad_entity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f), tex);
+	quad_entity_1.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f));
+
+	camera_entity.AddComponent<Xen::Component::CameraComp>(Xen::CameraType::Orthographic, specs.width, specs.height);
+	m_EditorCamera->Update();
+
+	class CameraControlScript : public Xen::ScriptableEntity
+	{
+	private:
+		Xen::Ref<Xen::Input> input;
+	public:
+		void OnCreate() override{
+			input = GetInput();
+		}
+
+		void OnUpdate(double timestep) override{
+			
+		}
+
+		void OnDestroy() override{
+
+		}
+	};
+
+	quad_entity_1.AddComponent<Xen::Component::NativeScript>().Bind<CameraControlScript>(quad_entity_1);
+
+	hier_panel = SceneHierarchyPanel(m_ActiveScene);
+	prop_panel = PropertiesPanel(hier_panel.GetSelectedEntity());
 }
 
 void EditorLayer::OnDetach()
@@ -52,23 +84,14 @@ void EditorLayer::OnUpdate(double timestep)
 	Xen::RenderCommand::Clear();
 	Xen::RenderCommand::SetClearColor(Xen::Color(bg_color[0], bg_color[1], bg_color[2], bg_color[3]));
 
-
-	Xen::Renderer2D::BeginScene(m_EditorCamera);
-
-	//m_ActiveScene->m_Registry.replace<Xen::Component::Transform>(m_ActiveScene->quad_entity, Xen::Vec3(quad_position[0], quad_position[1], 0.0f), glm::degrees(rotation), Xen::Vec2(1.0f));
-	//m_ActiveScene->m_Registry.replace<Xen::Component::SpriteRenderer>(m_ActiveScene->quad_entity, Xen::Color(bg_quad[0], bg_quad[1], bg_quad[2], bg_quad[3]));
-
-	auto&& transform = quad_entity.GetComponent<Xen::Component::Transform>();
-	transform.position.x = quad_position[0];
-	transform.position.y = quad_position[1];
-
-	transform.rotation = glm::degrees(rotation);
-
-	auto&& sprite_renderer = quad_entity.GetComponent<Xen::Component::SpriteRenderer>();
-	sprite_renderer.color = Xen::Color(bg_quad[0], bg_quad[1], bg_quad[2], bg_quad[3]);
-
+	//Xen::Renderer2D::BeginScene(m_EditorCamera, Xen::Vec2(viewport_framebuffer_width, viewport_framebuffer_height));
+	//m_EditorCamera->Update();
 	m_ActiveScene->OnUpdate(timestep);
-	//Xen::Renderer2D::DrawClearQuad(Xen::Vec3(quad_position[0], quad_position[1], 0.0f), glm::degrees(rotation), Xen::Vec2(1.0f), Xen::Color(bg_quad[0], bg_quad[1], bg_quad[2], bg_quad[3]));
+
+	//XEN_ENGINE_LOG_INFO("{0}", (float)viewport_framebuffer_width / (float)viewport_framebuffer_height);
+
+	//Xen::Renderer2D::DrawTexturedQuad(tex_2d, Xen::Vec3(1.0f, 1.0f, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f, 1.0f, 1.0f), Xen::Color(1.0f, 0.0f, 0.0f, 1.0f));
+
 	Xen::Renderer2D::EndScene();
 
 	Xen::Renderer2D::RenderFrame();
@@ -133,62 +156,152 @@ void EditorLayer::OnImGuiUpdate()
 			auto dock_id_left_down = ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Down, 0.5f, nullptr, &dock_id_left);
 
 			// we now dock our windows into the docking node we made above
-			ImGui::DockBuilderDockWindow("Window One", dock_id_left);
+			ImGui::DockBuilderDockWindow(hier_panel.GetPanelTitle().c_str(), dock_id_left);
 			ImGui::DockBuilderDockWindow("Window Two", dock_id_down);
-			ImGui::DockBuilderDockWindow("Window Three", dock_id_left_down);
-			ImGui::DockBuilderDockWindow("2D Viewport", dockspace_id); // IMP: To Dock In Centre!! use directly 'dockspace_id'
+			ImGui::DockBuilderDockWindow(prop_panel.GetPanelTitle().c_str(), dock_id_left_down);
+			//ImGui::DockBuilderDockWindow("Window Three", dock_id_left_down);
+			ImGui::DockBuilderDockWindow((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str(), dockspace_id); // IMP: To Dock In Centre!! use directly 'dockspace_id'
 			ImGui::DockBuilderFinish(dockspace_id);
 		}
+	}
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			ImGui::MenuItem("(demo menu)", NULL, false, false);
+			if (ImGui::MenuItem("New")) {}
+			if (ImGui::MenuItem("Open", "Ctrl+O")) {}
+			if (ImGui::BeginMenu("Open Recent"))
+			{
+				ImGui::MenuItem("fish_hat.c");
+				ImGui::MenuItem("fish_hat.inl");
+				ImGui::MenuItem("fish_hat.h");
+				if (ImGui::BeginMenu("More.."))
+				{
+					ImGui::MenuItem("Hello");
+					ImGui::MenuItem("Sailor");
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+			if (ImGui::MenuItem("Save As..")) {}
+
+			ImGui::Separator();
+			if (ImGui::BeginMenu("Options"))
+			{
+				static bool enabled = true;
+				ImGui::MenuItem("Enabled", "", &enabled);
+				ImGui::BeginChild("child", ImVec2(0, 60), true);
+				for (int i = 0; i < 10; i++)
+					ImGui::Text("Scrolling Text %d", i);
+				ImGui::EndChild();
+				static float f = 0.5f;
+				static int n = 0;
+				ImGui::SliderFloat("Value", &f, 0.0f, 1.0f);
+				ImGui::InputFloat("Input", &f, 0.1f);
+				ImGui::Combo("Combo", &n, "Yes\0No\0Maybe\0\0");
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Colors"))
+			{
+				float sz = ImGui::GetTextLineHeight();
+				for (int i = 0; i < ImGuiCol_COUNT; i++)
+				{
+					const char* name = ImGui::GetStyleColorName((ImGuiCol)i);
+					ImVec2 p = ImGui::GetCursorScreenPos();
+					ImGui::GetWindowDrawList()->AddRectFilled(p, ImVec2(p.x + sz, p.y + sz), ImGui::GetColorU32((ImGuiCol)i));
+					ImGui::Dummy(ImVec2(sz, sz));
+					ImGui::SameLine();
+					ImGui::MenuItem(name);
+				}
+				ImGui::EndMenu();
+			}
+
+			// Here we demonstrate appending again to the "Options" menu (which we already created above)
+			// Of course in this demo it is a little bit silly that this function calls BeginMenu("Options") twice.
+			// In a real code-base using it would make senses to use this feature from very different code locations.
+			if (ImGui::BeginMenu("Options")) // <-- Append!
+			{
+				static bool b = true;
+				ImGui::Checkbox("SomeOption", &b);
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Disabled", false)) // Disabled
+			{
+				IM_ASSERT(0);
+			}
+			if (ImGui::MenuItem("Checked", NULL, true)) {}
+			if (ImGui::MenuItem("Quit", "Alt+F4")) {}
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Edit"))		{ ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("Project"))	{ ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("View"))		{ ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("Build"))		{ ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("Tools"))		{ ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("About"))		{ ImGui::EndMenu(); }
+		ImGui::EndMenuBar();
 	}
 
 	ImGui::End();
 
-	ImGui::Begin("Window One");
-	ImGui::Text("Hello");
+	//ImGui::Begin("Window One");
+	//ImGui::Text("Hello");
+	//
+	//ImGui::Checkbox("Render From Camera Entity", &render_from_entity_cam);
+	//ImGui::Checkbox("Resizable Camera Entity", &entity_cam_resizable);
+	//
+	//ImGui::End();
 
-
-	ImGui::End();
+	hier_panel.OnImGuiRender();
 	
 	ImGui::Begin("Window Two");
 	ImGui::Text("Hello");
 	ImGui::Text("Framerate: %f", m_Timestep);
 	ImGui::Text("This is some content");
 
+	//ImGui::Checkbox("Render From Second Camera", &render_from_entity_cam);
+
 	ImGui::End();
 
-	ImGui::Begin("Window Three");
-
-	ImGui::SliderFloat2("Quad Position", quad_position, -5.0f, 5.0f);
-	ImGui::SliderAngle("Angle", &rotation);
-
-	ImGui::ColorEdit4("Background Color", bg_color);
-	ImGui::ColorEdit4("Quad Color", bg_quad);
-
-	if (ImGui::RadioButton("Light Theme", light))
-	{
-		ImGui::StyleColorsLight();
-		light = 1;
-		dark = 0;
-		classic = 0;
-	}
-	else if (ImGui::RadioButton("Dark Theme", dark))
-	{
-		ImGui::StyleColorsDark();
-		dark = 1;
-		light = 0;
-		classic = 0;
-	}
-	else if (ImGui::RadioButton("Classic Theme", classic))
-	{
-		ImGui::StyleColorsClassic();
-		dark = 0;
-		light = 0;
-		classic = 1;
-	}
-	ImGui::End();
+	prop_panel.OnImGuiRender();
+	prop_panel.SetActiveEntity(hier_panel.GetSelectedEntity());
+	//
+	//ImGui::SliderFloat3("Quad Position", quad_position, -5.0f, 5.0f);
+	//ImGui::SliderAngle("Angle", &rotation);
+	//
+	//ImGui::ColorEdit4("Background Color", bg_color);
+	//ImGui::ColorEdit4("Quad Color", bg_quad);
+	//
+	//if (ImGui::RadioButton("Light Theme", light))
+	//{
+	//	ImGui::StyleColorsLight();
+	//	light = 1;
+	//	dark = 0;
+	//	classic = 0;
+	//}
+	//else if (ImGui::RadioButton("Dark Theme", dark))
+	//{
+	//	ImGui::StyleColorsDark();
+	//	dark = 1;
+	//	light = 0;
+	//	classic = 0;
+	//}
+	//else if (ImGui::RadioButton("Classic Theme", classic))
+	//{
+	//	ImGui::StyleColorsClassic();
+	//	dark = 0;
+	//	light = 0;
+	//	classic = 1;
+	//}
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-	ImGui::Begin("2D Viewport");
+	ImGui::Begin((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str());
 
 	m_ViewportFocused = ImGui::IsWindowHovered();
 
@@ -200,14 +313,17 @@ void EditorLayer::OnImGuiUpdate()
 			viewport_framebuffer_height = ImGui::GetContentRegionAvail().y;
 
 			m_ViewportFrameBuffer->Resize(viewport_framebuffer_width, viewport_framebuffer_height);
-			m_EditorCamera->OnWindowResize(viewport_framebuffer_width, viewport_framebuffer_height);
+			m_EditorCamera->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
 		}
 	}
+	m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
+	XEN_ENGINE_LOG_WARN("{0}, {1}", viewport_framebuffer_width, viewport_framebuffer_height);
 
-	ImGui::Image((void*)m_ViewportFrameBuffer->GetColorAttachmentRendererID(), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height));
+	ImGui::Image((void*)m_ViewportFrameBuffer->GetColorAttachmentRendererID(), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
 
 	ImGui::End();
 	ImGui::PopStyleVar();
+
 }
 
 void EditorLayer::OnFixedUpdate()
@@ -217,19 +333,34 @@ void EditorLayer::OnFixedUpdate()
 
 void EditorLayer::OnWindowResizeEvent(Xen::WindowResizeEvent& event)
 {
-	m_EditorCamera->OnWindowResize(viewport_framebuffer_width, viewport_framebuffer_height);
+	m_EditorCamera->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
+	m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
 }
 
 void EditorLayer::OnMouseScrollEvent(Xen::MouseScrollEvent& event)
 {
 	if (m_ViewportFocused)
 	{
-		cam_zoom += event.GetYOffset() * m_Timestep;
-		m_EditorCamera->SetScale(cam_zoom);
-		m_EditorCamera->Update();
+		for (int i = 0; i < 10; i++)
+		{
+			cam_zoom += event.GetYOffset() * 0.01f;
+			m_EditorCamera->SetScale(cam_zoom);
+			m_EditorCamera->Update();
+		}
+	}
+}
 
-		cam_zoom += event.GetYOffset() * m_Timestep;
-		m_EditorCamera->SetScale(cam_zoom);
-		m_EditorCamera->Update();
+void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
+{
+	if (m_ViewportFocused)
+	{
+		if (event.GetKey() == Xen::KeyCode::KEY_W)
+			m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x, m_EditorCamera->GetPosition().y + 0.01f, m_EditorCamera->GetPosition().z));
+		if (event.GetKey() == Xen::KeyCode::KEY_A)
+			m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x - 0.01f, m_EditorCamera->GetPosition().y, m_EditorCamera->GetPosition().z));
+		if (event.GetKey() == Xen::KeyCode::KEY_S)
+			m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x, m_EditorCamera->GetPosition().y - 0.01f, m_EditorCamera->GetPosition().z));
+		if (event.GetKey() == Xen::KeyCode::KEY_D)
+			m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x + 0.01f, m_EditorCamera->GetPosition().y, m_EditorCamera->GetPosition().z));
 	}
 }

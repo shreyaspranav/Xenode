@@ -5,7 +5,7 @@
 
 #include "VertexArray.h"
 #include "Buffer.h"
-#include "OrthographicCamera.h"
+#include "Camera.h"
 #include "Shader.h"
 #include "Texture.h"
 
@@ -13,12 +13,15 @@ namespace Xen {
 
 	struct SceneData
 	{
-		Ref<OrthographicCamera> camera;
+		Ref<Camera> camera;
 
 		Ref<FloatBuffer> vertexBuffer;
 		Ref<ElementBuffer> indexBuffer;
 		Ref<VertexArray> vertexArray;
 		Ref<Shader> shader;
+
+		SceneData()
+		{}
 	};
 
 	class XEN_API RenderCommandQueue

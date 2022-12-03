@@ -17,7 +17,7 @@
 #include <core/renderer/VertexArray.h>
 #include <core/renderer/Shader.h>
 #include <core/renderer/Renderer2D.h>
-#include <core/renderer/OrthographicCamera.h>
+#include <core/renderer/Camera.h>
 #include <core/renderer/Texture.h>
 #include <core/renderer/Primitives.h>
 #include <core/renderer/FrameBuffer.h>

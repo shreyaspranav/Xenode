@@ -10,7 +10,7 @@
 #include <core/renderer/VertexArray.h>
 #include <core/renderer/Shader.h>
 #include <core/renderer/Renderer2D.h>
-#include <core/renderer/OrthographicCamera.h>
+#include <core/renderer/Camera.h>
 #include <core/renderer/Texture.h>
 #include <core/renderer/Primitives.h>
 
@@ -25,7 +25,7 @@ public:
 
 	void OnAttach() override
 	{
-		m_Camera = std::make_shared<Xen::OrthographicCamera>(Xen::GameApplication::GetWindow()->GetFrameBufferWidth(), Xen::GameApplication::GetWindow()->GetFrameBufferHeight());
+		m_Camera = std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, Xen::GameApplication::GetWindow()->GetFrameBufferWidth(), Xen::GameApplication::GetWindow()->GetFrameBufferHeight());
 		Xen::Renderer2D::Init();
 
 		input = Xen::Input::GetInputInterface();
@@ -173,7 +173,7 @@ public:
 	void OnWindowResizeEvent(Xen::WindowResizeEvent& evt) override
 	{
 		Xen::RenderCommand::OnWindowResize(evt.GetWidth(), evt.GetHeight());
-		m_Camera->OnWindowResize(evt.GetWidth(), evt.GetHeight());
+		m_Camera->OnViewportResize(evt.GetWidth(), evt.GetHeight());
 	}
 
 	void OnMouseScrollEvent(Xen::MouseScrollEvent& evt) override
@@ -199,7 +199,7 @@ public:
 	}
 
 private:
-	Xen::Ref<Xen::OrthographicCamera> m_Camera;
+	Xen::Ref<Xen::Camera> m_Camera;
 	Xen::Ref<Xen::Input> input;
 
 	Xen::Vec3 cam_pos;

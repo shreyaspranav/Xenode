@@ -1,8 +1,6 @@
 #include <Xenode.h>
 #include <core/app/EntryPoint.h>
 
-#include <entt.hpp>
-
 #include "EditorLayer.h"
 
 class XenEditorApp : public Xen::GameApplication

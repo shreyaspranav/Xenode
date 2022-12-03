@@ -9,6 +9,9 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
+
+#include "IconsFontAwesome.h"
+
 namespace Xen {
 	class XEN_API ImGuiLayer : public Layer
 	{

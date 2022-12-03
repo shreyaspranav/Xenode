@@ -20,6 +20,8 @@ project "Xen"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.yaml_cpp}",
+
 	}
 
 	links { "Xenode" }

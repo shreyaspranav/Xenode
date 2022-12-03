@@ -30,6 +30,7 @@ namespace Xen {
 
 		inline uint32_t GetWidth() const override		{ return m_Width; }
 		inline uint32_t GetHeight() const override		{ return m_Height; }
+		inline const std::string& GetFilePath() const override { return m_FilePath; }
 
 		inline uint8_t GetChannelCount() const override { return m_Channels; }
 

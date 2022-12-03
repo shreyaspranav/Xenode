@@ -40,6 +40,7 @@ project "Xenode"
 	links { 
 		"GLFW", 
 		"ImGui",
+		"yaml-cpp",
 		--"%{VULKAN_SDK_ROOT}/Lib/vulkan-1.lib",
 		--"%{VULKAN_SDK_ROOT}/Lib/VkLayer_utils.lib",
 	}
@@ -56,6 +57,7 @@ project "Xenode"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.Taskflow}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.yaml_cpp}",
 		
 		--"%{IncludeDir.VulkanSDK}",
 	}

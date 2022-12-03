@@ -10,7 +10,7 @@
 #include <core/renderer/VertexArray.h>
 #include <core/renderer/Shader.h>
 #include <core/renderer/Renderer2D.h>
-#include <core/renderer/OrthographicCamera.h>
+#include <core/renderer/Camera.h>
 #include <core/renderer/Texture.h>
 #include <core/renderer/Primitives.h>
 
@@ -22,7 +22,7 @@ public:
 
 	void OnAttach() override
 	{
-		m_Camera = std::make_shared<Xen::OrthographicCamera>(Xen::GameApplication::GetWindow()->GetFrameBufferWidth(), Xen::GameApplication::GetWindow()->GetFrameBufferHeight());
+		m_Camera = std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, Xen::GameApplication::GetWindow()->GetFrameBufferWidth(), Xen::GameApplication::GetWindow()->GetFrameBufferHeight());
 		Xen::Renderer2D::Init();
 
 		quad = Xen::_2D::Quad();
@@ -144,7 +144,7 @@ public:
 	}
 private:
 	Xen::_2D::Quad quad;
-	Xen::Ref<Xen::OrthographicCamera> m_Camera;
+	Xen::Ref<Xen::Camera> m_Camera;
 
 	Xen::Ref<Xen::Texture2D> tex;
 	Xen::Ref<Xen::Texture2D> opengl_logo;

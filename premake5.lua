@@ -12,6 +12,7 @@ workspace "Xenode"
 group "Dependencies"
 	include "Xenode/deps/glfw"
 	include "Xenode/deps/imgui"
+	include "Xenode/deps/yaml-cpp"
 group ""
 
 IncludeDir = {}
@@ -23,6 +24,7 @@ IncludeDir["stb"] = "%{wks.location}/Xenode/deps/stb"
 IncludeDir["ImGui"] = "%{wks.location}/Xenode/deps/imgui"
 IncludeDir["Taskflow"] = "%{wks.location}/Xenode/deps/taskflow"
 IncludeDir["entt"] = "%{wks.location}/Xenode/deps/entt/include"
+IncludeDir["yaml_cpp"] = "%{wks.location}/Xenode/deps/yaml-cpp/include"
 
 --IncludeDir["VulkanSDK"] = "%{VULKAN_SDK_ROOT}/Include"
 

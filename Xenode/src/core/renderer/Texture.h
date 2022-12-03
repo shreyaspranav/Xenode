@@ -12,6 +12,7 @@ namespace Xen {
 	public:
 		virtual inline uint32_t GetWidth() const = 0;
 		virtual inline uint32_t GetHeight() const = 0;
+		virtual inline const std::string& GetFilePath() const = 0;
 
 		virtual void Bind(uint8_t slot) const = 0;
 	};
