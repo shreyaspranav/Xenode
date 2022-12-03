@@ -10,3 +10,6 @@
 [submodule "Xenode/deps/taskflow"]
 	path = Xenode/deps/taskflow
 	url = https://github.com/shreyaspranav/taskflow.git
+[submodule "Xenode/deps/yaml-cpp"]
+	path = Xenode/deps/yaml-cpp
+	url = https://github.com/shreyaspranav/yaml-cpp.git
