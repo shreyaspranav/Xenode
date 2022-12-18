@@ -6,7 +6,7 @@
 #include "gfxapi/OpenGL/OpenGLVertexArray.h"
 
 namespace Xen {
-	Ref<VertexArray> VertexArray::GetVertexArray()
+	Ref<VertexArray> VertexArray::CreateVertexArray()
 	{
 		switch (GameApplication::GetGraphicsAPI())
 		{

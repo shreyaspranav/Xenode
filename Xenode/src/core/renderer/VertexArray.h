@@ -20,6 +20,6 @@ namespace Xen {
 
 		virtual inline uint8_t GetStrideCount() = 0;
 
-		static Ref<VertexArray> GetVertexArray();
+		static Ref<VertexArray> CreateVertexArray();
 	};
 }

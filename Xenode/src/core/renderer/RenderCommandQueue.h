@@ -15,10 +15,15 @@ namespace Xen {
 	{
 		Ref<Camera> camera;
 
-		Ref<FloatBuffer> vertexBuffer;
-		Ref<ElementBuffer> indexBuffer;
-		Ref<VertexArray> vertexArray;
-		Ref<Shader> shader;
+		Ref<VertexArray> quadVertexArray;
+		Ref<FloatBuffer> quadVertexBuffer;
+		Ref<ElementBuffer> quadIndexBuffer;
+		Ref<Shader> quadShader;
+
+		Ref<VertexArray> circleVertexArray;
+		Ref<FloatBuffer> circleVertexBuffer;
+		Ref<ElementBuffer> circleIndexBuffer;
+		Ref<Shader> circleShader;
 
 		SceneData()
 		{}
@@ -34,7 +39,7 @@ namespace Xen {
 		static void Submit(SceneData data) { m_Data = data; }
 		static void RenderFrame()
 		{
-			RenderCommand::DrawIndexed(m_Data.vertexArray);
+			//RenderCommand::DrawIndexed(m_Data.vertexArray);
 		}
 	};
 }
