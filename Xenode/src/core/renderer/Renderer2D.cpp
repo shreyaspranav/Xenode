@@ -8,7 +8,7 @@ namespace Xen {
 	SceneData Renderer2D::s_Data;
 
 	uint32_t max_quads_per_batch = 10000;
-	uint8_t max_texture_slots = 32; // TODO: Automate this
+	uint8_t max_texture_slots = 8; // TODO: Automate this
 
 	uint32_t default_quad_indices[6] = { 0, 1, 2, 0, 2, 3 };
 	uint32_t current_quad_index;
@@ -58,10 +58,11 @@ namespace Xen {
 			quad_verts = new float[max_quads_per_batch * 40];
 			quad_indices = new uint32_t[max_quads_per_batch * 6];
 
-			circle_quad_verts = new float[max_quads_per_batch * 40];
+			circle_quad_verts = new float[max_quads_per_batch * 48];
 			circle_quad_indices = new uint32_t[max_quads_per_batch * 6];
 
 			quad_index = 0;
+			circle_quad_index = 0;
 
 			texture_slot_index = 1;
 		}
@@ -84,33 +85,33 @@ namespace Xen {
 		0, 1, 2, 0, 2, 3
 	};
 
-	int texture_slots[32];
+	int texture_slots[8];
 
 	static std::vector<Ref<Renderer2DStorage>> batch_storage;
 
 	Renderer2D::Renderer2DStatistics stats;
 
+	BufferLayout quadBufferLayout;
+	BufferLayout circleBufferLayout;
+
 	void Renderer2D::Init()
 	{
+		quadBufferLayout.AddBufferElement(BufferElement("aQuadPosition", 0, 3, 0, BufferDataType::Float, false));
+		quadBufferLayout.AddBufferElement(BufferElement("aQuadColor", 1, 4, 3, BufferDataType::Float, false));
+		quadBufferLayout.AddBufferElement(BufferElement("aQuadTextureCoords", 2, 2, 7, BufferDataType::Float, false));
+		quadBufferLayout.AddBufferElement(BufferElement("aQuadTexSlot", 3, 1, 9, BufferDataType::Float, false));
+
+		circleBufferLayout.AddBufferElement(BufferElement("aCircleQuadWorldCoords", 5, 2, 0, BufferDataType::Float, false));
+		circleBufferLayout.AddBufferElement(BufferElement("aCirclePosition", 6, 3, 2, BufferDataType::Float, false));
+		circleBufferLayout.AddBufferElement(BufferElement("aCircleColor", 7, 4, 5, BufferDataType::Float, false));
+		circleBufferLayout.AddBufferElement(BufferElement("aCircleThickness", 8, 1, 9, BufferDataType::Float, false));
+		circleBufferLayout.AddBufferElement(BufferElement("aCircleOuterFade", 9, 1, 10, BufferDataType::Float, false));
+		circleBufferLayout.AddBufferElement(BufferElement("aCircleInnerFade", 10, 1, 11, BufferDataType::Float, false));
+
 		white_texture =  Texture2D::CreateTexture2D(1, 1, &data, sizeof(uint32_t));
-
-		s_Data.circleShader = Shader::CreateShader("assets/shaders/circle_shader.shader");
-		s_Data.circleShader->LoadShader();
-
-		s_Data.quadShader = Shader::CreateShader("assets/shaders/quad_shader.shader");
-		s_Data.quadShader->LoadShader();
-
-		ShaderLib::AddShader("QuadShader", s_Data.quadShader);
-		ShaderLib::AddShader("CircleShader", s_Data.circleShader);
 
 		s_Data.quadVertexArray = VertexArray::CreateVertexArray();
 		s_Data.quadVertexArray->Bind();
-
-		BufferLayout quadBufferLayout;
-		quadBufferLayout.AddBufferElement(BufferElement("aPosition", 0, 3, 0, BufferDataType::Float, false));
-		quadBufferLayout.AddBufferElement(BufferElement("aColor", 1, 4, 3, BufferDataType::Float, false));
-		quadBufferLayout.AddBufferElement(BufferElement("aTextureCoords", 2, 2, 7, BufferDataType::Float, false));
-		quadBufferLayout.AddBufferElement(BufferElement("aTexSlot", 3, 1, 9, BufferDataType::Float, false));
 
 		s_Data.quadVertexBuffer = Xen::FloatBuffer::CreateFloatBuffer(max_quads_per_batch * 40);
 		s_Data.quadVertexBuffer->SetBufferLayout(quadBufferLayout);
@@ -124,15 +125,7 @@ namespace Xen {
 		s_Data.circleVertexArray = VertexArray::CreateVertexArray();
 		s_Data.circleVertexArray->Bind();
 
-		BufferLayout circleBufferLayout;
-		circleBufferLayout.AddBufferElement(BufferElement("aCircleQuadWorldCoords", 5, 2, 0, BufferDataType::Float, false));
-		circleBufferLayout.AddBufferElement(BufferElement("aPosition", 6, 3, 2, BufferDataType::Float, false));
-		circleBufferLayout.AddBufferElement(BufferElement("aColor", 7, 4, 5, BufferDataType::Float, false));
-		circleBufferLayout.AddBufferElement(BufferElement("aThickness", 8, 1, 9, BufferDataType::Float, false));
-		circleBufferLayout.AddBufferElement(BufferElement("aOuterFade", 9, 1, 10, BufferDataType::Float, false));
-		circleBufferLayout.AddBufferElement(BufferElement("aInnerFade", 10, 1, 11, BufferDataType::Float, false));
-
-		s_Data.circleVertexBuffer = Xen::FloatBuffer::CreateFloatBuffer(max_quads_per_batch * 40);
+		s_Data.circleVertexBuffer = Xen::FloatBuffer::CreateFloatBuffer(max_quads_per_batch * 48);
 		s_Data.circleVertexBuffer->SetBufferLayout(circleBufferLayout);
 		s_Data.circleIndexBuffer = Xen::ElementBuffer::CreateElementBuffer(max_quads_per_batch * 6);
 
@@ -140,6 +133,18 @@ namespace Xen {
 		s_Data.circleVertexArray->SetElementBuffer(s_Data.circleIndexBuffer);
 
 		s_Data.circleVertexArray->Load();
+
+
+		s_Data.circleShader = Shader::CreateShader("assets/shaders/circle_shader.shader");
+		s_Data.circleShader->LoadShader(circleBufferLayout);
+
+		s_Data.quadShader = Shader::CreateShader("assets/shaders/quad_shader.shader");
+		s_Data.quadShader->LoadShader(quadBufferLayout);
+
+		//s_Data.quadShader->SetBufferLayout(quadBufferLayout);
+		//s_Data.circleShader->SetBufferLayout(circleBufferLayout); // This didn't work :(
+		ShaderLib::AddShader("QuadShader", s_Data.quadShader);
+		ShaderLib::AddShader("CircleShader", s_Data.circleShader);
 
 		batch_storage.push_back(std::make_shared<Renderer2DStorage>());
 		batch_storage[0]->textures.push_back(white_texture);
@@ -149,6 +154,11 @@ namespace Xen {
 
 		stats.vertex_buffer_size = s_Data.quadVertexBuffer->GetSize();
 		stats.index_buffer_size = s_Data.quadIndexBuffer->GetSize();
+
+		for (int i = 0; i <= batch_index; i++)
+		{
+			//batch_storage[i]->textures[0]->Bind(0);
+		}
 
 	}
 
@@ -195,6 +205,12 @@ namespace Xen {
 		for (int i = 0; i < max_texture_slots; i++)
 			texture_slots[i] = i;
 
+		for (int i = 0; i <= batch_index; i++)
+		{
+			for (int j = 0; j < batch_storage[i]->textures.size(); j++)
+				batch_storage[i]->textures[j]->Bind(j);
+		}
+
 		s_Data.quadVertexArray->Bind();
 		s_Data.quadShader->Bind();
 
@@ -203,8 +219,8 @@ namespace Xen {
 
 		for (int i = 0; i <= batch_index; i++)
 		{
-			for (int j = 0; j < batch_storage[i]->textures.size(); j++)
-				batch_storage[i]->textures[j]->Bind(j);
+			//for (int j = 0; j < batch_storage[i]->textures.size(); j++)
+			//	batch_storage[i]->textures[j]->Bind(j);
 
 			s_Data.quadVertexBuffer->Put(batch_storage[i]->quad_verts, batch_storage[i]->quad_index * 40);
 
@@ -221,7 +237,7 @@ namespace Xen {
 			s_Data.circleVertexBuffer->Put(batch_storage[i]->circle_quad_verts, batch_storage[i]->circle_quad_index * 48);
 
 			if (current_quad_index != batch_storage[i]->circle_quad_index)
-				s_Data.circleIndexBuffer->Put(batch_storage[i]->circle_quad_indices, batch_storage[i]->quad_index * 6);
+				s_Data.circleIndexBuffer->Put(batch_storage[i]->circle_quad_indices, batch_storage[i]->circle_quad_index * 6);
 
 			current_quad_index = batch_storage[i]->circle_quad_index;
 

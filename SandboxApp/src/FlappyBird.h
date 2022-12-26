@@ -100,7 +100,7 @@ public:
 		color_bottom[1] = cos(color + 90)  + 0.3f;
 		color_bottom[2] = cos(color + 200) + 0.3f;
 
-		Xen::Renderer2D::BeginScene(m_Camera);
+		Xen::Renderer2D::BeginScene(m_Camera, Xen::Vec2(1, 1));
 		Xen::Renderer2D::DrawClearQuad(Xen::Vec3(cam_pos.x - 1.4f, player_y_pos, 0.0f), 0.0f, Xen::Vec2(0.1f), Xen::Color(color_quad[0], color_quad[1], color_quad[2], color_quad[3]));
 
 		if (c != (int)cam_pos.x - 1)

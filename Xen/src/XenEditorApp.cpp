@@ -11,8 +11,8 @@ public:
 
 	void OnCreate() override
 	{
-		window_width = 1600;
-		window_height = 900;
+		window_width = 1280;
+		window_height = 720;
 
 		window_title = "Xen Editor";
 

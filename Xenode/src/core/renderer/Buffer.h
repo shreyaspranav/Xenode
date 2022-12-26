@@ -26,7 +26,7 @@ namespace Xen {
 	public:
 		inline void AddBufferElement(const BufferElement& element) { m_BufferElements.push_back(element); }
 
-		inline const std::vector<BufferElement>& GetBufferElements() { return m_BufferElements; }
+		inline const std::vector<BufferElement>& GetBufferElements() const { return m_BufferElements; }
 	private:
 		std::vector<BufferElement> m_BufferElements;
 	};

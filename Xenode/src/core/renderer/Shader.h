@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include "Structs.h"
 
+#include "Buffer.h"
+
 namespace Xen {
 
 	enum class ShaderType { Source, SpirVBinary };
@@ -11,7 +13,7 @@ namespace Xen {
 	class XEN_API Shader
 	{
 	public:
-		virtual void LoadShader() = 0;
+		virtual void LoadShader(const BufferLayout& layout) = 0;
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;

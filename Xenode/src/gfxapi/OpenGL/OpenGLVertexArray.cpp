@@ -6,7 +6,7 @@
 namespace Xen {
 	OpenGLVertexArray::OpenGLVertexArray()
 	{
-		glCreateVertexArrays(1, &m_VertexArrayID);
+		glGenVertexArrays(1, &m_VertexArrayID);
 		glBindVertexArray(m_VertexArrayID);
 
 		m_StrideCount = 0;

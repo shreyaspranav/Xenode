@@ -1,5 +1,5 @@
 #shadertype: fragment
-#version 460 core
+#version 140 core
 
 in vec4 color;
 in vec2 circleQuadWorldCoords;
@@ -16,16 +16,16 @@ void main()
 }
 
 #shadertype: vertex
-#version 460 core
+#version 140 core
 
-layout(location = 5) in vec2 aCircleQuadWorldCoords;
+in vec2 aCircleQuadWorldCoords;
 
-layout(location = 6) in vec3 aPosition;
-layout(location = 7) in vec4 aColor;
+in vec3 aCirclePosition;
+in vec4 aCircleColor;
 
-layout(location = 8)  in float aThickness;
-layout(location = 9)  in float aOuterFade;
-layout(location = 10) in float aInnerFade;
+in float aCircleThickness;
+in float aCircleOuterFade;
+in float aCircleInnerFade;
 
 out vec4 color;
 out vec2 circleQuadWorldCoords;
@@ -34,7 +34,7 @@ uniform mat4 u_ViewProjectionMatrix;
 
 void main()
 {
-	gl_Position = u_ViewProjectionMatrix * vec4(aPosition, 1.0f);
+	gl_Position = u_ViewProjectionMatrix * vec4(aCirclePosition, 1.0f);
 	circleQuadWorldCoords = aCircleQuadWorldCoords;
-	color = aColor;
+	color = aCircleColor;
 }

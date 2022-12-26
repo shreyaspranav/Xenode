@@ -32,17 +32,21 @@ void EditorLayer::OnAttach()
 	Xen::Renderer2D::Init();
 
 	m_ActiveScene = std::make_shared<Xen::Scene>();
-	quad_entity_1 = m_ActiveScene->CreateEntity("Quad_1");
 	quad_entity = m_ActiveScene->CreateEntity("Quad");
+	quad_entity_1 = m_ActiveScene->CreateEntity("Quad_1");
+	quad_entity_2 = m_ActiveScene->CreateEntity("Quad_2");
 	camera_entity = m_ActiveScene->CreateEntity("Camera");
 
 	tex = Xen::Texture2D::CreateTexture2D("assets/textures/CheckerBoardTexture.png", 1);
+	tex_1 = Xen::Texture2D::CreateTexture2D("assets/textures/microsoft.png", 1);
 	//tex_2d = Xen::Texture2D::CreateTexture2D("assets/textures/Consolas.png", 1);
 	//tex_2d->LoadTexture();
 	tex->LoadTexture();
+	tex_1->LoadTexture();
 
-	quad_entity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f), tex);
-	quad_entity_1.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f));
+	quad_entity_1.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f), tex);
+	quad_entity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f), tex_1);
+	quad_entity_2.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f));
 
 	camera_entity.AddComponent<Xen::Component::CameraComp>(Xen::CameraType::Orthographic, specs.width, specs.height);
 	m_EditorCamera->Update();
@@ -65,7 +69,7 @@ void EditorLayer::OnAttach()
 		}
 	};
 
-	quad_entity_1.AddComponent<Xen::Component::NativeScript>().Bind<CameraControlScript>(quad_entity_1);
+	//quad_entity_1.AddComponent<Xen::Component::NativeScript>().Bind<CameraControlScript>(quad_entity_1);
 
 	hier_panel = SceneHierarchyPanel(m_ActiveScene);
 	prop_panel = PropertiesPanel(hier_panel.GetSelectedEntity());
@@ -82,12 +86,12 @@ void EditorLayer::OnUpdate(double timestep)
 
 	m_ViewportFrameBuffer->Bind();
 	Xen::RenderCommand::Clear();
-	Xen::RenderCommand::SetClearColor(Xen::Color(bg_color[0], bg_color[1], bg_color[2], bg_color[3]));
+	Xen::RenderCommand::SetClearColor(Xen::Color(0.0f, 0.0f, 0.0f, 1.0f));
 
 	//Xen::Renderer2D::BeginScene(m_EditorCamera, Xen::Vec2(viewport_framebuffer_width, viewport_framebuffer_height));
 	//m_EditorCamera->Update();
 	m_ActiveScene->OnUpdate(timestep);
-	Xen::Renderer2D::DrawClearCircle(Xen::Vec3(1.0f, 1.0f, 0.0f), Xen::Vec3(1.0f, 1.0f, 1.0f), Xen::Color(1.0f, 0.3f, 0.4f, 1.0f));
+	//Xen::Renderer2D::DrawClearCircle(Xen::Vec3(1.0f, 1.0f, 0.0f), Xen::Vec3(1.0f, 1.0f, 1.0f), Xen::Color(1.0f, 0.3f, 0.4f, 1.0f));
 	//XEN_ENGINE_LOG_INFO("{0}", (float)viewport_framebuffer_width / (float)viewport_framebuffer_height);
 
 	//Xen::Renderer2D::DrawTexturedQuad(tex_2d, Xen::Vec3(1.0f, 1.0f, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f, 1.0f, 1.0f), Xen::Color(1.0f, 0.0f, 0.0f, 1.0f));

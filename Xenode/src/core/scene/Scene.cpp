@@ -89,6 +89,7 @@ namespace Xen {
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
 		auto camera_group_observer = m_Registry.view<Component::Transform, Component::CameraComp>();
+		//RenderCommand::OnWindowResize(width, height);
 		for (auto& entity : camera_group_observer)
 		{
 			Component::CameraComp& camera = camera_group_observer.get<Component::CameraComp>(entity);

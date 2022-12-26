@@ -32,8 +32,10 @@ private:
 	Xen::Ref<Xen::Scene> m_ActiveScene;
 
 	Xen::Ref<Xen::Texture2D> tex;
+	Xen::Ref<Xen::Texture2D> tex_1;
 	Xen::Entity quad_entity;
 	Xen::Entity quad_entity_1;
+	Xen::Entity quad_entity_2;
 	Xen::Entity camera_entity;
 
 	float cam_zoom = 1.0f;

@@ -120,7 +120,7 @@ namespace Xen {
 	{
 		glDeleteProgram(m_ShaderID);
 	}
-	void OpenGLShader::LoadShader()
+	void OpenGLShader::LoadShader(const BufferLayout& layout)
 	{
 
 		uint32_t vertexShader, fragmentShader;
@@ -152,11 +152,14 @@ namespace Xen {
 
 		if (success == GL_FALSE)
 		{
-			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+			glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
 			XEN_ENGINE_LOG_ERROR("Failed to compile Fragment Shader!");
 			XEN_ENGINE_LOG_ERROR(infoLog);
 			TRIGGER_BREAKPOINT;
 		}
+
+		for (BufferElement element : layout.GetBufferElements())
+			glBindAttribLocation(m_ShaderID, element.shader_location, element.name.c_str());
 
 		glAttachShader(m_ShaderID, vertexShader);
 		glAttachShader(m_ShaderID, fragmentShader);
