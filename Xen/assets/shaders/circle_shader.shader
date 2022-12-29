@@ -28,7 +28,7 @@ void main()
 	if (dist > circleThickness)
 		thicknessLayer = 0.0;
 
-	innerFadeLayer = smoothstep(circleThickness - circleInnerFade, circleThickness, dist);
+	innerFadeLayer = smoothstep(circleThickness * (1.0 - circleInnerFade), circleThickness, dist);
 
 	fragColor = vec4(1.0, 1.0, 1.0, (1.0 - innerFadeLayer) * thicknessLayer * outerFadeLayer) * color;
 }
