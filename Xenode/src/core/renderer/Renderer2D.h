@@ -44,14 +44,14 @@ namespace Xen {
 
 		//static void DrawClearPolygon(uint32_t segments, const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f));
 
-		static void DrawClearCircle(const Vec3& position, const Vec3& scale = Vec3(1.0f), const Color& color = Color(), float thickness = 1.0f, float innerfade = 0.0f, float outerfade = 0.0f);
+		static void DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec3& scale = Vec3(1.0f), const Color& color = Color(), float thickness = 1.0f, float innerfade = 0.0f, float outerfade = 0.0f);
 
 		// Stats functions:
 		static Renderer2DStatistics& GetStatistics();
 	
 	private:
 		static void AddQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale);
-		static void AddCircleQuad(const Vec3& position, const Vec3& scale);
+		static void AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale);
 	};
 
 }

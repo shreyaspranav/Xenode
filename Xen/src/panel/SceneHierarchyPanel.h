@@ -80,16 +80,37 @@ private:
 			if (entity.HasAllComponent<Xen::Component::SpriteRenderer>())
 			{
 				ImGui::TreeNodeEx((std::string(ICON_FA_TREE) + std::string("  Sprite Renderer")).c_str(), base_flags);
+				if(ImGui::IsItemClicked())
+					m_SelectedEntity = entity;
+				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
+					m_SelectedEntity = Xen::Entity();
 			}
 
 			if (entity.HasAllComponent<Xen::Component::NativeScript>())
 			{
 				ImGui::TreeNodeEx((std::string(ICON_FA_CODE) + std::string("  Script")).c_str(), base_flags);
+				if (ImGui::IsItemClicked())
+					m_SelectedEntity = entity;
+				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
+					m_SelectedEntity = Xen::Entity();
 			}
 
 			if (entity.HasAllComponent<Xen::Component::CameraComp>())
 			{
 				ImGui::TreeNodeEx((std::string(ICON_FA_CAMERA) + std::string("  Orthographic Camera")).c_str(), base_flags);
+				if (ImGui::IsItemClicked())
+					m_SelectedEntity = entity;
+				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
+					m_SelectedEntity = Xen::Entity();
+			}
+			
+			if (entity.HasAllComponent<Xen::Component::CircleRenderer>())
+			{
+				ImGui::TreeNodeEx((std::string(ICON_FA_CIRCLE) + std::string(" Circle Renderer")).c_str(), base_flags);
+				if (ImGui::IsItemClicked())
+					m_SelectedEntity = entity;
+				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
+					m_SelectedEntity = Xen::Entity();
 			}
 
 			ImGui::TreePop();

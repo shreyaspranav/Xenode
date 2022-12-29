@@ -105,8 +105,8 @@ namespace Xen {
 		circleBufferLayout.AddBufferElement(BufferElement("aCirclePosition", 6, 3, 2, BufferDataType::Float, false));
 		circleBufferLayout.AddBufferElement(BufferElement("aCircleColor", 7, 4, 5, BufferDataType::Float, false));
 		circleBufferLayout.AddBufferElement(BufferElement("aCircleThickness", 8, 1, 9, BufferDataType::Float, false));
-		circleBufferLayout.AddBufferElement(BufferElement("aCircleOuterFade", 9, 1, 10, BufferDataType::Float, false));
-		circleBufferLayout.AddBufferElement(BufferElement("aCircleInnerFade", 10, 1, 11, BufferDataType::Float, false));
+		circleBufferLayout.AddBufferElement(BufferElement("aCircleInnerFade", 9, 1, 10, BufferDataType::Float, false));
+		circleBufferLayout.AddBufferElement(BufferElement("aCircleOuterFade", 10, 1, 11, BufferDataType::Float, false));
 
 		white_texture =  Texture2D::CreateTexture2D(1, 1, &data, sizeof(uint32_t));
 
@@ -522,9 +522,9 @@ namespace Xen {
 		batch_storage[batch_index]->quad_index++;
 	}
 
-	void Renderer2D::DrawClearCircle(const Vec3& position, const Vec3& scale, const Color& color, float thickness, float innerfade, float outerfade)
+	void Renderer2D::DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec3& scale, const Color& color, float thickness, float innerfade, float outerfade)
 	{
-		Renderer2D::AddCircleQuad(position, scale);
+		Renderer2D::AddCircleQuad(position, rotation, scale);
 
 		for (int i = 0; i < 48; i += 12)
 		{
@@ -607,7 +607,6 @@ namespace Xen {
 				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1))
 				* glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, scale.z));
 
-
 			for (int i = 0; i < 4; i++)
 			{
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i * 10) + 0] = (transform * temp_vert[i]).x;
@@ -617,7 +616,7 @@ namespace Xen {
 		stats.quad_count++;
 	}
 
-	void Renderer2D::AddCircleQuad(const Vec3& position, const Vec3& scale)
+	void Renderer2D::AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale)
 	{
 		if (batch_storage[batch_index]->circle_quad_index >= max_quads_per_batch - 1)
 		{
@@ -634,10 +633,10 @@ namespace Xen {
 
 		for (int i = 0; i < 6; i++)
 			batch_storage[batch_index]->circle_quad_indices[(batch_storage[batch_index]->circle_quad_index * 6) + i] = (batch_storage[batch_index]->circle_quad_index * 4) + default_quad_indices[i];
-
+			
 		// Vertices
-		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) +  2] = position.x + (0.5f * scale.x);
-		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) +  3] = position.y + (0.5f * scale.y);
+		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 2] = position.x + (0.5f * scale.x);
+		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 3] = position.y + (0.5f * scale.y);
 
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 14] = position.x - (0.5f * scale.x);
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 15] = position.y + (0.5f * scale.y);
@@ -647,7 +646,7 @@ namespace Xen {
 
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 38] = position.x + (0.5f * scale.x);
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 39] = position.y - (0.5f * scale.y);
-
+		
 		// Circle World coordinates
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) +  0] = 1.0f;
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) +  1] = 1.0f;

@@ -68,6 +68,12 @@ public:
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
+				if (m_SelectedEntity.HasAnyComponent<Xen::Component::CircleRenderer>())
+				{
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), std::string(ICON_FA_CIRCLE) + std::string(" Circle Renderer"));
+					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
+				}
+
 				if (m_SelectedEntity.HasAnyComponent<Xen::Component::CameraComp>())
 				{
 					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), std::string(ICON_FA_CAMERA) + std::string(" Camera"));
@@ -97,6 +103,9 @@ public:
 						else if (component.contains("Camera"))
 							m_SelectedEntity.AddComponent<Xen::Component::CameraComp>(std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, 22, 22));
 
+						else if (component.contains("Circle Renderer"))
+							m_SelectedEntity.AddComponent<Xen::Component::CircleRenderer>();
+
 						std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), component);
 						m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 					}
@@ -113,48 +122,10 @@ public:
 			if (ImGui::TreeNodeEx((std::string(ICON_FA_CUBES) + std::string("  Transform")).c_str(), tree_flags))
 			{
 				//PaddedText("Position ", 0.0f, 3.0f); ImGui::SameLine();
-				DrawVec3Control("Position", transform.position);
-				DrawVec3Control("Rotation", transform.rotation);
-				DrawVec3Control("Scale", transform.scale);
-				//DrawVec3Control("fdadfas", glm::vec3(1, 1, 1));
-				//ImGui::Columns(2, "Pos", false);
-				//ImGui::SetColumnWidth(0, 70.0f);
-				//PaddedText("Position", 0, 3.0f); ImGui::SameLine();
-				//ImGui::NextColumn();
-				// 
-				//ImGui::PushItemWidth(-0.1f);
-				//if (DrawVecControl(1, pos, 0.0f))
-				//{
-				//	transform.position.x = pos[0];
-				//	transform.position.y = pos[1];
-				//	transform.position.z = pos[2];
-				//}
-				//ImGui::PopItemWidth();
-				//ImGui::NextColumn();
-				//
-				//PaddedText("Rotation", 0, 3.0f);; ImGui::SameLine();
-				//ImGui::NextColumn();
-				//
-				//ImGui::PushItemWidth(-0.1f);
-				//if (ImGui::DragFloat("##Rotation", &rot, 0.05f));
-				//{
-				//	transform.rotation = rot;
-				//}
-				//ImGui::PopItemWidth();
-				//ImGui::NextColumn();
-				//
-				//PaddedText("Scale", 0, 3.0f); ImGui::SameLine();
-				//ImGui::NextColumn();
-				//
-				//ImGui::PushItemWidth(-0.1f);
-				//if (ImGui::DragFloat2("##Scale", scale, 0.01f));
-				//{
-				//	transform.scale.x = scale[0];
-				//	transform.scale.y = scale[1];
-				//}
-				//ImGui::PopItemWidth();
-				//
-				//ImGui::Columns(1);
+				DrawVec3Control("Position", transform.position, 0.0f);
+				DrawVec3Control("Rotation", transform.rotation, 0.0f);
+				DrawVec3Control("Scale", transform.scale, 1.0f);
+
 				ImGui::TreePop();
 			}
 			ImGui::Separator();
@@ -321,14 +292,88 @@ public:
 					ImGui::PushItemWidth(-0.1f);
 					ImGui::InputText("##Texture", texture_file_path, IM_ARRAYSIZE(texture_file_path), ImGuiInputTextFlags_ReadOnly);
 					ImGui::PopItemWidth();
+
+					ImGui::Columns(1);
 					
 					ImGui::TreePop();
-
-					
 				}
 				ImGui::Separator();
 			}
 
+			backCR:
+			if (m_SelectedEntity.HasAnyComponent<Xen::Component::CircleRenderer>())
+			{
+				Xen::Component::CircleRenderer& circle_renderer = m_SelectedEntity.GetComponent<Xen::Component::CircleRenderer>();
+
+				if (ImGui::TreeNodeEx((std::string(ICON_FA_CIRCLE) + std::string("  Circle Renderer")).c_str(), tree_flags))
+				{
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+						ImGui::OpenPopup("DeleteComponent");
+
+					if (ImGui::BeginPopup("DeleteComponent"))
+					{
+						if (ImGui::Selectable("Delete Component"))
+						{
+							m_SelectedEntity.DeleteComponent<Xen::Component::CircleRenderer>();
+							ImGui::EndPopup();
+							ImGui::TreePop();
+							goto backCR;
+						}
+						ImGui::EndPopup();
+					}
+					float circle_color[4] = {
+						circle_renderer.color.r,
+						circle_renderer.color.g,
+						circle_renderer.color.b,
+						circle_renderer.color.a,
+					};
+
+					ImGui::Columns(2, "##CircleRenderer", false);
+					ImGui::SetColumnWidth(0, 100.0f);
+
+					PaddedText("Circle Color", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					
+					ImGui::PushItemWidth(-0.1f);
+					if (ImGui::ColorEdit4("##CircleColor", circle_color))
+					{
+						circle_renderer.color.r = circle_color[0];
+						circle_renderer.color.g = circle_color[1];
+						circle_renderer.color.b = circle_color[2];
+						circle_renderer.color.a = circle_color[3];
+					}
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Thickness", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					if (ImGui::SliderFloat("##Thickness", &circle_renderer.thickness, 0.0f, 1.0f));
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Inner Fade", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					if (ImGui::SliderFloat("##Innerfade", &circle_renderer.inner_fade, 0.0f, 1.0f));
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Outer Fade", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					if (ImGui::SliderFloat("##OuterFade", &circle_renderer.outer_fade, 0.0f, 1.0f));
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					ImGui::Columns(1);
+					ImGui::TreePop();
+				}
+				ImGui::Separator();
+			}
 		}
 
 		ImGui::End();
@@ -420,7 +465,8 @@ private:
 
 	std::vector<std::string> m_Components = { std::string(ICON_FA_TREE) + std::string(" Sprite Renderer"),
 								std::string(ICON_FA_CAMERA) + std::string(" Camera"), 
-								std::string(ICON_FA_CODE) + std::string(" Script") };
+								std::string(ICON_FA_CODE) + std::string(" Script"), 
+								std::string(ICON_FA_CIRCLE) + std::string(" Circle Renderer") };
 
 	std::vector<std::string> m_AvailableComponents = m_Components;
 

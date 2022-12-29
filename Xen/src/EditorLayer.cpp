@@ -91,7 +91,7 @@ void EditorLayer::OnUpdate(double timestep)
 	//Xen::Renderer2D::BeginScene(m_EditorCamera, Xen::Vec2(viewport_framebuffer_width, viewport_framebuffer_height));
 	//m_EditorCamera->Update();
 	m_ActiveScene->OnUpdate(timestep);
-	//Xen::Renderer2D::DrawClearCircle(Xen::Vec3(1.0f, 1.0f, 0.0f), Xen::Vec3(1.0f, 1.0f, 1.0f), Xen::Color(1.0f, 0.3f, 0.4f, 1.0f));
+	//Xen::Renderer2D::DrawClearCircle(Xen::Vec3(1.0f, 0.0f, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.4f, 1.0f, 1.0f), Xen::Color(0.4f, 0.3f, 0.4f, 1.0f));
 	//XEN_ENGINE_LOG_INFO("{0}", (float)viewport_framebuffer_width / (float)viewport_framebuffer_height);
 
 	//Xen::Renderer2D::DrawTexturedQuad(tex_2d, Xen::Vec3(1.0f, 1.0f, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f, 1.0f, 1.0f), Xen::Color(1.0f, 0.0f, 0.0f, 1.0f));

@@ -68,8 +68,8 @@ namespace Xen {
 				camera.camera->SetPosition(transform.position);
 				camera.camera->SetRotation(transform.rotation);
 				camera.camera->SetScale(transform.scale);
-				Renderer2D::BeginScene(camera.camera, Vec2(1.0f, 1.0f));
 				camera.camera->Update();
+				Renderer2D::BeginScene(camera.camera, Vec2(1.0f, 1.0f));
 			}
 		}
 
@@ -84,6 +84,15 @@ namespace Xen {
 				Renderer2D::DrawClearQuad(transform.position, transform.rotation, transform.scale, spriteRenderer.color);
 			else
 				Renderer2D::DrawTexturedQuad(spriteRenderer.texture, transform.position, transform.rotation, transform.scale, spriteRenderer.color);
+		}
+
+		auto circle_group_observer = m_Registry.view<Component::Transform, Component::CircleRenderer>();
+		for (auto& entity : circle_group_observer)
+		{
+			Component::Transform& transform = circle_group_observer.get<Component::Transform>(entity);
+			Component::CircleRenderer& circleRenderer = circle_group_observer.get<Component::CircleRenderer>(entity);
+
+			Renderer2D::DrawClearCircle(transform.position, transform.rotation, transform.scale, circleRenderer.color, circleRenderer.thickness, circleRenderer.inner_fade, circleRenderer.outer_fade);
 		}
 	}
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)

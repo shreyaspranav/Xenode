@@ -42,6 +42,19 @@ namespace Xen {
 			SpriteRenderer(const Color& color, Ref<Texture2D> texture) : color(color), texture(texture) {}
 		};
 
+		struct CircleRenderer
+		{
+			Color color = Color(1.0f);
+			float thickness = 1.0f;
+			float inner_fade = 0.0f;
+			float outer_fade = 0.0f;
+
+			CircleRenderer() = default;
+			CircleRenderer(const CircleRenderer& renderer) = default;
+
+			CircleRenderer(const Color& color, float thickness, float innerfade, float outerfade) : color(color), thickness(thickness), inner_fade(innerfade), outer_fade(outerfade) {}
+		};
+
 		struct CameraComp
 		{
 			Ref<Camera> camera;
