@@ -38,7 +38,7 @@ namespace Xen {
 		style->Colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.00f);
 
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)m_Window->GetNativeWindow(), false);
-		ImGui_ImplOpenGL3_Init("#version 130 core");
+		ImGui_ImplOpenGL3_Init("#version 130");
 	}
 	void ImGuiLayer::OnDetach()
 	{

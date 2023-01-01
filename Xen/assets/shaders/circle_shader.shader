@@ -1,5 +1,5 @@
 #shadertype: fragment
-#version 140 core
+#version 140
 
 in vec4 color;
 in vec2 circleQuadWorldCoords;
@@ -34,7 +34,7 @@ void main()
 }
 
 #shadertype: vertex
-#version 140 core
+#version 140
 
 in vec2 aCircleQuadWorldCoords;
 
