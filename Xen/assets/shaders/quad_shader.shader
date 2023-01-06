@@ -1,5 +1,5 @@
 #shadertype: fragment
-#version 140 core
+#version 140
 in vec4 color;
 flat in float TexSlot;
 in vec2 TextureCoords;
@@ -30,7 +30,7 @@ void main()
 }
 
 #shadertype: vertex
-#version 140 core
+#version 140
 in vec3 aQuadPosition;
 in vec4 aQuadColor;
 in vec2 aQuadTextureCoords;
