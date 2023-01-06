@@ -134,15 +134,12 @@ namespace Xen {
 
 		s_Data.circleVertexArray->Load();
 
-
 		s_Data.circleShader = Shader::CreateShader("assets/shaders/circle_shader.shader");
 		s_Data.circleShader->LoadShader(circleBufferLayout);
 
 		s_Data.quadShader = Shader::CreateShader("assets/shaders/quad_shader.shader");
 		s_Data.quadShader->LoadShader(quadBufferLayout);
 
-		//s_Data.quadShader->SetBufferLayout(quadBufferLayout);
-		//s_Data.circleShader->SetBufferLayout(circleBufferLayout); // This didn't work :(
 		ShaderLib::AddShader("QuadShader", s_Data.quadShader);
 		ShaderLib::AddShader("CircleShader", s_Data.circleShader);
 
@@ -155,10 +152,6 @@ namespace Xen {
 		stats.vertex_buffer_size = s_Data.quadVertexBuffer->GetSize();
 		stats.index_buffer_size = s_Data.quadIndexBuffer->GetSize();
 
-		for (int i = 0; i <= batch_index; i++)
-		{
-			//batch_storage[i]->textures[0]->Bind(0);
-		}
 
 	}
 
@@ -188,15 +181,7 @@ namespace Xen {
 
 	void Renderer2D::EndScene()
 	{
-		//for (int i = 0; i < storage->texture_slot_index; i++)
-		//	storage->textures[i]->Bind(i);
-		//
-		//s_Data.quadVertexBuffer->Put(storage->quad_verts, storage->quad_index * 40);
-		//
-		//if (current_quad_index != storage->quad_index)
-		//	s_Data.quadIndexBuffer->Put(storage->quad_indices, storage->quad_index * 6);
-		//
-		//current_quad_index = storage->quad_index;
+		// Nothing for now!
 	}
 	void Renderer2D::RenderFrame()
 	{
@@ -271,13 +256,12 @@ namespace Xen {
 		// Color, Z coordinate, and texture ID:
 		for (int i = 0; i < 40; i += 10)
 		{
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
-
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = color.r;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = color.g;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = color.b;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = color.a;
 
+			// Setting the texture slot for out default white texture as 0:
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = 0.0f;
 		}
 
@@ -305,13 +289,12 @@ namespace Xen {
 		// Color, Z coordinate, and texture ID:
 		for (int i = 0; i < 40; i += 10)
 		{
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
-
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = color.r;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = color.g;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = color.b;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = color.a;
 
+			// Setting the texture slot for out default white texture as 0:
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = 0.0f;
 		}
 
@@ -341,13 +324,12 @@ namespace Xen {
 		{
 			for (int i = 0; i < 40; i += 10)
 			{
-				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
-
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = 1.0f;
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = 1.0f;
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = 1.0f;
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = 1.0f;
 
+				// Setting the texture slot for out default white texture as 0:
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = 0.0f;
 			}
 		}
@@ -355,13 +337,12 @@ namespace Xen {
 		{
 			for (int i = 0; i < 40; i += 10)
 			{
-				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
-
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = color[i / 10].r;
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = color[i / 10].g;
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = color[i / 10].b;
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = color[i / 10].a;
 
+				// Setting the texture slot for out default white texture as 0:
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = 0.0f;
 			}
 		}
@@ -392,14 +373,11 @@ namespace Xen {
 
 		for (int i = 0; i < 40; i += 10)
 		{
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
-
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = tintcolor.r;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = tintcolor.g;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = tintcolor.b;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = tintcolor.a;
 		}
-		//texture->Bind(batch_storage[batch_index]->texture_slot_index);
 
 		// Check to see if 'texture' is NOT in the vector
 		std::vector<Ref<Texture2D>>::iterator itr = std::find(batch_storage[batch_index]->textures.begin(), batch_storage[batch_index]->textures.end(), texture);
@@ -440,18 +418,11 @@ namespace Xen {
 
 		for (int i = 0; i < 40; i += 10)
 		{
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
-
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = tintcolor.r;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = tintcolor.g;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = tintcolor.b;
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = tintcolor.a;
-
-			//batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = (float)batch_storage[batch_index]->texture_slot_index;
-			
 		}
-		//texture->Bind(batch_storage[batch_index]->texture_slot_index);
-
 
 		// Check to see if 'texture' is NOT in the vector
 		std::vector<Ref<Texture2D>>::iterator itr = std::find(batch_storage[batch_index]->textures.begin(), batch_storage[batch_index]->textures.end(), texture);
@@ -598,6 +569,9 @@ namespace Xen {
 
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 30] = position.x + (0.5f * scale.x);
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 31] = position.y - (0.5f * scale.y);
+
+			for (int i = 0; i < 4; i++)
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i * 10) + 2] = position.z;
 		}
 
 		else {
@@ -611,6 +585,7 @@ namespace Xen {
 			{
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i * 10) + 0] = (transform * temp_vert[i]).x;
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i * 10) + 1] = (transform * temp_vert[i]).y;
+				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i * 10) + 2] = (transform * temp_vert[i]).z;
 			}
 		}
 		stats.quad_count++;
@@ -646,6 +621,9 @@ namespace Xen {
 
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 38] = position.x + (0.5f * scale.x);
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 39] = position.y - (0.5f * scale.y);
+
+		for (int i = 0; i < 4; i++)
+			batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + (i * 12) + 4] = position.z;
 		
 		// Circle World coordinates
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) +  0] = 1.0f;
