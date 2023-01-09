@@ -20,6 +20,7 @@ project "SandboxApp"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.freetype}",
 	}
 
 	links { "Xenode" }

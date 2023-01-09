@@ -5,14 +5,14 @@ workspace "Xenode"
 	bin_folder = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 	startproject "Xen"
--- dependencies:
 
---VULKAN_SDK_ROOT = "C:/VulkanSDK/1.3.216.0"
+-- dependencies:
 
 group "Dependencies"
 	include "Xenode/deps/glfw"
 	include "Xenode/deps/imgui"
 	include "Xenode/deps/yaml-cpp"
+	include "Xenode/deps/freetype"
 group ""
 
 IncludeDir = {}
@@ -25,8 +25,7 @@ IncludeDir["ImGui"] = "%{wks.location}/Xenode/deps/imgui"
 IncludeDir["Taskflow"] = "%{wks.location}/Xenode/deps/taskflow"
 IncludeDir["entt"] = "%{wks.location}/Xenode/deps/entt/include"
 IncludeDir["yaml_cpp"] = "%{wks.location}/Xenode/deps/yaml-cpp/include"
-
---IncludeDir["VulkanSDK"] = "%{VULKAN_SDK_ROOT}/Include"
+IncludeDir["freetype"] = "%{wks.location}/Xenode/deps/freetype/include"
 
 -- Main projects:
 

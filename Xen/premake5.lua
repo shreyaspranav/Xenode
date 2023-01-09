@@ -21,6 +21,7 @@ project "Xen"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.freetype}",
 
 	}
 

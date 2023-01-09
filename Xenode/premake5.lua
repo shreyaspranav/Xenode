@@ -41,8 +41,6 @@ project "Xenode"
 		"GLFW", 
 		"ImGui",
 		"yaml-cpp",
-		--"%{VULKAN_SDK_ROOT}/Lib/vulkan-1.lib",
-		--"%{VULKAN_SDK_ROOT}/Lib/VkLayer_utils.lib",
 	}
 
 	includedirs {
@@ -58,8 +56,7 @@ project "Xenode"
 		"%{IncludeDir.Taskflow}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
-		
-		--"%{IncludeDir.VulkanSDK}",
+		"%{IncludeDir.freetype}",
 	}
 
 	

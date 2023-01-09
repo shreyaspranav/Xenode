@@ -13,3 +13,6 @@
 [submodule "Xenode/deps/yaml-cpp"]
 	path = Xenode/deps/yaml-cpp
 	url = https://github.com/shreyaspranav/yaml-cpp.git
+[submodule "Xenode/deps/freetype"]
+	path = Xenode/deps/freetype
+	url = https://github.com/shreyaspranav/freetype.git
