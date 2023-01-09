@@ -101,7 +101,7 @@ public:
 		color_bottom[2] = cos(color + 200) + 0.3f;
 
 		Xen::Renderer2D::BeginScene(m_Camera, Xen::Vec2(1, 1));
-		Xen::Renderer2D::DrawClearQuad(Xen::Vec3(cam_pos.x - 1.4f, player_y_pos, 0.0f), 0.0f, Xen::Vec2(0.1f), Xen::Color(color_quad[0], color_quad[1], color_quad[2], color_quad[3]));
+		Xen::Renderer2D::DrawClearCircle(Xen::Vec3(cam_pos.x - 1.4f, player_y_pos, 0.0f), Xen::Vec3(0.0f), Xen::Vec3(0.1f, 0.1f, 1.0f), Xen::Color(color_quad[0], color_quad[1], color_quad[2], color_quad[3]), 1.0f, 0.0f, 0.05f);
 
 		if (c != (int)cam_pos.x - 1)
 		{
@@ -167,7 +167,6 @@ public:
 	void OnRender() override
 	{
 		Xen::Renderer2D::RenderFrame();
-
 	}
 
 	void OnWindowResizeEvent(Xen::WindowResizeEvent& evt) override
