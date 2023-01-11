@@ -5,11 +5,13 @@ Xenode is a cross platform game engine that works primarily works in Windows and
 ![Xen Editor](XenEditor.PNG "Xen Editor")
 
 ## Building Xenode
-Xenode has a lot of dependencies that needs to cloned properly for a successful build. Follow the instructions below to build Xenode for the Xenode is officially tested for MSVC for Windows and GCC for Linux
+Xenode has a lot of dependencies that needs to cloned properly for a successful build. Follow the instructions below to build Xenode. Xenode is officially tested for MSVC in Windows and GCC in Linux
 
 ## Requirements
 * x64 based processor
 * GPU with atleast OpenGL 3.0 support for better experience
+
+_32 bit builds are officially not supported_
 
 ### For Windows
 Visual Studio 2022 recommended <br>
@@ -24,6 +26,12 @@ Visual Studio 2022 recommended <br>
 
 ## What's Present in Xenode?
 As of time of writing, Xenode has a fast 2D Batch Renderer which supports rendering quads and circles. It can render thousands of colored quads in a single draw call. It also has a level editor made in [ImGui](https://github.com/ocornut/imgui) and is dockable. It also has a demo FlappyBird game made with this engine in SandboxApp project.
+
+### 2D Renderer
+The 2D renderer API in Xenode provides API for rendering colored quads, textured quads, hard and soft circles, donuts and more. The 2D renderer works by batching the geometry and drawing in less number of draw calls. 
+
+### Windowing and input
+[GLFW](https://github.com/glfw/glfw) is used for the windowing and input. The API supports fullscreen windows and  semi transperent windows. The API also allows fullscreen window to be targeted to a specific monitor. All inputs are hooked to the event system API.
 
 ## Dependencies
 * [GLFW](https://github.com/glfw/glfw) for windows and input
