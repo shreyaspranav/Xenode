@@ -439,4 +439,8 @@ FodyWeavers.xsd
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# Generated Android gradle project
+SandboxAppAndroid/SandboxApk
+
 © 2021 GitHub, Inc.
