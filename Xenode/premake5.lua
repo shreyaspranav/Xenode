@@ -47,6 +47,8 @@ project "Xenode"
 		"src/",
 		"src/pch/",
 
+		"../SandboxAppAndroid/src/cpp",
+
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.stb}",
@@ -71,7 +73,7 @@ project "Xenode"
 			"src/platform/windows/**.h",
 		}
 
-		defines { "XEN_PLATFORM_WINDOWS", "XEN_BUILD_DLL" }
+		defines { "XEN_PLATFORM_WINDOWS", "XEN_BUILD_LIB", "XEN_DEVICE_DESKTOP" }
 
 	filter "system:linux"
 
@@ -82,7 +84,7 @@ project "Xenode"
 			"src/platform/linux/**.h"
 		}
 
-		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_SL" }
+		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_LIB", "XEN_DEVICE_DESKTOP" }
 		buildoptions "-std=gnu++2b"
 		links { "pthread", "dl" } -- IMP: GLFW fails to link without these
 

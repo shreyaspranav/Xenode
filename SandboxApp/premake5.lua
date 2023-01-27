@@ -38,7 +38,7 @@ project "SandboxApp"
 			"%{wks.location}/Xenode/src"
 		}
 
-		defines { "XEN_PLATFORM_WINDOWS", "XEN_BUILD_EXE" }
+		defines { "XEN_PLATFORM_WINDOWS", "XEN_BUILD_EXE", "XEN_DEVICE_DESKTOP" }
 
 	filter "system:linux"
 
@@ -49,7 +49,7 @@ project "SandboxApp"
 			"%{wks.location}/Xenode/src"
 		}
 		buildoptions "-std=gnu++2b"
-		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXEC" }
+		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXEC", "XEN_DEVICE_DESKTOP" }
 
 	filter "configurations:Debug"
         defines {"XEN_DEBUG", "XEN_LOG_ON"}

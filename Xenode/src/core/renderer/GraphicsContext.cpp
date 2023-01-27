@@ -1,13 +1,13 @@
 #include "pch"
 #include "GraphicsContext.h"
-#include <core/app/GameApplication.h>
+#include <core/app/DesktopApplication.h>
 
 #include "gfxapi/OpenGL/OpenGLContext.h"
 
 namespace Xen {
 	GraphicsContext* GraphicsContext::CreateContext(const Ref<Window>& window)
 	{
-		GraphicsAPI api = GameApplication::GetGraphicsAPI();
+		GraphicsAPI api = DesktopApplication::GetGraphicsAPI();
 
 		switch (api)
 		{

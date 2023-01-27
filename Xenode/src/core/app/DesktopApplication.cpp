@@ -1,5 +1,5 @@
 #include "pch"
-#include "GameApplication.h"
+#include "DesktopApplication.h"
 #include "Log.h"
 #include "LayerStack.h"
 #include "Input.h"
@@ -10,27 +10,27 @@
 
 namespace Xen {
 
-	GameApplication::GameApplication()
+	DesktopApplication::DesktopApplication()
 	{
+#ifdef XEN_DEVICE_DESKTOP
 		is_Running = 1;
-		dispatcher.SetEventCallbackFn(EventType::WindowMoveEvent, std::bind(&GameApplication::OnWindowMoveEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::WindowResizeEvent, std::bind(&GameApplication::OnWindowResizeEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::WindowCloseEvent, std::bind(&GameApplication::OnWindowCloseEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::WindowFocusEvent, std::bind(&GameApplication::OnWindowFocusEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::WindowMinimizeEvent, std::bind(&GameApplication::OnWindowMinimizeEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::WindowMaximizeEvent, std::bind(&GameApplication::OnWindowMaximizeEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::WindowMoveEvent, std::bind(&DesktopApplication::OnWindowMoveEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::WindowResizeEvent, std::bind(&DesktopApplication::OnWindowResizeEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::WindowCloseEvent, std::bind(&DesktopApplication::OnWindowCloseEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::WindowFocusEvent, std::bind(&DesktopApplication::OnWindowFocusEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::WindowMinimizeEvent, std::bind(&DesktopApplication::OnWindowMinimizeEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::WindowMaximizeEvent, std::bind(&DesktopApplication::OnWindowMaximizeEvent, this, std::placeholders::_1));
 
-		dispatcher.SetEventCallbackFn(EventType::KeyPressEvent, std::bind(&GameApplication::OnKeyPressEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::KeyReleaseEvent, std::bind(&GameApplication::OnKeyReleaseEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::CharEnterEvent, std::bind(&GameApplication::OnCharEnterEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::KeyPressEvent, std::bind(&DesktopApplication::OnKeyPressEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::KeyReleaseEvent, std::bind(&DesktopApplication::OnKeyReleaseEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::CharEnterEvent, std::bind(&DesktopApplication::OnCharEnterEvent, this, std::placeholders::_1));
 
-		dispatcher.SetEventCallbackFn(EventType::MouseEnterEvent, std::bind(&GameApplication::OnMouseEnterEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::MouseMoveEvent, std::bind(&GameApplication::OnMouseMoveEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::MouseButtonPressEvent, std::bind(&GameApplication::OnMouseButtonPressEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::MouseButtonReleaseEvent, std::bind(&GameApplication::OnMouseButtonReleaseEvent, this, std::placeholders::_1));
-		dispatcher.SetEventCallbackFn(EventType::MouseScrollEvent, std::bind(&GameApplication::OnMouseScrollEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::MouseEnterEvent, std::bind(&DesktopApplication::OnMouseEnterEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::MouseMoveEvent, std::bind(&DesktopApplication::OnMouseMoveEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::MouseButtonPressEvent, std::bind(&DesktopApplication::OnMouseButtonPressEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::MouseButtonReleaseEvent, std::bind(&DesktopApplication::OnMouseButtonReleaseEvent, this, std::placeholders::_1));
+		dispatcher.SetEventCallbackFn(EventType::MouseScrollEvent, std::bind(&DesktopApplication::OnMouseScrollEvent, this, std::placeholders::_1));
 
-		stack = std::make_unique<LayerStack>(20);
 
 		window_width = 1600;
 		window_height = 900;
@@ -38,28 +38,35 @@ namespace Xen {
 		vsync = 1;
 		resizable = 1;
 		fullscreen_monitor = 0;
+#endif
 
+		stack = std::make_unique<LayerStack>(20);
 		imgui_render = 0;
 
+#ifdef XEN_DEVICE_DESKTOP
 		m_Api = GraphicsAPI::XEN_OPENGL_API;
+#elif XEN_DEVICE_MOBILE
+		m_Api = GraphicsAPI::XEN_OPENGLES_API;
+#endif
 	}
 
-	GameApplication::~GameApplication()
+	DesktopApplication::~DesktopApplication()
 	{
 		delete m_Context;
 	}
 
-	void GameApplication::PushLayer(const Ref<Layer>& layer) { stack->PushLayer(layer); }
-	void GameApplication::PushLayer(const Ref<Layer>& layer, uint8_t loc) { stack->PushLayer(layer, loc); }
-	void GameApplication::PopLayer() { stack->PopLayer(); }
-	void GameApplication::PopLayer(uint8_t loc) { stack->PopLayer(loc); }
+	void DesktopApplication::PushLayer(const Ref<Layer>& layer) { stack->PushLayer(layer); }
+	void DesktopApplication::PushLayer(const Ref<Layer>& layer, uint8_t loc) { stack->PushLayer(layer, loc); }
+	void DesktopApplication::PopLayer() { stack->PopLayer(); }
+	void DesktopApplication::PopLayer(uint8_t loc) { stack->PopLayer(loc); }
 
-	void GameApplication::OnCreate()
+	void DesktopApplication::OnCreate()
 	{
 		OnCreate();
 	}
-	void GameApplication::OnStart()
+	void DesktopApplication::OnStart()
 	{
+#ifdef XEN_DEVICE_DESKTOP
 		WindowProps props(window_title, window_width, window_height, vsync, resizable, m_Api);
 		window = Window::GetWindow(props);
 		window->Create();
@@ -77,30 +84,31 @@ namespace Xen {
 		Scope<Input> input = Input::GetInputInterface();
 		input->SetWindow(window);
 		input->SetupInputListeners();
-		
+
 		m_Context = GraphicsContext::CreateContext(window);
 		m_Context->Init();
 
 		m_ImGuiLayer = std::make_shared<ImGuiLayer>();
 		m_ImGuiLayer->SetWindow(window);
 		PushLayer(m_ImGuiLayer);
-
+#endif
 		OnStart();
 	}
-	void GameApplication::OnUpdate(double timestep)
+	void DesktopApplication::OnUpdate(double timestep)
 	{
 		OnUpdate(timestep);
-		for(int i = stack->GetCount(); i >=1; i--)
+		for (int i = stack->GetCount(); i >= 1; i--)
 			stack->GetLayer(i)->OnUpdate(timestep);
 	}
 
-	void* GameApplication::GetNativeWindow()
+	void* DesktopApplication::GetNativeWindow()
 	{
 		return window->GetNativeWindow();
 	}
 
-	void GameApplication::ImGuiRender()
+	void DesktopApplication::ImGuiRender()
 	{
+#ifdef XEN_DEVICE_DESKTOP
 		if (imgui_render || imgui_always_render)
 		{
 			m_ImGuiLayer->Begin();
@@ -108,19 +116,20 @@ namespace Xen {
 				stack->GetLayer(i)->OnImGuiUpdate();
 			m_ImGuiLayer->End();
 		}
+#endif // XEN_DEVICE_DESKTOP
 	}
 
-	void GameApplication::OnWindowMoveEvent(Event& event)
+	void DesktopApplication::OnWindowMoveEvent(Event& event)
 	{
 		WindowMoveEvent& evt = static_cast<WindowMoveEvent&>(event);
-		for(int i = stack->GetCount(); i >=1; i--) {
+		for (int i = stack->GetCount(); i >= 1; i--) {
 			if (evt.handled)
 				break;
-			stack->GetLayer(i)->OnWindowMoveEvent(evt); 
+			stack->GetLayer(i)->OnWindowMoveEvent(evt);
 		}
 	}
 
-	void GameApplication::OnWindowResizeEvent(Event& event)
+	void DesktopApplication::OnWindowResizeEvent(Event& event)
 	{
 		WindowResizeEvent& evt = static_cast<WindowResizeEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -130,7 +139,7 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnWindowCloseEvent(Event& event)
+	void DesktopApplication::OnWindowCloseEvent(Event& event)
 	{
 		WindowCloseEvent& evt = static_cast<WindowCloseEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -141,7 +150,7 @@ namespace Xen {
 		is_Running = 0;
 	}
 
-	void GameApplication::OnWindowFocusEvent(Event& event)
+	void DesktopApplication::OnWindowFocusEvent(Event& event)
 	{
 		WindowFocusEvent& evt = static_cast<WindowFocusEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -151,7 +160,7 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnWindowMinimizeEvent(Event& event)
+	void DesktopApplication::OnWindowMinimizeEvent(Event& event)
 	{
 		WindowMinimizeEvent& evt = static_cast<WindowMinimizeEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -161,7 +170,7 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnWindowMaximizeEvent(Event& event)
+	void DesktopApplication::OnWindowMaximizeEvent(Event& event)
 	{
 		WindowMaximizeEvent& evt = static_cast<WindowMaximizeEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -171,7 +180,7 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnKeyPressEvent(Event& event)
+	void DesktopApplication::OnKeyPressEvent(Event& event)
 	{
 		KeyPressEvent& evt = static_cast<KeyPressEvent&>(event);
 
@@ -187,7 +196,7 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnKeyReleaseEvent(Event& event)
+	void DesktopApplication::OnKeyReleaseEvent(Event& event)
 	{
 		KeyReleaseEvent& evt = static_cast<KeyReleaseEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -197,7 +206,7 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnCharEnterEvent(Event& event)
+	void DesktopApplication::OnCharEnterEvent(Event& event)
 	{
 		CharEnterEvent& evt = static_cast<CharEnterEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -207,7 +216,7 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnMouseEnterEvent(Event& event)
+	void DesktopApplication::OnMouseEnterEvent(Event& event)
 	{
 		MouseEnterEvent& evt = static_cast<MouseEnterEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -217,7 +226,7 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnMouseMoveEvent(Event& event)
+	void DesktopApplication::OnMouseMoveEvent(Event& event)
 	{
 		MouseMoveEvent& evt = static_cast<MouseMoveEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -227,7 +236,7 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnMouseButtonPressEvent(Event& event)
+	void DesktopApplication::OnMouseButtonPressEvent(Event& event)
 	{
 		MouseButtonPressEvent& evt = static_cast<MouseButtonPressEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -237,7 +246,7 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnMouseButtonReleaseEvent(Event& event)
+	void DesktopApplication::OnMouseButtonReleaseEvent(Event& event)
 	{
 		MouseButtonReleaseEvent& evt = static_cast<MouseButtonReleaseEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -247,7 +256,7 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnMouseScrollEvent(Event& event)
+	void DesktopApplication::OnMouseScrollEvent(Event& event)
 	{
 		MouseScrollEvent& evt = static_cast<MouseScrollEvent&>(event);
 		for (int i = stack->GetCount(); i >= 1; i--) {
@@ -257,24 +266,24 @@ namespace Xen {
 		}
 	}
 
-	void GameApplication::OnRender()
+	void DesktopApplication::OnRender()
 	{
 		OnRender();
 		for (int i = stack->GetCount(); i >= 1; i--) { stack->GetLayer(i)->OnRender(); }
 	}
 
-	void GameApplication::OnFixedUpdate()
+	void DesktopApplication::OnFixedUpdate()
 	{
 		OnFixedUpdate();
 		for (int i = stack->GetCount(); i >= 1; i--) { stack->GetLayer(i)->OnFixedUpdate(); }
 	}
 
-	void GameApplication::Run()
+	void DesktopApplication::Run()
 	{
 		const double S_PER_UPDATE = 1.0 / 60.0;
 
-		GameApplication::OnCreate();
-		GameApplication::OnStart();
+		DesktopApplication::OnCreate();
+		DesktopApplication::OnStart();
 
 		double previous = Window::GetTime();
 		double lag = 0.0;
@@ -284,29 +293,32 @@ namespace Xen {
 			double timestep = current - previous;
 			previous = current;
 
-			GameApplication::OnUpdate(timestep);
+			DesktopApplication::OnUpdate(timestep);
 			lag += timestep;
 
 			//XEN_ENGINE_LOG_INFO("FPS: {0}", (1.0 / timestep));
 
 			while (lag >= S_PER_UPDATE)
 			{
-				GameApplication::OnFixedUpdate();
+				DesktopApplication::OnFixedUpdate();
 				lag -= S_PER_UPDATE;
 			}
 			// Run this function in a different thread:
-			GameApplication::OnRender();
+			DesktopApplication::OnRender();
 			ImGuiRender();
 
+#ifdef XEN_DEVICE_DESKTOP
 			m_Context->SwapBuffers();
 			window->Update();
+#endif
 		}
 
-		for(int i = stack->GetCount(); i >=1; i--)
+		for (int i = stack->GetCount(); i >= 1; i--)
 		{
 			stack->GetLayer(i)->OnDetach();
 		}
-
+#ifdef XEN_DEVICE_DESKTOP
 		m_Context->DestroyContext();
+#endif
 	}
 }

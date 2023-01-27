@@ -3,7 +3,7 @@
 
 #include "EditorLayer.h"
 
-class XenEditorApp : public Xen::GameApplication
+class XenEditorApp : public Xen::DesktopApplication
 {
 public:
 	XenEditorApp() {}
@@ -45,4 +45,4 @@ public:
 private:
 };
 
-Xen::GameApplication* Xen::CreateApplication() { return new XenEditorApp(); }
+Xen::DesktopApplication* Xen::CreateDesktopApplication() { return new XenEditorApp(); }

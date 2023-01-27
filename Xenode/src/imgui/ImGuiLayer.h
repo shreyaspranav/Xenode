@@ -3,12 +3,13 @@
 #include <core/app/Layer.h>
 #include <Core.h>
 
+#ifdef XEN_DEVICE_DESKTOP
 #include <core/app/Window.h>
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-
+#endif
 
 #include "IconsFontAwesome.h"
 

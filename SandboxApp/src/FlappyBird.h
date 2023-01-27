@@ -3,7 +3,7 @@
 
 #include <core/app/Log.h>
 #include <core/app/Layer.h>
-#include <core/app/GameApplication.h>
+#include <core/app/DesktopApplication.h>
 #include <core/app/Input.h>
 
 #include <core/renderer/Buffer.h>
@@ -25,11 +25,11 @@ public:
 
 	void OnAttach() override
 	{
-		m_Camera = std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, Xen::GameApplication::GetWindow()->GetFrameBufferWidth(), Xen::GameApplication::GetWindow()->GetFrameBufferHeight());
+		m_Camera = std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, Xen::DesktopApplication::GetWindow()->GetFrameBufferWidth(), Xen::DesktopApplication::GetWindow()->GetFrameBufferHeight());
 		Xen::Renderer2D::Init();
 
 		input = Xen::Input::GetInputInterface();
-		input->SetWindow(Xen::GameApplication::GetWindow());
+		input->SetWindow(Xen::DesktopApplication::GetWindow());
 
 		std::random_device rd;
 		std::default_random_engine eng(rd());

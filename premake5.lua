@@ -32,3 +32,5 @@ IncludeDir["freetype"] = "%{wks.location}/Xenode/deps/freetype/include"
 include "Xenode/"
 include "Xen/"
 include "SandboxApp/"
+
+include "SandboxAppAndroid/SandboxAndroidBuild.lua"

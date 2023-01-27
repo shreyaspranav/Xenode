@@ -1,13 +1,13 @@
 #include "pch"
 #include "Monitor.h"
-#include "GameApplication.h"
+#include "DesktopApplication.h"
 
 #include "gfxapi/window/glfw/GLFW_monitor.h"
 
 namespace Xen {
 	std::vector<Ref<Monitor>> Monitor::GetAvailableMonitors() 
 	{ 
-		switch (GameApplication::GetGraphicsAPI())
+		switch (DesktopApplication::GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return GLFW_monitor::GetAvailableMonitors();
@@ -26,7 +26,7 @@ namespace Xen {
 		}
 	}
 	Ref<Monitor> Monitor::GetMonitor(uint8_t index) {
-		switch (GameApplication::GetGraphicsAPI())
+		switch (DesktopApplication::GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<GLFW_monitor>(index);
@@ -47,7 +47,7 @@ namespace Xen {
 	}
 	uint8_t Monitor::GetMonitorCount()
 	{
-		switch (GameApplication::GetGraphicsAPI())
+		switch (DesktopApplication::GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return GLFW_monitor::GetMonitorCount();

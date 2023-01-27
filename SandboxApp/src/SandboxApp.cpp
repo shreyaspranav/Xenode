@@ -43,7 +43,7 @@ public:
 	}
 };
 
-class SandboxApp : public Xen::GameApplication
+class SandboxApp : public Xen::DesktopApplication
 {
 public:
 	SandboxApp()
@@ -85,4 +85,4 @@ private:
 
 };
 
-Xen::GameApplication* Xen::CreateApplication() { return new SandboxApp(); }
+Xen::DesktopApplication* Xen::CreateDesktopApplication() { return new SandboxApp(); }

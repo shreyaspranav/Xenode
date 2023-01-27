@@ -1,8 +1,9 @@
 #pragma once
+#ifdef XEN_DEVICE_DESKTOP
 
 #include "Scene.h"
 #include "core/app/Input.h"
-#include "core/app/GameApplication.h"
+#include "core/app/DesktopApplication.h"
 
 namespace Xen {
 	class ScriptableEntity
@@ -16,7 +17,7 @@ namespace Xen {
 		inline Ref<Input> GetInput() 
 		{
 			Ref<Input> input = Input::GetInputInterface();
-			input->SetWindow(GameApplication::GetWindow());
+			input->SetWindow(DesktopApplication::GetWindow());
 			return input;
 		}
 
@@ -29,3 +30,13 @@ namespace Xen {
 		friend class Scene;
 	};
 }
+#endif
+
+#ifdef XEN_DEVICE_MOBILE
+namespace Xen {
+	class ScriptableEntity
+	{
+	public:
+	};
+}
+#endif

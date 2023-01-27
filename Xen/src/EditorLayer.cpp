@@ -23,8 +23,8 @@ EditorLayer::~EditorLayer()
 void EditorLayer::OnAttach()
 {
 	Xen::FrameBufferSpec specs;
-	specs.width = Xen::GameApplication::GetWindow()->GetWidth();
-	specs.height = Xen::GameApplication::GetWindow()->GetHeight();
+	specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
+	specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
 
 	m_EditorCamera = std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, viewport_framebuffer_width, viewport_framebuffer_height);
 	m_ViewportFrameBuffer = Xen::FrameBuffer::CreateFrameBuffer(specs);

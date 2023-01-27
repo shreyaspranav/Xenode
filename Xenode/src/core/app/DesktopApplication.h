@@ -5,12 +5,12 @@
 #include "LayerStack.h"
 
 #include "Window.h"
-#include <core/renderer/GraphicsContext.h>
+#include "core/renderer/GraphicsContext.h"
 #include "imgui/ImGuiLayer.h" 
 
 namespace Xen {
 
-	class XEN_API GameApplication
+	class XEN_API DesktopApplication
 	{
 	private:
 		EventDispatcher dispatcher;
@@ -31,8 +31,8 @@ namespace Xen {
 		bool imgui_always_render = 0;
 
 	public:
-		GameApplication();
-		virtual ~GameApplication();
+		DesktopApplication();
+		virtual ~DesktopApplication();
 
 		void Run();
 
@@ -72,9 +72,9 @@ namespace Xen {
 		void OnMouseScrollEvent(Event& event);
 
 		static inline void SetGraphicsAPI(GraphicsAPI api) { m_Api = api; }
-		static inline GraphicsAPI GetGraphicsAPI()         { return m_Api; }
+		static inline GraphicsAPI GetGraphicsAPI() { return m_Api; }
 	};
 
-	XEN_API GameApplication* CreateApplication();
+	XEN_API DesktopApplication* CreateDesktopApplication();
 }
 

@@ -3,6 +3,7 @@
 #include <gfxapi/window/glfw/GLFW_window.h>
 
 #include <core/app/Log.h>
+#include <GLFW/glfw3.h>
 
 namespace Xen {
 

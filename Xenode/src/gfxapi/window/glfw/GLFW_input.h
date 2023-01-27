@@ -1,6 +1,7 @@
 #pragma once
 
 #include <core/app/Input.h>
+
 #include <GLFW/glfw3.h>
 
 namespace Xen {

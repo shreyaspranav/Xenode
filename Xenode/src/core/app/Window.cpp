@@ -1,13 +1,13 @@
 #include "pch"
 #include "Window.h"
-#include "GameApplication.h"
+#include "DesktopApplication.h"
 
 #include <gfxapi/window/glfw/GLFW_window.h>
 
 namespace Xen {
 	Ref<Window> Window::GetWindow(const WindowProps& props)
 	{
-		GraphicsAPI api = GameApplication::GetGraphicsAPI();
+		GraphicsAPI api = DesktopApplication::GetGraphicsAPI();
 
 		switch (api)
 		{

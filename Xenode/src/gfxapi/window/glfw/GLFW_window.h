@@ -1,11 +1,12 @@
 #pragma once
 
 #include <core/app/Window.h>
-#include <GLFW/glfw3.h>
 
 #include <core/app/EventDispatcher.h>
+#include <GLFW/glfw3.h>
 
 namespace Xen {
+
 
 	struct UserPointer
 	{

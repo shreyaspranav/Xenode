@@ -3,7 +3,8 @@
 #include <Core.h>
 #include <core/app/Monitor.h>
 
-#include <GLFW/glfw3.h>
+struct GLFWmonitor;
+struct GLFWvidmode;
 
 namespace Xen {
 	class XEN_API GLFW_monitor : public Monitor

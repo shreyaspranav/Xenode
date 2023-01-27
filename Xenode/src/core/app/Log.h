@@ -3,11 +3,17 @@
 #ifdef XEN_LOG_ON
 
 #include <Core.h>
-#include <iostream>
 #include <spdlog/spdlog.h>
+
+#ifdef XEN_DEVICE_DESKTOP
+
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+
+#elif XEN_PLATFORM_ANDROID
+#include <spdlog/sinks/android_sink.h>
+#endif
 
 namespace Xen {
 	class XEN_API Log
@@ -54,6 +60,4 @@ namespace Xen {
 #define XEN_APP_LOG_INFO(...)					
 #define XEN_APP_LOG_TRACE(...)		
 
-#endif // XEN_LOG_ON		
-
-
+#endif // XEN_LOG_ON	

@@ -2,10 +2,10 @@
 #include <pch/pch>
 
 #ifdef XEN_PLATFORM_WINDOWS
-  #ifdef XEN_BUILD_DLL
+  #ifdef XEN_BUILD_LIB
 
 	#ifdef _MSC_VER
-	  #define XEN_API //__declspec(dllexport)
+	  #define XEN_API
 	#else
 	  #error Visual Studio only accepted in Windows!
 	#endif
@@ -14,7 +14,7 @@
   #ifdef XEN_BUILD_EXE
 
 	#ifdef _MSC_VER
-	  #define XEN_API //__declspec(dllimport)
+	  #define XEN_API
 	#else
 	  #error Visual Studio only accepted in Windows!
 	#endif
@@ -22,7 +22,7 @@
 #endif
 
 #ifdef XEN_PLATFORM_LINUX
-  #ifdef XEN_BUILD_SL
+  #ifdef XEN_BUILD_LIB
 
 	#ifdef __GNUG__
 	  #define XEN_API __attribute__((visibility("default")))
@@ -41,6 +41,10 @@
   #endif
 #endif
 
+#ifdef XEN_PLATFORM_ANDROID
+	#define XEN_API
+#endif
+
 #define NO_PROBLEM 0
 #define BIT(x) 1 << x
 
@@ -49,6 +53,9 @@
 #elif XEN_PLATFORM_LINUX
 	#include <csignal>
 	#define TRIGGER_BREAKPOINT std::raise(SIGTRAP)
+#elif XEN_PLATFORM_ANDROID
+	#include <android/log.h>
+	#define TRIGGER_BREAKPOINT __android_log_assert("Triggered Breakpoint! ", "XENODE: ", NULL)
 #endif
 
 namespace Xen {

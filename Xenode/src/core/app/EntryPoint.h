@@ -1,11 +1,16 @@
 #pragma once
 #include <Core.h>
-#include "GameApplication.h"
-
 #include "Log.h"
-#include <Windows.h>
 
-extern Xen::GameApplication* Xen::CreateApplication();
+#ifdef XEN_PLATFORM_WINDOWS
+#include <Windows.h>
+#endif // XEN_PLATFORM_WINDOWS
+
+
+#ifdef XEN_DEVICE_DESKTOP
+
+#include "DesktopApplication.h"
+extern Xen::DesktopApplication* Xen::CreateDesktopApplication();
 
 #ifdef XEN_PRODUCTION
 
@@ -40,12 +45,32 @@ extern Xen::GameApplication* Xen::CreateApplication();
 
 int main()
 {
-	XEN_INIT_LOGGER
+	XEN_INIT_LOGGER;
 
-	auto app = Xen::CreateApplication();
+	auto app = Xen::CreateDesktopApplication();
 	app->Run();
 	delete app;
 
 	return 0;
 }
 #endif // XEN_PRODUCTION
+#endif // XEN_DEVICE_DESKTOP
+
+#ifdef XEN_DEVICE_MOBILE
+#ifdef XEN_PLATFORM_ANDROID
+
+#include "android_native_app_glue.h"
+#include "MobileApplication.h"
+extern Xen::MobileApplication* Xen::CreateMobileApplication();
+
+void android_main(struct android_app* state) 
+{
+	XEN_INIT_LOGGER;
+
+	auto app = Xen::CreateMobileApplication();
+	app->Run();
+	delete app;
+}
+
+#endif // XEN_PLATFORM_ANDROID
+#endif // XEN_DEVICE_MOBILE

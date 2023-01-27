@@ -1,7 +1,7 @@
 #include "pch"
 #include "RenderCommand.h"
 
-#include "core/app/GameApplication.h"
+#include "core/app/DesktopApplication.h"
 
 #include "gfxapi/OpenGL/OpenGLRendererAPI.h"
 
@@ -10,7 +10,7 @@ namespace Xen {
 	Scope<RendererAPI> RenderCommand::s_Api = GetRendererAPI();
 	Scope<RendererAPI> RenderCommand::GetRendererAPI()
 	{
-		switch (GameApplication::GetGraphicsAPI())
+		switch (DesktopApplication::GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_unique<OpenGLRendererAPI>();

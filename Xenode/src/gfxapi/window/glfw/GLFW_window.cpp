@@ -1,8 +1,9 @@
 #include "pch"
 #include "GLFW_window.h"
+#include <GLFW/glfw3.h>
 
 #include <core/app/Log.h>
-#include <core/app/GameApplication.h>
+#include <core/app/DesktopApplication.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

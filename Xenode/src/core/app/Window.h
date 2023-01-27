@@ -4,14 +4,9 @@
 #include <core/app/EventDispatcher.h>
 #include "Monitor.h"
 
+#include "GraphicsAPI.h"
+
 namespace Xen {
-
-	enum class GraphicsAPI
-	{
-		XEN_OPENGL_API, XEN_VULKAN_API, XEN_DIRECT3D_API, XEN_METAL_API, XEN_OPENGLES_API
-	};
-
-
 	struct WindowProps {
 		uint16_t width, height;
 		std::string title;

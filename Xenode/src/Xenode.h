@@ -1,16 +1,21 @@
 #include <Core.h>
 
-#include <core/app/GameApplication.h>
-//#include <core/app/EntryPoint.h>
+#ifdef XEN_DEVICE_MOBILE
+#include <core/app/MobileApplication.h>
+#elif XEN_DEVICE_DESKTOP
+#include <core/app/DesktopApplication.h>
+#endif
+
 #include <core/app/Log.h>
 
+#ifdef XEN_DEVICE_DESKTOP
 #include <imgui/ImGuiLayer.h>
+#endif
 
 #include <Core.h>
 
 #include <core/app/Log.h>
 #include <core/app/Layer.h>
-#include <core/app/GameApplication.h>
 #include <core/app/Input.h>
 
 #include <core/renderer/Buffer.h>

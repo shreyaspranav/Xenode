@@ -1,6 +1,7 @@
 #include "pch"
 #include "GLFW_monitor.h"
 #include <core/app/Log.h>
+#include <GLFW/glfw3.h>
 
 namespace Xen {
 
