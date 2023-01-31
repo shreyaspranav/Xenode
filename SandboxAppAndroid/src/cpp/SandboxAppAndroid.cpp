@@ -24,7 +24,7 @@ public:
 	}
 	void OnUpdate(double timestep) override
 	{
-		XEN_APP_LOG_INFO("ExampleLayer Update: {0}", timestep);
+		//XEN_APP_LOG_INFO("ExampleLayer Update: {0}", timestep);
 	}
 };
 
@@ -51,17 +51,18 @@ public:
 	}
 	void OnUpdate(double timestep) override
 	{
-		XEN_APP_LOG_INFO("SandboxApp Updated! {0}", timestep);
+		//XEN_APP_LOG_INFO("SandboxApp Updated! {0}", timestep);
+		
 	}
 
 	void OnRender() override
 	{
-		XEN_APP_LOG_INFO("SandboxApp Render!");
+		//XEN_APP_LOG_INFO("SandboxApp Render!");
 	}
 
 	void OnFixedUpdate() override
 	{
-		XEN_APP_LOG_INFO("SandboxApp FixedUpdated!");
+		//XEN_APP_LOG_INFO("SandboxApp FixedUpdated!");
 	}
 
 private:

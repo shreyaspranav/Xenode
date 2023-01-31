@@ -11,7 +11,8 @@
       android:allowBackup="false"
       android:fullBackupContent="false"
       android:label="SandboxApp"
-      android:hasCode="false">
+      android:hasCode="false"
+	  android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
 
     <!-- Our activity is the built-in NativeActivity framework class.
          This will take care of integrating with our NDK code. -->

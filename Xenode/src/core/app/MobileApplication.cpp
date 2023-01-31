@@ -25,10 +25,13 @@ namespace Xen {
 	}
 	void MobileApplication::OnStart()
 	{
+		m_Surface = Surface::GetSurface(m_ApplicationContext);
 		OnStart();
 	}
 	void MobileApplication::OnUpdate(double timestep)
 	{
+		m_Surface->Update();
+
 		OnUpdate(timestep);
 		for(int i = stack->GetCount(); i >=1; i--)
 			stack->GetLayer(i)->OnUpdate(timestep);

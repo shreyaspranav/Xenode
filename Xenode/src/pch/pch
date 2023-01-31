@@ -3,7 +3,6 @@
 #ifdef XEN_DEVICE_DESKTOP
 #include <iostream>
 #include <fstream>
-#include <functional>
 #include <chrono>
 #include <algorithm>
 #include <functional>
@@ -11,6 +10,7 @@
 
 #include <unordered_set>
 #endif
+#include <functional>
 #include <cstdint>
 #include <unordered_map>
 #include <map>

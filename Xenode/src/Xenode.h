@@ -2,6 +2,8 @@
 
 #ifdef XEN_DEVICE_MOBILE
 #include <core/app/MobileApplication.h>
+#include <core/app/Surface.h>
+
 #elif XEN_DEVICE_DESKTOP
 #include <core/app/DesktopApplication.h>
 #endif
@@ -29,5 +31,3 @@
 
 #include <core/scene/Scene.h>
 #include <core/scene/Components.h>
-
-// Temp:

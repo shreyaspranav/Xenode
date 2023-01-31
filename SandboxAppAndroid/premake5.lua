@@ -41,11 +41,17 @@ project "SandboxAppAndroid"
         "%{XENODE_ENGINE_SRC_DIR}/core/app/Layer.h",
         "%{XENODE_ENGINE_SRC_DIR}/core/app/LayerStack.h",
         "%{XENODE_ENGINE_SRC_DIR}/core/app/Log.h",
+        "%{XENODE_ENGINE_SRC_DIR}/core/app/Surface.h",
 
         "%{XENODE_ENGINE_SRC_DIR}/core/app/MobileApplication.cpp",
         "%{XENODE_ENGINE_SRC_DIR}/core/app/EventDispatcher.cpp",
         "%{XENODE_ENGINE_SRC_DIR}/core/app/LayerStack.cpp",
         "%{XENODE_ENGINE_SRC_DIR}/core/app/Log.cpp",
+        "%{XENODE_ENGINE_SRC_DIR}/core/app/Surface.cpp",
+
+        "%{XENODE_ENGINE_SRC_DIR}/platform/android/AndroidSurface.h",
+        "%{XENODE_ENGINE_SRC_DIR}/platform/android/AndroidSurface.cpp",
+
 
         "src/cpp/android_native_app_glue.c",
         "src/cpp/android_native_app_glue.h",

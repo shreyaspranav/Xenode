@@ -5,20 +5,25 @@
 #include "Layer.h"
 #include "LayerStack.h"
 #include "GraphicsAPI.h"
+#include "Surface.h"
 
 namespace Xen {
 
 	class XEN_API MobileApplication
 	{
 	private:
+		void* m_ApplicationContext;
 		inline static GraphicsAPI m_Api;
 		Scope<LayerStack> stack;
 		bool is_Running = 1;
+
+		Ref<Surface> m_Surface;
 
 	public:
 		MobileApplication();
 		virtual ~MobileApplication();
 
+		void SetApplicationContext(void* context) { m_ApplicationContext = context; }
 		void Run();
 
 		void PushLayer(const Ref<Layer>& layer);

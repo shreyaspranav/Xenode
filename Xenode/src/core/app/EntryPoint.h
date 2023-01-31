@@ -68,7 +68,10 @@ void android_main(struct android_app* state)
 	XEN_INIT_LOGGER;
 
 	auto app = Xen::CreateMobileApplication();
+
+	app->SetApplicationContext((void*)state);
 	app->Run();
+
 	delete app;
 }
 
