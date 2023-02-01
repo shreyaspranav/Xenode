@@ -1,4 +1,6 @@
 #include "pch"
+
+#ifdef XEN_DEVICE_DESKTOP
 #include "DesktopApplication.h"
 #include "Log.h"
 #include "LayerStack.h"
@@ -12,7 +14,6 @@ namespace Xen {
 
 	DesktopApplication::DesktopApplication()
 	{
-#ifdef XEN_DEVICE_DESKTOP
 		is_Running = 1;
 		dispatcher.SetEventCallbackFn(EventType::WindowMoveEvent, std::bind(&DesktopApplication::OnWindowMoveEvent, this, std::placeholders::_1));
 		dispatcher.SetEventCallbackFn(EventType::WindowResizeEvent, std::bind(&DesktopApplication::OnWindowResizeEvent, this, std::placeholders::_1));
@@ -38,16 +39,11 @@ namespace Xen {
 		vsync = 1;
 		resizable = 1;
 		fullscreen_monitor = 0;
-#endif
 
 		stack = std::make_unique<LayerStack>(20);
 		imgui_render = 0;
 
-#ifdef XEN_DEVICE_DESKTOP
 		m_Api = GraphicsAPI::XEN_OPENGL_API;
-#elif XEN_DEVICE_MOBILE
-		m_Api = GraphicsAPI::XEN_OPENGLES_API;
-#endif
 	}
 
 	DesktopApplication::~DesktopApplication()
@@ -66,7 +62,6 @@ namespace Xen {
 	}
 	void DesktopApplication::OnStart()
 	{
-#ifdef XEN_DEVICE_DESKTOP
 		WindowProps props(window_title, window_width, window_height, vsync, resizable, m_Api);
 		window = Window::GetWindow(props);
 		window->Create();
@@ -91,7 +86,6 @@ namespace Xen {
 		m_ImGuiLayer = std::make_shared<ImGuiLayer>();
 		m_ImGuiLayer->SetWindow(window);
 		PushLayer(m_ImGuiLayer);
-#endif
 		OnStart();
 	}
 	void DesktopApplication::OnUpdate(double timestep)
@@ -108,7 +102,6 @@ namespace Xen {
 
 	void DesktopApplication::ImGuiRender()
 	{
-#ifdef XEN_DEVICE_DESKTOP
 		if (imgui_render || imgui_always_render)
 		{
 			m_ImGuiLayer->Begin();
@@ -116,7 +109,6 @@ namespace Xen {
 				stack->GetLayer(i)->OnImGuiUpdate();
 			m_ImGuiLayer->End();
 		}
-#endif // XEN_DEVICE_DESKTOP
 	}
 
 	void DesktopApplication::OnWindowMoveEvent(Event& event)
@@ -280,45 +272,41 @@ namespace Xen {
 
 	void DesktopApplication::Run()
 	{
-		const double S_PER_UPDATE = 1.0 / 60.0;
+		const double MS_PER_UPDATE = (1.0 / 60.0) * 1000.0;
 
 		DesktopApplication::OnCreate();
 		DesktopApplication::OnStart();
 
-		double previous = Window::GetTime();
+		double timestep = 0.0;
 		double lag = 0.0;
 
 		while (is_Running) {
-			double current = Window::GetTime();
-			double timestep = current - previous;
-			previous = current;
+			Timer timer;
+			//timer.Reset();
 
-			DesktopApplication::OnUpdate(timestep);
+			DesktopApplication::OnUpdate(timestep / 1000.0);
+			timer.Stop();
+			timestep = timer.GetElapedTime(); // timestep is in nanoseconds !
+
 			lag += timestep;
 
-			//XEN_ENGINE_LOG_INFO("FPS: {0}", (1.0 / timestep));
-
-			while (lag >= S_PER_UPDATE)
+			while (lag >= MS_PER_UPDATE)
 			{
 				DesktopApplication::OnFixedUpdate();
-				lag -= S_PER_UPDATE;
+				lag -= MS_PER_UPDATE;
 			}
 			// Run this function in a different thread:
 			DesktopApplication::OnRender();
 			ImGuiRender();
 
-#ifdef XEN_DEVICE_DESKTOP
 			m_Context->SwapBuffers();
 			window->Update();
-#endif
 		}
 
 		for (int i = stack->GetCount(); i >= 1; i--)
-		{
 			stack->GetLayer(i)->OnDetach();
-		}
-#ifdef XEN_DEVICE_DESKTOP
+
 		m_Context->DestroyContext();
-#endif
 	}
 }
+#endif

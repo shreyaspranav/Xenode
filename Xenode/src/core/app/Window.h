@@ -64,8 +64,6 @@ namespace Xen {
 
 		virtual void SetupEventListeners(const EventDispatcher& dispacher) = 0;
 
-		static double GetTime();
-
 		static Ref<Window> GetWindow(const WindowProps& props = WindowProps());
 	};
 }

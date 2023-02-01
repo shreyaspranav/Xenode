@@ -27,8 +27,4 @@ namespace Xen {
 			return nullptr;
 		}
 	}
-
-	// TODO: Shift to a better timing library.. 
-	// This is for just temporary reasons that works only in glfwGetTime()
-	double Window::GetTime() { return GLFW_window::GetTime(); } 
 }

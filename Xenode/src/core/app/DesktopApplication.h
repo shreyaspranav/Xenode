@@ -1,6 +1,8 @@
 #pragma once
 #include <Core.h>
 
+#ifdef XEN_DEVICE_DESKTOP
+
 #include "EventDispatcher.h"
 #include "LayerStack.h"
 
@@ -77,4 +79,4 @@ namespace Xen {
 
 	XEN_API DesktopApplication* CreateDesktopApplication();
 }
-
+#endif

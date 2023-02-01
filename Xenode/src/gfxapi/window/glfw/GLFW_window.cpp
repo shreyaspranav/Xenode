@@ -240,6 +240,4 @@ namespace Xen {
 	}
 	void GLFW_window::FocusWindow()													{ glfwFocusWindow(m_Window); }
 	void GLFW_window::SetVsync(bool enabled)										{ glfwSwapInterval(enabled); }
-
-	double GLFW_window::GetTime()													{ return glfwGetTime(); }
 }
