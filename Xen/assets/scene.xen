@@ -1,0 +1,41 @@
+Scene: Untitled
+Entities:
+  - Entity: [Camera, 473828532]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComp:
+      Camera:
+        ProjectionType: Orthographic
+        ZNear: -1
+        ZFar: 1
+      IsPrimary: true
+      IsResizable: true
+  - Entity: [Quad_2, 473828532]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      Color: [1, 1, 1, 1]
+      Texture: "null"
+  - Entity: [Quad_1, 473828532]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      Color: [1, 1, 1, 1]
+      Texture:
+        TextureFileRelPath: assets/textures/CheckerBoardTexture.png
+  - Entity: [Quad, 473828532]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      Color: [1, 1, 1, 1]
+      Texture:
+        TextureFileRelPath: assets/textures/microsoft.png
+Entity Count: 4

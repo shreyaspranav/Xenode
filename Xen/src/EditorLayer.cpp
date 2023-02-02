@@ -1,6 +1,8 @@
 #include "EditorLayer.h"
 #include "core/scene/ScriptableEntity.h"
 
+#include "core/scene/SceneSerializer.h"
+
 float rotation = 0.0f;
 
 float bg_color[4] = { 0.0, 0.0f, 0.0f, 1.0f };
@@ -73,6 +75,10 @@ void EditorLayer::OnAttach()
 
 	hier_panel = SceneHierarchyPanel(m_ActiveScene);
 	prop_panel = PropertiesPanel(hier_panel.GetSelectedEntity());
+
+	Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
+	serialiser.Serialize("assets/scene.xen");
+	serialiser.Deserialize("assets/scene.xen");
 }
 
 void EditorLayer::OnDetach()
