@@ -20,7 +20,7 @@ extern Xen::DesktopApplication* Xen::CreateDesktopApplication();
 		{
 			XEN_INIT_LOGGER
 
-			auto app = Xen::CreateApplication();
+			auto app = Xen::CreateDesktopApplication();
 			app->Run();
 			delete app;
 
@@ -32,7 +32,7 @@ extern Xen::DesktopApplication* Xen::CreateDesktopApplication();
 		{
 			XEN_INIT_LOGGER
 		
-			auto app = Xen::CreateApplication();
+			auto app = Xen::CreateDesktopApplication();
 			app->Run();
 			delete app;
 		

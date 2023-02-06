@@ -35,7 +35,7 @@ public:
 
 		ImGui::Separator();
 
-		m_Scene->m_Registry.each([&](auto entity) 
+		m_Scene->m_Registry.each([&](auto& entity) 
 			{
 				Xen::Entity entt = Xen::Entity(entity, m_Scene.get());  
 				DrawNode(entt);

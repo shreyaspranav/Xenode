@@ -1,7 +1,7 @@
 #include "EditorLayer.h"
 #include "core/scene/ScriptableEntity.h"
 
-#include "core/scene/SceneSerializer.h"
+#include <core/app/Timer.h>
 
 float rotation = 0.0f;
 
@@ -34,9 +34,8 @@ void EditorLayer::OnAttach()
 	Xen::Renderer2D::Init();
 
 	m_ActiveScene = std::make_shared<Xen::Scene>();
+	circle_entity = m_ActiveScene->CreateEntity("Circle");
 	quad_entity = m_ActiveScene->CreateEntity("Quad");
-	quad_entity_1 = m_ActiveScene->CreateEntity("Quad_1");
-	quad_entity_2 = m_ActiveScene->CreateEntity("Quad_2");
 	camera_entity = m_ActiveScene->CreateEntity("Camera");
 
 	tex = Xen::Texture2D::CreateTexture2D("assets/textures/CheckerBoardTexture.png", 1);
@@ -46,9 +45,14 @@ void EditorLayer::OnAttach()
 	tex->LoadTexture();
 	tex_1->LoadTexture();
 
-	quad_entity_1.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f), tex);
-	quad_entity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f), tex_1);
-	quad_entity_2.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f));
+	quad_entity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f));
+	circle_entity.AddComponent<Xen::Component::CircleRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f), 0.4f, 0.5f, 0.01f);
+
+	Xen::Component::Transform& quad_transform = quad_entity.GetComponent<Xen::Component::Transform>();
+	quad_transform.position.x = -0.6f;
+
+	Xen::Component::Transform& circle_transform = circle_entity.GetComponent<Xen::Component::Transform>();
+	circle_transform.position.x = 0.6f;
 
 	camera_entity.AddComponent<Xen::Component::CameraComp>(Xen::CameraType::Orthographic, specs.width, specs.height);
 	m_EditorCamera->Update();
@@ -76,9 +80,7 @@ void EditorLayer::OnAttach()
 	hier_panel = SceneHierarchyPanel(m_ActiveScene);
 	prop_panel = PropertiesPanel(hier_panel.GetSelectedEntity());
 
-	Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
-	serialiser.Serialize("assets/scene.xen");
-	serialiser.Deserialize("assets/scene.xen");
+	//serialiser = Xen::SceneSerializer(m_ActiveScene);
 }
 
 void EditorLayer::OnDetach()
@@ -87,6 +89,8 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(double timestep)
 {
+	hier_panel.SetActiveScene(m_ActiveScene);
+
 	Xen::RenderCommand::Clear();
 	m_Timestep = timestep;
 
@@ -94,8 +98,8 @@ void EditorLayer::OnUpdate(double timestep)
 	Xen::RenderCommand::Clear();
 	Xen::RenderCommand::SetClearColor(Xen::Color(0.0f, 0.0f, 0.0f, 1.0f));
 
-	//Xen::Renderer2D::BeginScene(m_EditorCamera, Xen::Vec2(viewport_framebuffer_width, viewport_framebuffer_height));
-	//m_EditorCamera->Update();
+	Xen::Renderer2D::BeginScene(m_EditorCamera);
+	m_EditorCamera->Update();
 	m_ActiveScene->OnUpdate(timestep);
 	//Xen::Renderer2D::DrawClearCircle(Xen::Vec3(1.0f, 0.0f, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.4f, 1.0f, 1.0f), Xen::Color(0.4f, 0.3f, 0.4f, 1.0f));
 	//XEN_ENGINE_LOG_INFO("{0}", (float)viewport_framebuffer_width / (float)viewport_framebuffer_height);
@@ -180,7 +184,12 @@ void EditorLayer::OnImGuiUpdate()
 		{
 			ImGui::MenuItem("(demo menu)", NULL, false, false);
 			if (ImGui::MenuItem("New")) {}
-			if (ImGui::MenuItem("Open", "Ctrl+O")) {}
+			if (ImGui::MenuItem("Open", "Ctrl+O")) 
+			{
+				m_ActiveScene = std::make_shared<Xen::Scene>();
+				Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
+				serialiser.Deserialize("assets/scene.xen");
+			}
 			if (ImGui::BeginMenu("Open Recent"))
 			{
 				ImGui::MenuItem("fish_hat.c");
@@ -194,7 +203,12 @@ void EditorLayer::OnImGuiUpdate()
 				}
 				ImGui::EndMenu();
 			}
-			if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+			if (ImGui::MenuItem("Save", "Ctrl+S")) 
+			{
+				Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
+				//serialiser.Deserialize("assets/scene.xen");
+				serialiser.Serialize("assets/scene.xen");
+			}
 			if (ImGui::MenuItem("Save As..")) {}
 
 			ImGui::Separator();

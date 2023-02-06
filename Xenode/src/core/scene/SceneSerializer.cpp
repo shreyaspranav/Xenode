@@ -79,16 +79,16 @@ namespace Xen {
 
 			yamlEmitter << YAML::Key << "Color" << YAML::Value << spriteRenderer.color;
 
+			yamlEmitter << YAML::Key << "Texture";
+			yamlEmitter << YAML::BeginMap; // Texture
+			
+			yamlEmitter << YAML::Key << "TextureFileRelPath";
 			if (spriteRenderer.texture == nullptr)
-				yamlEmitter << YAML::Key << "Texture" << YAML::Value << "null";
-			else {
-				yamlEmitter << YAML::Key << "Texture";
-				yamlEmitter << YAML::BeginMap; // Texture
-
-				yamlEmitter << YAML::Key << "TextureFileRelPath" << YAML::Value << spriteRenderer.texture->GetFilePath();
-
-				yamlEmitter << YAML::EndMap;
-			}
+				yamlEmitter << YAML::Value << "null";
+			else 
+				yamlEmitter << YAML::Value << spriteRenderer.texture->GetFilePath();
+			
+			yamlEmitter << YAML::EndMap;
 
 			yamlEmitter << YAML::EndMap; // SpriteRenderer
 		}
@@ -188,7 +188,10 @@ namespace Xen {
 			TRIGGER_BREAKPOINT;
 		}
 
-		std::string name = scene_data["Scene"].as<std::string>();
+		//m_Scene = std::make_shared<Scene>();
+		//m_Scene->DestroyAllEntities();
+
+		std::string scene_name = scene_data["Scene"].as<std::string>();
 
 		YAML::Node entities = scene_data["Entities"];
 
@@ -196,8 +199,110 @@ namespace Xen {
 		{
 			for (const YAML::Node& entity : entities)
 			{
-				std::string tag = entity["Entity"][1].as<std::string>();
-				XEN_ENGINE_LOG_TRACE(tag);
+				Entity entt = Entity(m_Scene.get());
+
+				std::string tag = entity["Entity"][0].as<std::string>();
+				uint64_t uuid = entity["Entity"][1].as<uint64_t>();
+
+				entt.AddComponent<Component::Tag>(tag);
+
+				// Transform Component------------------------------------------------------
+				const YAML::Node& transform_component = entity["Transform"];
+				if (transform_component)
+				{
+					Vec3 position = Vec3(
+						transform_component["Position"][0].as<float>(),
+						transform_component["Position"][1].as<float>(),
+						transform_component["Position"][2].as<float>()
+					);
+
+					Vec3 rotation = Vec3(
+						transform_component["Rotation"][0].as<float>(),
+						transform_component["Rotation"][1].as<float>(),
+						transform_component["Rotation"][2].as<float>()
+					);
+
+					Vec3 scale = Vec3(
+						transform_component["Scale"][0].as<float>(),
+						transform_component["Scale"][1].as<float>(),
+						transform_component["Scale"][2].as<float>()
+					);
+
+					entt.AddComponent<Component::Transform>(position, rotation, scale);
+				}
+				// SpriteRenderer Component-----------------------------------------------
+				const YAML::Node& spriteRenderer_component = entity["SpriteRenderer"];
+				if (spriteRenderer_component)
+				{
+					Color color = Color(
+						spriteRenderer_component["Color"][0].as<float>(),
+						spriteRenderer_component["Color"][1].as<float>(),
+						spriteRenderer_component["Color"][2].as<float>(),
+						spriteRenderer_component["Color"][3].as<float>()
+					);
+
+					const YAML::Node& texture_node = spriteRenderer_component["Texture"];
+
+					if (texture_node["TextureFileRelPath"].as<std::string>() != "null")
+					{
+						XEN_ENGINE_LOG_WARN("Texture deserialization not yet implemented");
+						XEN_ENGINE_LOG_WARN(texture_node["TextureFileRelPath"].as<std::string>());
+					}
+
+					entt.AddComponent<Component::SpriteRenderer>(color);
+				}
+
+				// CircleRenderer Component-------------------------------------------------
+				const YAML::Node& circleRenderer_component = entity["CircleRenderer"];
+				if (circleRenderer_component)
+				{
+					Color color = Color(
+						circleRenderer_component["Color"][0].as<float>(),
+						circleRenderer_component["Color"][1].as<float>(),
+						circleRenderer_component["Color"][2].as<float>(),
+						circleRenderer_component["Color"][3].as<float>()
+					);
+
+					float thickness = circleRenderer_component["Thickness"].as<float>();
+					float innerfade = circleRenderer_component["InnerFade"].as<float>();
+					float outerfade = circleRenderer_component["OuterFade"].as<float>();
+
+					entt.AddComponent<Component::CircleRenderer>(color, thickness, innerfade, outerfade);
+				}
+
+				//CameraComp Component--------------------------------------------------------
+				const YAML::Node& cameraComponent = entity["CameraComp"];
+				if (cameraComponent)
+				{
+					Ref<Camera> camera;
+
+					const YAML::Node& camera_node = cameraComponent["Camera"];
+					if (camera_node["ProjectionType"].as<std::string>() == "Orthographic")
+					{
+						camera = std::make_shared<Camera>(
+							CameraType::Orthographic,
+							m_Scene->m_FramebufferWidth,
+							m_Scene->m_FramebufferHeight
+						);
+					}
+
+					else if (camera_node["ProjectionType"].as<std::string>() == "Perspective")
+					{
+						camera = std::make_shared<Camera>(
+							CameraType::Perspective,
+							m_Scene->m_FramebufferWidth,
+							m_Scene->m_FramebufferHeight
+							);
+
+						float FovAngle = camera_node["FovAngle"].as<float>();
+						camera->SetFovAngle(FovAngle);
+					}
+					float ZFar = camera_node["ZFar"].as<float>();
+					float ZNear = camera_node["ZNear"].as<float>();
+
+					camera->SetNearPoint(ZNear);
+					camera->SetFarPoint(ZFar);
+				}
 			}
 		}
 		

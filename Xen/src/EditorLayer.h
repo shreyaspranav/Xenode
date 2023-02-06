@@ -4,6 +4,8 @@
 #include "panel/SceneHierarchyPanel.h"
 #include "panel/PropertiesPanel.h"
 
+#include "core/scene/SceneSerializer.h"
+
 class EditorLayer : public Xen::Layer
 {
 public:
@@ -34,13 +36,14 @@ private:
 	Xen::Ref<Xen::Texture2D> tex;
 	Xen::Ref<Xen::Texture2D> tex_1;
 	Xen::Entity quad_entity;
-	Xen::Entity quad_entity_1;
-	Xen::Entity quad_entity_2;
+	Xen::Entity circle_entity;
 	Xen::Entity camera_entity;
 
 	float cam_zoom = 1.0f;
 	float max_zoom = 20.0f;
 	float min_zoom = 0.3f;
+
+	//Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
 
 	bool m_ViewportFocused = 0;
 

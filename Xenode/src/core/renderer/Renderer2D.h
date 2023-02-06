@@ -28,7 +28,7 @@ namespace Xen {
 		static void Init();
 		static void ShutDown();
 		
-		static void BeginScene(const Ref<Camera>& camera, const Vec2& viewport_size);
+		static void BeginScene(const Ref<Camera>& camera);
 		static void EndScene();
 		
 		static void RenderFrame();

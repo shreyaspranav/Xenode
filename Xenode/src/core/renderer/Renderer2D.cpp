@@ -12,6 +12,7 @@ namespace Xen {
 
 	uint32_t default_quad_indices[6] = { 0, 1, 2, 0, 2, 3 };
 	uint32_t current_quad_index;
+	uint32_t current_circle_index;
 
 	uint32_t batch_index = 0;
 
@@ -160,7 +161,7 @@ namespace Xen {
 
 	}
 
-	void Renderer2D::BeginScene(const Ref<Camera>& camera, const Vec2& viewport_size)
+	void Renderer2D::BeginScene(const Ref<Camera>& camera)
 	{
 		s_Data.camera = camera;
 
@@ -196,16 +197,15 @@ namespace Xen {
 				batch_storage[i]->textures[j]->Bind(j);
 		}
 
-		s_Data.quadVertexArray->Bind();
-		s_Data.quadShader->Bind();
-
-		s_Data.quadShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-		s_Data.quadShader->SetIntArray("tex", texture_slots, max_texture_slots);
-
 		for (int i = 0; i <= batch_index; i++)
 		{
 			//for (int j = 0; j < batch_storage[i]->textures.size(); j++)
 			//	batch_storage[i]->textures[j]->Bind(j);
+			s_Data.quadVertexArray->Bind();
+			s_Data.quadShader->Bind();
+
+			s_Data.quadShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			s_Data.quadShader->SetIntArray("tex", texture_slots, max_texture_slots);
 
 			s_Data.quadVertexBuffer->Put(batch_storage[i]->quad_verts, batch_storage[i]->quad_index * 40);
 
@@ -221,10 +221,10 @@ namespace Xen {
 
 			s_Data.circleVertexBuffer->Put(batch_storage[i]->circle_quad_verts, batch_storage[i]->circle_quad_index * 48);
 
-			if (current_quad_index != batch_storage[i]->circle_quad_index)
+			if (current_circle_index != batch_storage[i]->circle_quad_index)
 				s_Data.circleIndexBuffer->Put(batch_storage[i]->circle_quad_indices, batch_storage[i]->circle_quad_index * 6);
 
-			current_quad_index = batch_storage[i]->circle_quad_index;
+			current_circle_index = batch_storage[i]->circle_quad_index;
 
 			s_Data.circleShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
 
@@ -606,8 +606,12 @@ namespace Xen {
 			}
 		}
 
-		for (int i = 0; i < 6; i++)
+		//  XEN_ENGINE_LOG_INFO("START----");
+		for (int i = 0; i < 6; i++) {
 			batch_storage[batch_index]->circle_quad_indices[(batch_storage[batch_index]->circle_quad_index * 6) + i] = (batch_storage[batch_index]->circle_quad_index * 4) + default_quad_indices[i];
+			//XEN_ENGINE_LOG_INFO(batch_storage[batch_index]->circle_quad_indices[(batch_storage[batch_index]->circle_quad_index * 6) + i]);
+		}
+		//XEN_ENGINE_LOG_INFO("----");
 			
 		// Vertices
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 2] = position.x + (0.5f * scale.x);

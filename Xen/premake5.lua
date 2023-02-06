@@ -25,7 +25,7 @@ project "Xen"
 
 	}
 
-	links { "Xenode" }
+	links { "Xenode", "yaml-cpp" }
 
 	cppdialect "C++20"
 	pic "on"

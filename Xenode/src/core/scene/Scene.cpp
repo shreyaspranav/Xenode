@@ -39,6 +39,11 @@ namespace Xen {
 		m_Registry.destroy((entt::entity)entity);
 	}
 
+	void Scene::DestroyAllEntities()
+	{
+		m_Registry.clear();
+	}
+
 	void Scene::OnUpdate(double timestep)
 	{
 		//entt::observer group_observer{ m_Registry, entt::collector.group<Component::Transform, Component::SpriteRenderer>() };
@@ -69,7 +74,7 @@ namespace Xen {
 				camera.camera->SetRotation(transform.rotation);
 				camera.camera->SetScale(transform.scale);
 				camera.camera->Update();
-				Renderer2D::BeginScene(camera.camera, Vec2(1.0f, 1.0f));
+				Renderer2D::BeginScene(camera.camera);
 			}
 		}
 
@@ -79,7 +84,7 @@ namespace Xen {
 		{
 			Component::Transform& transform = sprite_group_observer.get<Component::Transform>(entity);
 			Component::SpriteRenderer& spriteRenderer = sprite_group_observer.get<Component::SpriteRenderer>(entity);
-			
+
 			if(spriteRenderer.texture == nullptr)
 				Renderer2D::DrawClearQuad(transform.position, transform.rotation, transform.scale, spriteRenderer.color);
 			else
@@ -97,6 +102,9 @@ namespace Xen {
 	}
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
+		m_FramebufferWidth = width;
+		m_FramebufferHeight = height;
+
 		auto camera_group_observer = m_Registry.view<Component::Transform, Component::CameraComp>();
 		//RenderCommand::OnWindowResize(width, height);
 		for (auto& entity : camera_group_observer)

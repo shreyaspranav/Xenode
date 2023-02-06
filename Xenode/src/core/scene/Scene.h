@@ -22,8 +22,12 @@ namespace Xen {
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 
+		void DestroyAllEntities();
+
 	private:
 		entt::registry m_Registry;
+		uint32_t m_FramebufferWidth = 1, m_FramebufferHeight = 1;
+
 		friend class Entity;
 		friend class ::SceneHierarchyPanel;
 		friend class SceneSerializer;
@@ -32,7 +36,7 @@ namespace Xen {
 	class XEN_API Entity
 	{
 	public:
-		Entity() {}
+		Entity() : m_Entity(entt::null), m_Scene(nullptr) {}
 		Entity(Scene* scene) : m_Scene(scene) { m_Entity = m_Scene->m_Registry.create(); }
 		Entity(entt::entity e, Scene* scene) : m_Entity(e), m_Scene(scene) {}
 		~Entity() {}
