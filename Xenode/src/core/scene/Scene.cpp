@@ -85,48 +85,71 @@ namespace Xen {
 
 		for (auto& entity : sprite_group_observer)
 		{	
+			Component::Transform& transform = Entity(entity, this).GetComponent<Component::Transform>();
 			if (m_RenderableEntities.size() < m_RenderableEntityIndex + 1)
+			{
 				m_RenderableEntities.push_back(Entity(entity, this));
-			else 
+				m_ZCoordinates.push_back(transform.position.z);
+			}
+			else {
 				m_RenderableEntities[m_RenderableEntityIndex] = Entity(entity, this);
+			}
 			
 			m_RenderableEntityIndex++;
 		}
 		
 		for (auto& entity : circle_group_observer)
 		{
+			Component::Transform& transform = Entity(entity, this).GetComponent<Component::Transform>();
 			if (m_RenderableEntities.size() < m_RenderableEntityIndex + 1)
+			{
 				m_RenderableEntities.push_back(Entity(entity, this));
-			else
+				m_ZCoordinates.push_back(transform.position.z);
+			}
+			else {
 				m_RenderableEntities[m_RenderableEntityIndex] = Entity(entity, this);
+			}
 			m_RenderableEntityIndex++;
 		}
 
-		// Sort the vector of renderable entities by passing in a lambda of how to tell one is less than another
-		std::sort(m_RenderableEntities.begin(), m_RenderableEntities.end(), [](const Entity& one, const Entity& another)
-			{
-				Component::Transform& transform_one = one.GetComponent<Component::Transform>();
-				Component::Transform& transform_another = another.GetComponent<Component::Transform>();
-
-				return transform_one.position.z < transform_another.position.z;
-			});
-
-		for (Entity& e : m_RenderableEntities)
+		for (int i = 0; i < m_RenderableEntityIndex; i++)
 		{
-			if (e.HasAnyComponent<Component::SpriteRenderer>())
+			Component::Transform& transform = m_RenderableEntities[i].GetComponent<Component::Transform>();
+			if (m_ZCoordinates[i] != transform.position.z)
 			{
-				Component::Transform& transform = e.GetComponent<Component::Transform>();
-				Component::SpriteRenderer& spriteRenderer = e.GetComponent<Component::SpriteRenderer>();
+				// Sort the vector of renderable entities by passing in a lambda of how to tell one is less than another
+				std::sort(m_RenderableEntities.begin(),
+					m_RenderableEntities.begin() + m_RenderableEntityIndex,
+					[](const Entity& one, const Entity& another)
+					{
+						Component::Transform& transform_one = one.GetComponent<Component::Transform>();
+						Component::Transform& transform_another = another.GetComponent<Component::Transform>();
+
+						return transform_one.position.z < transform_another.position.z;
+					});
+				break;
+
+				m_ZCoordinates[i] = transform.position.z;
+			}
+		}
+
+
+		for (int i = 0; i < m_RenderableEntityIndex; i++)
+		{
+			Component::Transform& transform = m_RenderableEntities[i].GetComponent<Component::Transform>();
+			if (m_RenderableEntities[i].HasAnyComponent<Component::SpriteRenderer>())
+			{
+				Component::SpriteRenderer& spriteRenderer = m_RenderableEntities[i].GetComponent<Component::SpriteRenderer>();
 
 				if (spriteRenderer.texture == nullptr)
 					Renderer2D::DrawClearQuad(transform.position, transform.rotation, transform.scale, spriteRenderer.color);
 				else
 					Renderer2D::DrawTexturedQuad(spriteRenderer.texture, transform.position, transform.rotation, transform.scale, spriteRenderer.color);
+
 			}
-			else if (e.HasAnyComponent<Component::CircleRenderer>())
+			else if (m_RenderableEntities[i].HasAnyComponent<Component::CircleRenderer>())
 			{
-				Component::Transform& transform = e.GetComponent<Component::Transform>();
-				Component::CircleRenderer& circleRenderer = e.GetComponent<Component::CircleRenderer>();
+				Component::CircleRenderer& circleRenderer = m_RenderableEntities[i].GetComponent<Component::CircleRenderer>();
 
 				Renderer2D::DrawClearCircle(transform.position, transform.rotation, transform.scale, circleRenderer.color, circleRenderer.thickness, circleRenderer.inner_fade, circleRenderer.outer_fade);
 			}

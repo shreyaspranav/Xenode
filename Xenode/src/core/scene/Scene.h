@@ -29,7 +29,10 @@ namespace Xen {
 		uint32_t m_FramebufferWidth = 1, m_FramebufferHeight = 1;
 
 		std::vector<Entity> m_RenderableEntities;
+		std::vector<float> m_ZCoordinates;
 		uint32_t m_RenderableEntityIndex = 0;
+
+		bool m_IsDirty = true;
 
 		friend class Entity;
 		friend class ::SceneHierarchyPanel;
