@@ -7,7 +7,7 @@ namespace Xen {
 
 	SceneData Renderer2D::s_Data;
 
-	uint32_t max_quads_per_batch = 10000;
+	uint32_t max_quads_per_batch = 1;
 	uint8_t max_texture_slots = 8; // TODO: Automate this
 
 	uint32_t default_quad_indices[6] = { 0, 1, 2, 0, 2, 3 };
@@ -72,6 +72,9 @@ namespace Xen {
 		{
 			delete[] quad_verts;
 			delete[] quad_indices;
+
+			delete[] circle_quad_verts;
+			delete[] circle_quad_indices;
 		}
 	};
 
@@ -253,7 +256,7 @@ namespace Xen {
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f;
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
 		
-		// Color, Z coordinate, and texture ID:
+		// Color and texture ID:
 		for (int i = 0; i < 40; i += 10)
 		{
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = color.r;
@@ -286,7 +289,7 @@ namespace Xen {
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f;
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
 
-		// Color, Z coordinate, and texture ID:
+		// Color and texture ID:
 		for (int i = 0; i < 40; i += 10)
 		{
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = color.r;
@@ -318,7 +321,7 @@ namespace Xen {
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f;
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
 
-		// Color, Z coordinate, and texture ID:
+		// Color and texture ID:
 
 		if (color == nullptr)
 		{
