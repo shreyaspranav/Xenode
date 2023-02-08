@@ -61,7 +61,7 @@ project "Xenode"
 		"%{IncludeDir.freetype}",
 	}
 
-	
+	defines {"_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS", "_CRT_SECURE_NO_WARNINGS"}
 
 	filter "system:windows"
 

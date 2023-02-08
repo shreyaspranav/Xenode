@@ -12,8 +12,6 @@ namespace Xen {
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLShader>(filePath);
-		case GraphicsAPI::XEN_VULKAN_API:
-			return nullptr;
 		}
 	}
 
@@ -23,8 +21,6 @@ namespace Xen {
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLShader>(vertexShaderFilePath, fragmentShaderFilePath, type);
-		case GraphicsAPI::XEN_VULKAN_API:
-			return nullptr;
 		}
 	}
 }

@@ -12,9 +12,6 @@ namespace Xen {
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLVertexArray>();
-
-		case GraphicsAPI::XEN_VULKAN_API:
-			return nullptr;
 		default:
 			break;
 		}
