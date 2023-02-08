@@ -98,7 +98,7 @@ public:
 					if (ImGui::Selectable(component.c_str()))
 					{
 						if (component.contains("Sprite Renderer"))
-							m_SelectedEntity.AddComponent<Xen::Component::SpriteRenderer>();
+							m_SelectedEntity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f), nullptr, 1.0f);
 
 						else if (component.contains("Camera"))
 							m_SelectedEntity.AddComponent<Xen::Component::CameraComp>(std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, 22, 22));

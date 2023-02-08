@@ -112,26 +112,15 @@ namespace Xen {
 			m_RenderableEntityIndex++;
 		}
 
-		for (int i = 0; i < m_RenderableEntityIndex; i++)
-		{
-			Component::Transform& transform = m_RenderableEntities[i].GetComponent<Component::Transform>();
-			if (m_ZCoordinates[i] != transform.position.z)
+		std::sort(m_RenderableEntities.begin(),
+			m_RenderableEntities.begin() + m_RenderableEntityIndex,
+			[](const Entity& one, const Entity& another)
 			{
-				// Sort the vector of renderable entities by passing in a lambda of how to tell one is less than another
-				std::sort(m_RenderableEntities.begin(),
-					m_RenderableEntities.begin() + m_RenderableEntityIndex,
-					[](const Entity& one, const Entity& another)
-					{
-						Component::Transform& transform_one = one.GetComponent<Component::Transform>();
-						Component::Transform& transform_another = another.GetComponent<Component::Transform>();
+				Component::Transform& transform_one = one.GetComponent<Component::Transform>();
+				Component::Transform& transform_another = another.GetComponent<Component::Transform>();
 
-						return transform_one.position.z > transform_another.position.z;
-					});
-				break;
-
-				m_ZCoordinates[i] = transform.position.z;
-			}
-		}
+				return transform_one.position.z > transform_another.position.z;
+			});
 
 
 		for (int i = 0; i < m_RenderableEntityIndex; i++)

@@ -87,6 +87,7 @@ namespace Xen {
 				yamlEmitter << YAML::Value << "null";
 			else 
 				yamlEmitter << YAML::Value << spriteRenderer.texture->GetFilePath();
+			yamlEmitter << YAML::Key << "TextureTilingFactor" << YAML::Value << spriteRenderer.texture_tile_factor;
 			
 			yamlEmitter << YAML::EndMap;
 
@@ -249,7 +250,9 @@ namespace Xen {
 						XEN_ENGINE_LOG_WARN(texture_node["TextureFileRelPath"].as<std::string>());
 					}
 
-					entt.AddComponent<Component::SpriteRenderer>(color);
+					float texture_tile_factor = texture_node["TextureTileFactor"].as<float>();
+
+					entt.AddComponent<Component::SpriteRenderer>(color, nullptr, texture_tile_factor);
 				}
 
 				// CircleRenderer Component-------------------------------------------------
