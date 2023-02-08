@@ -290,8 +290,28 @@ public:
 
 					ImGui::NextColumn();
 					ImGui::PushItemWidth(-0.1f);
-					ImGui::InputText("##Texture", texture_file_path, IM_ARRAYSIZE(texture_file_path), ImGuiInputTextFlags_ReadOnly);
+					if (spriteRenderer.texture == nullptr)
+						PaddedText("No Texture!", 0.0, 3.0f);
+					else
+					{
+						float texture_width = ImGui::GetColumnWidth() - 20.0f;
+
+						ImGui::Image((ImTextureID)spriteRenderer.texture->GetNativeTextureID(),
+							ImVec2(texture_width, (texture_width * spriteRenderer.texture->GetHeight()) / spriteRenderer.texture->GetHeight()));
+
+					}
 					ImGui::PopItemWidth();
+
+					if (spriteRenderer.texture != nullptr)
+					{
+						ImGui::NextColumn();
+						PaddedText("Tile Factor", 0.0f, 3.0f);
+
+						ImGui::NextColumn();
+						ImGui::PushItemWidth(-0.1f);
+						ImGui::DragFloat("##TileFactor", &spriteRenderer.texture_tile_factor, 0.01f, 0.0001f, 100.0f);
+						ImGui::PopItemWidth();
+					}
 
 					ImGui::Columns(1);
 					

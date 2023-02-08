@@ -9,8 +9,8 @@ namespace Xen {
 	{
 		if (type == CameraType::Orthographic)
 		{
-			m_z_Near = -1.0f;
-			m_z_Far = 1.0f;
+			m_z_Near = 1.0f;
+			m_z_Far = -1.0f;
 			m_AspectRatio = (float)framebuffer_width / (float)framebuffer_height;
 
 			m_ProjectionMatrix = glm::ortho(-m_AspectRatio, m_AspectRatio, -1.0f, 1.0f, m_z_Near, m_z_Far);
@@ -54,8 +54,8 @@ namespace Xen {
 		m_CameraType = type;
 		if (m_CameraType == CameraType::Orthographic)
 		{
-			m_z_Near = -1.0f;
-			m_z_Far = 1.0f;
+			m_z_Near = 1.0f;
+			m_z_Far = -1.0f;
 
 			m_ProjectionMatrix = glm::ortho(-m_AspectRatio, m_AspectRatio, -1.0f, 1.0f, m_z_Near, m_z_Far);
 		}

@@ -125,7 +125,7 @@ namespace Xen {
 						Component::Transform& transform_one = one.GetComponent<Component::Transform>();
 						Component::Transform& transform_another = another.GetComponent<Component::Transform>();
 
-						return transform_one.position.z < transform_another.position.z;
+						return transform_one.position.z > transform_another.position.z;
 					});
 				break;
 
@@ -142,16 +142,30 @@ namespace Xen {
 				Component::SpriteRenderer& spriteRenderer = m_RenderableEntities[i].GetComponent<Component::SpriteRenderer>();
 
 				if (spriteRenderer.texture == nullptr)
-					Renderer2D::DrawClearQuad(transform.position, transform.rotation, transform.scale, spriteRenderer.color);
+					Renderer2D::DrawClearQuad(transform.position, 
+						transform.rotation, 
+						transform.scale, 
+						spriteRenderer.color);
 				else
-					Renderer2D::DrawTexturedQuad(spriteRenderer.texture, transform.position, transform.rotation, transform.scale, spriteRenderer.color);
+					Renderer2D::DrawTexturedQuad(spriteRenderer.texture, 
+						transform.position, 
+						transform.rotation, 
+						transform.scale, 
+						spriteRenderer.color,
+						spriteRenderer.texture_tile_factor);
 
 			}
 			else if (m_RenderableEntities[i].HasAnyComponent<Component::CircleRenderer>())
 			{
 				Component::CircleRenderer& circleRenderer = m_RenderableEntities[i].GetComponent<Component::CircleRenderer>();
 
-				Renderer2D::DrawClearCircle(transform.position, transform.rotation, transform.scale, circleRenderer.color, circleRenderer.thickness, circleRenderer.inner_fade, circleRenderer.outer_fade);
+				Renderer2D::DrawClearCircle(transform.position, 
+					transform.rotation, 
+					transform.scale, 
+					circleRenderer.color, 
+					circleRenderer.thickness, 
+					circleRenderer.inner_fade, 
+					circleRenderer.outer_fade);
 			}
 		}
 	}

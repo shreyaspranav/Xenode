@@ -45,12 +45,11 @@ void EditorLayer::OnAttach()
 	tex->LoadTexture();
 	tex_1->LoadTexture();
 
-	quad_entity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f));
+	quad_entity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f), tex_1);
 	circle_entity.AddComponent<Xen::Component::CircleRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f), 0.4f, 0.5f, 0.01f);
 
 	Xen::Component::Transform& quad_transform = quad_entity.GetComponent<Xen::Component::Transform>();
 	quad_transform.position.x = -0.6f;
-
 	Xen::Component::Transform& circle_transform = circle_entity.GetComponent<Xen::Component::Transform>();
 	circle_transform.position.x = 0.6f;
 

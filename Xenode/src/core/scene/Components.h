@@ -35,11 +35,13 @@ namespace Xen {
 			Color color;
 			Ref<Texture2D> texture;
 
+			float texture_tile_factor;
+
 			SpriteRenderer() = default;
 			SpriteRenderer(const SpriteRenderer& transform) = default;
 
-			SpriteRenderer(const Color& color) : color(color), texture(nullptr) {}
-			SpriteRenderer(const Color& color, Ref<Texture2D> texture) : color(color), texture(texture) {}
+			SpriteRenderer(const Color& color) : color(color), texture(nullptr), texture_tile_factor(1.0f) {}
+			SpriteRenderer(const Color& color, Ref<Texture2D> texture, float tile_factor = 1.0f) : color(color), texture(texture), texture_tile_factor(tile_factor) {}
 		};
 
 		struct CircleRenderer
