@@ -29,7 +29,7 @@ public:
 
 		ImGui::Begin(m_PanelTitle.c_str());
 
-		if (!m_SelectedEntity.IsNull())
+		if (!m_SelectedEntity.IsNull() && m_SelectedEntity.IsValid())
 		{
 			Xen::Component::Tag& tag = m_SelectedEntity.GetComponent<Xen::Component::Tag>();
 			tag_buf = tag.tag.c_str();

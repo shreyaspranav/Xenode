@@ -93,6 +93,11 @@ namespace Xen {
 			}
 			else {
 				m_RenderableEntities[m_RenderableEntityIndex] = Entity(entity, this);
+
+				if (m_ZCoordinates[m_RenderableEntityIndex] != transform.position.z)
+					m_IsDirty = true;
+
+				m_ZCoordinates[m_RenderableEntityIndex] = transform.position.z;
 			}
 			
 			m_RenderableEntityIndex++;
@@ -108,20 +113,19 @@ namespace Xen {
 			}
 			else {
 				m_RenderableEntities[m_RenderableEntityIndex] = Entity(entity, this);
+
+				if (m_ZCoordinates[m_RenderableEntityIndex] != transform.position.z)
+					m_IsDirty = true;
+
+				m_ZCoordinates[m_RenderableEntityIndex] = transform.position.z;
 			}
 			m_RenderableEntityIndex++;
 		}
 
-		std::sort(m_RenderableEntities.begin(),
-			m_RenderableEntities.begin() + m_RenderableEntityIndex,
-			[](const Entity& one, const Entity& another)
-			{
-				Component::Transform& transform_one = one.GetComponent<Component::Transform>();
-				Component::Transform& transform_another = another.GetComponent<Component::Transform>();
 
-				return transform_one.position.z > transform_another.position.z;
-			});
-
+		if(m_IsDirty)
+			SortRenderableEntities();
+		m_IsDirty = false;
 
 		for (int i = 0; i < m_RenderableEntityIndex; i++)
 		{
@@ -175,5 +179,20 @@ namespace Xen {
 				camera.camera->Update();
 			}
 		}
+	}
+
+	void Scene::SortRenderableEntities()
+	{
+		std::sort(m_RenderableEntities.begin(),
+			m_RenderableEntities.begin() + m_RenderableEntityIndex,
+			[](const Entity& one, const Entity& another)
+			{
+				Component::Transform& transform_one = one.GetComponent<Component::Transform>();
+				Component::Transform& transform_another = another.GetComponent<Component::Transform>();
+
+				return transform_one.position.z > transform_another.position.z;
+			});
+
+		std::sort(m_ZCoordinates.rbegin(), m_ZCoordinates.rend());
 	}
 }

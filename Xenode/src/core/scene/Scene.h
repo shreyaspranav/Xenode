@@ -25,6 +25,9 @@ namespace Xen {
 		void DestroyAllEntities();
 
 	private:
+		void SortRenderableEntities();
+
+	private:
 		entt::registry m_Registry;
 		uint32_t m_FramebufferWidth = 1, m_FramebufferHeight = 1;
 
@@ -69,6 +72,7 @@ namespace Xen {
 		operator entt::entity() const { return m_Entity; }
 
 		bool IsNull() { return m_Entity == entt::null ? true : false; }
+		bool IsValid() { return m_Scene->m_Registry.valid(m_Entity); }
 		//bool operator==(const Entity& other) { return other.m_Entity == m_Entity; }
 		//bool operator!=(const Entity& other) { return other.m_Entity != m_Entity; }
 
