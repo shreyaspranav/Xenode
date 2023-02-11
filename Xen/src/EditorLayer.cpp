@@ -2,6 +2,7 @@
 #include "core/scene/ScriptableEntity.h"
 
 #include <core/app/Timer.h>
+#include <core/app/Utils.h>
 
 float rotation = 0.0f;
 
@@ -185,15 +186,27 @@ void EditorLayer::OnImGuiUpdate()
 			if (ImGui::MenuItem("New")) {}
 			if (ImGui::MenuItem("Open", "Ctrl+O")) 
 			{
-				m_ActiveScene = std::make_shared<Xen::Scene>();
-				Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
-				serialiser.Deserialize("assets/scene.xen");
+				const std::string& filePath = Xen::Utils::OpenFileDialogOpen("Xenode 2D Scene (*.xen)\0*.*\0");
+				
+				if (!filePath.empty())
+				{
+					m_ActiveScene = std::make_shared<Xen::Scene>();
+					Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
+					//serialiser.Deserialize("assets/scene.xen");
+					serialiser.Deserialize(filePath);
+				}
 			}
 
 			if (ImGui::MenuItem("Save", "Ctrl+S")) 
 			{
-				Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
-				serialiser.Serialize("assets/scene.xen");
+				const std::string& filePath = Xen::Utils::OpenFileDialogSave("Xenode 2D Scene (*.xen)\0*.*\0");
+
+				if (!filePath.empty())
+				{
+					Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
+					serialiser.Serialize(filePath);
+				}
+
 			}
 			if (ImGui::MenuItem("Save As..")) {}
 
