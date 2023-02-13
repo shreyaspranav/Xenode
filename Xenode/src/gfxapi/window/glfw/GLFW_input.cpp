@@ -81,6 +81,9 @@ namespace Xen {
 			});
 	}
 
+	bool GLFW_input::IsKeyPressed(KeyCode code) const { return glfwGetKey(m_Window, (int)code); }
+	bool GLFW_input::IsMouseButtonPressed(MouseKeyCode code) const { return glfwGetMouseButton(m_Window, (int)code); }
+
 	uint16_t GLFW_input::GetMouseX() const
 	{
 		double to_return;

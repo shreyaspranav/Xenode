@@ -2,7 +2,7 @@
 
 #include <core/app/Input.h>
 
-#include <GLFW/glfw3.h>
+struct GLFWwindow;
 
 namespace Xen {
 	class XEN_API GLFW_input : public Input
@@ -16,8 +16,8 @@ namespace Xen {
 
 		void SetupInputListeners() const override;
 
-		bool IsKeyPressed(KeyCode code) const override { return glfwGetKey(m_Window, (int)code); }
-		bool IsMouseButtonPressed(MouseKeyCode code) const override { return glfwGetMouseButton(m_Window, (int)code); }
+		bool IsKeyPressed(KeyCode code) const override;
+		bool IsMouseButtonPressed(MouseKeyCode code) const override;
 
 		uint16_t GetMouseX() const override;
 		uint16_t GetMouseY() const override;

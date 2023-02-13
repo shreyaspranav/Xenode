@@ -3,7 +3,10 @@
 #include <core/app/Window.h>
 
 #include <core/app/EventDispatcher.h>
-#include <GLFW/glfw3.h>
+
+struct GLFWwindow;
+struct GLFWcursor;
+struct GLFWmonitor;
 
 namespace Xen {
 
