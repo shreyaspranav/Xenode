@@ -33,7 +33,7 @@ namespace Xen {
 
 	#elif XEN_DEVICE_MOBILE	
 	#ifdef XEN_PLATFORM_ANDROID
-
+	public:
 		inline static double GetTimeS() 
 		{
 			struct timespec res;
