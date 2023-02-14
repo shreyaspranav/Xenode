@@ -27,7 +27,7 @@ namespace Xen {
 		GLFWcursor* m_Cursor;
 
 		UserPointer m_UserPointer;
-
+		 
 	public:
 		GLFW_window(const WindowProps& props);
 		GLFW_window() {}

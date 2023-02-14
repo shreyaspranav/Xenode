@@ -27,7 +27,8 @@ namespace Xen {
 			Transform() = default;
 			Transform(const Transform& transform) = default;
 
-			Transform(const Vec3& position, const Vec3& rotation, const Vec3& scale) : position(position), rotation(rotation), scale(scale) {}
+			Transform(const Vec3& position, const Vec3& rotation, const Vec3& scale) 
+				: position(position), rotation(rotation), scale(scale) {}
 		};
 
 		struct SpriteRenderer
@@ -41,7 +42,8 @@ namespace Xen {
 			SpriteRenderer(const SpriteRenderer& transform) = default;
 
 			SpriteRenderer(const Color& color) : color(color), texture(nullptr), texture_tile_factor(1.0f) {}
-			SpriteRenderer(const Color& color, Ref<Texture2D> texture, float tile_factor = 1.0f) : color(color), texture(texture), texture_tile_factor(tile_factor) {}
+			SpriteRenderer(const Color& color, Ref<Texture2D> texture, float tile_factor = 1.0f) 
+				: color(color), texture(texture), texture_tile_factor(tile_factor) {}
 		};
 
 		struct CircleRenderer
@@ -54,7 +56,21 @@ namespace Xen {
 			CircleRenderer() = default;
 			CircleRenderer(const CircleRenderer& renderer) = default;
 
-			CircleRenderer(const Color& color, float thickness, float innerfade, float outerfade) : color(color), thickness(thickness), inner_fade(innerfade), outer_fade(outerfade) {}
+			CircleRenderer(const Color& color, float thickness, float innerfade, float outerfade) 
+				: color(color), thickness(thickness), inner_fade(innerfade), outer_fade(outerfade) {}
+		};
+
+		struct TextRenderer
+		{
+			std::string text = "Text";
+			Color color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+			bool bold = 0, italic = 0;
+
+			TextRenderer() = default;
+			TextRenderer(const TextRenderer& textRenderer) = default;
+
+			TextRenderer(const std::string& text, bool bold, bool italic) 
+				: text(text), italic(italic), bold(bold) {}
 		};
 
 		struct CameraComp
@@ -66,7 +82,8 @@ namespace Xen {
 			CameraComp() = default;
 			CameraComp(const CameraComp& transform) = default;
 
-			CameraComp(Xen::CameraType type, float viewport_width, float viewport_height) : camera(std::make_shared<Camera>(type, viewport_width, viewport_height)) {}
+			CameraComp(Xen::CameraType type, float viewport_width, float viewport_height) 
+				: camera(std::make_shared<Camera>(type, viewport_width, viewport_height)) {}
 
 			CameraComp(const Ref<Camera>& camera) : camera(camera) {}
 		};
@@ -85,7 +102,11 @@ namespace Xen {
 			{
 				entity = e;
 				InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
-				DestroyScript = [](NativeScript* script) { delete script->scriptable_entity_instance; script->scriptable_entity_instance = nullptr; };
+				DestroyScript = [](NativeScript* script) 
+				{ 
+					delete script->scriptable_entity_instance; 
+					script->scriptable_entity_instance = nullptr; 
+				};
 			}
 		};
 	}
