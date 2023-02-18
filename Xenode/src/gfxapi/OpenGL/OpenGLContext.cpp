@@ -15,10 +15,10 @@ namespace Xen {
 		
 		switch (severity)
 		{
-		case GL_DEBUG_SEVERITY_HIGH:             XEN_ENGINE_LOG_ERROR("OpenGL Debug Output: [{0}]: {1} ---------------------", id, message);
-		case GL_DEBUG_SEVERITY_MEDIUM:           XEN_ENGINE_LOG_WARN("OpenGL Debug Output: [{0}]: {1} ----------------------", id, message);
-		case GL_DEBUG_SEVERITY_LOW:              XEN_ENGINE_LOG_WARN("OpenGL Debug Output: [{0}]: {1} ----------------------", id, message);
-		case GL_DEBUG_SEVERITY_NOTIFICATION:     XEN_ENGINE_LOG_WARN("OpenGL Debug Output: [{0}]: {1} ----------------------", id, message);
+		case GL_DEBUG_SEVERITY_HIGH:             XEN_ENGINE_LOG_ERROR("OpenGL Debug Output: [{0}]: {1} ---------------------", id, message); break;
+		case GL_DEBUG_SEVERITY_MEDIUM:           XEN_ENGINE_LOG_WARN("OpenGL Debug Output: [{0}]: {1} ----------------------", id, message); break;
+		case GL_DEBUG_SEVERITY_LOW:              XEN_ENGINE_LOG_WARN("OpenGL Debug Output: [{0}]: {1} ----------------------", id, message); break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION:     XEN_ENGINE_LOG_WARN("OpenGL Debug Output: [{0}]: {1} ----------------------", id, message); break;
 		}
 
 		switch (source)
