@@ -161,8 +161,9 @@ void EditorLayer::OnImGuiUpdate()
 			ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
 
 			// split the dockspace into 2 nodes -- DockBuilderSplitNode takes in the following args in the following order
-			//   window ID to split, direction, fraction (between 0 and 1), the final two setting let's us choose which id we want (which ever one we DON'T set as NULL, will be returned by the function)
-			//                                                              out_id_at_dir is the id of the node in the direction we specified earlier, out_id_at_opposite_dir is in the opposite direction
+			// window ID to split, direction, fraction (between 0 and 1), the final two setting let's us choose which id 
+			// we want (which ever one we DON'T set as NULL, will be returned by the function)
+			// out_id_at_dir is the id of the node in the direction we specified earlier, out_id_at_opposite_dir is in the opposite direction
 
 			auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.3f, nullptr, &dockspace_id);
 			auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
@@ -172,6 +173,7 @@ void EditorLayer::OnImGuiUpdate()
 			// we now dock our windows into the docking node we made above
 			ImGui::DockBuilderDockWindow(hier_panel.GetPanelTitle().c_str(), dock_id_left);
 			ImGui::DockBuilderDockWindow("Window Two", dock_id_down);
+			ImGui::DockBuilderDockWindow("Renderer Stats", dock_id_left_down);
 			ImGui::DockBuilderDockWindow(prop_panel.GetPanelTitle().c_str(), dock_id_left_down);
 			//ImGui::DockBuilderDockWindow("Window Three", dock_id_left_down);
 			ImGui::DockBuilderDockWindow((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str(), dockspace_id); // IMP: To Dock In Centre!! use directly 'dockspace_id'
@@ -271,6 +273,33 @@ void EditorLayer::OnImGuiUpdate()
 
 	ImGui::End();
 	ImGui::PopStyleVar();
+
+	ImGui::Begin("Renderer Stats");
+	
+	Xen::Renderer2D::Renderer2DStatistics& renderer_stats = Xen::Renderer2D::GetStatistics();
+
+	ImGui::Text("Draw Calls: %d", renderer_stats.draw_calls);
+	ImGui::Text("Quads Rendered: %d", renderer_stats.quad_count);
+	ImGui::Text("Circles Rendered: %d", renderer_stats.circle_count);
+	ImGui::Text("Unique Texture Objects: %d", renderer_stats.texture_count);
+
+	ImGui::Separator();
+
+	ImGui::Text("No. of Batches: %d batches", renderer_stats.batch_count);
+
+	ImGui::Separator();
+
+	ImGui::Text("Quad Vertex Buffer Size: %dB", renderer_stats.quad_vertex_buffer_size);
+	ImGui::Text("Circle Vertex Buffer Size: %dB", renderer_stats.circle_vertex_buffer_size);
+	ImGui::Text("Quad Index Buffer Size: %dB", renderer_stats.quad_index_buffer_size);
+	ImGui::Text("Circle Index Buffer Size: %dB", renderer_stats.circle_index_buffer_size);
+
+	ImGui::Separator();
+
+	ImGui::Text("Quad Indices Drawn: %d vertices", renderer_stats.quad_indices_drawn);
+	ImGui::Text("Circle Indices Drawn: %d vertices", renderer_stats.circle_indices_drawn);
+
+	ImGui::End();
 
 }
 

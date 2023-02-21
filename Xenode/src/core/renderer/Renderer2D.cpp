@@ -7,38 +7,27 @@ namespace Xen {
 
 	SceneData Renderer2D::s_Data;
 
-	uint32_t max_quads_per_batch = 1;
-	uint8_t max_texture_slots = 8; // TODO: Automate this
+	// The maximum amount of quads or circles drawn per batch:
+	uint32_t max_quads_per_batch = 10000;
 
-	uint32_t default_quad_indices[6] = { 0, 1, 2, 0, 2, 3 };
+	// The maximum amount of textures that can be bound at a time:
+	uint8_t max_texture_slots = 8;
+
 	uint32_t current_quad_index;
 	uint32_t current_circle_index;
-
 	uint32_t batch_index = 0;
-
-	uint32_t data = 0xffffffff;
-	Ref<Texture2D> white_texture;
-	Ref<Texture2D> consolas_font_texture;
-
 	uint32_t batches_allocated = 1;
 
-	bool world_coords_set = 0;
-	uint32_t frame_count = 0;
+	uint32_t white_texture_data = 0xffffffff;
+	Ref<Texture2D> white_texture;
 
+	uint32_t default_quad_indices[6] = { 0, 1, 2, 0, 2, 3 };
 	glm::vec4 temp_vert[4] =
 	{
 		glm::vec4(0.5f,  0.5f, 0.0f, 1.0f),
 		glm::vec4(-0.5f,  0.5f, 0.0f, 1.0f),
 		glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f),
 		glm::vec4(0.5f, -0.5f, 0.0f, 1.0f),
-	};
-
-	glm::vec4 temp_world_coords[4] =
-	{
-		glm::vec4(1.0f,  1.0f, 0.0f, 1.0f),
-		glm::vec4(-1.0,  1.0f, 0.0f, 1.0f),
-		glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f),
-		glm::vec4(1.0f, -1.0f, 0.0f, 1.0f),
 	};
 
 	struct Renderer2DStorage
@@ -78,17 +67,6 @@ namespace Xen {
 		}
 	};
 
-	float sample_data[] = {
-		  1.0f,  1.0f,  0.5f,  0.5f, 1.0f, 1.0f, 0.3f, 0.8f, 1.0f, 1.0f, 1.0f, 1.0f,
-		 -1.0f,  1.0f, -0.5f,  0.5f, 1.0f, 1.0f, 0.3f, 0.8f, 1.0f, 1.0f, 1.0f, 1.0f,
-		 -1.0f, -1.0f, -0.5f, -0.5f, 1.0f, 1.0f, 0.3f, 0.8f, 1.0f, 1.0f, 1.0f, 1.0f,
-		  1.0f, -1.0f,  0.5f, -0.5f, 1.0f, 1.0f, 0.3f, 0.8f, 1.0f, 1.0f, 1.0f, 1.0f,
-	};
-
-	uint32_t ind_data[6] = {
-		0, 1, 2, 0, 2, 3
-	};
-
 	int texture_slots[8];
 
 	static std::vector<Ref<Renderer2DStorage>> batch_storage;
@@ -112,7 +90,7 @@ namespace Xen {
 		circleBufferLayout.AddBufferElement(BufferElement("aCircleInnerFade", 9, 1, 10, BufferDataType::Float, false));
 		circleBufferLayout.AddBufferElement(BufferElement("aCircleOuterFade", 10, 1, 11, BufferDataType::Float, false));
 
-		white_texture =  Texture2D::CreateTexture2D(1, 1, &data, sizeof(uint32_t));
+		white_texture =  Texture2D::CreateTexture2D(1, 1, &white_texture_data, sizeof(uint32_t));
 
 		s_Data.quadVertexArray = VertexArray::CreateVertexArray();
 		s_Data.quadVertexArray->Bind();
@@ -153,8 +131,11 @@ namespace Xen {
 		for (int i = 0; i < max_texture_slots; i++)
 			texture_slots[i] = i;
 
-		stats.vertex_buffer_size = s_Data.quadVertexBuffer->GetSize();
-		stats.index_buffer_size = s_Data.quadIndexBuffer->GetSize();
+		stats.quad_vertex_buffer_size = s_Data.quadVertexBuffer->GetSize();
+		stats.quad_index_buffer_size = s_Data.quadIndexBuffer->GetSize();
+
+		stats.circle_vertex_buffer_size = s_Data.circleVertexBuffer->GetSize();
+		stats.circle_index_buffer_size = s_Data.circleIndexBuffer->GetSize();
 
 
 	}
@@ -177,10 +158,21 @@ namespace Xen {
 		batch_index = 0;
 		memset(&stats, 0, sizeof(Renderer2D::Renderer2DStatistics));
 
-		stats.vertex_buffer_size = s_Data.quadVertexBuffer->GetSize();
-		stats.index_buffer_size = s_Data.quadIndexBuffer->GetSize();
+		stats.quad_vertex_buffer_size = s_Data.quadVertexBuffer->GetSize();
+		stats.quad_index_buffer_size = s_Data.quadIndexBuffer->GetSize();
 
-		stats.predefined_batches = sizeof(Renderer2DStorage);
+		stats.circle_vertex_buffer_size = s_Data.circleVertexBuffer->GetSize();
+		stats.circle_index_buffer_size = s_Data.circleIndexBuffer->GetSize();
+
+		stats.batch_count = batch_index + 1;
+
+		stats.quad_count = 0;
+		stats.circle_count = 0;
+
+		stats.texture_count = 0;
+
+		for (const Ref<Renderer2DStorage>& storage : batch_storage)
+			stats.texture_count += storage->texture_slot_index;
 	}
 
 	void Renderer2D::EndScene()
@@ -216,6 +208,7 @@ namespace Xen {
 				s_Data.quadIndexBuffer->Put(batch_storage[i]->quad_indices, batch_storage[i]->quad_index * 6);
 
 			current_quad_index = batch_storage[i]->quad_index;
+			stats.quad_indices_drawn = batch_storage[i]->quad_index * 6;
 
 			RenderCommand::DrawIndexed(s_Data.quadVertexArray, (batch_storage[i]->quad_index) * 6);
 
@@ -228,14 +221,14 @@ namespace Xen {
 				s_Data.circleIndexBuffer->Put(batch_storage[i]->circle_quad_indices, batch_storage[i]->circle_quad_index * 6);
 
 			current_circle_index = batch_storage[i]->circle_quad_index;
+			stats.circle_indices_drawn = batch_storage[i]->circle_quad_index * 6;
 
 			s_Data.circleShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
 
 			RenderCommand::DrawIndexed(s_Data.circleVertexArray, (batch_storage[i]->circle_quad_index) * 6);
 
-			stats.draw_calls++;
+			stats.draw_calls += 2;
 		}
-		stats.predefined_batches = sizeof(Renderer2DStorage) * stats.draw_calls;
 	}
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, float rotation, const Vec2& scale, const Color& color)
@@ -388,7 +381,7 @@ namespace Xen {
 		if (itr == batch_storage[batch_index]->textures.end())
 		{
 			batch_storage[batch_index]->textures.push_back(texture);
-			stats.texture_count++;
+			//stats.texture_count++;
 			for (int i = 0; i < 40; i += 10)
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = batch_storage[batch_index]->textures.size() - 1;
 		}
@@ -433,7 +426,7 @@ namespace Xen {
 		if (itr == batch_storage[batch_index]->textures.end())
 		{
 			batch_storage[batch_index]->textures.push_back(texture);
-			stats.texture_count++;
+			//stats.texture_count++;
 			for (int i = 0; i < 40; i += 10)
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = batch_storage[batch_index]->textures.size() - 1;
 		}
@@ -482,7 +475,7 @@ namespace Xen {
 		if (itr == batch_storage[batch_index]->textures.end())
 		{
 			batch_storage[batch_index]->textures.push_back(texture);
-			stats.texture_count++;
+			//stats.texture_count++;
 			for (int i = 0; i < 40; i += 10)
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = batch_storage[batch_index]->textures.size() - 1;
 		}
@@ -522,13 +515,9 @@ namespace Xen {
 		batch_storage[batch_index]->circle_quad_index++;
 	}
 
-	Renderer2D::Renderer2DStatistics& Renderer2D::GetStatistics()
-	{
-		return stats;
-	}
+	Renderer2D::Renderer2DStatistics& Renderer2D::GetStatistics() { return stats; }
 	
-	// Private methods
-
+	// Private methods -----------------------------------------------------------------------------------------------------------------------
 	/*
 	* Quad Vertex Order: 
 	*		2		1
@@ -538,7 +527,6 @@ namespace Xen {
 	*		--------
 	*		3		4
 	*/
-
 	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale)
 	{
 		if (batch_storage[batch_index]->texture_slot_index >= max_texture_slots || batch_storage[batch_index]->quad_index >= max_quads_per_batch - 1)
@@ -645,6 +633,6 @@ namespace Xen {
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 36] = 1.0f;
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 37] = -1.0f;
 
-		stats.quad_count++;
+		stats.circle_count++;
 	}
 }

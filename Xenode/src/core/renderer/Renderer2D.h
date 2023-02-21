@@ -14,14 +14,19 @@ namespace Xen {
 		{
 			uint32_t draw_calls;
 			uint32_t quad_count;
+			uint32_t circle_count;
 			uint32_t texture_count;
 
-			uint32_t predefined_batches;
+			uint32_t batch_count;
 
-			uint32_t vertex_buffer_size;
-			uint32_t index_buffer_size;
+			uint32_t quad_vertex_buffer_size;
+			uint32_t quad_index_buffer_size;
 
-			uint32_t indices_drawn;
+			uint32_t circle_vertex_buffer_size;
+			uint32_t circle_index_buffer_size;
+
+			uint32_t quad_indices_drawn;
+			uint32_t circle_indices_drawn;
 		};
 
 	public:
