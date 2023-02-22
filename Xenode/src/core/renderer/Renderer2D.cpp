@@ -136,8 +136,6 @@ namespace Xen {
 
 		stats.circle_vertex_buffer_size = s_Data.circleVertexBuffer->GetSize();
 		stats.circle_index_buffer_size = s_Data.circleIndexBuffer->GetSize();
-
-
 	}
 
 	void Renderer2D::ShutDown()
@@ -597,12 +595,8 @@ namespace Xen {
 			}
 		}
 
-		//  XEN_ENGINE_LOG_INFO("START----");
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 6; i++)
 			batch_storage[batch_index]->circle_quad_indices[(batch_storage[batch_index]->circle_quad_index * 6) + i] = (batch_storage[batch_index]->circle_quad_index * 4) + default_quad_indices[i];
-			//XEN_ENGINE_LOG_INFO(batch_storage[batch_index]->circle_quad_indices[(batch_storage[batch_index]->circle_quad_index * 6) + i]);
-		}
-		//XEN_ENGINE_LOG_INFO("----");
 			
 		// Vertices
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 2] = position.x + (0.5f * scale.x);
