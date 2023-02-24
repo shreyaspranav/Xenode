@@ -50,6 +50,8 @@ public:
 
 	void OnUpdate(double timestep) override
 	{
+		timestep = timestep / 10.0;
+
 		time = timestep;
 		Xen::RenderCommand::Clear();
 		Xen::RenderCommand::SetClearColor(Xen::Color(color_bg[0], color_bg[1], color_bg[2], color_bg[3]));

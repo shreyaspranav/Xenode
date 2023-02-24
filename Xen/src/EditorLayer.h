@@ -9,6 +9,13 @@
 class EditorLayer : public Xen::Layer
 {
 public:
+	enum class GizmoOperation {
+		Translate,
+		Rotate2D, Rotate3D,
+		Scale
+	};
+
+
 	EditorLayer();
 	virtual ~EditorLayer();
 
@@ -45,8 +52,10 @@ private:
 
 	//Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
 
-	bool m_ViewportFocused = 0;
+	bool m_IsMouseHoveredOnViewport = 0;
 
 	SceneHierarchyPanel hier_panel;
 	PropertiesPanel prop_panel;
+
+	GizmoOperation m_GizmoOperation;
 };

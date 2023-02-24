@@ -44,6 +44,21 @@ namespace Xen {
 		m_Registry.clear();
 	}
 
+	Entity Scene::GetPrimaryCameraEntity()
+	{
+		auto camera_view = m_Registry.view<Component::CameraComp>();
+
+		for (auto& entity : camera_view)
+		{
+			Component::CameraComp& camera_component = camera_view.get<Component::CameraComp>(entity);
+
+			if (camera_component.is_primary_camera)
+				return Entity(entity, this);
+		}
+
+		return Entity();
+	}
+
 	void Scene::OnUpdate(double timestep)
 	{
 		m_RenderableEntityIndex = 0;

@@ -4,6 +4,11 @@
 #include <core/app/Timer.h>
 #include <core/app/Utils.h>
 
+#include <ImGuizmo.h>
+
+#include <glm/gtx/matrix_decompose.hpp>
+#include "math/Math.h"
+
 float rotation = 0.0f;
 
 float bg_color[4] = { 0.0, 0.0f, 0.0f, 1.0f };
@@ -254,7 +259,7 @@ void EditorLayer::OnImGuiUpdate()
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	ImGui::Begin((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str());
 
-	m_ViewportFocused = ImGui::IsWindowHovered();
+	m_IsMouseHoveredOnViewport = ImGui::IsWindowHovered();
 
 	if (viewport_framebuffer_width != ImGui::GetContentRegionAvail().x || viewport_framebuffer_height != ImGui::GetContentRegionAvail().y)
 	{
@@ -270,6 +275,88 @@ void EditorLayer::OnImGuiUpdate()
 	m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
 
 	ImGui::Image((void*)m_ViewportFrameBuffer->GetColorAttachmentRendererID(), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
+
+	// Gizmos: 
+	Xen::Entity selectedEntity = hier_panel.GetSelectedEntity();
+
+	if (!selectedEntity.IsNull()) {
+		ImGuizmo::SetOrthographic(true);
+		ImGuizmo::SetDrawlist();
+
+		float y_offset = ImGui::GetWindowHeight() - viewport_framebuffer_height; // To eliminate the offset caused by the window title
+
+		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + y_offset, viewport_framebuffer_width, viewport_framebuffer_height);
+
+		Xen::Entity camera_entt = m_ActiveScene->GetPrimaryCameraEntity();
+
+		glm::mat4 camera_view;
+		glm::mat4 camera_projection;
+
+		if (!camera_entt.IsNull())
+		{
+			camera_view = camera_entt.GetComponent<Xen::Component::CameraComp>().camera->GetViewMatrix();
+			camera_projection = camera_entt.GetComponent<Xen::Component::CameraComp>().camera->GetProjectionMatrix();
+		}
+		else
+		{
+			camera_view = m_EditorCamera->GetViewMatrix();
+			camera_projection = m_EditorCamera->GetProjectionMatrix();
+		}
+
+		Xen::Component::Transform& entity_transform_comp = selectedEntity.GetComponent<Xen::Component::Transform>();
+
+		glm::mat4 entity_transform = glm::translate(glm::mat4(1.0f), entity_transform_comp.position.GetVec())
+						* glm::rotate(glm::mat4(1.0f), glm::radians(entity_transform_comp.rotation.x), glm::vec3(1, 0, 0))
+						* glm::rotate(glm::mat4(1.0f), glm::radians(entity_transform_comp.rotation.y), glm::vec3(0, 1, 0))
+						* glm::rotate(glm::mat4(1.0f), glm::radians(entity_transform_comp.rotation.z), glm::vec3(0, 0, 1))
+						* glm::scale(glm::mat4(1.0f), entity_transform_comp.scale.GetVec());
+
+		switch (m_GizmoOperation)
+		{
+		case GizmoOperation::Translate:
+			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection), 
+				ImGuizmo::TRANSLATE, ImGuizmo::WORLD, glm::value_ptr(entity_transform));
+			break;
+		case GizmoOperation::Rotate2D:
+			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
+				ImGuizmo::ROTATE_Z, ImGuizmo::WORLD, glm::value_ptr(entity_transform));
+			break;
+		case GizmoOperation::Rotate3D:
+			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
+				ImGuizmo::ROTATE, ImGuizmo::WORLD, glm::value_ptr(entity_transform));
+
+		case GizmoOperation::Scale:
+			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
+				ImGuizmo::SCALE, ImGuizmo::WORLD, glm::value_ptr(entity_transform));
+			break;
+
+		}
+
+		if (ImGuizmo::IsUsing())
+		{
+			glm::vec3 translation, rotation, scale;
+			//glm::decompose(entity_transform, scale, rotation, translation, glm::vec3(1.0f), glm::vec4(1.0f));
+
+			Xen::DecomposeTransform(entity_transform, translation, rotation, scale);
+
+			rotation.x = glm::degrees(rotation.x);
+			rotation.y = glm::degrees(rotation.y);
+			rotation.z = glm::degrees(rotation.z);
+
+			glm::vec3 deltar_rotation = rotation - entity_transform_comp.rotation.GetVec();
+			
+			//XEN_ENGINE_LOG_TRACE("{0}", rotation.z);
+
+			entity_transform_comp.position = translation;
+			entity_transform_comp.rotation = Xen::Vec3(deltar_rotation.x + entity_transform_comp.rotation.x,
+												deltar_rotation.y + entity_transform_comp.rotation.y,
+												deltar_rotation.z + entity_transform_comp.rotation.z);
+			entity_transform_comp.scale = scale;
+
+		}
+
+		//ImGuizmo::DrawCubes(glm::value_ptr(camera_view), glm::value_ptr(camera_projection), glm::value_ptr(entity_transform), 1);
+	}
 
 	ImGui::End();
 	ImGui::PopStyleVar();
@@ -316,7 +403,7 @@ void EditorLayer::OnWindowResizeEvent(Xen::WindowResizeEvent& event)
 
 void EditorLayer::OnMouseScrollEvent(Xen::MouseScrollEvent& event)
 {
-	if (m_ViewportFocused)
+	if (m_IsMouseHoveredOnViewport)
 	{
 		for (int i = 0; i < 10; i++)
 		{
@@ -329,15 +416,49 @@ void EditorLayer::OnMouseScrollEvent(Xen::MouseScrollEvent& event)
 
 void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 {
-	if (m_ViewportFocused)
+	if (m_IsMouseHoveredOnViewport)
 	{
-		if (event.GetKey() == Xen::KeyCode::KEY_W)
-			m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x, m_EditorCamera->GetPosition().y + 0.01f, m_EditorCamera->GetPosition().z));
-		if (event.GetKey() == Xen::KeyCode::KEY_A)
-			m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x - 0.01f, m_EditorCamera->GetPosition().y, m_EditorCamera->GetPosition().z));
-		if (event.GetKey() == Xen::KeyCode::KEY_S)
-			m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x, m_EditorCamera->GetPosition().y - 0.01f, m_EditorCamera->GetPosition().z));
-		if (event.GetKey() == Xen::KeyCode::KEY_D)
-			m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x + 0.01f, m_EditorCamera->GetPosition().y, m_EditorCamera->GetPosition().z));
+		//if (event.GetKey() == Xen::KeyCode::KEY_W)
+		//	m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x, m_EditorCamera->GetPosition().y + 0.01f, m_EditorCamera->GetPosition().z));
+		//if (event.GetKey() == Xen::KeyCode::KEY_A)
+		//	m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x - 0.01f, m_EditorCamera->GetPosition().y, m_EditorCamera->GetPosition().z));
+		//if (event.GetKey() == Xen::KeyCode::KEY_S)
+		//	m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x, m_EditorCamera->GetPosition().y - 0.01f, m_EditorCamera->GetPosition().z));
+		//if (event.GetKey() == Xen::KeyCode::KEY_D)
+		//	m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x + 0.01f, m_EditorCamera->GetPosition().y, m_EditorCamera->GetPosition().z));
 	}
+
+	if(m_IsMouseHoveredOnViewport)
+	Xen::Entity camera_entity = m_ActiveScene->GetPrimaryCameraEntity();
+	switch (event.GetKey())
+	{
+	case Xen::KeyCode::KEY_Q:
+		m_GizmoOperation = GizmoOperation::Translate;
+		break;
+
+	case Xen::KeyCode::KEY_W:
+
+		if (!camera_entity.IsNull()) 
+		{
+			Xen::Component::CameraComp& camera_comp = camera_entity.GetComponent<Xen::Component::CameraComp>();
+			if (camera_comp.camera->GetProjectionType() == Xen::CameraType::Orthographic)
+				m_GizmoOperation = GizmoOperation::Rotate2D;
+			else
+				m_GizmoOperation = GizmoOperation::Rotate3D;
+		}
+		else {
+			if (m_EditorCamera->GetProjectionType() == Xen::CameraType::Orthographic)
+				m_GizmoOperation = GizmoOperation::Rotate2D;
+			else
+				m_GizmoOperation = GizmoOperation::Rotate3D;
+		}
+
+		break;
+
+	case Xen::KeyCode::KEY_E:
+		m_GizmoOperation = GizmoOperation::Scale;
+		break;
+
+	}
+		
 }

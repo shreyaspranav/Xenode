@@ -10,6 +10,7 @@
 
 #include "core/app/Log.h"
 
+#include "ImGuizmo.h"
 
 namespace Xen {
 	void ImGuiLayer::OnAttach()
@@ -92,6 +93,7 @@ namespace Xen {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 	}
 
 	void ImGuiLayer::End()

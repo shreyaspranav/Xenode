@@ -16,3 +16,6 @@
 [submodule "Xenode/deps/freetype"]
 	path = Xenode/deps/freetype
 	url = https://github.com/shreyaspranav/freetype.git
+[submodule "Xenode/deps/ImGuizmo"]
+	path = Xenode/deps/ImGuizmo
+	url = https://github.com/shreyaspranav/ImGuizmo.git

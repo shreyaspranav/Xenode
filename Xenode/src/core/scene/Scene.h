@@ -24,6 +24,8 @@ namespace Xen {
 
 		void DestroyAllEntities();
 
+		Entity GetPrimaryCameraEntity();
+
 	private:
 		void SortRenderableEntities();
 

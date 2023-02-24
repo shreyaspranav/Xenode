@@ -9,6 +9,10 @@ project "Xen"
 	files {
 		"src/**.cpp",
 		"src/**.h",
+
+		--ImGuizmo source files
+		"deps/ImGuizmo/*.cpp",
+		"deps/ImGuizmo/*.h"
 	}
 
 	includedirs {
@@ -22,6 +26,7 @@ project "Xen"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.freetype}",
+		"%{IncludeDir.ImGuizmo}",
 
 	}
 
@@ -29,6 +34,9 @@ project "Xen"
 
 	cppdialect "C++20"
 	pic "on"
+
+	filter "files:deps/ImGuizmo/*.cpp"
+		flags { "NoPCH" }
 
 	filter "system:windows"
 

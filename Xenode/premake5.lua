@@ -34,7 +34,12 @@ project "Xenode"
 		"src/pch/pch",
 
 		"src/Xenode.h",
-		"src/Core.h"
+		"src/Core.h",
+
+
+		--ImGuizmo source files
+		"deps/ImGuizmo/*.cpp",
+		"deps/ImGuizmo/*.h"
 	}
 
 	links { 
@@ -59,9 +64,13 @@ project "Xenode"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.freetype}",
+		"%{IncludeDir.ImGuizmo}",
 	}
 
 	defines {"_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS", "_CRT_SECURE_NO_WARNINGS"}
+
+	filter "files:deps/ImGuizmo/**.cpp"
+		flags { "NoPCH" }
 
 	filter "system:windows"
 
