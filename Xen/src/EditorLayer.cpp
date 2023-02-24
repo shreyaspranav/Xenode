@@ -279,7 +279,7 @@ void EditorLayer::OnImGuiUpdate()
 	// Gizmos: 
 	Xen::Entity selectedEntity = hier_panel.GetSelectedEntity();
 
-	if (!selectedEntity.IsNull()) {
+	if (!selectedEntity.IsNull() && selectedEntity.IsValid()) {
 		ImGuizmo::SetOrthographic(true);
 		ImGuizmo::SetDrawlist();
 
@@ -292,7 +292,7 @@ void EditorLayer::OnImGuiUpdate()
 		glm::mat4 camera_view;
 		glm::mat4 camera_projection;
 
-		if (!camera_entt.IsNull())
+		if (!camera_entt.IsNull() && camera_entt.IsValid())
 		{
 			camera_view = camera_entt.GetComponent<Xen::Component::CameraComp>().camera->GetViewMatrix();
 			camera_projection = camera_entt.GetComponent<Xen::Component::CameraComp>().camera->GetProjectionMatrix();
@@ -315,23 +315,24 @@ void EditorLayer::OnImGuiUpdate()
 		{
 		case GizmoOperation::Translate:
 			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection), 
-				ImGuizmo::TRANSLATE, ImGuizmo::WORLD, glm::value_ptr(entity_transform));
+				ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
 			break;
 		case GizmoOperation::Rotate2D:
 			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
-				ImGuizmo::ROTATE_Z, ImGuizmo::WORLD, glm::value_ptr(entity_transform));
+				ImGuizmo::ROTATE_Z, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
 			break;
 		case GizmoOperation::Rotate3D:
 			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
-				ImGuizmo::ROTATE, ImGuizmo::WORLD, glm::value_ptr(entity_transform));
+				ImGuizmo::ROTATE, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
 
 		case GizmoOperation::Scale:
 			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
-				ImGuizmo::SCALE, ImGuizmo::WORLD, glm::value_ptr(entity_transform));
+				ImGuizmo::SCALE, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
 			break;
 
 		}
 
+		//TODO: Fix rotation gizmos in 3D perspective mode
 		if (ImGuizmo::IsUsing())
 		{
 			glm::vec3 translation, rotation, scale;
@@ -344,8 +345,6 @@ void EditorLayer::OnImGuiUpdate()
 			rotation.z = glm::degrees(rotation.z);
 
 			glm::vec3 deltar_rotation = rotation - entity_transform_comp.rotation.GetVec();
-			
-			//XEN_ENGINE_LOG_TRACE("{0}", rotation.z);
 
 			entity_transform_comp.position = translation;
 			entity_transform_comp.rotation = Xen::Vec3(deltar_rotation.x + entity_transform_comp.rotation.x,
@@ -428,37 +427,47 @@ void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 		//	m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x + 0.01f, m_EditorCamera->GetPosition().y, m_EditorCamera->GetPosition().z));
 	}
 
-	if(m_IsMouseHoveredOnViewport)
-	Xen::Entity camera_entity = m_ActiveScene->GetPrimaryCameraEntity();
-	switch (event.GetKey())
+	if (m_IsMouseHoveredOnViewport)
 	{
-	case Xen::KeyCode::KEY_Q:
-		m_GizmoOperation = GizmoOperation::Translate;
-		break;
 
-	case Xen::KeyCode::KEY_W:
-
-		if (!camera_entity.IsNull()) 
+		switch (event.GetKey())
 		{
-			Xen::Component::CameraComp& camera_comp = camera_entity.GetComponent<Xen::Component::CameraComp>();
-			if (camera_comp.camera->GetProjectionType() == Xen::CameraType::Orthographic)
-				m_GizmoOperation = GizmoOperation::Rotate2D;
-			else
-				m_GizmoOperation = GizmoOperation::Rotate3D;
-		}
-		else {
-			if (m_EditorCamera->GetProjectionType() == Xen::CameraType::Orthographic)
-				m_GizmoOperation = GizmoOperation::Rotate2D;
-			else
-				m_GizmoOperation = GizmoOperation::Rotate3D;
+		case Xen::KeyCode::KEY_Q:
+		{
+			Xen::Entity camera_entt = m_ActiveScene->GetPrimaryCameraEntity();
+			m_GizmoOperation = GizmoOperation::Translate;
+			break;
 		}
 
-		break;
+		case Xen::KeyCode::KEY_W:
+		{
+			Xen::Entity camera_entt = m_ActiveScene->GetPrimaryCameraEntity();
+			if (!camera_entt.IsNull() && camera_entity.IsValid())
+			{
+				Xen::Component::CameraComp& camera_comp = camera_entt.GetComponent<Xen::Component::CameraComp>();
+				if (camera_comp.camera->GetProjectionType() == Xen::CameraType::Orthographic)
+					m_GizmoOperation = GizmoOperation::Rotate2D;
+				else
+					m_GizmoOperation = GizmoOperation::Rotate3D;
+			}
+			else {
+				if (m_EditorCamera->GetProjectionType() == Xen::CameraType::Orthographic)
+					m_GizmoOperation = GizmoOperation::Rotate2D;
+				else
+					m_GizmoOperation = GizmoOperation::Rotate3D;
+			}
 
-	case Xen::KeyCode::KEY_E:
-		m_GizmoOperation = GizmoOperation::Scale;
-		break;
+			break;
+		}
 
+		case Xen::KeyCode::KEY_E:
+		{
+			Xen::Entity camera_entt = m_ActiveScene->GetPrimaryCameraEntity();
+			m_GizmoOperation = GizmoOperation::Scale;
+			break;
+		}
+
+		}
 	}
 		
 }
