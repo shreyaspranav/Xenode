@@ -9,16 +9,6 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include "math/Math.h"
 
-float rotation = 0.0f;
-
-float bg_color[4] = { 0.0, 0.0f, 0.0f, 1.0f };
-
-float quad_position[3] = { 0.0f, 0.0f, 0.0f };
-
-bool dark = 0, light = 1, classic = 0;
-
-Xen::Ref<Xen::Texture2D> tex_2d;
-
 EditorLayer::EditorLayer()
 {
 	m_Timestep = 0.0f;
@@ -40,52 +30,30 @@ void EditorLayer::OnAttach()
 	Xen::Renderer2D::Init();
 
 	m_ActiveScene = std::make_shared<Xen::Scene>();
-	circle_entity = m_ActiveScene->CreateEntity("Circle");
-	quad_entity = m_ActiveScene->CreateEntity("Quad");
-	camera_entity = m_ActiveScene->CreateEntity("Camera");
-
-	tex = Xen::Texture2D::CreateTexture2D("assets/textures/CheckerBoardTexture.png", 1);
-	tex_1 = Xen::Texture2D::CreateTexture2D("assets/textures/microsoft.png", 1);
-	//tex_2d = Xen::Texture2D::CreateTexture2D("assets/textures/Consolas.png", 1);
-	//tex_2d->LoadTexture();
-	tex->LoadTexture();
-	tex_1->LoadTexture();
-
-	quad_entity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f), tex_1);
-	circle_entity.AddComponent<Xen::Component::CircleRenderer>(Xen::Color(1.0f, 1.0f, 1.0f, 1.0f), 0.4f, 0.5f, 0.01f);
-
-	Xen::Component::Transform& quad_transform = quad_entity.GetComponent<Xen::Component::Transform>();
-	quad_transform.position.x = -0.6f;
-	Xen::Component::Transform& circle_transform = circle_entity.GetComponent<Xen::Component::Transform>();
-	circle_transform.position.x = 0.6f;
-
-	camera_entity.AddComponent<Xen::Component::CameraComp>(Xen::CameraType::Orthographic, specs.width, specs.height);
 	m_EditorCamera->Update();
 
-	class CameraControlScript : public Xen::ScriptableEntity
-	{
-	private:
-		Xen::Ref<Xen::Input> input;
-	public:
-		void OnCreate() override{
-			input = GetInput();
-		}
-
-		void OnUpdate(double timestep) override{
-			
-		}
-
-		void OnDestroy() override{
-
-		}
-	};
-
+	// To add native scripts to the entities
+	//class CameraControlScript : public Xen::ScriptableEntity
+	//{
+	//private:
+	//	Xen::Ref<Xen::Input> input;
+	//public:
+	//	void OnCreate() override{
+	//		input = GetInput();
+	//	}
+	//
+	//	void OnUpdate(double timestep) override{
+	//		
+	//	}
+	//
+	//	void OnDestroy() override{
+	//
+	//	}
+	//};
 	//quad_entity_1.AddComponent<Xen::Component::NativeScript>().Bind<CameraControlScript>(quad_entity_1);
 
 	hier_panel = SceneHierarchyPanel(m_ActiveScene);
 	prop_panel = PropertiesPanel(hier_panel.GetSelectedEntity());
-
-	//serialiser = Xen::SceneSerializer(m_ActiveScene);
 }
 
 void EditorLayer::OnDetach()
@@ -100,20 +68,17 @@ void EditorLayer::OnUpdate(double timestep)
 	m_Timestep = timestep;
 
 	m_ViewportFrameBuffer->Bind();
+
 	Xen::RenderCommand::Clear();
 	Xen::RenderCommand::SetClearColor(Xen::Color(0.0f, 0.0f, 0.0f, 1.0f));
-
 	Xen::Renderer2D::BeginScene(m_EditorCamera);
+
 	m_EditorCamera->Update();
 	m_ActiveScene->OnUpdate(timestep);
-	//Xen::Renderer2D::DrawClearCircle(Xen::Vec3(1.0f, 0.0f, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.4f, 1.0f, 1.0f), Xen::Color(0.4f, 0.3f, 0.4f, 1.0f));
-	//XEN_ENGINE_LOG_INFO("{0}", (float)viewport_framebuffer_width / (float)viewport_framebuffer_height);
-
-	//Xen::Renderer2D::DrawTexturedQuad(tex_2d, Xen::Vec3(1.0f, 1.0f, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f, 1.0f, 1.0f), Xen::Color(1.0f, 0.0f, 0.0f, 1.0f));
-
+	
 	Xen::Renderer2D::EndScene();
-
 	Xen::Renderer2D::RenderFrame();
+
 	m_ViewportFrameBuffer->Unbind();
 }
 
@@ -406,8 +371,8 @@ void EditorLayer::OnMouseScrollEvent(Xen::MouseScrollEvent& event)
 	{
 		for (int i = 0; i < 10; i++)
 		{
-			cam_zoom += event.GetYOffset() * 0.01f;
-			m_EditorCamera->SetScale(cam_zoom);
+			editor_cam_zoom += event.GetYOffset() * 0.01f;
+			m_EditorCamera->SetScale(editor_cam_zoom);
 			m_EditorCamera->Update();
 		}
 	}
@@ -415,18 +380,6 @@ void EditorLayer::OnMouseScrollEvent(Xen::MouseScrollEvent& event)
 
 void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 {
-	if (m_IsMouseHoveredOnViewport)
-	{
-		//if (event.GetKey() == Xen::KeyCode::KEY_W)
-		//	m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x, m_EditorCamera->GetPosition().y + 0.01f, m_EditorCamera->GetPosition().z));
-		//if (event.GetKey() == Xen::KeyCode::KEY_A)
-		//	m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x - 0.01f, m_EditorCamera->GetPosition().y, m_EditorCamera->GetPosition().z));
-		//if (event.GetKey() == Xen::KeyCode::KEY_S)
-		//	m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x, m_EditorCamera->GetPosition().y - 0.01f, m_EditorCamera->GetPosition().z));
-		//if (event.GetKey() == Xen::KeyCode::KEY_D)
-		//	m_EditorCamera->SetPosition(Xen::Vec3(m_EditorCamera->GetPosition().x + 0.01f, m_EditorCamera->GetPosition().y, m_EditorCamera->GetPosition().z));
-	}
-
 	if (m_IsMouseHoveredOnViewport)
 	{
 
@@ -442,7 +395,7 @@ void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 		case Xen::KeyCode::KEY_W:
 		{
 			Xen::Entity camera_entt = m_ActiveScene->GetPrimaryCameraEntity();
-			if (!camera_entt.IsNull() && camera_entity.IsValid())
+			if (!camera_entt.IsNull() && camera_entt.IsValid())
 			{
 				Xen::Component::CameraComp& camera_comp = camera_entt.GetComponent<Xen::Component::CameraComp>();
 				if (camera_comp.camera->GetProjectionType() == Xen::CameraType::Orthographic)
@@ -456,10 +409,8 @@ void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 				else
 					m_GizmoOperation = GizmoOperation::Rotate3D;
 			}
-
 			break;
 		}
-
 		case Xen::KeyCode::KEY_E:
 		{
 			Xen::Entity camera_entt = m_ActiveScene->GetPrimaryCameraEntity();
