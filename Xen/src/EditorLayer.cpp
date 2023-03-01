@@ -7,7 +7,9 @@
 #include <ImGuizmo.h>
 
 #include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include "math/Math.h"
+#include <glm/gtx/quaternion.hpp>
 
 EditorLayer::EditorLayer()
 {
@@ -245,14 +247,28 @@ void EditorLayer::OnImGuiUpdate()
 	Xen::Entity selectedEntity = hier_panel.GetSelectedEntity();
 
 	if (!selectedEntity.IsNull() && selectedEntity.IsValid()) {
-		ImGuizmo::SetOrthographic(true);
+		
+		Xen::Entity camera_entt = m_ActiveScene->GetPrimaryCameraEntity();
+		if (!camera_entt.IsNull() && camera_entt.IsValid())
+		{
+			Xen::Component::CameraComp& camera_comp = camera_entt.GetComponent<Xen::Component::CameraComp>();
+			if (camera_comp.camera->GetProjectionType() == Xen::CameraType::Orthographic)
+				ImGuizmo::SetOrthographic(true);
+			else
+				ImGuizmo::SetOrthographic(false);
+		}
+		else {
+			if (m_EditorCamera->GetProjectionType() == Xen::CameraType::Orthographic)
+				ImGuizmo::SetOrthographic(true);
+			else
+				ImGuizmo::SetOrthographic(false);
+		}
+
 		ImGuizmo::SetDrawlist();
 
 		float y_offset = ImGui::GetWindowHeight() - viewport_framebuffer_height; // To eliminate the offset caused by the window title
 
 		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + y_offset, viewport_framebuffer_width, viewport_framebuffer_height);
-
-		Xen::Entity camera_entt = m_ActiveScene->GetPrimaryCameraEntity();
 
 		glm::mat4 camera_view;
 		glm::mat4 camera_projection;
@@ -270,10 +286,12 @@ void EditorLayer::OnImGuiUpdate()
 
 		Xen::Component::Transform& entity_transform_comp = selectedEntity.GetComponent<Xen::Component::Transform>();
 
+		glm::vec3 degrees_vec = glm::vec3(glm::radians(entity_transform_comp.rotation.x),
+			glm::radians(entity_transform_comp.rotation.y),
+			glm::radians(entity_transform_comp.rotation.z));
+
 		glm::mat4 entity_transform = glm::translate(glm::mat4(1.0f), entity_transform_comp.position.GetVec())
-						* glm::rotate(glm::mat4(1.0f), glm::radians(entity_transform_comp.rotation.x), glm::vec3(1, 0, 0))
-						* glm::rotate(glm::mat4(1.0f), glm::radians(entity_transform_comp.rotation.y), glm::vec3(0, 1, 0))
-						* glm::rotate(glm::mat4(1.0f), glm::radians(entity_transform_comp.rotation.z), glm::vec3(0, 0, 1))
+						* glm::toMat4(glm::quat(degrees_vec))
 						* glm::scale(glm::mat4(1.0f), entity_transform_comp.scale.GetVec());
 
 		switch (m_GizmoOperation)
@@ -289,7 +307,7 @@ void EditorLayer::OnImGuiUpdate()
 		case GizmoOperation::Rotate3D:
 			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
 				ImGuizmo::ROTATE, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
-
+			break;
 		case GizmoOperation::Scale:
 			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
 				ImGuizmo::SCALE, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
@@ -301,7 +319,6 @@ void EditorLayer::OnImGuiUpdate()
 		if (ImGuizmo::IsUsing())
 		{
 			glm::vec3 translation, rotation, scale;
-			//glm::decompose(entity_transform, scale, rotation, translation, glm::vec3(1.0f), glm::vec4(1.0f));
 
 			Xen::DecomposeTransform(entity_transform, translation, rotation, scale);
 
@@ -309,12 +326,18 @@ void EditorLayer::OnImGuiUpdate()
 			rotation.y = glm::degrees(rotation.y);
 			rotation.z = glm::degrees(rotation.z);
 
-			glm::vec3 deltar_rotation = rotation - entity_transform_comp.rotation.GetVec();
+			Xen::Vec3 deltar_rotation = Xen::Vec3(rotation.x - entity_transform_comp.rotation.x,
+				rotation.y - entity_transform_comp.rotation.y,
+				rotation.z - entity_transform_comp.rotation.z);
 
 			entity_transform_comp.position = translation;
 			entity_transform_comp.rotation = Xen::Vec3(deltar_rotation.x + entity_transform_comp.rotation.x,
-												deltar_rotation.y + entity_transform_comp.rotation.y,
-												deltar_rotation.z + entity_transform_comp.rotation.z);
+				deltar_rotation.y + entity_transform_comp.rotation.y,
+				deltar_rotation.z + entity_transform_comp.rotation.z);
+			
+			//XEN_ENGINE_LOG_INFO("Rotation: {0}, {1}, {2}", rotation.x, rotation.y, rotation.z);
+			//XEN_ENGINE_LOG_INFO("Delta Rotation: {0}, {1}, {2}", deltar_rotation.x, deltar_rotation.y, deltar_rotation.z);
+
 			entity_transform_comp.scale = scale;
 
 		}
@@ -422,3 +445,4 @@ void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 	}
 		
 }
+
