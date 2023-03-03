@@ -112,16 +112,29 @@ namespace Xen {
 		#endif // XEN_DEBUG
 
 		int data;
+		XEN_ENGINE_LOG_INFO("GPU Limits:-----------------------------------------");
+
 		glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &data);
 		XEN_ENGINE_LOG_INFO("Texture Slots: {0}", data);
+
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &data);
+		XEN_ENGINE_LOG_INFO("Max 4-component generic vertex attributes: {0}", data);
+
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &data);
+		XEN_ENGINE_LOG_INFO("Max Texture Size: {0}", data);
+
+		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &data);
+		XEN_ENGINE_LOG_INFO("Max No. Of Uniform Variables: {0}", data);
+
+		XEN_ENGINE_LOG_INFO("----------------------------------------------------");
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glBlendEquation(GL_FUNC_ADD);
 		
-		//glEnable(GL_DEPTH_TEST);
-		//glDisable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_LINE_SMOOTH);
 	}
 
 	void OpenGLContext::DestroyContext()
