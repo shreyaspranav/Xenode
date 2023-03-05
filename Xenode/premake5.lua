@@ -46,6 +46,7 @@ project "Xenode"
 		"GLFW", 
 		"ImGui",
 		"yaml-cpp",
+		"freetype"
 	}
 
 	includedirs {
