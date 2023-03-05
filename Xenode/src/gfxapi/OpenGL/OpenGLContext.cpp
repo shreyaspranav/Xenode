@@ -59,8 +59,8 @@ namespace Xen {
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLAD_VERSION_MAJOR(version));
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLAD_VERSION_MINOR(version));
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+		//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 		
 		if (!version) { XEN_ENGINE_LOG_ERROR("glad failed to load!"); TRIGGER_BREAKPOINT; }
@@ -88,6 +88,12 @@ namespace Xen {
 
 			else
 				m_OpenGLVersion = OpenGLVersion::XEN_OPENGL_API_3_0;
+		}
+
+		if (GLAD_VERSION_MAJOR(version) >= 3 && GLAD_VERSION_MINOR(version) >= 2)
+		{
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		}
 
 		#ifdef XEN_DEBUG
