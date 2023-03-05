@@ -77,7 +77,9 @@ void EditorLayer::OnUpdate(double timestep)
 
 	m_EditorCamera->Update();
 	m_ActiveScene->OnUpdate(timestep);
-	
+
+	Xen::Renderer2D::DrawLine(Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f, 1.0f, 0.0f), Xen::Color(1.0f, 0.0f, 1.0f, 1.0f));
+
 	Xen::Renderer2D::EndScene();
 	Xen::Renderer2D::RenderFrame();
 

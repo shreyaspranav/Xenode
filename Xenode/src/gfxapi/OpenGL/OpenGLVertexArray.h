@@ -13,7 +13,7 @@ namespace Xen {
 		void SetVertexBuffer(const Ref<FloatBuffer>& vertexBuffer) override;
 		void SetElementBuffer(const Ref<ElementBuffer>& elementBuffer) override;
 
-		void Load() override;
+		void Load(bool hasIndexBuffer) override;
 
 		inline void Bind() const override;
 		inline void Unbind() const override;

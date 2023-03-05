@@ -15,10 +15,15 @@ namespace Xen {
 	// The maximum amount of textures that can be bound at a time:
 	uint8_t max_texture_slots = 8;
 
+	// The maximum amount of lines drawn per batch:
+	uint32_t max_lines_per_batch = 10000;
+
 	uint32_t current_quad_index;
 	uint32_t current_circle_index;
 	uint32_t batch_index = 0;
 	uint32_t batches_allocated = 1;
+
+	float line_width = 2.0f;
 
 	uint32_t white_texture_data = 0xffffffff;
 	Ref<Texture2D> white_texture;
@@ -42,6 +47,9 @@ namespace Xen {
 		uint32_t* circle_quad_indices;
 		uint32_t circle_quad_index;
 
+		float* line_verts;
+		uint32_t line_index;
+
 		std::vector<Ref<Texture2D>> textures;
 		uint8_t texture_slot_index;
 
@@ -53,8 +61,11 @@ namespace Xen {
 			circle_quad_verts = new float[max_quads_per_batch * 48];
 			circle_quad_indices = new uint32_t[max_quads_per_batch * 6];
 
+			line_verts = new float[max_lines_per_batch * 7];
+
 			quad_index = 0;
 			circle_quad_index = 0;
+			line_index = 0;
 
 			texture_slot_index = 1;
 		}
@@ -77,6 +88,7 @@ namespace Xen {
 
 	BufferLayout quadBufferLayout;
 	BufferLayout circleBufferLayout;
+	BufferLayout lineBufferLayout;
 
 	void Renderer2D::Init()
 	{
@@ -92,8 +104,13 @@ namespace Xen {
 		circleBufferLayout.AddBufferElement(BufferElement("aCircleInnerFade", 9, 1, 10, BufferDataType::Float, false));
 		circleBufferLayout.AddBufferElement(BufferElement("aCircleOuterFade", 10, 1, 11, BufferDataType::Float, false));
 
+		lineBufferLayout.AddBufferElement(BufferElement("aLinePosition", 5, 3, 0, BufferDataType::Float, false));
+		lineBufferLayout.AddBufferElement(BufferElement("aLineColor", 10, 4, 3, BufferDataType::Float, false));
+
 		white_texture =  Texture2D::CreateTexture2D(1, 1, &white_texture_data, sizeof(uint32_t));
 
+
+		// Quad-------------------------------------------------------------------------------------
 		s_Data.quadVertexArray = VertexArray::CreateVertexArray();
 		s_Data.quadVertexArray->Bind();
 
@@ -104,11 +121,12 @@ namespace Xen {
 		s_Data.quadVertexArray->SetVertexBuffer(s_Data.quadVertexBuffer);
 		s_Data.quadVertexArray->SetElementBuffer(s_Data.quadIndexBuffer);
 
-		s_Data.quadVertexArray->Load();
-
+		s_Data.quadVertexArray->Load(true);
+		//-------------------------------------------------------------------------------------------
+		// Circle------------------------------------------------------------------------------------
 		s_Data.circleVertexArray = VertexArray::CreateVertexArray();
 		s_Data.circleVertexArray->Bind();
-
+		
 		s_Data.circleVertexBuffer = Xen::FloatBuffer::CreateFloatBuffer(max_quads_per_batch * 48);
 		s_Data.circleVertexBuffer->SetBufferLayout(circleBufferLayout);
 		s_Data.circleIndexBuffer = Xen::ElementBuffer::CreateElementBuffer(max_quads_per_batch * 6);
@@ -116,7 +134,19 @@ namespace Xen {
 		s_Data.circleVertexArray->SetVertexBuffer(s_Data.circleVertexBuffer);
 		s_Data.circleVertexArray->SetElementBuffer(s_Data.circleIndexBuffer);
 
-		s_Data.circleVertexArray->Load();
+		s_Data.circleVertexArray->Load(true);
+		//-------------------------------------------------------------------------------------------
+		// Line--------------------------------------------------------------------------------------
+		s_Data.lineVertexArray = VertexArray::CreateVertexArray();
+		s_Data.lineVertexArray->Bind();
+
+		s_Data.lineVertexBuffer = FloatBuffer::CreateFloatBuffer(1000);
+		s_Data.lineVertexBuffer->SetBufferLayout(lineBufferLayout);
+
+		s_Data.lineVertexArray->SetVertexBuffer(s_Data.lineVertexBuffer);
+
+		s_Data.lineVertexArray->Load(false);
+		//-------------------------------------------------------------------------------------------
 
 		s_Data.circleShader = Shader::CreateShader("assets/shaders/circle_shader.shader");
 		s_Data.circleShader->LoadShader(circleBufferLayout);
@@ -124,8 +154,12 @@ namespace Xen {
 		s_Data.quadShader = Shader::CreateShader("assets/shaders/quad_shader.shader");
 		s_Data.quadShader->LoadShader(quadBufferLayout);
 
+		s_Data.lineShader = Shader::CreateShader("assets/shaders/line_shader.shader");
+		s_Data.lineShader->LoadShader(lineBufferLayout);
+
 		ShaderLib::AddShader("QuadShader", s_Data.quadShader);
 		ShaderLib::AddShader("CircleShader", s_Data.circleShader);
+		ShaderLib::AddShader("LineShader", s_Data.lineShader);
 
 		batch_storage.push_back(std::make_shared<Renderer2DStorage>());
 		batch_storage[0]->textures.push_back(white_texture);
@@ -153,6 +187,8 @@ namespace Xen {
 		{
 			batch_storage[i]->quad_index = 0;
 			batch_storage[i]->circle_quad_index = 0;
+			batch_storage[i]->line_index = 0;
+
 			batch_storage[i]->texture_slot_index = 1;
 		}
 		batch_index = 0;
@@ -196,6 +232,15 @@ namespace Xen {
 		{
 			//for (int j = 0; j < batch_storage[i]->textures.size(); j++)
 			//	batch_storage[i]->textures[j]->Bind(j);
+
+			s_Data.lineVertexArray->Bind();
+			s_Data.lineShader->Bind();
+
+			s_Data.lineVertexBuffer->Put(batch_storage[i]->line_verts, batch_storage[i]->line_index * 14);
+			s_Data.lineShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+
+			RenderCommand::DrawLines(s_Data.lineVertexArray, batch_storage[i]->line_index * 14);
+
 			s_Data.quadVertexArray->Bind();
 			s_Data.quadShader->Bind();
 
@@ -227,7 +272,7 @@ namespace Xen {
 
 			RenderCommand::DrawIndexed(s_Data.circleVertexArray, (batch_storage[i]->circle_quad_index) * 6);
 
-			stats.draw_calls += 2;
+			stats.draw_calls += 3;
 		}
 	}
 
@@ -515,7 +560,47 @@ namespace Xen {
 		batch_storage[batch_index]->circle_quad_index++;
 	}
 
+	void Renderer2D::SetLineWidth(float width)
+	{
+		line_width = width;
+	}
+
 	Renderer2D::Renderer2DStatistics& Renderer2D::GetStatistics() { return stats; }
+
+	void Renderer2D::DrawLine(const Vec3& p1, const Vec3& p2, const Color& color, float thickness)
+	{
+		if (batch_storage[batch_index]->line_index > max_lines_per_batch)
+		{
+			batch_index++;
+			
+			// Increase the size of the vector if needed
+			if (batch_index >= batches_allocated)
+			{
+				batch_storage.push_back(std::make_shared<Renderer2DStorage>());
+				batch_storage[batch_index]->textures.push_back(white_texture);
+				batches_allocated = batch_index + 1;
+			}
+		}
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 0] = p1.x;
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 1] = p1.y;
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 2] = p1.z;
+
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 3] = color.r;
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 4] = color.g;
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 5] = color.b;
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 6] = color.a;
+
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 7] = p2.x;
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 8] = p2.y;
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 9] = p2.z;
+
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 10] = color.r;
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 11] = color.g;
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 12] = color.b;
+		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 13] = color.a;
+
+		batch_storage[batch_index]->line_index++;
+	}
 	
 	// Private methods -----------------------------------------------------------------------------------------------------------------------
 	/*

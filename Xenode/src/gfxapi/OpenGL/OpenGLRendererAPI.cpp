@@ -23,4 +23,13 @@ namespace Xen {
 	{
 		glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, 0);
 	}
+
+	void OpenGLRendererAPI::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t indices)
+	{
+		glDrawArrays(GL_LINES, 0, indices);
+	}
+	void OpenGLRendererAPI::SetLineWidth(float width)
+	{
+		glLineWidth(width);
+	}
 }

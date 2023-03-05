@@ -25,6 +25,10 @@ namespace Xen {
 		Ref<ElementBuffer> circleIndexBuffer;
 		Ref<Shader> circleShader;
 
+		Ref<VertexArray> lineVertexArray;
+		Ref<FloatBuffer> lineVertexBuffer;
+		Ref<Shader> lineShader;
+
 		SceneData()
 		{}
 	};
