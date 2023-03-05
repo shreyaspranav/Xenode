@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RenderCommandQueue.h"
-#include "Primitives.h"
 
 namespace Xen {
 

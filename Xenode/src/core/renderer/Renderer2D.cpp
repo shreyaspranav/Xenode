@@ -2,6 +2,8 @@
 #include "Renderer2D.h"
 
 #include "core/app/Log.h"
+#include "glm/glm.hpp"
+#include <glm/ext/matrix_transform.hpp>
 
 namespace Xen {
 
