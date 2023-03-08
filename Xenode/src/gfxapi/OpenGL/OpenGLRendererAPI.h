@@ -15,5 +15,8 @@ namespace Xen {
 
 		//Draw Commands
 		void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices) override;
+		void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t indices) override;
+
+		void SetLineWidth(float width) override;
 	};
 }

@@ -23,7 +23,7 @@ namespace Xen {
 	{
 		m_ElementBuffer = elementBuffer;
 	}
-	void OpenGLVertexArray::Load()
+	void OpenGLVertexArray::Load(bool hasIndexBuffer)
 	{
 		BufferLayout layout = m_VertexBuffer->GetBufferLayout();
 		std::vector<BufferElement> buffer_elements = layout.GetBufferElements();
@@ -32,7 +32,8 @@ namespace Xen {
 			m_StrideCount += element.count_per_vertex;
 
 		m_VertexBuffer->Bind();
-		m_ElementBuffer->Bind();
+		if(hasIndexBuffer)
+			m_ElementBuffer->Bind();
 
 		for (const BufferElement& element : buffer_elements)
 		{

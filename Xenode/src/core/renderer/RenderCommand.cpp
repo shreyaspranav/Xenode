@@ -48,4 +48,14 @@ namespace Xen {
 	{
 		s_Api->DrawIndexed(vertexArray, indices);
 	}
+
+	void RenderCommand::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t indices)
+	{
+		s_Api->DrawLines(vertexArray, indices);
+	}
+
+	void RenderCommand::SetLineWidth(float width)
+	{
+		s_Api->SetLineWidth(width);
+	}
 }

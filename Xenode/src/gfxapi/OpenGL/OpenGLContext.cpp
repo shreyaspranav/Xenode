@@ -59,8 +59,9 @@ namespace Xen {
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLAD_VERSION_MAJOR(version));
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLAD_VERSION_MINOR(version));
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
+		// Anti Aliasing?
+		glfwWindowHint(GLFW_SAMPLES, 8);
 
 		
 		if (!version) { XEN_ENGINE_LOG_ERROR("glad failed to load!"); TRIGGER_BREAKPOINT; }
@@ -90,6 +91,12 @@ namespace Xen {
 				m_OpenGLVersion = OpenGLVersion::XEN_OPENGL_API_3_0;
 		}
 
+		if (GLAD_VERSION_MAJOR(version) >= 3 && GLAD_VERSION_MINOR(version) >= 2)
+		{
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		}
+
 		#ifdef XEN_DEBUG
 		{
 			if (m_OpenGLVersion >= OpenGLVersion::XEN_OPENGL_API_4_3)
@@ -112,16 +119,29 @@ namespace Xen {
 		#endif // XEN_DEBUG
 
 		int data;
+		XEN_ENGINE_LOG_INFO("GPU Limits:-----------------------------------------");
+
 		glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &data);
 		XEN_ENGINE_LOG_INFO("Texture Slots: {0}", data);
+
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &data);
+		XEN_ENGINE_LOG_INFO("Max 4-component generic vertex attributes: {0}", data);
+
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &data);
+		XEN_ENGINE_LOG_INFO("Max Texture Size: {0}", data);
+
+		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &data);
+		XEN_ENGINE_LOG_INFO("Max No. Of Uniform Variables: {0}", data);
+
+		XEN_ENGINE_LOG_INFO("----------------------------------------------------");
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glBlendEquation(GL_FUNC_ADD);
 		
-		//glEnable(GL_DEPTH_TEST);
-		//glDisable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_LINE_SMOOTH);
 	}
 
 	void OpenGLContext::DestroyContext()

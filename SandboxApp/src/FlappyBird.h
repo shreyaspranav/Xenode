@@ -12,7 +12,6 @@
 #include <core/renderer/Renderer2D.h>
 #include <core/renderer/Camera.h>
 #include <core/renderer/Texture.h>
-#include <core/renderer/Primitives.h>
 
 #include <random>
 

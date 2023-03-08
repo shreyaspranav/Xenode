@@ -205,6 +205,10 @@ namespace Xen {
 				Component::Transform& transform_one = one.GetComponent<Component::Transform>();
 				Component::Transform& transform_another = another.GetComponent<Component::Transform>();
 
+				// To avoid Z fighting, make sure that no renderable entities have same z position:
+				if (transform_one.position.z == transform_another.position.z)
+					transform_one.position.z += 0.001f;
+
 				return transform_one.position.z > transform_another.position.z;
 			});
 

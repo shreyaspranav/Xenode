@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RenderCommandQueue.h"
-#include "Primitives.h"
 
 namespace Xen {
 
@@ -47,10 +46,14 @@ namespace Xen {
 		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation = 0.0f, const Vec3& scale = Vec3(1.0f), const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f);
 		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const float* tex_coords, const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f), const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f);
 
+		static void DrawLine(const Vec3& p1, const Vec3& p2, const Color& color = Color(1.0f, 1.0f, 1.0f, 1.0f), float thickness = 1.0f);
+
 		//static void DrawClearPolygon(uint32_t segments, const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f));
 		static void DrawClearText(const Vec3& position, const Vec3& rotation, const Vec3& scale, const std::string& text, const Color& textColor);
 
 		static void DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec3& scale = Vec3(1.0f), const Color& color = Color(), float thickness = 1.0f, float innerfade = 0.0f, float outerfade = 0.0f);
+
+		static void SetLineWidth(float width);
 
 		// Stats functions:
 		static Renderer2DStatistics& GetStatistics();

@@ -47,6 +47,12 @@ namespace Xen {
 			TRIGGER_BREAKPOINT;
 		}
 
+		glfwSetErrorCallback([](int error_code, const char* description) 
+			{
+				XEN_ENGINE_LOG_ERROR_SEVERE("GLFW Error: {0}", description);
+				//TRIGGER_BREAKPOINT;
+			});
+
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		glfwSetWindowPos(m_Window, (mode->width - m_UserPointer.props.width) / 2, (mode->height - m_UserPointer.props.height) / 2);
 

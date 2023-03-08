@@ -77,7 +77,10 @@ void EditorLayer::OnUpdate(double timestep)
 
 	m_EditorCamera->Update();
 	m_ActiveScene->OnUpdate(timestep);
-	
+
+	// Line Rendering Test
+	//Xen::Renderer2D::DrawLine(Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f, 1.0f, 0.0f), Xen::Color(1.0f, 0.0f, 1.0f, 1.0f));
+
 	Xen::Renderer2D::EndScene();
 	Xen::Renderer2D::RenderFrame();
 
@@ -315,30 +318,42 @@ void EditorLayer::OnImGuiUpdate()
 
 		}
 
+		//ImGuizmo::AllowAxisFlip(1);
 		//TODO: Fix rotation gizmos in 3D perspective mode
 		if (ImGuizmo::IsUsing())
 		{
-			glm::vec3 translation, rotation, scale;
+			glm::vec3 translation, rotation, scale, skew;
+			glm::quat orientation;
+			glm::vec4 perspective;
 
-			Xen::DecomposeTransform(entity_transform, translation, rotation, scale);
+			glm::decompose(entity_transform, scale, orientation, translation, skew, perspective);
+
+			rotation = glm::eulerAngles(orientation);
+
+			//Xen::DecomposeTransform(entity_transform, translation, rotation, scale);
 
 			rotation.x = glm::degrees(rotation.x);
 			rotation.y = glm::degrees(rotation.y);
 			rotation.z = glm::degrees(rotation.z);
 
-			Xen::Vec3 deltar_rotation = Xen::Vec3(rotation.x - entity_transform_comp.rotation.x,
-				rotation.y - entity_transform_comp.rotation.y,
-				rotation.z - entity_transform_comp.rotation.z);
+			glm::vec3 delta_rotation = rotation - entity_transform_comp.rotation.GetVec();
+
+			entity_transform_comp.rotation.x += delta_rotation.x;
+			entity_transform_comp.rotation.y += delta_rotation.y;
+			entity_transform_comp.rotation.z += delta_rotation.z;
+			
 
 			entity_transform_comp.position = translation;
-			entity_transform_comp.rotation = Xen::Vec3(deltar_rotation.x + entity_transform_comp.rotation.x,
-				deltar_rotation.y + entity_transform_comp.rotation.y,
-				deltar_rotation.z + entity_transform_comp.rotation.z);
-			
-			//XEN_ENGINE_LOG_INFO("Rotation: {0}, {1}, {2}", rotation.x, rotation.y, rotation.z);
-			//XEN_ENGINE_LOG_INFO("Delta Rotation: {0}, {1}, {2}", deltar_rotation.x, deltar_rotation.y, deltar_rotation.z);
-
+			//entity_transform_comp.rotation = Xen::Vec3(deltar_rotation.x + entity_transform_comp.rotation.x,
+			//	deltar_rotation.y + entity_transform_comp.rotation.y,
+			//	deltar_rotation.z + entity_transform_comp.rotation.z);
+			//
+			//
 			entity_transform_comp.scale = scale;
+			//XEN_ENGINE_LOG_INFO("Translation: {0}, {1}, {2}", translation.x, translation.y, translation.z);
+			XEN_ENGINE_LOG_INFO("Rotation: {0}, {1}, {2}", entity_transform_comp.rotation.x, entity_transform_comp.rotation.y, entity_transform_comp.rotation.z);
+			XEN_ENGINE_LOG_INFO("Delta Rotation: {0}, {1}, {2}", delta_rotation.x, delta_rotation.y, delta_rotation.z);
+			//XEN_ENGINE_LOG_INFO("Scale: {0}, {1}, {2}", scale.delta_rotation.yx, scale.y, scale.z);
 
 		}
 
