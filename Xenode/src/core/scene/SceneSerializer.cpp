@@ -128,7 +128,7 @@ namespace Xen {
 
 			else if (camera.camera->GetProjectionType() == CameraType::Perspective)
 			{
-				yamlEmitter << YAML::Key << "ProjectionType" << YAML::Value << "Orthographic";
+				yamlEmitter << YAML::Key << "ProjectionType" << YAML::Value << "Perspective";
 				yamlEmitter << YAML::Key << "FovAngle" << YAML::Value << camera.camera->GetFovAngle();
 				yamlEmitter << YAML::Key << "ZNear" << YAML::Value << camera.camera->GetNearPoint();
 				yamlEmitter << YAML::Key << "ZFar" << YAML::Value << camera.camera->GetFarPoint();
@@ -250,7 +250,7 @@ namespace Xen {
 						XEN_ENGINE_LOG_WARN(texture_node["TextureFileRelPath"].as<std::string>());
 					}
 
-					float texture_tile_factor = texture_node["TextureTileFactor"].as<float>();
+					float texture_tile_factor = texture_node["TextureTilingFactor"].as<float>();
 
 					entt.AddComponent<Component::SpriteRenderer>(color, nullptr, texture_tile_factor);
 				}
@@ -303,8 +303,16 @@ namespace Xen {
 					float ZFar = camera_node["ZFar"].as<float>();
 					float ZNear = camera_node["ZNear"].as<float>();
 
+					bool isPrimary = cameraComponent["IsPrimary"].as<bool>();
+					bool isResizable = cameraComponent["IsResizable"].as<bool>();
+
 					camera->SetNearPoint(ZNear);
 					camera->SetFarPoint(ZFar);
+
+					entt.AddComponent<Component::CameraComp>(camera);
+					Component::CameraComp& camera_comp = entt.GetComponent<Component::CameraComp>();
+					camera_comp.is_primary_camera = isPrimary;
+					camera_comp.is_resizable = isResizable;
 				}
 			}
 		}

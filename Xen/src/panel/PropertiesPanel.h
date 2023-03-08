@@ -168,10 +168,14 @@ public:
 					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 
+					if (cam.camera->GetProjectionType() == Xen::CameraType::Perspective)
+						camera_index = 0;
+					else
+						camera_index = 1;
+
 					if (camera_index == 0)
 					{
-						if (cam.camera->GetProjectionType() != Xen::CameraType::Perspective)
-							cam.camera->SetProjectionType(Xen::CameraType::Perspective);
+						cam.camera->SetProjectionType(Xen::CameraType::Perspective);
 
 						PaddedText("Fov ", 0.0f, 3.0f);
 						ImGui::NextColumn();
@@ -203,8 +207,7 @@ public:
 
 					else if (camera_index == 1)
 					{
-						if (cam.camera->GetProjectionType() != Xen::CameraType::Orthographic)
-							cam.camera->SetProjectionType(Xen::CameraType::Orthographic);
+						cam.camera->SetProjectionType(Xen::CameraType::Orthographic);
 
 						PaddedText("Z Near Clip ", 0.0f, 3.0f);
 						ImGui::NextColumn();
