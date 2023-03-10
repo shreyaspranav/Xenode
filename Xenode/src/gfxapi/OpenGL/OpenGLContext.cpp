@@ -8,6 +8,8 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
+#include <core/app/Profiler.h>
+
 namespace Xen {
 
 	void DebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
@@ -49,6 +51,8 @@ namespace Xen {
 
 	void OpenGLContext::Init()
 	{
+		XEN_PROFILE_FN();
+
 		glfwMakeContextCurrent(m_CurrentWindow);
 
 		UserPointer p = *(UserPointer*)glfwGetWindowUserPointer(m_CurrentWindow);
@@ -151,6 +155,7 @@ namespace Xen {
 
 	void OpenGLContext::SwapBuffers()
 	{
+		XEN_PROFILE_FN();
 		glfwSwapBuffers(m_CurrentWindow);
 	}
 

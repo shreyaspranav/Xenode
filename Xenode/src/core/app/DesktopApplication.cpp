@@ -10,6 +10,8 @@
 
 #include <imgui/ImGuiLayer.h>
 
+#include "Profiler.h"
+
 namespace Xen {
 
 	DesktopApplication::DesktopApplication()
@@ -272,6 +274,8 @@ namespace Xen {
 
 	void DesktopApplication::Run()
 	{
+		XEN_START_PROFILER();
+
 		const double MS_PER_UPDATE = (1.0 / 60.0) * 1000.0;
 
 		DesktopApplication::OnCreate();
@@ -281,8 +285,11 @@ namespace Xen {
 		double lag = 0.0;
 
 		while (is_Running) {
+			XEN_PROFILER_FRAME("MainThread")
+
 			Timer timer;
-			//timer.Reset();
+
+			XEN_PROFILER_TAG("Timestep", (float)timestep);
 
 			DesktopApplication::OnUpdate(timestep / 1000.0);
 			timer.Stop();
@@ -307,6 +314,8 @@ namespace Xen {
 			stack->GetLayer(i)->OnDetach();
 
 		m_Context->DestroyContext();
+		XEN_STOP_PROFILER();
+		XEN_SAVE_PROFILER_CAPTURE("logs/profiler_capture.opt")
 	}
 }
 #endif

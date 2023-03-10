@@ -6,6 +6,8 @@
 #include <glad/gl.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "core/app/Profiler.h"
+
 namespace Xen {
 
 	// Might not be that efficient!
@@ -13,6 +15,8 @@ namespace Xen {
 
 	OpenGLShader::OpenGLShader(const std::string& filePath)
 	{
+		XEN_PROFILE_FN();
+
 		std::ifstream stream;
 		stream.open(filePath);
 
@@ -122,6 +126,7 @@ namespace Xen {
 	}
 	void OpenGLShader::LoadShader(const BufferLayout& layout)
 	{
+		XEN_PROFILE_FN();
 
 		uint32_t vertexShader, fragmentShader;
 
@@ -179,7 +184,7 @@ namespace Xen {
 		glDeleteShader(fragmentShader);
 	}
 
-	inline void OpenGLShader::Bind() const		{ glUseProgram(m_ShaderID); }
+	inline void OpenGLShader::Bind() const		{ XEN_PROFILE_FN(); glUseProgram(m_ShaderID); }
 	inline void OpenGLShader::Unbind() const	{ glUseProgram(0); }
 
 	void OpenGLShader::SetFloat(const std::string& name, float value)

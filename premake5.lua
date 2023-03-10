@@ -27,6 +27,12 @@ IncludeDir["entt"] = "%{wks.location}/Xenode/deps/entt/include"
 IncludeDir["yaml_cpp"] = "%{wks.location}/Xenode/deps/yaml-cpp/include"
 IncludeDir["freetype"] = "%{wks.location}/Xenode/deps/freetype/include"
 IncludeDir["ImGuizmo"] = "%{wks.location}/Xenode/deps/ImGuizmo"
+IncludeDir["Optick"] = "%{wks.location}/Xenode/deps/optick/include"
+
+newoption {
+	trigger = "enable-profiling", 
+	description = "Enables profiling support to the build."
+}
 
 -- Main projects:
 

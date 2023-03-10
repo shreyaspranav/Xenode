@@ -6,6 +6,8 @@
 #include <core/app/Log.h>
 #include "OpenGLContext.h"
 
+#include <core/app/Profiler.h>
+
 namespace Xen {
 	OpenGLFrameBuffer::OpenGLFrameBuffer(const FrameBufferSpec& spec) : m_Spec(spec)
 	{
@@ -21,6 +23,8 @@ namespace Xen {
 
 	void OpenGLFrameBuffer::Invalidate()
 	{
+		XEN_PROFILE_FN();
+
 		if (!frame_buffer_created)
 		{
 
@@ -131,6 +135,8 @@ namespace Xen {
 
 	void OpenGLFrameBuffer::Bind()
 	{
+		XEN_PROFILE_FN();
+
 		if (OpenGLContext::GetOpenGLVersion() == OpenGLVersion::XEN_OPENGL_API_2_0)
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_FrameBufferID);
 		else
@@ -138,6 +144,8 @@ namespace Xen {
 	}
 	void OpenGLFrameBuffer::Unbind()
 	{
+		XEN_PROFILE_FN();
+
 		if (OpenGLContext::GetOpenGLVersion() == OpenGLVersion::XEN_OPENGL_API_2_0)
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		else

@@ -3,6 +3,8 @@
 
 #include <glad/gl.h>
 
+#include "core/app/Profiler.h"
+
 namespace Xen {
 	OpenGLVertexArray::OpenGLVertexArray()
 	{
@@ -25,6 +27,8 @@ namespace Xen {
 	}
 	void OpenGLVertexArray::Load(bool hasIndexBuffer)
 	{
+		XEN_PROFILE_FN();
+
 		BufferLayout layout = m_VertexBuffer->GetBufferLayout();
 		std::vector<BufferElement> buffer_elements = layout.GetBufferElements();
 
@@ -68,6 +72,8 @@ namespace Xen {
 	}
 	inline void OpenGLVertexArray::Bind() const
 	{
+		XEN_PROFILE_FN();
+
 		glBindVertexArray(m_VertexArrayID);
 	}
 	inline void OpenGLVertexArray::Unbind() const

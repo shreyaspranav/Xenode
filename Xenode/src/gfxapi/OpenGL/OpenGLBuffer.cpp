@@ -4,6 +4,8 @@
 
 #include <glad/gl.h>
 
+#include <core/app/Profiler.h>
+
 namespace Xen {
 
 	//-------OpenGLFloatBuffer---------------------------------------------------------------------------------
@@ -24,6 +26,8 @@ namespace Xen {
 	}
 	void OpenGLFloatBuffer::Put(uint32_t offsetCount, float* data, uint32_t count)
 	{
+		XEN_PROFILE_FN();
+
 		uint32_t available_count = m_Count - offsetCount;
 
 		if(available_count < count)
@@ -35,7 +39,7 @@ namespace Xen {
 		glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
 		glBufferSubData(GL_ARRAY_BUFFER, offsetCount * sizeof(float), count * sizeof(float), data);
 	}
-	inline void OpenGLFloatBuffer::Bind() const				{ glBindBuffer(GL_ARRAY_BUFFER, m_BufferID); }
+	inline void OpenGLFloatBuffer::Bind() const				{ XEN_PROFILE_FN(); glBindBuffer(GL_ARRAY_BUFFER, m_BufferID); }
 	inline void OpenGLFloatBuffer::Unbind()	const			{ glBindBuffer(GL_ARRAY_BUFFER, 0); }
 	inline uint32_t OpenGLFloatBuffer::GetCount() const		{ return m_Count; }
 	inline uint32_t OpenGLFloatBuffer::GetSize() const		{ return m_Size; }
@@ -62,6 +66,8 @@ namespace Xen {
 	}
 	void OpenGLElementBuffer::Put(uint32_t offsetCount, uint32_t* data, uint32_t count)
 	{
+		XEN_PROFILE_FN();
+
 		uint32_t available_count = m_Count - offsetCount;
 
 		if (available_count < count)
@@ -75,7 +81,7 @@ namespace Xen {
 
 		m_ActiveCount += count;
 	}
-	inline void OpenGLElementBuffer::Bind() const					{ glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID); }
+	inline void OpenGLElementBuffer::Bind() const					{ XEN_PROFILE_FN();  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID); }
 	inline void OpenGLElementBuffer::Unbind() const					{ glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
 	inline uint32_t OpenGLElementBuffer::GetCount() const			{ return m_Count; }
 	inline uint32_t OpenGLElementBuffer::GetActiveCount() const		{ return m_ActiveCount; }

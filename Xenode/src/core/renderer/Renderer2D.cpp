@@ -5,6 +5,8 @@
 #include "glm/glm.hpp"
 #include <glm/ext/matrix_transform.hpp>
 
+#include "core/app/Profiler.h"
+
 namespace Xen {
 
 	SceneData Renderer2D::s_Data;
@@ -92,6 +94,8 @@ namespace Xen {
 
 	void Renderer2D::Init()
 	{
+		XEN_PROFILE_FN();
+
 		quadBufferLayout.AddBufferElement(BufferElement("aQuadPosition", 0, 3, 0, BufferDataType::Float, false));
 		quadBufferLayout.AddBufferElement(BufferElement("aQuadColor", 1, 4, 3, BufferDataType::Float, false));
 		quadBufferLayout.AddBufferElement(BufferElement("aQuadTextureCoords", 2, 2, 7, BufferDataType::Float, false));
@@ -181,6 +185,8 @@ namespace Xen {
 
 	void Renderer2D::BeginScene(const Ref<Camera>& camera)
 	{
+		XEN_PROFILE_FN();
+
 		s_Data.camera = camera;
 
 		for (int i = 0; i <= batch_index; i++)
@@ -217,6 +223,8 @@ namespace Xen {
 	}
 	void Renderer2D::RenderFrame()
 	{
+		XEN_PROFILE_FN();
+
 		stats.draw_calls = 0;
 
 		for (int i = 0; i < max_texture_slots; i++)
@@ -278,6 +286,8 @@ namespace Xen {
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, float rotation, const Vec2& scale, const Color& color)
 	{
+		XEN_PROFILE_FN();
+
 		// Deal with Vertices and Indices:
 		Renderer2D::AddQuad(position, Vec3(0.0f, 0.0f, rotation), Vec3(scale.x, scale.y, 1.0f));
 
@@ -311,6 +321,8 @@ namespace Xen {
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale, const Color& color)
 	{
+		XEN_PROFILE_FN();
+
 		// Deal with Vertices and Indices:
 		Renderer2D::AddQuad(position, rotation, scale);
 
@@ -344,6 +356,8 @@ namespace Xen {
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, float rotation, const Vec2& scale, const Color* color)
 	{
+		XEN_PROFILE_FN();
+
 		Renderer2D::AddQuad(position, Vec3(0.0f, 0.0f, rotation), Vec3(scale.x, scale.y, 1.0f));
 
 		// Texture Coodinates
@@ -395,6 +409,8 @@ namespace Xen {
 
 	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, float rotation, const Vec2& scale, const Color& tintcolor, float tiling_factor)
 	{
+		XEN_PROFILE_FN();
+
 		// Deal with Vertices and Indices:
 		Renderer2D::AddQuad(position, Vec3(0.0f, 0.0f, rotation), Vec3(scale.x, scale.y, 1.0f));
 
@@ -441,6 +457,8 @@ namespace Xen {
 
 	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec3& scale, const Color& tintcolor, float tiling_factor)
 	{
+		XEN_PROFILE_FN();
+
 		Renderer2D::AddQuad(position, rotation, scale);
 
 		// Texture Coodinates
@@ -486,6 +504,8 @@ namespace Xen {
 
 	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const float* tex_coords, const Vec3& position, float rotation, const Vec2& scale, const Color& tintcolor, float tiling_factor)
 	{
+		XEN_PROFILE_FN();
+
 		// Deal with Vertices and Indices:
 		Renderer2D::AddQuad(position, rotation, Vec3(scale.x, scale.y, 1.0f));
 
@@ -536,6 +556,8 @@ namespace Xen {
 
 	void Renderer2D::DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec3& scale, const Color& color, float thickness, float innerfade, float outerfade)
 	{
+		XEN_PROFILE_FN();
+
 		Renderer2D::AddCircleQuad(position, rotation, scale);
 
 		for (int i = 0; i < 48; i += 12)
@@ -569,6 +591,8 @@ namespace Xen {
 
 	void Renderer2D::DrawLine(const Vec3& p1, const Vec3& p2, const Color& color, float thickness)
 	{
+		XEN_PROFILE_FN();
+
 		if (batch_storage[batch_index]->line_index > max_lines_per_batch)
 		{
 			batch_index++;
@@ -614,6 +638,8 @@ namespace Xen {
 	*/
 	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale)
 	{
+		XEN_PROFILE_FN();
+
 		if (batch_storage[batch_index]->texture_slot_index >= max_texture_slots || batch_storage[batch_index]->quad_index >= max_quads_per_batch - 1)
 		{
 			batch_index++;
@@ -669,6 +695,8 @@ namespace Xen {
 
 	void Renderer2D::AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale)
 	{
+		XEN_PROFILE_FN();
+
 		if (batch_storage[batch_index]->circle_quad_index >= max_quads_per_batch - 1)
 		{
 			batch_index++;

@@ -1,6 +1,7 @@
 out/
 *.ini
 
+*.opt
 
 Makefile
 **/Makefile
