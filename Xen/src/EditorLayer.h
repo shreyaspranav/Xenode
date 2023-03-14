@@ -26,7 +26,12 @@ public:
 	void OnFixedUpdate() override;
 
 	void OnWindowResizeEvent(Xen::WindowResizeEvent& event) override;
+
 	void OnMouseScrollEvent(Xen::MouseScrollEvent& event) override;
+	void OnMouseMoveEvent(Xen::MouseMoveEvent& event) override;
+	void OnMouseButtonPressEvent(Xen::MouseButtonPressEvent& event) override;
+	void OnMouseButtonReleaseEvent(Xen::MouseButtonReleaseEvent& event) override;
+	
 	void OnKeyPressEvent(Xen::KeyPressEvent& event) override;
 
 private:
@@ -34,18 +39,43 @@ private:
 
 	uint32_t viewport_framebuffer_width = 1, viewport_framebuffer_height = 1;
 
-	Xen::Ref<Xen::Camera> m_EditorCamera;
 	Xen::Ref<Xen::FrameBuffer> m_ViewportFrameBuffer;
 	Xen::Ref<Xen::Scene> m_ActiveScene;
-
-	float editor_cam_zoom = 1.0f;
-	float editor_max_zoom = 20.0f;
-	float editor_min_zoom = 0.3f;
 
 	SceneHierarchyPanel hier_panel;
 	PropertiesPanel prop_panel; 
 
 	GizmoOperation m_GizmoOperation;
 
+	// Editor Camera Stuff------------------------------------
+	Xen::Ref<Xen::Camera> m_EditorCamera;
+
+	Xen::Vec3 m_FocalPoint;
+	Xen::Vec3 m_CameraPosition = Xen::Vec3(0.0f, 0.0f, -4.0f);
+	Xen::Vec3 m_CameraPositionWhenClicked;
+
+	Xen::Vec2 m_CameraRotationAlongFocalPoint;
+	Xen::Vec2 m_CameraRotationAlongFocalPointCurrent;
+	Xen::Vec2 m_CameraRotationAlongFocalPointWhenClicked;
+
+	float m_DistanceToFocalPoint = 4.0f;
+
+	Xen::Vec2 m_NormalizedViewportMouseCoordinates;
+	Xen::Vec2 m_NormalizedViewportMouseCoordinatesWhenClicked;
+
 	bool m_IsMouseHoveredOnViewport = 0;
+	bool m_IsMouseScrolled = 0;
+	bool m_IsOrbitKeyPressed = 0;
+	bool m_IsRotateOver = 0;
+
+	int8_t m_ScrollDir = 0;
+
+	uint8_t zoom_iterations = 0;
+
+	// Editor Camera Controls
+	Xen::KeyCode orbit_key = Xen::KeyCode::KEY_LEFT_ALT;
+	//----------------------------------------------------------
+
+private:
+	Xen::Vec3 GetCameraFrontDir();
 };

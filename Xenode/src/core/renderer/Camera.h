@@ -43,11 +43,13 @@ namespace Xen {
 		inline Vec3& GetRotation()								{ return m_Rotation; }
 		inline Vec3& GetScale()									{ return m_CameraScale; }
 
-		void Update();
+		void Update(bool usedLookAt = 0);
 		void UpdateOnlyPosition();
+		void LookAtPoint(const Vec3& point, const Vec3& up = Vec3(0.0f, 1.0f, 0.0f));
 
 		void OnViewportResize(uint32_t framebuffer_width, uint32_t framebuffer_height);
 		static const glm::mat4& OnViewportResize(uint32_t framebuffer_width, uint32_t framebuffer_height, glm::mat4& view_projection, glm::mat4& view_mat);
+
 
 	private:
 		glm::mat4 m_ProjectionMatrix;

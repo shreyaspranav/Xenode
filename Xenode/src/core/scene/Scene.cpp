@@ -59,7 +59,7 @@ namespace Xen {
 		return Entity();
 	}
 
-	void Scene::OnUpdate(double timestep)
+	void Scene::OnUpdateRuntime(double timestep)
 	{
 		m_RenderableEntityIndex = 0;
 		//entt::observer group_observer{ m_Registry, entt::collector.group<Component::Transform, Component::SpriteRenderer>() };
@@ -177,6 +177,97 @@ namespace Xen {
 			}
 		}
 	}
+
+	void Scene::OnUpdate(double timestep, const Ref<Camera>& camera)
+	{
+		m_RenderableEntityIndex = 0;
+
+		Renderer2D::BeginScene(camera);
+
+		// Render Sprites
+		auto sprite_group_observer = m_Registry.view<Component::SpriteRenderer>();
+		auto circle_group_observer = m_Registry.view<Component::CircleRenderer>();
+
+		for (auto& entity : sprite_group_observer)
+		{
+			Component::Transform& transform = Entity(entity, this).GetComponent<Component::Transform>();
+			if (m_RenderableEntities.size() < m_RenderableEntityIndex + 1)
+			{
+				m_RenderableEntities.push_back(Entity(entity, this));
+				m_ZCoordinates.push_back(transform.position.z);
+			}
+			else {
+				m_RenderableEntities[m_RenderableEntityIndex] = Entity(entity, this);
+
+				if (m_ZCoordinates[m_RenderableEntityIndex] != transform.position.z)
+					m_IsDirty = true;
+
+				m_ZCoordinates[m_RenderableEntityIndex] = transform.position.z;
+			}
+
+			m_RenderableEntityIndex++;
+		}
+
+		for (auto& entity : circle_group_observer)
+		{
+			Component::Transform& transform = Entity(entity, this).GetComponent<Component::Transform>();
+			if (m_RenderableEntities.size() < m_RenderableEntityIndex + 1)
+			{
+				m_RenderableEntities.push_back(Entity(entity, this));
+				m_ZCoordinates.push_back(transform.position.z);
+			}
+			else {
+				m_RenderableEntities[m_RenderableEntityIndex] = Entity(entity, this);
+
+				if (m_ZCoordinates[m_RenderableEntityIndex] != transform.position.z)
+					m_IsDirty = true;
+
+				m_ZCoordinates[m_RenderableEntityIndex] = transform.position.z;
+			}
+			m_RenderableEntityIndex++;
+		}
+
+
+		if (m_IsDirty)
+			SortRenderableEntities();
+		m_IsDirty = false;
+
+		for (int i = 0; i < m_RenderableEntityIndex; i++)
+		{
+			Component::Transform& transform = m_RenderableEntities[i].GetComponent<Component::Transform>();
+			if (m_RenderableEntities[i].HasAnyComponent<Component::SpriteRenderer>())
+			{
+				Component::SpriteRenderer& spriteRenderer = m_RenderableEntities[i].GetComponent<Component::SpriteRenderer>();
+
+				if (spriteRenderer.texture == nullptr)
+					Renderer2D::DrawClearQuad(transform.position,
+						transform.rotation,
+						transform.scale,
+						spriteRenderer.color);
+				else
+					Renderer2D::DrawTexturedQuad(spriteRenderer.texture,
+						transform.position,
+						transform.rotation,
+						transform.scale,
+						spriteRenderer.color,
+						spriteRenderer.texture_tile_factor);
+
+			}
+			else if (m_RenderableEntities[i].HasAnyComponent<Component::CircleRenderer>())
+			{
+				Component::CircleRenderer& circleRenderer = m_RenderableEntities[i].GetComponent<Component::CircleRenderer>();
+
+				Renderer2D::DrawClearCircle(transform.position,
+					transform.rotation,
+					transform.scale,
+					circleRenderer.color,
+					circleRenderer.thickness,
+					circleRenderer.inner_fade,
+					circleRenderer.outer_fade);
+			}
+		}
+	}
+
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
 		m_FramebufferWidth = width;

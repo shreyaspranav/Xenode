@@ -3,6 +3,8 @@
 #include <Core.h>
 #include <entt.hpp>
 
+#include <core/renderer/Camera.h>
+
 class SceneHierarchyPanel;
 
 namespace Xen {
@@ -14,7 +16,9 @@ namespace Xen {
 		Scene();
 		~Scene();
 
-		void OnUpdate(double timestep);
+		void OnUpdate(double timestep, const Ref<Camera>& camera);
+		void OnUpdateRuntime(double timestep);
+
 		void OnCreate();
 
 		void OnViewportResize(uint32_t width, uint32_t height);

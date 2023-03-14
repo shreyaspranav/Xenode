@@ -11,6 +11,11 @@
 #include "math/Math.h"
 #include <glm/gtx/quaternion.hpp>
 
+#include<array>
+
+
+float a = 0;
+
 EditorLayer::EditorLayer()
 {
 	m_Timestep = 0.0f;
@@ -26,7 +31,7 @@ void EditorLayer::OnAttach()
 	specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
 	specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
 
-	m_EditorCamera = std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, viewport_framebuffer_width, viewport_framebuffer_height);
+	m_EditorCamera = std::make_shared<Xen::Camera>(Xen::CameraType::Perspective, viewport_framebuffer_width, viewport_framebuffer_height);
 	m_ViewportFrameBuffer = Xen::FrameBuffer::CreateFrameBuffer(specs);
 
 	Xen::Renderer2D::Init();
@@ -64,6 +69,10 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(double timestep)
 {
+	std::array<int, 9> arr{ 0, 0, 0 };
+
+	INT_MAX
+
 	hier_panel.SetActiveScene(m_ActiveScene);
 
 	Xen::RenderCommand::Clear();
@@ -73,13 +82,53 @@ void EditorLayer::OnUpdate(double timestep)
 
 	Xen::RenderCommand::Clear();
 	Xen::RenderCommand::SetClearColor(Xen::Color(0.0f, 0.0f, 0.0f, 1.0f));
-	Xen::Renderer2D::BeginScene(m_EditorCamera);
 
-	m_EditorCamera->Update();
-	m_ActiveScene->OnUpdate(timestep);
+	if (zoom_iterations <= 0)
+		m_IsMouseScrolled = 0;
+
+	if (m_IsMouseHoveredOnViewport && m_IsMouseScrolled)
+	{
+		m_DistanceToFocalPoint -= m_ScrollDir * 0.04f * timestep;
+		zoom_iterations--;
+	}
+
+	if (m_IsMouseHoveredOnViewport && m_IsOrbitKeyPressed)
+	{
+		Xen::Vec3 delta_angle = Xen::Vec3((m_NormalizedViewportMouseCoordinates.x - m_NormalizedViewportMouseCoordinatesWhenClicked.x) * 90.0f,
+			(m_NormalizedViewportMouseCoordinates.y - m_NormalizedViewportMouseCoordinatesWhenClicked.y) * 90.0f,
+			0.0f); 
+
+		XEN_ENGINE_LOG_INFO("{0}", delta_angle.x);
+		m_CameraRotationAlongFocalPoint.x = m_CameraRotationAlongFocalPointCurrent.x + delta_angle.x;
+		m_CameraRotationAlongFocalPoint.y = m_CameraRotationAlongFocalPointCurrent.y + delta_angle.y;
+
+		m_EditorCamera->SetRotation(m_CameraPosition);
+	}
+	
+	if (!m_IsOrbitKeyPressed)
+		m_CameraRotationAlongFocalPointCurrent = m_CameraRotationAlongFocalPoint;
+
+	//m_CameraPosition.x = m_DistanceToFocalPoint * glm::sin(glm::radians(m_CameraRotationAlongFocalPoint.x));
+	//m_CameraPosition.z = m_DistanceToFocalPoint * glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.x));
+
+	m_CameraPosition.x = m_DistanceToFocalPoint * glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.y)) * glm::cos(glm::radians(-m_CameraRotationAlongFocalPoint.x));
+	m_CameraPosition.y = m_DistanceToFocalPoint * glm::sin(glm::radians(m_CameraRotationAlongFocalPoint.y));
+	m_CameraPosition.z = m_DistanceToFocalPoint * glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.y)) * glm::sin(glm::radians(-m_CameraRotationAlongFocalPoint.x));
+
+	m_EditorCamera->SetPosition(m_CameraPosition);
+	
+	m_EditorCamera->LookAtPoint(m_FocalPoint);
+	m_EditorCamera->Update(1);
+	m_ActiveScene->OnUpdate(timestep, m_EditorCamera);
+
 
 	// Line Rendering Test
-	//Xen::Renderer2D::DrawLine(Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f, 1.0f, 0.0f), Xen::Color(1.0f, 0.0f, 1.0f, 1.0f));
+
+	for (int i = -10; i < 11; i++)
+	{
+		Xen::Renderer2D::DrawLine(Xen::Vec3(-10.0f, i, 0.0f), Xen::Vec3(10.0f, i, 0.0f), Xen::Color(0.9f, 0.7f, 0.3f, 1.0f));
+		Xen::Renderer2D::DrawLine(Xen::Vec3(i, -10.0f, 0.0f), Xen::Vec3(i, 10.0f, 0.0f), Xen::Color(0.9f, 0.7f, 0.3f, 1.0f));
+	}
 
 	Xen::Renderer2D::EndScene();
 	Xen::Renderer2D::RenderFrame();
@@ -230,6 +279,18 @@ void EditorLayer::OnImGuiUpdate()
 	ImGui::Begin((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str());
 
 	m_IsMouseHoveredOnViewport = ImGui::IsWindowHovered();
+
+	float y_offset = ImGui::GetWindowHeight() - viewport_framebuffer_height;
+
+	if (m_IsMouseHoveredOnViewport) 
+	{
+		m_NormalizedViewportMouseCoordinates.x = (ImGui::GetMousePos().x - ImGui::GetWindowPos().x) / viewport_framebuffer_height;
+		m_NormalizedViewportMouseCoordinates.y = (ImGui::GetMousePos().y - ImGui::GetWindowPos().y) / viewport_framebuffer_height;
+	}
+	else {
+		m_NormalizedViewportMouseCoordinates.x = -1.0f;
+		m_NormalizedViewportMouseCoordinates.y = -1.0f;
+	}
 
 	if (viewport_framebuffer_width != ImGui::GetContentRegionAvail().x || viewport_framebuffer_height != ImGui::GetContentRegionAvail().y)
 	{
@@ -390,6 +451,15 @@ void EditorLayer::OnImGuiUpdate()
 
 	ImGui::End();
 
+	ImGui::Begin("Debug");
+
+	ImGui::Text("Editor Camera Position: (%f, %f, %f)", m_EditorCamera->GetPosition().x, m_EditorCamera->GetRotation().y, m_EditorCamera->GetPosition().z);
+	ImGui::Text("Editor Camera Rotation: (%f, %f, %f)", m_EditorCamera->GetRotation().x, m_EditorCamera->GetRotation().y, m_EditorCamera->GetRotation().z);
+	ImGui::Text("Distance to Focal point: %f", m_DistanceToFocalPoint);
+	ImGui::Text("Clicked at polar angles: (%f, %f)", m_CameraRotationAlongFocalPointWhenClicked.x, m_CameraRotationAlongFocalPointWhenClicked.y);
+
+	ImGui::End();
+
 }
 
 void EditorLayer::OnFixedUpdate()
@@ -405,22 +475,46 @@ void EditorLayer::OnWindowResizeEvent(Xen::WindowResizeEvent& event)
 
 void EditorLayer::OnMouseScrollEvent(Xen::MouseScrollEvent& event)
 {
-	if (m_IsMouseHoveredOnViewport)
+	m_IsMouseScrolled = 1;
+	m_ScrollDir = (int8_t)event.GetYOffset();
+
+	zoom_iterations = 20;
+}
+
+void EditorLayer::OnMouseMoveEvent(Xen::MouseMoveEvent& event)
+{
+	//XEN_ENGINE_LOG_WARN("{0}, {1}", m_NormalizedViewportMouseCoordinates.x, m_NormalizedViewportMouseCoordinates.y);
+}
+
+void EditorLayer::OnMouseButtonPressEvent(Xen::MouseButtonPressEvent& event)
+{
+	if (event.GetMouseKeyCode() == Xen::MouseKeyCode::MOUSE_BUTTON_LEFT)
 	{
-		for (int i = 0; i < 10; i++)
-		{
-			editor_cam_zoom += event.GetYOffset() * 0.01f;
-			m_EditorCamera->SetScale(editor_cam_zoom);
-			m_EditorCamera->Update();
-		}
+		m_IsOrbitKeyPressed = 1;
+		m_IsRotateOver = 0;
 	}
+
+	m_NormalizedViewportMouseCoordinatesWhenClicked = m_NormalizedViewportMouseCoordinates;
+
+	m_CameraRotationAlongFocalPointWhenClicked.x = m_NormalizedViewportMouseCoordinatesWhenClicked.x * 90.0f;
+	m_CameraRotationAlongFocalPointWhenClicked.y = m_NormalizedViewportMouseCoordinatesWhenClicked.y * 90.0f;
+
+	m_CameraPositionWhenClicked = m_EditorCamera->GetPosition();
+	//XEN_ENGINE_LOG_WARN("fdsafdsa: {0}", m_CameraRotationWhenClicked.x);
+}
+
+void EditorLayer::OnMouseButtonReleaseEvent(Xen::MouseButtonReleaseEvent& event)
+{
+	if (event.GetMouseKeyCode() == Xen::MouseKeyCode::MOUSE_BUTTON_LEFT)
+		m_IsOrbitKeyPressed = 0;
+
+	//XEN_ENGINE_LOG_INFO("fdsafdsa");
 }
 
 void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 {
 	if (m_IsMouseHoveredOnViewport)
 	{
-
 		switch (event.GetKey())
 		{
 		case Xen::KeyCode::KEY_Q:
@@ -457,7 +551,12 @@ void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 		}
 
 		}
-	}
-		
+	}	
+}
+
+Xen::Vec3 EditorLayer::GetCameraFrontDir()
+{
+	glm::vec3 to_return = glm::rotate(glm::quat(m_EditorCamera->GetRotation().GetVec()), glm::vec3(0.0f, 0.0f, 1.0f));
+	return Xen::Vec3(to_return);
 }
 
