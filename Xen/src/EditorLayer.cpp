@@ -69,10 +69,6 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(double timestep)
 {
-	std::array<int, 9> arr{ 0, 0, 0 };
-
-	INT_MAX
-
 	hier_panel.SetActiveScene(m_ActiveScene);
 
 	Xen::RenderCommand::Clear();
