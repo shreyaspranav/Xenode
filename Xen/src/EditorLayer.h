@@ -51,10 +51,15 @@ private:
 	Xen::Ref<Xen::Camera> m_EditorCamera;
 
 	Xen::Vec3 m_FocalPoint;
+	Xen::Vec3 m_FocalPointCurrent;
+
 	Xen::Vec3 m_CameraPosition = Xen::Vec3(0.0f, 0.0f, -4.0f);
+	Xen::Vec3 m_CameraRightPosition;
+	Xen::Vec3 m_CameraUpPosition;
+
 	Xen::Vec3 m_CameraPositionWhenClicked;
 
-	Xen::Vec2 m_CameraRotationAlongFocalPoint;
+	Xen::Vec2 m_CameraRotationAlongFocalPoint = Xen::Vec2(90.0f, 0.0f);
 	Xen::Vec2 m_CameraRotationAlongFocalPointCurrent;
 	Xen::Vec2 m_CameraRotationAlongFocalPointWhenClicked;
 
@@ -64,16 +69,22 @@ private:
 	Xen::Vec2 m_NormalizedViewportMouseCoordinatesWhenClicked;
 
 	bool m_IsMouseHoveredOnViewport = 0;
+
 	bool m_IsMouseScrolled = 0;
+
 	bool m_IsOrbitKeyPressed = 0;
 	bool m_IsRotateOver = 0;
+
+	bool m_IsPanKeyPressed = 0;
+	bool m_IsPanOver = 0;
 
 	int8_t m_ScrollDir = 0;
 
 	uint8_t zoom_iterations = 0;
 
 	// Editor Camera Controls
-	Xen::KeyCode orbit_key = Xen::KeyCode::KEY_LEFT_ALT;
+	Xen::MouseKeyCode orbit_key = Xen::MouseKeyCode::MOUSE_BUTTON_3;
+	Xen::KeyCode pan_key = Xen::KeyCode::KEY_LEFT_SHIFT;
 	//----------------------------------------------------------
 
 private:

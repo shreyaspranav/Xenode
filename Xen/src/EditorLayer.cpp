@@ -11,10 +11,7 @@
 #include "math/Math.h"
 #include <glm/gtx/quaternion.hpp>
 
-#include<array>
-
-
-float a = 0;
+Xen::Ref<Xen::Input> input;
 
 EditorLayer::EditorLayer()
 {
@@ -30,6 +27,9 @@ void EditorLayer::OnAttach()
 	Xen::FrameBufferSpec specs;
 	specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
 	specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
+
+	input = Xen::Input::GetInputInterface();
+	input->SetWindow(Xen::DesktopApplication::GetWindow());
 
 	m_EditorCamera = std::make_shared<Xen::Camera>(Xen::CameraType::Perspective, viewport_framebuffer_width, viewport_framebuffer_height);
 	m_ViewportFrameBuffer = Xen::FrameBuffer::CreateFrameBuffer(specs);
@@ -94,22 +94,41 @@ void EditorLayer::OnUpdate(double timestep)
 			(m_NormalizedViewportMouseCoordinates.y - m_NormalizedViewportMouseCoordinatesWhenClicked.y) * 90.0f,
 			0.0f); 
 
-		XEN_ENGINE_LOG_INFO("{0}", delta_angle.x);
 		m_CameraRotationAlongFocalPoint.x = m_CameraRotationAlongFocalPointCurrent.x + delta_angle.x;
 		m_CameraRotationAlongFocalPoint.y = m_CameraRotationAlongFocalPointCurrent.y + delta_angle.y;
 
 		m_EditorCamera->SetRotation(m_CameraPosition);
 	}
+
+	if (m_IsMouseHoveredOnViewport && m_IsPanKeyPressed)
+	{
+		glm::vec3 delta_pan = glm::vec3((m_NormalizedViewportMouseCoordinates.x - m_NormalizedViewportMouseCoordinatesWhenClicked.x) * 3.0f,
+			(m_NormalizedViewportMouseCoordinates.y - m_NormalizedViewportMouseCoordinatesWhenClicked.y) * 3.0f,
+			1.0f);
+
+		glm::vec3 focal_point = m_FocalPoint.GetVec();
+
+		m_FocalPoint.x = m_FocalPointCurrent.x + (-delta_pan.x * m_CameraRightPosition.x);
+		m_FocalPoint.y = m_FocalPointCurrent.y + (delta_pan.y * m_CameraUpPosition.y);
+		m_FocalPoint.z = m_FocalPointCurrent.z + (-delta_pan.x * m_CameraRightPosition.z);
+	}
 	
 	if (!m_IsOrbitKeyPressed)
 		m_CameraRotationAlongFocalPointCurrent = m_CameraRotationAlongFocalPoint;
+	if (!m_IsPanKeyPressed)
+		m_FocalPointCurrent = m_FocalPoint;
 
-	//m_CameraPosition.x = m_DistanceToFocalPoint * glm::sin(glm::radians(m_CameraRotationAlongFocalPoint.x));
-	//m_CameraPosition.z = m_DistanceToFocalPoint * glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.x));
+	m_CameraPosition.x = m_FocalPoint.x + m_DistanceToFocalPoint * glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.y)) * glm::cos(glm::radians(-m_CameraRotationAlongFocalPoint.x));
+	m_CameraPosition.y = m_FocalPoint.y + m_DistanceToFocalPoint * glm::sin(glm::radians(m_CameraRotationAlongFocalPoint.y));
+	m_CameraPosition.z = m_FocalPoint.z + m_DistanceToFocalPoint * glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.y)) * glm::sin(glm::radians(-m_CameraRotationAlongFocalPoint.x));
 
-	m_CameraPosition.x = m_DistanceToFocalPoint * glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.y)) * glm::cos(glm::radians(-m_CameraRotationAlongFocalPoint.x));
-	m_CameraPosition.y = m_DistanceToFocalPoint * glm::sin(glm::radians(m_CameraRotationAlongFocalPoint.y));
-	m_CameraPosition.z = m_DistanceToFocalPoint * glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.y)) * glm::sin(glm::radians(-m_CameraRotationAlongFocalPoint.x));
+	m_CameraRightPosition.x = -1.0f * glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.y)) * glm::cos(glm::radians(-(m_CameraRotationAlongFocalPoint.x + 90.0f)));
+	m_CameraRightPosition.y = glm::sin(glm::radians(m_CameraRotationAlongFocalPoint.y));
+	m_CameraRightPosition.z = -1.0f * glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.y)) * glm::sin(glm::radians(-(m_CameraRotationAlongFocalPoint.x + 90.0f)));
+
+	m_CameraUpPosition.x = glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.y + 90.0f)) * glm::cos(glm::radians(-m_CameraRotationAlongFocalPoint.x));
+	m_CameraUpPosition.y = glm::sin(glm::radians(m_CameraRotationAlongFocalPoint.y + 90.0f));
+	m_CameraUpPosition.z = glm::cos(glm::radians(m_CameraRotationAlongFocalPoint.y + 90.0f)) * glm::sin(glm::radians(-m_CameraRotationAlongFocalPoint.x));
 
 	m_EditorCamera->SetPosition(m_CameraPosition);
 	
@@ -120,16 +139,19 @@ void EditorLayer::OnUpdate(double timestep)
 
 	// Line Rendering Test
 
-	for (int i = -10; i < 11; i++)
+	for (int i = -5; i < 6; i++)
 	{
-		Xen::Renderer2D::DrawLine(Xen::Vec3(-10.0f, i, 0.0f), Xen::Vec3(10.0f, i, 0.0f), Xen::Color(0.9f, 0.7f, 0.3f, 1.0f));
-		Xen::Renderer2D::DrawLine(Xen::Vec3(i, -10.0f, 0.0f), Xen::Vec3(i, 10.0f, 0.0f), Xen::Color(0.9f, 0.7f, 0.3f, 1.0f));
+		Xen::Renderer2D::DrawLine(Xen::Vec3(-5.0f, i, 0.0f), Xen::Vec3(5.0f, i, 0.0f), Xen::Color(0.9f, 0.7f, 0.3f, 1.0f));
+		Xen::Renderer2D::DrawLine(Xen::Vec3(i, -5.0f, 0.0f), Xen::Vec3(i, 5.0f, 0.0f), Xen::Color(0.9f, 0.7f, 0.3f, 1.0f));
 	}
 
 	Xen::Renderer2D::EndScene();
 	Xen::Renderer2D::RenderFrame();
 
 	m_ViewportFrameBuffer->Unbind();
+
+	if (!input->IsKeyPressed(pan_key))
+		m_IsPanKeyPressed = 0;
 }
 
 void EditorLayer::OnImGuiUpdate()
@@ -452,7 +474,10 @@ void EditorLayer::OnImGuiUpdate()
 	ImGui::Text("Editor Camera Position: (%f, %f, %f)", m_EditorCamera->GetPosition().x, m_EditorCamera->GetRotation().y, m_EditorCamera->GetPosition().z);
 	ImGui::Text("Editor Camera Rotation: (%f, %f, %f)", m_EditorCamera->GetRotation().x, m_EditorCamera->GetRotation().y, m_EditorCamera->GetRotation().z);
 	ImGui::Text("Distance to Focal point: %f", m_DistanceToFocalPoint);
-	ImGui::Text("Clicked at polar angles: (%f, %f)", m_CameraRotationAlongFocalPointWhenClicked.x, m_CameraRotationAlongFocalPointWhenClicked.y);
+	ImGui::Text("Polar angles: (%f, %f)", m_CameraRotationAlongFocalPoint.x, m_CameraRotationAlongFocalPoint.y);
+
+	ImGui::Text("UP: (%f, %f, %f)", m_CameraUpPosition.x, m_CameraUpPosition.y, m_CameraUpPosition.z);
+	ImGui::Text("Right: (%f, %f, %f)", m_CameraRightPosition.x, m_CameraRightPosition.y, m_CameraRightPosition.z);
 
 	ImGui::End();
 
@@ -484,12 +509,18 @@ void EditorLayer::OnMouseMoveEvent(Xen::MouseMoveEvent& event)
 
 void EditorLayer::OnMouseButtonPressEvent(Xen::MouseButtonPressEvent& event)
 {
-	if (event.GetMouseKeyCode() == Xen::MouseKeyCode::MOUSE_BUTTON_LEFT)
+	if (event.GetMouseKeyCode() == orbit_key)
 	{
-		m_IsOrbitKeyPressed = 1;
-		m_IsRotateOver = 0;
+		if (input->IsKeyPressed(pan_key)) {
+			m_IsPanKeyPressed = 1;
+			m_IsPanOver = 0;
+		}
+		else {
+			m_IsOrbitKeyPressed = 1;
+			m_IsRotateOver = 0;
+		}
 	}
-
+	here:
 	m_NormalizedViewportMouseCoordinatesWhenClicked = m_NormalizedViewportMouseCoordinates;
 
 	m_CameraRotationAlongFocalPointWhenClicked.x = m_NormalizedViewportMouseCoordinatesWhenClicked.x * 90.0f;
@@ -501,10 +532,8 @@ void EditorLayer::OnMouseButtonPressEvent(Xen::MouseButtonPressEvent& event)
 
 void EditorLayer::OnMouseButtonReleaseEvent(Xen::MouseButtonReleaseEvent& event)
 {
-	if (event.GetMouseKeyCode() == Xen::MouseKeyCode::MOUSE_BUTTON_LEFT)
+	if (event.GetMouseKeyCode() == orbit_key)
 		m_IsOrbitKeyPressed = 0;
-
-	//XEN_ENGINE_LOG_INFO("fdsafdsa");
 }
 
 void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
