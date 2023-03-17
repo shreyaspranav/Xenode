@@ -96,8 +96,6 @@ void EditorLayer::OnUpdate(double timestep)
 
 		m_CameraRotationAlongFocalPoint.x = m_CameraRotationAlongFocalPointCurrent.x + delta_angle.x;
 		m_CameraRotationAlongFocalPoint.y = m_CameraRotationAlongFocalPointCurrent.y + delta_angle.y;
-
-		m_EditorCamera->SetRotation(m_CameraPosition);
 	}
 
 	if (m_IsMouseHoveredOnViewport && m_IsPanKeyPressed)
@@ -152,7 +150,7 @@ void EditorLayer::OnUpdate(double timestep)
 
 	if (!input->IsKeyPressed(pan_key))
 		m_IsPanKeyPressed = 0;
-}
+} 
 
 void EditorLayer::OnImGuiUpdate()
 {
@@ -520,7 +518,7 @@ void EditorLayer::OnMouseButtonPressEvent(Xen::MouseButtonPressEvent& event)
 			m_IsRotateOver = 0;
 		}
 	}
-	here:
+
 	m_NormalizedViewportMouseCoordinatesWhenClicked = m_NormalizedViewportMouseCoordinates;
 
 	m_CameraRotationAlongFocalPointWhenClicked.x = m_NormalizedViewportMouseCoordinatesWhenClicked.x * 90.0f;
@@ -533,7 +531,10 @@ void EditorLayer::OnMouseButtonPressEvent(Xen::MouseButtonPressEvent& event)
 void EditorLayer::OnMouseButtonReleaseEvent(Xen::MouseButtonReleaseEvent& event)
 {
 	if (event.GetMouseKeyCode() == orbit_key)
+	{
 		m_IsOrbitKeyPressed = 0;
+		m_IsPanKeyPressed = 0;
+	}
 }
 
 void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
@@ -578,10 +579,3 @@ void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 		}
 	}	
 }
-
-Xen::Vec3 EditorLayer::GetCameraFrontDir()
-{
-	glm::vec3 to_return = glm::rotate(glm::quat(m_EditorCamera->GetRotation().GetVec()), glm::vec3(0.0f, 0.0f, 1.0f));
-	return Xen::Vec3(to_return);
-}
-

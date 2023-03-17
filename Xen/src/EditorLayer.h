@@ -72,10 +72,10 @@ private:
 
 	bool m_IsMouseScrolled = 0;
 
-	bool m_IsOrbitKeyPressed = 0;
+	bool m_IsOrbitKeyPressed = 0; // Middle Mouse
 	bool m_IsRotateOver = 0;
 
-	bool m_IsPanKeyPressed = 0;
+	bool m_IsPanKeyPressed = 0; // LShift + Middle Mouse
 	bool m_IsPanOver = 0;
 
 	int8_t m_ScrollDir = 0;
