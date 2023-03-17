@@ -21,12 +21,17 @@ project "SandboxApp"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.freetype}",
+		"%{IncludeDir.Optick}",
+
 	}
 
 	links { "Xenode" }
 
 	cppdialect "C++20"
 	pic "on"
+
+	filter { "options:enable-profiling"}
+		defines { "XEN_ENABLE_PROFILING" }
 
 	filter "system:windows"
 

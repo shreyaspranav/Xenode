@@ -66,8 +66,7 @@ project "Xenode"
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.freetype}",
 		"%{IncludeDir.ImGuizmo}",
-
-		"deps/optick/include"
+		"%{IncludeDir.Optick}",
 	}
 
 	defines {"_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS", "_CRT_SECURE_NO_WARNINGS"}

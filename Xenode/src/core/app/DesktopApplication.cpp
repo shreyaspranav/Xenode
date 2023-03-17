@@ -64,6 +64,8 @@ namespace Xen {
 	}
 	void DesktopApplication::OnStart()
 	{
+		XEN_PROFILE_FN();
+
 		WindowProps props(window_title, window_width, window_height, vsync, resizable, m_Api);
 		window = Window::GetWindow(props);
 		window->Create();
@@ -92,6 +94,8 @@ namespace Xen {
 	}
 	void DesktopApplication::OnUpdate(double timestep)
 	{
+		XEN_PROFILE_FN();
+
 		OnUpdate(timestep);
 		for (int i = stack->GetCount(); i >= 1; i--)
 			stack->GetLayer(i)->OnUpdate(timestep);
@@ -104,6 +108,8 @@ namespace Xen {
 
 	void DesktopApplication::ImGuiRender()
 	{
+		XEN_PROFILE_FN();
+
 		if (imgui_render || imgui_always_render)
 		{
 			m_ImGuiLayer->Begin();
@@ -262,12 +268,16 @@ namespace Xen {
 
 	void DesktopApplication::OnRender()
 	{
+		XEN_PROFILE_FN();
+
 		OnRender();
 		for (int i = stack->GetCount(); i >= 1; i--) { stack->GetLayer(i)->OnRender(); }
 	}
 
 	void DesktopApplication::OnFixedUpdate()
 	{
+		XEN_PROFILE_FN();
+
 		OnFixedUpdate();
 		for (int i = stack->GetCount(); i >= 1; i--) { stack->GetLayer(i)->OnFixedUpdate(); }
 	}

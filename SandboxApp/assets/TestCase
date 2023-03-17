@@ -1,0 +1,26 @@
+Scene: Untitled
+Entities:
+  - Entity: [Unnamed, 473828532]
+    Transform:
+      Position: [2.1099999, 0, -2.75]
+      Rotation: [0, -30, 0]
+      Scale: [1, 1, 1]
+    CameraComp:
+      Camera:
+        ProjectionType: Perspective
+        FovAngle: 60
+        ZNear: 0.00999999978
+        ZFar: 1000
+      IsPrimary: true
+      IsResizable: true
+  - Entity: [Unnamed, 473828532]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [29.9300003, 0, 0]
+      Scale: [1.74000001, 2.06999993, 1.19000006]
+    SpriteRenderer:
+      Color: [0.491711169, 0.588495612, 0.31507951, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+Entity Count: 2

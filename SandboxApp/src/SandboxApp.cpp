@@ -1,6 +1,7 @@
 #include <Xenode.h>
 #include <core/app/EntryPoint.h>
 #include "FlappyBird.h"
+#include "Test.h"
 
 class ExampleLayer : public Xen::Layer
 {
@@ -57,14 +58,17 @@ public:
 
 	void OnCreate() override
 	{
-		window_title = "Flappy Bird";
+		window_width = 1280;
+		window_height = 720;
+
+		window_title = "TestBed";
 		imgui_render = false;
 	}
 	void OnStart() override
 	{
-		Xen::Ref<Xen::Layer> testLayer = std::make_shared<FlappyBirdLayer>();
-		PushLayer(testLayer);
-		PushLayer(std::make_shared<ExampleLayer>());
+		//Xen::Ref<Xen::Layer> testLayer = std::make_shared<FlappyBirdLayer>();
+		//PushLayer(testLayer);
+		PushLayer(std::make_shared<TestLayer>());
 	}
 	void OnUpdate(double timestep) override
 	{
