@@ -1,21 +1,21 @@
 [submodule "Xenode/deps/glfw"]
-	path = Xenode/deps/glfw
+	path = deps/glfw
 	url = https://github.com/shreyaspranav/glfw.git
 [submodule "Xenode/deps/spdlog"]
-	path = Xenode/deps/spdlog
+	path = deps/spdlog
 	url = https://github.com/shreyaspranav/spdlog.git
 [submodule "Xenode/deps/imgui"]
-	path = Xenode/deps/imgui
+	path = deps/imgui
 	url = https://github.com/shreyaspranav/imgui.git
 [submodule "Xenode/deps/taskflow"]
-	path = Xenode/deps/taskflow
+	path = deps/taskflow
 	url = https://github.com/shreyaspranav/taskflow.git
 [submodule "Xenode/deps/yaml-cpp"]
-	path = Xenode/deps/yaml-cpp
+	path = deps/yaml-cpp
 	url = https://github.com/shreyaspranav/yaml-cpp.git
 [submodule "Xenode/deps/freetype"]
-	path = Xenode/deps/freetype
+	path = deps/freetype
 	url = https://github.com/shreyaspranav/freetype.git
 [submodule "Xenode/deps/ImGuizmo"]
-	path = Xenode/deps/ImGuizmo
+	path = deps/ImGuizmo
 	url = https://github.com/shreyaspranav/ImGuizmo.git
