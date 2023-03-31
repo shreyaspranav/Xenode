@@ -38,8 +38,8 @@ project "Xenode"
 
 
 		--ImGuizmo source files
-		"deps/ImGuizmo/*.cpp",
-		"deps/ImGuizmo/*.h",
+		"../deps/ImGuizmo/*.cpp",
+		"../deps/ImGuizmo/*.h",
 	}
 
 	links { 
@@ -73,19 +73,19 @@ project "Xenode"
 
 	filter { "options:enable-profiling"}
 		files {
-			"deps/optick/src/*.cpp",
-			"deps/optick/src/*.h"
+			"../deps/optick/src/*.cpp",
+			"../deps/optick/src/*.h"
 		}
 
 		defines { "XEN_ENABLE_PROFILING" }
 
 		removefiles {
-			"deps/optick/src/optick_gpu.vulkan.cpp" -- Remove vulkan for now
+			"../deps/optick/src/optick_gpu.vulkan.cpp" -- Remove vulkan for now
 		}
 
-	filter "files:deps/ImGuizmo/**.cpp"
+	filter "files:../deps/ImGuizmo/**.cpp"
 		flags { "NoPCH" }
-	filter "files:deps/optick/**.cpp"
+	filter "files:../deps/optick/**.cpp"
 		flags { "NoPCH" }
 
 	filter "system:windows"

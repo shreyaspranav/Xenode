@@ -11,8 +11,8 @@ project "Xen"
 		"src/**.h",
 
 		--ImGuizmo source files
-		"deps/ImGuizmo/*.cpp",
-		"deps/ImGuizmo/*.h"
+		"../deps/ImGuizmo/*.cpp",
+		"../deps/ImGuizmo/*.h"
 	}
 
 	includedirs {
