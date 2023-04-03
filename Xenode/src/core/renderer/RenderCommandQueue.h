@@ -29,6 +29,11 @@ namespace Xen {
 		Ref<FloatBuffer> lineVertexBuffer;
 		Ref<Shader> lineShader;
 
+		Ref<VertexArray> vertexArray;
+		Ref<FloatBuffer> vertexBuffer;
+		Ref<ElementBuffer> indexBuffer;
+		Ref<Shader> shader;
+
 		SceneData()
 		{}
 	};

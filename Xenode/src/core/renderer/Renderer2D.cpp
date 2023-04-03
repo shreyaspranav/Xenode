@@ -9,6 +9,15 @@
 
 namespace Xen {
 
+	// Way of identifing each primitive: 
+	enum class Primitive {
+		LINE	 = 1 << 0,
+		TRIANGLE = 1 << 1,
+		QUAD	 = 1 << 2,
+		POLYGON	 = 1 << 3,
+		CIRCLE	 = 1 << 4,
+	};
+
 	SceneData Renderer2D::s_Data;
 
 	// The maximum amount of quads or circles drawn per batch:
@@ -49,6 +58,10 @@ namespace Xen {
 		uint32_t* circle_quad_indices;
 		uint32_t circle_quad_index;
 
+		float* verts;
+		uint32_t* indices;
+		uint32_t vertex_index;
+
 		float* line_verts;
 		uint32_t line_index;
 
@@ -65,9 +78,13 @@ namespace Xen {
 
 			line_verts = new float[max_lines_per_batch * 7];
 
+			verts = new float[10000];
+			indices = new uint32_t[10000];
+
 			quad_index = 0;
 			circle_quad_index = 0;
 			line_index = 0;
+			vertex_index = 0;
 
 			texture_slot_index = 1;
 		}
@@ -92,6 +109,10 @@ namespace Xen {
 	BufferLayout circleBufferLayout;
 	BufferLayout lineBufferLayout;
 
+	BufferLayout bufferLayout;
+
+	uint32_t stride_count = 15;
+
 	void Renderer2D::Init()
 	{
 		XEN_PROFILE_FN();
@@ -111,8 +132,29 @@ namespace Xen {
 		lineBufferLayout.AddBufferElement(BufferElement("aLinePosition", 5, 3, 0, BufferDataType::Float, false));
 		lineBufferLayout.AddBufferElement(BufferElement("aLineColor", 10, 4, 3, BufferDataType::Float, false));
 
+		bufferLayout.AddBufferElement(BufferElement("aPosition", 1, 3, 0, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aColor", 2, 4, 3, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aTextureWorldCoords", 3, 2, 7, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aP1", 4, 1, 9, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aP2", 5, 1, 10, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aP3", 6, 1, 11, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aP4", 7, 1, 12, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aP5", 8, 1, 13, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aPrimitiveType", 9, 1, 14, BufferDataType::Float, false));
+
 		white_texture =  Texture2D::CreateTexture2D(1, 1, &white_texture_data, sizeof(uint32_t));
 
+		s_Data.vertexArray = VertexArray::CreateVertexArray();
+		s_Data.vertexArray->Bind();
+
+		s_Data.vertexBuffer = Xen::FloatBuffer::CreateFloatBuffer(max_quads_per_batch * 40);
+		s_Data.vertexBuffer->SetBufferLayout(bufferLayout);
+		s_Data.indexBuffer = Xen::ElementBuffer::CreateElementBuffer(max_quads_per_batch * 6);
+
+		s_Data.vertexArray->SetVertexBuffer(s_Data.vertexBuffer);
+		s_Data.vertexArray->SetElementBuffer(s_Data.indexBuffer);
+
+		s_Data.vertexArray->Load(true);
 
 		// Quad-------------------------------------------------------------------------------------
 		s_Data.quadVertexArray = VertexArray::CreateVertexArray();
@@ -130,7 +172,7 @@ namespace Xen {
 		// Circle------------------------------------------------------------------------------------
 		s_Data.circleVertexArray = VertexArray::CreateVertexArray();
 		s_Data.circleVertexArray->Bind();
-		
+
 		s_Data.circleVertexBuffer = Xen::FloatBuffer::CreateFloatBuffer(max_quads_per_batch * 48);
 		s_Data.circleVertexBuffer->SetBufferLayout(circleBufferLayout);
 		s_Data.circleIndexBuffer = Xen::ElementBuffer::CreateElementBuffer(max_quads_per_batch * 6);
@@ -139,6 +181,8 @@ namespace Xen {
 		s_Data.circleVertexArray->SetElementBuffer(s_Data.circleIndexBuffer);
 
 		s_Data.circleVertexArray->Load(true);
+		//-------------------------------------------------------------------------------------------
+
 		//-------------------------------------------------------------------------------------------
 		// Line--------------------------------------------------------------------------------------
 		s_Data.lineVertexArray = VertexArray::CreateVertexArray();
@@ -161,8 +205,9 @@ namespace Xen {
 		s_Data.lineShader = Shader::CreateShader("assets/shaders/line_shader.shader");
 		s_Data.lineShader->LoadShader(lineBufferLayout);
 
-		ShaderLib::AddShader("QuadShader", s_Data.quadShader);
-		ShaderLib::AddShader("CircleShader", s_Data.circleShader);
+		s_Data.shader = Shader::CreateShader("assets/shaders/main_shader.shader");
+		s_Data.shader->LoadShader(bufferLayout);
+
 		ShaderLib::AddShader("LineShader", s_Data.lineShader);
 
 		batch_storage.push_back(std::make_shared<Renderer2DStorage>());
@@ -194,6 +239,8 @@ namespace Xen {
 			batch_storage[i]->quad_index = 0;
 			batch_storage[i]->circle_quad_index = 0;
 			batch_storage[i]->line_index = 0;
+			
+			batch_storage[i]->vertex_index = 0;
 
 			batch_storage[i]->texture_slot_index = 1;
 		}
@@ -284,40 +331,40 @@ namespace Xen {
 		}
 	}
 
-	void Renderer2D::DrawClearQuad(const Vec3& position, float rotation, const Vec2& scale, const Color& color)
-	{
-		XEN_PROFILE_FN();
-
-		// Deal with Vertices and Indices:
-		Renderer2D::AddQuad(position, Vec3(0.0f, 0.0f, rotation), Vec3(scale.x, scale.y, 1.0f));
-
-		// Texture Coodinates
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = 1.0f;
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 8] = 1.0f;
-
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 17] = 0.0f;
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 18] = 1.0f;
-
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 27] = 0.0f;
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 28] = 0.0f;
-
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f;
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
-		
-		// Color and texture ID:
-		for (int i = 0; i < 40; i += 10)
-		{
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = color.r;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = color.g;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = color.b;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = color.a;
-
-			// Setting the texture slot for out default white texture as 0:
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = 0.0f;
-		}
-
-		batch_storage[batch_index]->quad_index++;
-	}
+	//void Renderer2D::DrawClearQuad(const Vec3& position, float rotation, const Vec2& scale, const Color& color)
+	//{
+	//	XEN_PROFILE_FN();
+	//
+	//	// Deal with Vertices and Indices:
+	//	Renderer2D::AddQuad(position, Vec3(0.0f, 0.0f, rotation), Vec3(scale.x, scale.y, 1.0f));
+	//
+	//	// Texture Coodinates
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = 1.0f;
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 8] = 1.0f;
+	//
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 17] = 0.0f;
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 18] = 1.0f;
+	//
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 27] = 0.0f;
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 28] = 0.0f;
+	//
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f;
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
+	//	
+	//	// Color and texture ID:
+	//	for (int i = 0; i < 40; i += 10)
+	//	{
+	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = color.r;
+	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = color.g;
+	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = color.b;
+	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = color.a;
+	//
+	//		// Setting the texture slot for out default white texture as 0:
+	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = 0.0f;
+	//	}
+	//
+	//	batch_storage[batch_index]->quad_index++;
+	//}
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale, const Color& color)
 	{
@@ -339,6 +386,9 @@ namespace Xen {
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f;
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
 
+		//New Code:----------
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 7] = 
+
 		// Color and texture ID:
 		for (int i = 0; i < 40; i += 10)
 		{
@@ -354,11 +404,11 @@ namespace Xen {
 		batch_storage[batch_index]->quad_index++;
 	}
 
-	void Renderer2D::DrawClearQuad(const Vec3& position, float rotation, const Vec2& scale, const Color* color)
+	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale, const Color color[4])
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddQuad(position, Vec3(0.0f, 0.0f, rotation), Vec3(scale.x, scale.y, 1.0f));
+		Renderer2D::AddQuad(position, rotation, Vec3(scale.x, scale.y, 1.0f));
 
 		// Texture Coodinates
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = 1.0f;
@@ -636,7 +686,7 @@ namespace Xen {
 	*		--------
 	*		3		4
 	*/
-	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale)
+	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale, )
 	{
 		XEN_PROFILE_FN();
 
@@ -654,7 +704,11 @@ namespace Xen {
 		}
 
 		for (int i = 0; i < 6; i++)
+		{
 			batch_storage[batch_index]->quad_indices[(batch_storage[batch_index]->quad_index * 6) + i] = (batch_storage[batch_index]->quad_index * 4) + default_quad_indices[i];
+			// New code:
+			batch_storage[batch_index]->indices[batch_storage[batch_index]->vertex_index + i] = batch_storage[batch_index]->vertex_index + default_quad_indices[i];
+		}
 
 		// Vertices
 
@@ -662,15 +716,34 @@ namespace Xen {
 		{
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 0] = position.x + (0.5f * scale.x);
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 1] = position.y + (0.5f * scale.y);
-
+			
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 10] = position.x - (0.5f * scale.x);
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 11] = position.y + (0.5f * scale.y);
-
+			
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 20] = position.x - (0.5f * scale.x);
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 21] = position.y - (0.5f * scale.y);
-
+			
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 30] = position.x + (0.5f * scale.x);
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 31] = position.y - (0.5f * scale.y);
+
+			// New Code------
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+			//----------------
+
 
 			for (int i = 0; i < 4; i++)
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i * 10) + 2] = position.z;
@@ -688,6 +761,12 @@ namespace Xen {
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i * 10) + 0] = (transform * temp_vert[i]).x;
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i * 10) + 1] = (transform * temp_vert[i]).y;
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i * 10) + 2] = (transform * temp_vert[i]).z;
+
+				// New code------
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = (transform * temp_vert[i]).x;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = (transform * temp_vert[i]).y;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = (transform * temp_vert[i]).z;
+				// --------------
 			}
 		}
 		stats.quad_count++;

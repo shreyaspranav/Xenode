@@ -1,6 +1,6 @@
 #include <Xenode.h>
 #include <core/app/EntryPoint.h>
-#include "FlappyBird.h"
+//#include "FlappyBird.h"
 #include "Test.h"
 
 class ExampleLayer : public Xen::Layer
@@ -63,6 +63,7 @@ public:
 
 		window_title = "TestBed";
 		imgui_render = false;
+		vsync = 1;
 	}
 	void OnStart() override
 	{
