@@ -387,7 +387,7 @@ namespace Xen {
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
 
 		//New Code:----------
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 7] = 
+		//batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 7] = 
 
 		// Color and texture ID:
 		for (int i = 0; i < 40; i += 10)
