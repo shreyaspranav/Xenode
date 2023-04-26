@@ -31,6 +31,10 @@ namespace Xen {
 
 		glm::vec2 GetVec() const { return glm::vec2(x, y); }
 
+		Vec2 operator+(const Vec2& vec) { return Vec2(x + vec.x, y + vec.y); }
+		Vec2 operator-(const Vec2& vec) { return Vec2(x - vec.x, y - vec.y); }
+		Vec2 operator*(float val)		{ return Vec2(x * val, y * val); }
+
 	};
 
 	struct Vec3
@@ -45,6 +49,10 @@ namespace Xen {
 		Vec3(const glm::vec3& vec) : x(vec.x), y(vec.y), z(vec.z) {}
 
 		glm::vec3 GetVec() const { return glm::vec3(x, y, z); }
+
+		Vec3 operator+(const Vec3& vec) { return Vec3(x + vec.x, y + vec.y, z + vec.z); }
+		Vec3 operator-(const Vec3& vec) { return Vec3(x - vec.x, y - vec.y, z - vec.z); }
+		Vec3 operator*(float val)		{ return Vec3(x * val, y * val, z * val); }
 
 	};
 
@@ -61,5 +69,8 @@ namespace Xen {
 
 		glm::vec4 GetVec() const { return glm::vec4(x, y, z, w); }
 
+		Vec4 operator+(const Vec4& vec) { return Vec4(x + vec.x, y + vec.y, z + vec.z, w + vec.w); }
+		Vec4 operator-(const Vec4& vec) { return Vec4(x - vec.x, y - vec.y, z - vec.z, w - vec.w); }
+		Vec4 operator*(float val)		{ return Vec4(x * val, y * val, z * val, w * val); }
 	};
 }
