@@ -686,7 +686,7 @@ namespace Xen {
 	*		--------
 	*		3		4
 	*/
-	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale, )
+	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale)
 	{
 		XEN_PROFILE_FN();
 
