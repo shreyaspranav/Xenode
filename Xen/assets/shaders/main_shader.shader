@@ -17,8 +17,23 @@ uniform sampler2D tex[8];
 
 void main()
 {
-	//int tex_slot = int(TexSlot);
-	fragColor = color;
+	const int LINE		= 1 << 0;
+	const int TRIANGLE	= 1 << 1;
+	const int QUAD		= 1 << 2;
+	const int POLYGON	= 1 << 3;
+	const int CIRCLE	= 1 << 4;
+
+	int primitive_type = int(PrimitiveType);
+
+	vec4 output_color = vec4(1.0f, 0.0f, 1.0f, 1.0f);
+
+	if (primitive_type == QUAD)
+	{
+		int tex_slot = int(P1);
+		output_color = texture(tex[tex_slot], TextureWorldCoords) * color;
+	}
+
+	fragColor = output_color;;
 }
 
 #shadertype: vertex

@@ -61,6 +61,7 @@ namespace Xen {
 		float* verts;
 		uint32_t* indices;
 		uint32_t vertex_index;
+		uint32_t index_count;
 
 		float* line_verts;
 		uint32_t line_index;
@@ -78,13 +79,15 @@ namespace Xen {
 
 			line_verts = new float[max_lines_per_batch * 7];
 
-			verts = new float[10000];
-			indices = new uint32_t[10000];
+			verts = new float[max_quads_per_batch * 4 * 15];
+			indices = new uint32_t[max_quads_per_batch * 6];
 
 			quad_index = 0;
 			circle_quad_index = 0;
 			line_index = 0;
 			vertex_index = 0;
+
+			index_count = 0;
 
 			texture_slot_index = 1;
 		}
@@ -96,6 +99,11 @@ namespace Xen {
 
 			delete[] circle_quad_verts;
 			delete[] circle_quad_indices;
+
+			delete[] line_verts;
+
+			delete[] verts;
+			delete[] indices;
 		}
 	};
 
@@ -243,6 +251,8 @@ namespace Xen {
 			batch_storage[i]->vertex_index = 0;
 
 			batch_storage[i]->texture_slot_index = 1;
+			batch_storage[i]->index_count = 0;
+
 		}
 		batch_index = 0;
 		memset(&stats, 0, sizeof(Renderer2D::Renderer2DStatistics));
@@ -285,100 +295,75 @@ namespace Xen {
 
 		for (int i = 0; i <= batch_index; i++)
 		{
-			for (int j = 0; j < batch_storage[i]->textures.size(); j++)
-				batch_storage[i]->textures[j]->Bind(j);
+			//for (int j = 0; j < batch_storage[i]->textures.size(); j++)
+			//	batch_storage[i]->textures[j]->Bind(j);
+			//
+			//s_Data.lineVertexArray->Bind();
+			//s_Data.lineShader->Bind();
+			//
+			//s_Data.lineVertexBuffer->Put(batch_storage[i]->line_verts, batch_storage[i]->line_index * 14);
+			//s_Data.lineShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			//
+			//RenderCommand::DrawLines(s_Data.lineVertexArray, batch_storage[i]->line_index * 14);
+			//
+			//s_Data.quadVertexArray->Bind();
+			//s_Data.quadShader->Bind();
+			//
+			//s_Data.quadShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			//s_Data.quadShader->SetIntArray("tex", texture_slots, max_texture_slots);
+			//
+			//s_Data.quadVertexBuffer->Put(batch_storage[i]->quad_verts, batch_storage[i]->quad_index * 40);
+			//
+			//if (current_quad_index != batch_storage[i]->quad_index)
+			//	s_Data.quadIndexBuffer->Put(batch_storage[i]->quad_indices, batch_storage[i]->quad_index * 6);
+			//
+			//current_quad_index = batch_storage[i]->quad_index;
+			//stats.quad_indices_drawn = batch_storage[i]->quad_index * 6;
+			//
+			//RenderCommand::DrawIndexed(s_Data.quadVertexArray, (batch_storage[i]->quad_index) * 6);
+			//
+			//s_Data.circleVertexArray->Bind();
+			//s_Data.circleShader->Bind();
+			//
+			//s_Data.circleVertexBuffer->Put(batch_storage[i]->circle_quad_verts, batch_storage[i]->circle_quad_index * 48);
+			//
+			//if (current_circle_index != batch_storage[i]->circle_quad_index)
+			//	s_Data.circleIndexBuffer->Put(batch_storage[i]->circle_quad_indices, batch_storage[i]->circle_quad_index * 6);
+			//
+			//current_circle_index = batch_storage[i]->circle_quad_index;
+			//stats.circle_indices_drawn = batch_storage[i]->circle_quad_index * 6;
+			//
+			//s_Data.circleShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			//
+			//RenderCommand::DrawIndexed(s_Data.circleVertexArray, (batch_storage[i]->circle_quad_index) * 6);
 
-			s_Data.lineVertexArray->Bind();
-			s_Data.lineShader->Bind();
+			s_Data.vertexArray->Bind();
+			s_Data.shader->Bind();
 			
-			s_Data.lineVertexBuffer->Put(batch_storage[i]->line_verts, batch_storage[i]->line_index * 14);
-			s_Data.lineShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * 15);
 			
-			RenderCommand::DrawLines(s_Data.lineVertexArray, batch_storage[i]->line_index * 14);
-			
-			s_Data.quadVertexArray->Bind();
-			s_Data.quadShader->Bind();
-			
-			s_Data.quadShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-			s_Data.quadShader->SetIntArray("tex", texture_slots, max_texture_slots);
-			
-			s_Data.quadVertexBuffer->Put(batch_storage[i]->quad_verts, batch_storage[i]->quad_index * 40);
-			
-			if (current_quad_index != batch_storage[i]->quad_index)
-				s_Data.quadIndexBuffer->Put(batch_storage[i]->quad_indices, batch_storage[i]->quad_index * 6);
-			
-			current_quad_index = batch_storage[i]->quad_index;
-			stats.quad_indices_drawn = batch_storage[i]->quad_index * 6;
-			
-			RenderCommand::DrawIndexed(s_Data.quadVertexArray, (batch_storage[i]->quad_index) * 6);
-			
-			s_Data.circleVertexArray->Bind();
-			s_Data.circleShader->Bind();
-			
-			s_Data.circleVertexBuffer->Put(batch_storage[i]->circle_quad_verts, batch_storage[i]->circle_quad_index * 48);
-			
-			if (current_circle_index != batch_storage[i]->circle_quad_index)
-				s_Data.circleIndexBuffer->Put(batch_storage[i]->circle_quad_indices, batch_storage[i]->circle_quad_index * 6);
-			
-			current_circle_index = batch_storage[i]->circle_quad_index;
-			stats.circle_indices_drawn = batch_storage[i]->circle_quad_index * 6;
-			
-			s_Data.circleShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-			
-			RenderCommand::DrawIndexed(s_Data.circleVertexArray, (batch_storage[i]->circle_quad_index) * 6);
+			//if (current_circle_index != batch_storage[i]->circle_quad_index)
+			s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->index_count);
+			s_Data.shader->SetIntArray("tex", texture_slots, max_texture_slots);
 
-			//s_Data.vertexArray->Bind();
-			//s_Data.shader->Bind();
-			//
-			//s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * 15);
-			//
-			////if (current_circle_index != batch_storage[i]->circle_quad_index)
-			//s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->vertex_index * 6);
-			//
-			////current_circle_index = batch_storage[i]->circle_quad_index;
-			////stats.circle_indices_drawn = batch_storage[i]->circle_quad_index * 6;
-			//
-			//s_Data.shader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-			//RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->vertex_index * 6);
-			//
-			////stats.draw_calls += 3;
+			//current_circle_index = batch_storage[i]->circle_quad_index;
+			//stats.circle_indices_drawn = batch_storage[i]->circle_quad_index * 6;
+			
+			s_Data.shader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->index_count);
+
+			//std::cout << "======================================================================================\n";
+
+			//for (int j = 0; j < batch_storage[i]->index_count; j++)
+			//{
+			//	if (j % 6 == 0)
+			//		std::cout << "\n";
+			//	std::cout << batch_storage[i]->indices[j] << "\t";
+			//}
+
+			//stats.draw_calls += 3;
 		}
 	}
-
-	//void Renderer2D::DrawClearQuad(const Vec3& position, float rotation, const Vec2& scale, const Color& color)
-	//{
-	//	XEN_PROFILE_FN();
-	//
-	//	// Deal with Vertices and Indices:
-	//	Renderer2D::AddQuad(position, Vec3(0.0f, 0.0f, rotation), Vec3(scale.x, scale.y, 1.0f));
-	//
-	//	// Texture Coodinates
-	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = 1.0f;
-	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 8] = 1.0f;
-	//
-	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 17] = 0.0f;
-	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 18] = 1.0f;
-	//
-	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 27] = 0.0f;
-	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 28] = 0.0f;
-	//
-	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f;
-	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
-	//	
-	//	// Color and texture ID:
-	//	for (int i = 0; i < 40; i += 10)
-	//	{
-	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = color.r;
-	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = color.g;
-	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = color.b;
-	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = color.a;
-	//
-	//		// Setting the texture slot for out default white texture as 0:
-	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = 0.0f;
-	//	}
-	//
-	//	batch_storage[batch_index]->quad_index++;
-	//}
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale, const Color& color)
 	{
@@ -465,6 +450,39 @@ namespace Xen {
 
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f;
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
+
+		//New Code:----------
+
+		// Texture Coords
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+
+		batch_storage[batch_index]->vertex_index -= 4;
+
+		//Color and Texture ID:
+		for (int i = 0; i < 4; i++)
+		{
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color[i].r;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color[i].g;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color[i].b;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = color[i].a;
+		}
+		batch_storage[batch_index]->vertex_index -= 4;
+
+		for (int i = 0; i < 4; i++)
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = 0.0f;
+
+		//-----------------
+
 
 		// Color and texture ID:
 
@@ -750,8 +768,9 @@ namespace Xen {
 		{
 			batch_storage[batch_index]->quad_indices[(batch_storage[batch_index]->quad_index * 6) + i] = (batch_storage[batch_index]->quad_index * 4) + default_quad_indices[i];
 			// New code:
-			batch_storage[batch_index]->indices[batch_storage[batch_index]->vertex_index + i] = batch_storage[batch_index]->vertex_index + default_quad_indices[i];
+			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + i] = batch_storage[batch_index]->vertex_index + default_quad_indices[i];
 		}
+			batch_storage[batch_index]->index_count += 6;
 
 		// Vertices
 
@@ -818,6 +837,8 @@ namespace Xen {
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = (transform * temp_vert[i]).y;
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = (transform * temp_vert[i]).z;
 				// --------------
+
+				batch_storage[batch_index]->vertex_index -= 4;
 			}
 		}
 		stats.quad_count++;

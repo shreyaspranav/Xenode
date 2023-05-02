@@ -62,7 +62,7 @@ public:
 		window_height = 720;
 
 		window_title = "TestBed";
-		imgui_render = false;
+		imgui_render = true;
 		vsync = 1;
 	}
 	void OnStart() override

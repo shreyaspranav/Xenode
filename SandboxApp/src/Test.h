@@ -73,14 +73,13 @@ public:
 		m_Camera->Update(1);
 
 		Xen::Renderer2D::BeginScene(m_Camera);
-		//for (int i = 0; i < 10; i++) {
-		//	for (int j = 0; j < 10; j++) {
-		//		Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)i, (float)j, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(0.9f), Xen::Color(0.0f, 0.4f, 0.8f, 1.0f));
-		//	}
-		//}
+		for (int i = 0; i < quads; i++) {
+			for (int j = 0; j < quads; j++) {
+				Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)i, (float)j, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(0.9f), color);
+			}
+		}
 
-		Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)0.0f, (float)0.0f, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f), Xen::Color(0.0f, 0.4f, 0.8f, 1.0f));
-
+		//Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)0.0f, (float)0.0f, -1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f), color);
 
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
@@ -93,7 +92,11 @@ public:
 
 	void OnImGuiUpdate() override
 	{
+		ImGui::Begin("Test Window");
 
+		ImGui::SliderInt("Quads", &quads, 1, 30);
+
+		ImGui::End();
 	}
 
 	void OnRender() override
@@ -123,4 +126,13 @@ private:
 	int scroll_direction = 0;
 
 	Xen::EditorCameraController cam_control;
+
+	int32_t quads = 1;
+
+	Xen::Color color[4] = {
+		Xen::Color(1.0f, 0.0f, 0.0f, 1.0f),
+		Xen::Color(0.0f, 1.0f, 0.0f, 1.0f),
+		Xen::Color(0.0f, 0.0f, 1.0f, 1.0f),
+		Xen::Color(1.0f, 0.0f, 1.0f, 1.0f),
+	};
 };
