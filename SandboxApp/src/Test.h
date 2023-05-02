@@ -64,15 +64,18 @@ public:
 		m_Camera->Update();
 
 		Xen::Renderer2D::BeginScene(m_Camera);
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 10; j++) {
-				Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)i, (float)j, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(0.9f), Xen::Color(0.0f, 0.4f, 0.8f, 1.0f));
-			}
-		}
+		//for (int i = 0; i < 10; i++) {
+		//	for (int j = 0; j < 10; j++) {
+		//		Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)i, (float)j, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(0.9f), Xen::Color(0.0f, 0.4f, 0.8f, 1.0f));
+		//	}
+		//}
+
+		Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)0.0f, (float)0.0f, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f), Xen::Color(0.0f, 0.4f, 0.8f, 1.0f));
+
 
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
-				Xen::Renderer2D::DrawClearCircle(Xen::Vec3((float)i, (float)j, -0.2f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(0.5f, 0.5f, 1.0f), Xen::Color(1.0f, 0.4f, 0.8f, 1.0f), 0.4f, 1.0f, 0.03f);
+				//Xen::Renderer2D::DrawClearCircle(Xen::Vec3((float)i, (float)j, -0.2f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(0.5f, 0.5f, 1.0f), Xen::Color(1.0f, 0.4f, 0.8f, 1.0f), 0.4f, 1.0f, 0.03f);
 			}
 		}
 

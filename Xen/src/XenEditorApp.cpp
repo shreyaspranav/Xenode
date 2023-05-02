@@ -19,7 +19,7 @@ public:
 		imgui_always_render = 1;
 		fullscreen_monitor = 0;
 
-		vsync = 0;
+		vsync = false;
 	}
 
 	void OnStart() override

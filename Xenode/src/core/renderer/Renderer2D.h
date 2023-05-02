@@ -39,7 +39,7 @@ namespace Xen {
 
 		// Draw Functions:
 		static void DrawClearQuad(const Vec3& position, const Vec3& rotation = 0.0f, const Vec3& scale = Vec3(1.0f), const Color& color = Color());
-		static void DrawClearQuad(const Vec3& position, const Vec3& rotation = 0.0f, const Vec3& scale = Vec3(1.0f), const Color color[4] = {});
+		static void DrawClearQuad(const Vec3& position, const Vec3& rotation = 0.0f, const Vec3& scale = Vec3(1.0f), const Color color[4] = nullptr);
 		
 		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f), const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f);
 		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation = 0.0f, const Vec3& scale = Vec3(1.0f), const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f);

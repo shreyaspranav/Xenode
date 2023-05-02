@@ -285,49 +285,63 @@ namespace Xen {
 
 		for (int i = 0; i <= batch_index; i++)
 		{
-			//for (int j = 0; j < batch_storage[i]->textures.size(); j++)
-			//	batch_storage[i]->textures[j]->Bind(j);
+			for (int j = 0; j < batch_storage[i]->textures.size(); j++)
+				batch_storage[i]->textures[j]->Bind(j);
 
 			s_Data.lineVertexArray->Bind();
 			s_Data.lineShader->Bind();
-
+			
 			s_Data.lineVertexBuffer->Put(batch_storage[i]->line_verts, batch_storage[i]->line_index * 14);
 			s_Data.lineShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-
+			
 			RenderCommand::DrawLines(s_Data.lineVertexArray, batch_storage[i]->line_index * 14);
-
+			
 			s_Data.quadVertexArray->Bind();
 			s_Data.quadShader->Bind();
-
+			
 			s_Data.quadShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
 			s_Data.quadShader->SetIntArray("tex", texture_slots, max_texture_slots);
-
+			
 			s_Data.quadVertexBuffer->Put(batch_storage[i]->quad_verts, batch_storage[i]->quad_index * 40);
-
+			
 			if (current_quad_index != batch_storage[i]->quad_index)
 				s_Data.quadIndexBuffer->Put(batch_storage[i]->quad_indices, batch_storage[i]->quad_index * 6);
-
+			
 			current_quad_index = batch_storage[i]->quad_index;
 			stats.quad_indices_drawn = batch_storage[i]->quad_index * 6;
-
+			
 			RenderCommand::DrawIndexed(s_Data.quadVertexArray, (batch_storage[i]->quad_index) * 6);
-
+			
 			s_Data.circleVertexArray->Bind();
 			s_Data.circleShader->Bind();
-
+			
 			s_Data.circleVertexBuffer->Put(batch_storage[i]->circle_quad_verts, batch_storage[i]->circle_quad_index * 48);
-
+			
 			if (current_circle_index != batch_storage[i]->circle_quad_index)
 				s_Data.circleIndexBuffer->Put(batch_storage[i]->circle_quad_indices, batch_storage[i]->circle_quad_index * 6);
-
+			
 			current_circle_index = batch_storage[i]->circle_quad_index;
 			stats.circle_indices_drawn = batch_storage[i]->circle_quad_index * 6;
-
+			
 			s_Data.circleShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-
+			
 			RenderCommand::DrawIndexed(s_Data.circleVertexArray, (batch_storage[i]->circle_quad_index) * 6);
 
-			stats.draw_calls += 3;
+			//s_Data.vertexArray->Bind();
+			//s_Data.shader->Bind();
+			//
+			//s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * 15);
+			//
+			////if (current_circle_index != batch_storage[i]->circle_quad_index)
+			//s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->vertex_index * 6);
+			//
+			////current_circle_index = batch_storage[i]->circle_quad_index;
+			////stats.circle_indices_drawn = batch_storage[i]->circle_quad_index * 6;
+			//
+			//s_Data.shader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			//RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->vertex_index * 6);
+			//
+			////stats.draw_calls += 3;
 		}
 	}
 
@@ -387,7 +401,36 @@ namespace Xen {
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
 
 		//New Code:----------
-		//batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 7] = 
+
+		// Texture Coords
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+
+		batch_storage[batch_index]->vertex_index -= 4;
+
+		//Color and Texture ID:
+		for (int i = 0; i < 4; i++)
+		{
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color.r;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color.g;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color.b;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = color.a;
+		}
+		batch_storage[batch_index]->vertex_index -= 4;
+
+		for (int i = 0; i < 4; i++)
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = 0.0f;
+
+		//-----------------
 
 		// Color and texture ID:
 		for (int i = 0; i < 40; i += 10)
@@ -727,21 +770,29 @@ namespace Xen {
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 31] = position.y - (0.5f * scale.y);
 
 			// New Code------
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0 ] = position.x + (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1 ] = position.y + (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2 ] = position.z;
 
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0 ] = position.x - (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1 ] = position.y + (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2 ] = position.z;
 
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0 ] = position.x - (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1 ] = position.y - (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2 ] = position.z;
 
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0 ] = position.x + (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1 ] = position.y - (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2 ] = position.z;
+
+			batch_storage[batch_index]->vertex_index -= 4;
+
+			for(int i = 0; i < 4; i++)
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::QUAD;
+
+			batch_storage[batch_index]->vertex_index -= 4;
+
 			//----------------
 
 

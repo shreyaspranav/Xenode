@@ -4,9 +4,9 @@
 in vec4 color;
 in vec2 circleQuadWorldCoords;
 
-in float circleThickness;
-in float circleOuterFade;
-in float circleInnerFade;
+flat in float circleThickness;
+flat in float circleOuterFade;
+flat in float circleInnerFade;
 
 out vec4 fragColor;
 
@@ -48,9 +48,9 @@ in float aCircleInnerFade;
 out vec4 color;
 out vec2 circleQuadWorldCoords;
 
-out float circleThickness;
-out float circleOuterFade;
-out float circleInnerFade;
+flat out float circleThickness;
+flat out float circleOuterFade;
+flat out float circleInnerFade;
 
 uniform mat4 u_ViewProjectionMatrix;
 

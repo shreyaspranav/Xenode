@@ -18,7 +18,7 @@ uniform sampler2D tex[8];
 void main()
 {
 	//int tex_slot = int(TexSlot);
-	fragColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	fragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
 }
 
 #shadertype: vertex
