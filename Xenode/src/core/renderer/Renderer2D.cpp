@@ -365,7 +365,7 @@ namespace Xen {
 		}
 	}
 
-	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale, const Color& color)
+	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)
 	{
 		XEN_PROFILE_FN();
 
@@ -432,11 +432,11 @@ namespace Xen {
 		batch_storage[batch_index]->quad_index++;
 	}
 
-	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale, const Color color[4])
+	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4])
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddQuad(position, rotation, Vec3(scale.x, scale.y, 1.0f));
+		Renderer2D::AddQuad(position, rotation, scale);
 
 		// Texture Coodinates
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = 1.0f;
@@ -518,12 +518,12 @@ namespace Xen {
 	}
 
 
-	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, float rotation, const Vec2& scale, const Color& tintcolor, float tiling_factor)
+	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor, float tiling_factor, const float texture_coords[4])
 	{
 		XEN_PROFILE_FN();
 
 		// Deal with Vertices and Indices:
-		Renderer2D::AddQuad(position, Vec3(0.0f, 0.0f, rotation), Vec3(scale.x, scale.y, 1.0f));
+		Renderer2D::AddQuad(position, rotation, scale);
 
 		// Texture Coodinates
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = 1.0f * tiling_factor;
@@ -537,6 +537,47 @@ namespace Xen {
 
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = 1.0f * tiling_factor;
 		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = 0.0f;
+
+		//New Code:----------
+
+		// Texture Coords
+		if (texture_coords == nullptr)
+		{
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+		}
+
+		else {
+
+			for (int i = 0; i < 4; i++)
+			{
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = texture_coords[i] * tiling_factor;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = texture_coords[i] * tiling_factor;
+			}
+		}
+
+		batch_storage[batch_index]->vertex_index -= 4;
+
+		//Color:
+		for (int i = 0; i < 4; i++)
+		{
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = tintcolor.r;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = tintcolor.g;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = tintcolor.b;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = tintcolor.a;
+		}
+		batch_storage[batch_index]->vertex_index -= 4;
+
+		//-----------------
 
 
 		for (int i = 0; i < 40; i += 10)
@@ -563,10 +604,34 @@ namespace Xen {
 			for (int i = 0; i < 40; i += 10)
 				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = (float)std::distance(batch_storage[batch_index]->textures.begin(), itr);
 		}
+
+		// New Code:---------------
+
+		// Check to see if 'texture' is NOT in the vector
+		//std::vector<Ref<Texture2D>>::iterator itr = std::find(batch_storage[batch_index]->textures.begin(), batch_storage[batch_index]->textures.end(), texture);
+		itr = std::find(batch_storage[batch_index]->textures.begin(), batch_storage[batch_index]->textures.end(), texture);
+
+		if (itr == batch_storage[batch_index]->textures.end())
+		{
+			batch_storage[batch_index]->textures.push_back(texture);
+			//stats.texture_count++;
+
+			for (int i = 0; i < 4; i++)
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = batch_storage[batch_index]->textures.size() - 1;
+		}
+
+		else
+		{
+			for (int i = 0; i < 4; i++)
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = (float)std::distance(batch_storage[batch_index]->textures.begin(), itr);
+		}
+
+		// -------------------------------------
+
 		batch_storage[batch_index]->quad_index++;
 	}
 
-	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec3& scale, const Color& tintcolor, float tiling_factor)
+	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor, const float texture_coords[4])
 	{
 		XEN_PROFILE_FN();
 
@@ -588,11 +653,51 @@ namespace Xen {
 
 		for (int i = 0; i < 40; i += 10)
 		{
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = tintcolor.r;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = tintcolor.g;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = tintcolor.b;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = tintcolor.a;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = tintcolor[i].r;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = tintcolor[i].g;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = tintcolor[i].b;
+			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = tintcolor[i].a;
 		}
+
+		// New Code: --------------------------------------------
+		// Texture Coords
+		if (texture_coords == nullptr)
+		{
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+		}
+
+		else {
+
+			for (int i = 0; i < 4; i++)
+			{
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = texture_coords[i] * tiling_factor;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = texture_coords[i] * tiling_factor;
+			}
+		}
+
+		batch_storage[batch_index]->vertex_index -= 4;
+
+		//Color:
+		for (int i = 0; i < 4; i++)
+		{
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = tintcolor[i].r;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = tintcolor[i].g;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = tintcolor[i].b;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = tintcolor[i].a;
+		}
+		batch_storage[batch_index]->vertex_index -= 4;
+
+		//-----------------
 
 		// Check to see if 'texture' is NOT in the vector
 		std::vector<Ref<Texture2D>>::iterator itr = std::find(batch_storage[batch_index]->textures.begin(), batch_storage[batch_index]->textures.end(), texture);
@@ -613,59 +718,59 @@ namespace Xen {
 		batch_storage[batch_index]->quad_index++;
 	}
 
-	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const float* tex_coords, const Vec3& position, float rotation, const Vec2& scale, const Color& tintcolor, float tiling_factor)
-	{
-		XEN_PROFILE_FN();
+	//void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor, float tiling_factor, const float tex_coords[4])
+	//{
+	//	XEN_PROFILE_FN();
+	//
+	//	// Deal with Vertices and Indices:
+	//	Renderer2D::AddQuad(position, rotation, scale);
+	//
+	//	// Texture Coodinates
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = tex_coords[0] * tiling_factor;
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 8] = tex_coords[1] * tiling_factor;
+	//
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 17] = tex_coords[2] * tiling_factor;
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 18] = tex_coords[3] * tiling_factor;
+	//
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 27] = tex_coords[4] * tiling_factor;
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 28] = tex_coords[5] * tiling_factor;
+	//
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = tex_coords[6] * tiling_factor;
+	//	batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = tex_coords[7] * tiling_factor;
+	//
+	//
+	//	for (int i = 0; i < 40; i += 10)
+	//	{
+	//		//batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
+	//
+	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = tintcolor.r;
+	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = tintcolor.g;
+	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = tintcolor.b;
+	//		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = tintcolor.a;
+	//
+	//		//batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = (float)batch_storage[batch_index]->texture_slot_index;
+	//	}
+	//
+	//	std::vector<Ref<Texture2D>>::iterator itr = std::find(batch_storage[batch_index]->textures.begin(), batch_storage[batch_index]->textures.end(), texture);
+	//
+	//	if (itr == batch_storage[batch_index]->textures.end())
+	//	{
+	//		batch_storage[batch_index]->textures.push_back(texture);
+	//		//stats.texture_count++;
+	//		for (int i = 0; i < 40; i += 10)
+	//			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = batch_storage[batch_index]->textures.size() - 1;
+	//	}
+	//
+	//	else
+	//	{
+	//		for (int i = 0; i < 40; i += 10)
+	//			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = (float)std::distance(batch_storage[batch_index]->textures.begin(), itr);
+	//	}
+	//
+	//	batch_storage[batch_index]->quad_index++;
+	//}
 
-		// Deal with Vertices and Indices:
-		Renderer2D::AddQuad(position, rotation, Vec3(scale.x, scale.y, 1.0f));
-
-		// Texture Coodinates
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 7] = tex_coords[0] * tiling_factor;
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 8] = tex_coords[1] * tiling_factor;
-
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 17] = tex_coords[2] * tiling_factor;
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 18] = tex_coords[3] * tiling_factor;
-
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 27] = tex_coords[4] * tiling_factor;
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 28] = tex_coords[5] * tiling_factor;
-
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 37] = tex_coords[6] * tiling_factor;
-		batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 38] = tex_coords[7] * tiling_factor;
-
-
-		for (int i = 0; i < 40; i += 10)
-		{
-			//batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 2)] = position.z;
-
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 3)] = tintcolor.r;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 4)] = tintcolor.g;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 5)] = tintcolor.b;
-			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 6)] = tintcolor.a;
-
-			//batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = (float)batch_storage[batch_index]->texture_slot_index;
-		}
-
-		std::vector<Ref<Texture2D>>::iterator itr = std::find(batch_storage[batch_index]->textures.begin(), batch_storage[batch_index]->textures.end(), texture);
-
-		if (itr == batch_storage[batch_index]->textures.end())
-		{
-			batch_storage[batch_index]->textures.push_back(texture);
-			//stats.texture_count++;
-			for (int i = 0; i < 40; i += 10)
-				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = batch_storage[batch_index]->textures.size() - 1;
-		}
-
-		else
-		{
-			for (int i = 0; i < 40; i += 10)
-				batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + (i + 9)] = (float)std::distance(batch_storage[batch_index]->textures.begin(), itr);
-		}
-
-		batch_storage[batch_index]->quad_index++;
-	}
-
-	void Renderer2D::DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec3& scale, const Color& color, float thickness, float innerfade, float outerfade)
+	void Renderer2D::DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, float thickness, float innerfade, float outerfade)
 	{
 		XEN_PROFILE_FN();
 
@@ -689,6 +794,28 @@ namespace Xen {
 			batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + (i + 11)] = outerfade;
 
 		}
+
+		// New Code----------------------------------------
+		for (int i = 0; i < 4; i++)
+		{
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color.r;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color.g;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color.b;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 6] = color.a;
+
+			// Thickness
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 9 ] = thickness;
+
+			// Inner Fade
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 10] = innerfade;
+
+			// Outer Fade
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 11] = outerfade;
+
+		}
+
+
+		//-------------------------------------------------
 
 		batch_storage[batch_index]->circle_quad_index++;
 	}
@@ -747,7 +874,7 @@ namespace Xen {
 	*		--------
 	*		3		4
 	*/
-	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale)
+	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale)
 	{
 		XEN_PROFILE_FN();
 
@@ -789,25 +916,25 @@ namespace Xen {
 			batch_storage[batch_index]->quad_verts[(batch_storage[batch_index]->quad_index * 40) + 31] = position.y - (0.5f * scale.y);
 
 			// New Code------
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0 ] = position.x + (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1 ] = position.y + (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2 ] = position.z;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
 
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0 ] = position.x - (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1 ] = position.y + (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2 ] = position.z;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
 
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0 ] = position.x - (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1 ] = position.y - (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2 ] = position.z;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
 
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0 ] = position.x + (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1 ] = position.y - (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2 ] = position.z;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
 
 			batch_storage[batch_index]->vertex_index -= 4;
 
-			for(int i = 0; i < 4; i++)
+			for (int i = 0; i < 4; i++)
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::QUAD;
 
 			batch_storage[batch_index]->vertex_index -= 4;
@@ -824,7 +951,7 @@ namespace Xen {
 				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0))
 				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0))
 				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1))
-				* glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, scale.z));
+				* glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f));
 
 			for (int i = 0; i < 4; i++)
 			{
@@ -835,16 +962,19 @@ namespace Xen {
 				// New code------
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = (transform * temp_vert[i]).x;
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = (transform * temp_vert[i]).y;
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = (transform * temp_vert[i]).z;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 2] = (transform * temp_vert[i]).z;
+
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::QUAD;
+
 				// --------------
 
-				batch_storage[batch_index]->vertex_index -= 4;
 			}
+			batch_storage[batch_index]->vertex_index -= 4;
 		}
 		stats.quad_count++;
 	}
 
-	void Renderer2D::AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale)
+	void Renderer2D::AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale)
 	{
 		XEN_PROFILE_FN();
 
@@ -862,8 +992,14 @@ namespace Xen {
 		}
 
 		for (int i = 0; i < 6; i++)
+		{
 			batch_storage[batch_index]->circle_quad_indices[(batch_storage[batch_index]->circle_quad_index * 6) + i] = (batch_storage[batch_index]->circle_quad_index * 4) + default_quad_indices[i];
-			
+			// New code:
+			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + i] = batch_storage[batch_index]->vertex_index + default_quad_indices[i];
+		}
+
+		batch_storage[batch_index]->index_count += 6;
+
 		// Vertices
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 2] = position.x + (0.5f * scale.x);
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 3] = position.y + (0.5f * scale.y);
@@ -879,6 +1015,32 @@ namespace Xen {
 
 		for (int i = 0; i < 4; i++)
 			batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + (i * 12) + 4] = position.z;
+
+		// New Code------
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+
+		batch_storage[batch_index]->vertex_index -= 4;
+
+		for (int i = 0; i < 4; i++)
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::CIRCLE;
+
+		batch_storage[batch_index]->vertex_index -= 4;
+
+		// ---------------------------------------------------------
 		
 		// Circle World coordinates
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) +  0] = 1.0f;
@@ -892,6 +1054,23 @@ namespace Xen {
 
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 36] = 1.0f;
 		batch_storage[batch_index]->circle_quad_verts[(batch_storage[batch_index]->circle_quad_index * 48) + 37] = -1.0f;
+
+		// New Code:------------------------------------------------
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = -1.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = -1.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = -1.0f;
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = -1.0f;
+
+		batch_storage[batch_index]->vertex_index -= 4;
+		// -------------------------------------------------------------
 
 		stats.circle_count++;
 	}

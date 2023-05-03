@@ -152,13 +152,13 @@ namespace Xen {
 				if (spriteRenderer.texture == nullptr)
 					Renderer2D::DrawClearQuad(transform.position, 
 						transform.rotation, 
-						transform.scale, 
+						{ transform.scale.x, transform.scale.y },
 						spriteRenderer.color);
 				else
 					Renderer2D::DrawTexturedQuad(spriteRenderer.texture, 
 						transform.position, 
 						transform.rotation, 
-						transform.scale, 
+						{ transform.scale.x, transform.scale.y },
 						spriteRenderer.color,
 						spriteRenderer.texture_tile_factor);
 
@@ -169,7 +169,7 @@ namespace Xen {
 
 				Renderer2D::DrawClearCircle(transform.position, 
 					transform.rotation, 
-					transform.scale, 
+					{ transform.scale.x, transform.scale.y },
 					circleRenderer.color, 
 					circleRenderer.thickness, 
 					circleRenderer.inner_fade, 
@@ -242,13 +242,13 @@ namespace Xen {
 				if (spriteRenderer.texture == nullptr)
 					Renderer2D::DrawClearQuad(transform.position,
 						transform.rotation,
-						transform.scale,
+						{ transform.scale.x, transform.scale.y },
 						spriteRenderer.color);
 				else
 					Renderer2D::DrawTexturedQuad(spriteRenderer.texture,
 						transform.position,
 						transform.rotation,
-						transform.scale,
+						{ transform.scale.x, transform.scale.y },
 						spriteRenderer.color,
 						spriteRenderer.texture_tile_factor);
 
@@ -259,7 +259,7 @@ namespace Xen {
 
 				Renderer2D::DrawClearCircle(transform.position,
 					transform.rotation,
-					transform.scale,
+					{ transform.scale.x, transform.scale.y },
 					circleRenderer.color,
 					circleRenderer.thickness,
 					circleRenderer.inner_fade,

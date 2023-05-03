@@ -38,19 +38,18 @@ namespace Xen {
 		static void RenderFrame();
 
 		// Draw Functions:
-		static void DrawClearQuad(const Vec3& position, const Vec3& rotation = 0.0f, const Vec3& scale = Vec3(1.0f), const Color& color = Color());
-		static void DrawClearQuad(const Vec3& position, const Vec3& rotation = 0.0f, const Vec3& scale = Vec3(1.0f), const Color color[4] = nullptr);
+		static void DrawClearQuad(const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color& color = Color());
+		static void DrawClearQuad(const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color color[4] = nullptr);
 		
-		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f), const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f);
-		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation = 0.0f, const Vec3& scale = Vec3(1.0f), const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f);
-		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const float* tex_coords, const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f), const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f);
+		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f, const float tex_coords[4] = nullptr);
+		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color tintcolor[4] = nullptr, float tiling_factor = 1.0f, const float tex_coords[4] = nullptr);
 
 		static void DrawLine(const Vec3& p1, const Vec3& p2, const Color& color = Color(1.0f, 1.0f, 1.0f, 1.0f), float thickness = 1.0f);
 
 		//static void DrawClearPolygon(uint32_t segments, const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f));
 		static void DrawClearText(const Vec3& position, const Vec3& rotation, const Vec3& scale, const std::string& text, const Color& textColor);
 
-		static void DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec3& scale = Vec3(1.0f), const Color& color = Color(), float thickness = 1.0f, float innerfade = 0.0f, float outerfade = 0.0f);
+		static void DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale = 1.0f, const Color& color = Color(), float thickness = 1.0f, float innerfade = 0.0f, float outerfade = 0.0f);
 
 		static void SetLineWidth(float width);
 
@@ -58,8 +57,8 @@ namespace Xen {
 		static Renderer2DStatistics& GetStatistics();
 	
 	private:
-		static void AddQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale);
-		static void AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec3& scale);
+		static void AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale);
+		static void AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale);
 	};
 
 }

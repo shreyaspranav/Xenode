@@ -25,12 +25,37 @@ void main()
 
 	int primitive_type = int(PrimitiveType);
 
-	vec4 output_color = vec4(1.0f, 0.0f, 1.0f, 1.0f);
+	vec4 output_color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	if (primitive_type == QUAD)
 	{
 		int tex_slot = int(P1);
 		output_color = texture(tex[tex_slot], TextureWorldCoords) * color;
+	}
+
+	if (primitive_type == CIRCLE)
+	{
+		float circleThickness = P1;
+		float circleInnerFade = P2;
+		float circleOuterFade = P3;
+
+		float dist = 1.0 - distance(vec2(0.0, 0.0), TextureWorldCoords);
+
+		float outerFadeLayer = 0.0;
+		float thicknessLayer = 1.0;
+		float innerFadeLayer = 0.0;
+
+		if (dist < 0.0)
+			dist = 0.0;
+
+		outerFadeLayer = smoothstep(0.0, circleOuterFade * circleThickness, dist);
+
+		if (dist > circleThickness)
+			thicknessLayer = 0.0;
+
+		innerFadeLayer = smoothstep(circleThickness * (1.0 - circleInnerFade), circleThickness, dist);
+
+		output_color = vec4(1.0, 1.0, 1.0, (1.0 - innerFadeLayer) * thicknessLayer * outerFadeLayer) * color;
 	}
 
 	fragColor = output_color;
