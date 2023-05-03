@@ -81,7 +81,7 @@ public:
 		Xen::Renderer2D::BeginScene(m_Camera);
 		for (int i = 0; i < quads; i++) {
 			for (int j = 0; j < quads; j++) {
-				Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)i, (float)j, 0.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(0.9f), color);
+				Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)i, (float)j, 0.0f), Xen::Vec3(0.0f, 0.0f, 45.0f), Xen::Vec2(0.9f), color);
 			}
 		}
 
@@ -105,7 +105,7 @@ public:
 	{
 		ImGui::Begin("Test Window");
 
-		ImGui::SliderInt("Quads", &quads, 1, 30);
+		ImGui::SliderInt("Quads", &quads, 1, 201);
 		ImGui::SliderFloat("Thickness", &thickness, 0.0f, 1.0f);
 		ImGui::SliderFloat("Inner Fade", &innerfade, 0.0f, 1.0f);
 		ImGui::SliderFloat("Outer Fade", &outerfade, 0.0f, 1.0f);

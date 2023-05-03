@@ -15,16 +15,6 @@ namespace Xen {
 	{
 		Ref<Camera> camera;
 
-		Ref<VertexArray> quadVertexArray;
-		Ref<FloatBuffer> quadVertexBuffer;
-		Ref<ElementBuffer> quadIndexBuffer;
-		Ref<Shader> quadShader;
-
-		Ref<VertexArray> circleVertexArray;
-		Ref<FloatBuffer> circleVertexBuffer;
-		Ref<ElementBuffer> circleIndexBuffer;
-		Ref<Shader> circleShader;
-
 		Ref<VertexArray> lineVertexArray;
 		Ref<FloatBuffer> lineVertexBuffer;
 		Ref<Shader> lineShader;

@@ -63,7 +63,7 @@ public:
 
 		window_title = "TestBed";
 		imgui_render = true;
-		vsync = 1;
+		vsync = false;
 	}
 	void OnStart() override
 	{
