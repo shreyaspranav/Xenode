@@ -48,14 +48,14 @@ namespace Xen {
 		static void RenderFrame();
 
 		// Draw Functions:
-		static void DrawClearTriangle(const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color& color = Color());
-		static void DrawClearTriangle(const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color color[4] = nullptr);
+		static void DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());
+		static void DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[3]);
 
-		static void DrawClearQuad(const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color& color = Color());
-		static void DrawClearQuad(const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color color[4] = nullptr);
+		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());
+		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4]);
 		
-		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f, const float tex_coords[4] = nullptr);
-		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color tintcolor[4] = nullptr, float tiling_factor = 1.0f, const float tex_coords[4] = nullptr);
+		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f, const float tex_coords[4] = nullptr);
+		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor = 1.0f, const float tex_coords[4] = nullptr);
 
 		static void DrawLine(const Vec3& p1, const Vec3& p2, const Color& color = Color(1.0f, 1.0f, 1.0f, 1.0f), float thickness = 1.0f);
 
@@ -75,8 +75,11 @@ namespace Xen {
 		static void AddColorStatic(Primitive p, const Color& color);
 		static void AddColorArray(Primitive p, const Color* color);
 
+		static void AddTextureSlot(Primitive p, bool is_clear_color, const Ref<Texture2D>& texture = nullptr);
+
 		static void AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale);
 		static void AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale);
+		static void AddTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale);
 
 		static void JumpDeltaVertexIndex(uint32_t index_delta);
 	};

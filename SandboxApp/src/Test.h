@@ -81,15 +81,17 @@ public:
 		Xen::Renderer2D::BeginScene(m_Camera);
 		for (int i = 0; i < quads; i++) {
 			for (int j = 0; j < quads; j++) {
-				Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)i, (float)j, 0.0f), Xen::Vec3(0.0f, 0.0f, 45.0f), Xen::Vec2(0.9f), color);
+				//Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)i, (float)j, 0.0f), Xen::Vec3(0.0f, 0.0f, 45.0f), Xen::Vec2(0.9f), color);
 			}
 		}
 
 		//Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)0.0f, (float)0.0f, -1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f), color);
 
-		Xen::Renderer2D::DrawClearCircle(Xen::Vec3(0.0f, 0.0f, -1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(1.0f), Xen::Color(1.0f, 0.0f, 1.0f, 1.0f), thickness, innerfade, outerfade);
-		Xen::Renderer2D::DrawTexturedQuad(texture, Xen::Vec3(0.0f, 0.0f, 1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(2.4f, 1.0f), {1.0f, 0.0f, 0.0f, 1.0f});
-		Xen::Renderer2D::DrawTexturedQuad(texture1, Xen::Vec3(3.0f, 0.0f, 1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(2.4f, 1.0f), Xen::Color(1.0f));
+		//Xen::Renderer2D::DrawClearCircle(Xen::Vec3(0.0f, 0.0f, -1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(1.0f), Xen::Color(1.0f, 0.0f, 1.0f, 1.0f), thickness, innerfade, outerfade);
+		//Xen::Renderer2D::DrawTexturedQuad(texture, Xen::Vec3(0.0f, 0.0f, 1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(2.4f, 1.0f), {1.0f, 0.0f, 0.0f, 1.0f});
+		//Xen::Renderer2D::DrawTexturedQuad(texture1, Xen::Vec3(3.0f, 0.0f, 1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(2.4f, 1.0f), Xen::Color(1.0f));
+
+		Xen::Renderer2D::DrawClearTriangle({0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, z_Rotation}, scale, color);
 
 
 		for (int i = 0; i < 10; i++) {
@@ -105,10 +107,15 @@ public:
 	{
 		ImGui::Begin("Test Window");
 
-		ImGui::SliderInt("Quads", &quads, 1, 201);
-		ImGui::SliderFloat("Thickness", &thickness, 0.0f, 1.0f);
-		ImGui::SliderFloat("Inner Fade", &innerfade, 0.0f, 1.0f);
-		ImGui::SliderFloat("Outer Fade", &outerfade, 0.0f, 1.0f);
+		//ImGui::SliderInt("Quads", &quads, 1, 201);
+		//ImGui::SliderFloat("Thickness", &thickness, 0.0f, 1.0f);
+		//ImGui::SliderFloat("Inner Fade", &innerfade, 0.0f, 1.0f);
+		//ImGui::SliderFloat("Outer Fade", &outerfade, 0.0f, 1.0f);
+
+		ImGui::SliderFloat("Triangle Z rotation", &z_Rotation, 0.0f, 180.0f);
+		ImGui::SliderFloat("Scale X Triangle", &scale.x, 0.1f, 5.0f);
+		ImGui::SliderFloat("Scale Y Triangle", &scale.y, 0.1f, 5.0f);
+		//ImGui::ColorEdit4("Triangle Color", color.GetVec());
 
 		ImGui::End();
 	}
@@ -150,10 +157,15 @@ private:
 	float innerfade = 0.0f;
 	float outerfade = 0.0f;
 
-	Xen::Color color[4] = {
+	float z_Rotation = 0.0f;
+
+	Xen::Vec2 scale = { 1.0f, 1.0f };
+
+	//float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	Xen::Color color[3] = {
 		Xen::Color(1.0f, 0.0f, 0.0f, 1.0f),
 		Xen::Color(0.0f, 1.0f, 0.0f, 1.0f),
 		Xen::Color(0.0f, 0.0f, 1.0f, 1.0f),
-		Xen::Color(1.0f, 0.0f, 1.0f, 1.0f),
 	};
 };

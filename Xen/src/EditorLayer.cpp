@@ -89,7 +89,7 @@ void EditorLayer::OnUpdate(double timestep)
 	m_ViewportFrameBuffer->Bind();
 
 	Xen::RenderCommand::Clear();
-	Xen::RenderCommand::SetClearColor(Xen::Color(0.0f, 0.0f, 0.0f, 1.0f));
+	Xen::RenderCommand::SetClearColor(Xen::Color(0.13f, 0.13f, 0.13f, 1.0f));
 
 	m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
 	m_EditorCamera->LookAtPoint(m_EditorCameraController.GetFocalPoint());
