@@ -8,6 +8,16 @@ namespace Xen {
 	{
 	private:
 		static SceneData s_Data;
+
+		// Way of identifing each primitive: 
+		enum class Primitive {
+			LINE =		1 << 0,
+			TRIANGLE =	1 << 1,
+			QUAD =		1 << 2,
+			POLYGON =	1 << 3,
+			CIRCLE =	1 << 4,
+		};
+
 	public:
 		struct Renderer2DStatistics
 		{
@@ -38,6 +48,9 @@ namespace Xen {
 		static void RenderFrame();
 
 		// Draw Functions:
+		static void DrawClearTriangle(const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color& color = Color());
+		static void DrawClearTriangle(const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color color[4] = nullptr);
+
 		static void DrawClearQuad(const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color& color = Color());
 		static void DrawClearQuad(const Vec3& position, const Vec3& rotation = 0.0f, const Vec2& scale = 1.0f, const Color color[4] = nullptr);
 		
@@ -57,8 +70,15 @@ namespace Xen {
 		static Renderer2DStatistics& GetStatistics();
 	
 	private:
+		static void AddDefaultTextureCoords(Primitive p, float tiling_factor = 1.0f);
+
+		static void AddColorStatic(Primitive p, const Color& color);
+		static void AddColorArray(Primitive p, const Color* color);
+
 		static void AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale);
 		static void AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale);
+
+		static void JumpDeltaVertexIndex(uint32_t index_delta);
 	};
 
 }

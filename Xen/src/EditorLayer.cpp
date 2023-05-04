@@ -99,13 +99,13 @@ void EditorLayer::OnUpdate(double timestep)
 
 	// Line Rendering Test
 
-	Xen::RenderCommand::SetLineWidth(1.0f);
-
-	for (int i = -5; i < 6; i++)
-	{
-		Xen::Renderer2D::DrawLine(Xen::Vec3(-5.0f, i, 0.0f), Xen::Vec3(5.0f, i, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
-		Xen::Renderer2D::DrawLine(Xen::Vec3(i, -5.0f, 0.0f), Xen::Vec3(i, 5.0f, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
-	}
+	//Xen::RenderCommand::SetLineWidth(1.0f);
+	//
+	//for (int i = -5; i < 6; i++)
+	//{
+	//	Xen::Renderer2D::DrawLine(Xen::Vec3(-5.0f, i, 0.0f), Xen::Vec3(5.0f, i, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
+	//	Xen::Renderer2D::DrawLine(Xen::Vec3(i, -5.0f, 0.0f), Xen::Vec3(i, 5.0f, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
+	//}
 
 	Xen::Renderer2D::EndScene();
 	Xen::Renderer2D::RenderFrame();
@@ -242,7 +242,7 @@ void EditorLayer::OnImGuiUpdate()
 	
 	ImGui::Begin("Window Two");
 	ImGui::Text("Hello");
-	ImGui::Text("Framerate: %f", m_Timestep);
+	ImGui::Text("Frametime: %fms", m_Timestep);
 	ImGui::Text("This is some content");
 
 	ImGui::End();
@@ -335,7 +335,7 @@ void EditorLayer::OnImGuiUpdate()
 			break;
 		case GizmoOperation::Rotate3D:
 			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
-				ImGuizmo::ROTATE, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
+				ImGuizmo::ROTATE_Z, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
 			break;
 		case GizmoOperation::Scale:
 			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
@@ -367,20 +367,10 @@ void EditorLayer::OnImGuiUpdate()
 			entity_transform_comp.rotation.x += delta_rotation.x;
 			entity_transform_comp.rotation.y += delta_rotation.y;
 			entity_transform_comp.rotation.z += delta_rotation.z;
-			
+
 
 			entity_transform_comp.position = translation;
-			//entity_transform_comp.rotation = Xen::Vec3(deltar_rotation.x + entity_transform_comp.rotation.x,
-			//	deltar_rotation.y + entity_transform_comp.rotation.y,
-			//	deltar_rotation.z + entity_transform_comp.rotation.z);
-			//
-			//
 			entity_transform_comp.scale = scale;
-			//XEN_ENGINE_LOG_INFO("Translation: {0}, {1}, {2}", translation.x, translation.y, translation.z);
-			//XEN_ENGINE_LOG_INFO("Rotation: {0}, {1}, {2}", entity_transform_comp.rotation.x, entity_transform_comp.rotation.y, entity_transform_comp.rotation.z);
-			//XEN_ENGINE_LOG_INFO("Delta Rotation: {0}, {1}, {2}", delta_rotation.x, delta_rotation.y, delta_rotation.z);
-			//XEN_ENGINE_LOG_INFO("Scale: {0}, {1}, {2}", scale.delta_rotation.yx, scale.y, scale.z);
-
 		}
 
 		//ImGuizmo::DrawCubes(glm::value_ptr(camera_view), glm::value_ptr(camera_projection), glm::value_ptr(entity_transform), 1);
@@ -388,33 +378,6 @@ void EditorLayer::OnImGuiUpdate()
 
 	ImGui::End();
 	ImGui::PopStyleVar();
-
-	//ImGui::Begin("Renderer Stats");
-	//
-	//Xen::Renderer2D::Renderer2DStatistics& renderer_stats = Xen::Renderer2D::GetStatistics();
-	//
-	//ImGui::Text("Draw Calls: %d", renderer_stats.draw_calls);
-	//ImGui::Text("Quads Rendered: %d", renderer_stats.quad_count);
-	//ImGui::Text("Circles Rendered: %d", renderer_stats.circle_count);
-	//ImGui::Text("Unique Texture Objects: %d", renderer_stats.texture_count);
-	//
-	//ImGui::Separator();
-	//
-	//ImGui::Text("No. of Batches: %d batches", renderer_stats.batch_count);
-	//
-	//ImGui::Separator();
-	//
-	//ImGui::Text("Quad Vertex Buffer Size: %dB", renderer_stats.quad_vertex_buffer_size);
-	//ImGui::Text("Circle Vertex Buffer Size: %dB", renderer_stats.circle_vertex_buffer_size);
-	//ImGui::Text("Quad Index Buffer Size: %dB", renderer_stats.quad_index_buffer_size);
-	//ImGui::Text("Circle Index Buffer Size: %dB", renderer_stats.circle_index_buffer_size);
-	//
-	//ImGui::Separator();
-	//
-	//ImGui::Text("Quad Indices Drawn: %d vertices", renderer_stats.quad_indices_drawn);
-	//ImGui::Text("Circle Indices Drawn: %d vertices", renderer_stats.circle_indices_drawn);
-	//
-	//ImGui::End();
 }
 
 void EditorLayer::OnFixedUpdate()
@@ -435,7 +398,7 @@ void EditorLayer::OnMouseScrollEvent(Xen::MouseScrollEvent& event)
 
 void EditorLayer::OnMouseMoveEvent(Xen::MouseMoveEvent& event)
 {
-	//XEN_ENGINE_LOG_WARN("{0}, {1}", m_NormalizedViewportMouseCoordinates.x, m_NormalizedViewportMouseCoordinates.y);
+
 }
 
 void EditorLayer::OnMouseButtonPressEvent(Xen::MouseButtonPressEvent& event)

@@ -9,15 +9,6 @@
 
 namespace Xen {
 
-	// Way of identifing each primitive: 
-	enum class Primitive {
-		LINE	 = 1 << 0,
-		TRIANGLE = 1 << 1,
-		QUAD	 = 1 << 2,
-		POLYGON	 = 1 << 3,
-		CIRCLE	 = 1 << 4,
-	};
-
 	SceneData Renderer2D::s_Data;
 
 	// The maximum amount of quads or circles drawn per batch:
@@ -245,34 +236,17 @@ namespace Xen {
 		Renderer2D::AddQuad(position, rotation, scale);
 
 		// Texture Coords
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+		AddDefaultTextureCoords(Primitive::QUAD);
 
 		batch_storage[batch_index]->vertex_index -= 4;
 
-		//Color and Texture ID:
-		for (int i = 0; i < 4; i++)
-		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color.r;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color.g;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color.b;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = color.a;
-		}
+		//Color
+		AddColorStatic(Primitive::QUAD, color);
 		batch_storage[batch_index]->vertex_index -= 4;
 
+		// Texture ID:
 		for (int i = 0; i < 4; i++)
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = 0.0f;
-
-		//-----------------
 	}
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4])
@@ -281,37 +255,18 @@ namespace Xen {
 
 		Renderer2D::AddQuad(position, rotation, scale);
 
-		//New Code:----------
-
 		// Texture Coords
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+		AddDefaultTextureCoords(Primitive::QUAD);
 
 		batch_storage[batch_index]->vertex_index -= 4;
 
-		//Color and Texture ID:
-		for (int i = 0; i < 4; i++)
-		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color[i].r;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color[i].g;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color[i].b;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = color[i].a;
-		}
+		// Color: 
+		AddColorArray(Primitive::QUAD, color);
 		batch_storage[batch_index]->vertex_index -= 4;
 
+		// Texture:
 		for (int i = 0; i < 4; i++)
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = 0.0f;
-
-		//-----------------
 	}
 
 
@@ -324,19 +279,7 @@ namespace Xen {
 
 		// Texture Coords
 		if (texture_coords == nullptr)
-		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
-		}
+			AddDefaultTextureCoords(Primitive::QUAD, tiling_factor);
 
 		else {
 
@@ -349,17 +292,9 @@ namespace Xen {
 
 		batch_storage[batch_index]->vertex_index -= 4;
 
-		//Color:
-		for (int i = 0; i < 4; i++)
-		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = tintcolor.r;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = tintcolor.g;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = tintcolor.b;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = tintcolor.a;
-		}
+		// Color:
+		AddColorStatic(Primitive::QUAD, tintcolor);
 		batch_storage[batch_index]->vertex_index -= 4;
-
-		//-----------------
 
 		// Check to see if 'texture' is NOT in the vector
 		std::vector<Ref<Texture2D>>::iterator itr = std::find(batch_storage[batch_index]->textures.begin(), batch_storage[batch_index]->textures.end(), texture);
@@ -368,7 +303,6 @@ namespace Xen {
 		if (itr == batch_storage[batch_index]->textures.end())
 		{
 			batch_storage[batch_index]->textures.push_back(texture);
-			//stats.texture_count++;
 
 			for (int i = 0; i < 4; i++)
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = batch_storage[batch_index]->textures.size() - 1;
@@ -379,8 +313,6 @@ namespace Xen {
 			for (int i = 0; i < 4; i++)
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = (float)std::distance(batch_storage[batch_index]->textures.begin(), itr);
 		}
-
-		// -------------------------------------
 	}
 
 	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor, const float texture_coords[4])
@@ -390,23 +322,10 @@ namespace Xen {
 		Renderer2D::AddQuad(position, rotation, scale);
 
 		// Texture Coords
-		if (texture_coords == nullptr)
-		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
-		}
+		if(texture_coords == nullptr)
+			AddDefaultTextureCoords(Primitive::QUAD, tiling_factor);
 
 		else {
-
 			for (int i = 0; i < 4; i++)
 			{
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = texture_coords[i] * tiling_factor;
@@ -417,16 +336,8 @@ namespace Xen {
 		batch_storage[batch_index]->vertex_index -= 4;
 
 		//Color:
-		for (int i = 0; i < 4; i++)
-		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = tintcolor[i].r;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = tintcolor[i].g;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = tintcolor[i].b;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = tintcolor[i].a;
-		}
+		AddColorArray(Primitive::QUAD, tintcolor);
 		batch_storage[batch_index]->vertex_index -= 4;
-
-		// New Code:---------------
 
 		// Check to see if 'texture' is NOT in the vector
 		std::vector<Ref<Texture2D>>::iterator itr = std::find(batch_storage[batch_index]->textures.begin(), batch_storage[batch_index]->textures.end(), texture);
@@ -445,8 +356,6 @@ namespace Xen {
 			for (int i = 0; i < 4; i++)
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = (float)std::distance(batch_storage[batch_index]->textures.begin(), itr);
 		}
-
-		//-----------------
 	}
 
 	void Renderer2D::DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, float thickness, float innerfade, float outerfade)
@@ -455,7 +364,6 @@ namespace Xen {
 
 		Renderer2D::AddCircleQuad(position, rotation, scale);
 
-		// New Code----------------------------------------
 		for (int i = 0; i < 4; i++)
 		{
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color.r;
@@ -529,6 +437,78 @@ namespace Xen {
 	*		--------
 	*		3		4
 	*/
+
+	void Renderer2D::AddDefaultTextureCoords(Primitive primitive_type, float tiling_factor)
+	{
+		switch (primitive_type)
+		{
+		case Xen::Renderer2D::Primitive::TRIANGLE:
+			break;
+		case Xen::Renderer2D::Primitive::QUAD:
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+
+			break;
+		case Xen::Renderer2D::Primitive::POLYGON:
+			break;
+		default:
+			break;
+		}
+	}
+
+	void Renderer2D::AddColorStatic(Primitive primitive_type, const Color& color)
+	{
+		switch (primitive_type)
+		{
+		case Xen::Renderer2D::Primitive::TRIANGLE:
+			break;
+		case Xen::Renderer2D::Primitive::QUAD:
+			for (int i = 0; i < 4; i++)
+			{
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color.r;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color.g;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color.b;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = color.a;
+			}
+			break;
+		case Xen::Renderer2D::Primitive::POLYGON:
+			break;
+		default:
+			break;
+		}
+	}
+
+	void Renderer2D::AddColorArray(Primitive primitive_type, const Color* color)
+	{
+		switch (primitive_type)
+		{
+		case Xen::Renderer2D::Primitive::TRIANGLE:
+			break;
+		case Xen::Renderer2D::Primitive::QUAD:
+			for (int i = 0; i < 4; i++)
+			{
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color[i].r;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color[i].g;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color[i].b;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = color[i].a;
+			}
+			break;
+		case Xen::Renderer2D::Primitive::POLYGON:
+			break;
+		default:
+			break;
+		}
+	}
+
 	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale)
 	{
 		XEN_PROFILE_FN();
@@ -669,4 +649,6 @@ namespace Xen {
 
 		stats.circle_count++;
 	}
+
+	void Renderer2D::JumpDeltaVertexIndex(uint32_t index_delta) { batch_storage[batch_index]->vertex_index += index_delta; }
 }

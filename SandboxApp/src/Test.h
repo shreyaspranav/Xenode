@@ -87,10 +87,10 @@ public:
 
 		//Xen::Renderer2D::DrawClearQuad(Xen::Vec3((float)0.0f, (float)0.0f, -1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec3(1.0f), color);
 
-		//Xen::Renderer2D::DrawTexturedQuad(texture, Xen::Vec3(0.0f, 0.0f, 1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(2.4f, 1.0f), Xen::Color(1.0f));
-		//Xen::Renderer2D::DrawTexturedQuad(texture1, Xen::Vec3(3.0f, 0.0f, 1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(2.4f, 1.0f), Xen::Color(1.0f));
-
 		Xen::Renderer2D::DrawClearCircle(Xen::Vec3(0.0f, 0.0f, -1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(1.0f), Xen::Color(1.0f, 0.0f, 1.0f, 1.0f), thickness, innerfade, outerfade);
+		Xen::Renderer2D::DrawTexturedQuad(texture, Xen::Vec3(0.0f, 0.0f, 1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(2.4f, 1.0f), {1.0f, 0.0f, 0.0f, 1.0f});
+		Xen::Renderer2D::DrawTexturedQuad(texture1, Xen::Vec3(3.0f, 0.0f, 1.0f), Xen::Vec3(0.0f, 0.0f, 0.0f), Xen::Vec2(2.4f, 1.0f), Xen::Color(1.0f));
+
 
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
