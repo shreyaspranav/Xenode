@@ -7,6 +7,11 @@
 #include <pch/pch>
 
 namespace Xen {
+
+	enum class SpriteRendererPrimitive {
+		Triangle, Quad, Polygon
+	};
+
 	namespace Component {
 
 		struct Tag
@@ -34,6 +39,7 @@ namespace Xen {
 		struct SpriteRenderer
 		{
 			Color color;
+			SpriteRendererPrimitive primitive;
 			Ref<Texture2D> texture;
 
 			float texture_tile_factor;
@@ -41,7 +47,12 @@ namespace Xen {
 			SpriteRenderer() = default;
 			SpriteRenderer(const SpriteRenderer& transform) = default;
 
-			SpriteRenderer(const Color& color) : color(color), texture(nullptr), texture_tile_factor(1.0f) {}
+			SpriteRenderer(const Color& color, SpriteRendererPrimitive primitive = SpriteRendererPrimitive::Quad) 
+				: color(color), 
+				texture(nullptr), 
+				texture_tile_factor(1.0f), 
+				primitive(primitive) {}
+
 			SpriteRenderer(const Color& color, Ref<Texture2D> texture, float tile_factor = 1.0f) 
 				: color(color), texture(texture), texture_tile_factor(tile_factor) {}
 		};

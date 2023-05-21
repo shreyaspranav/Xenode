@@ -239,11 +239,29 @@ namespace Xen {
 			{
 				Component::SpriteRenderer& spriteRenderer = m_RenderableEntities[i].GetComponent<Component::SpriteRenderer>();
 
-				if (spriteRenderer.texture == nullptr)
-					Renderer2D::DrawClearQuad(transform.position,
-						transform.rotation,
-						{ transform.scale.x, transform.scale.y },
-						spriteRenderer.color);
+				if (spriteRenderer.texture == nullptr) {
+					switch (spriteRenderer.primitive)
+					{
+					case SpriteRendererPrimitive::Triangle:
+						Renderer2D::DrawClearTriangle(transform.position,
+							transform.rotation,
+							{ transform.scale.x, transform.scale.y },
+							spriteRenderer.color);
+						break;
+					case SpriteRendererPrimitive::Quad:
+						Renderer2D::DrawClearQuad(transform.position,
+							transform.rotation,
+							{ transform.scale.x, transform.scale.y },
+							spriteRenderer.color);
+						break;
+					case SpriteRendererPrimitive::Polygon:
+						// TODO: Renderer2D Implementation
+					default:
+						break;
+					}
+				}
+
+				// TODO: Primitive thing for the textured ones:
 				else
 					Renderer2D::DrawTexturedQuad(spriteRenderer.texture,
 						transform.position,

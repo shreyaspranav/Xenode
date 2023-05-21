@@ -22,6 +22,8 @@ public:
 
 	void OnImGuiRender()
 	{
+		ImGui::ShowDemoWindow();
+
 		//Ortho Camera
 		float z_near_point = 0.0f;
 		float z_far_point = 0.0f;
@@ -168,14 +170,13 @@ public:
 					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 
-					if (cam.camera->GetProjectionType() == Xen::CameraType::Perspective)
-						camera_index = 0;
-					else
-						camera_index = 1;
-
 					if (camera_index == 0)
 					{
-						cam.camera->SetProjectionType(Xen::CameraType::Perspective);
+						if (cam.camera->GetProjectionType() != Xen::CameraType::Perspective) 
+						{
+							camera_index = 1;
+							cam.camera->SetProjectionType(Xen::CameraType::Perspective);
+						}
 
 						PaddedText("Fov ", 0.0f, 3.0f);
 						ImGui::NextColumn();
@@ -207,7 +208,11 @@ public:
 
 					else if (camera_index == 1)
 					{
-						cam.camera->SetProjectionType(Xen::CameraType::Orthographic);
+						if (cam.camera->GetProjectionType() != Xen::CameraType::Orthographic)
+						{
+							camera_index = 0;
+							cam.camera->SetProjectionType(Xen::CameraType::Orthographic);
+						}
 
 						PaddedText("Z Near Clip ", 0.0f, 3.0f);
 						ImGui::NextColumn();
@@ -227,6 +232,11 @@ public:
 						ImGui::PopItemWidth();
 						ImGui::NextColumn();
 					}
+
+					if (cam.camera->GetProjectionType() == Xen::CameraType::Perspective)
+						camera_index = 0;
+					else
+						camera_index = 1;
 
 					PaddedText("Resizable", 0.0f, 3.0f);
 					ImGui::NextColumn();
@@ -273,13 +283,40 @@ public:
 						texture_file_path = (char*)spriteRenderer.texture->GetFilePath().c_str();
 
 					ImGui::Columns(2, "SpriteRenderer", false);
-					ImGui::SetColumnWidth(0, 80.0f);
+					ImGui::SetColumnWidth(0, 100.0f);
+
+					PaddedText("Sprite Type", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::Combo("##Sprite Type", &sprite_renderer_item_index, sprite_renderer_primitives, IM_ARRAYSIZE(sprite_renderer_primitives));
+					{
+						switch (sprite_renderer_item_index)
+						{
+						case 0:
+							spriteRenderer.primitive = Xen::SpriteRendererPrimitive::Triangle;
+							break;
+						case 1:
+							spriteRenderer.primitive = Xen::SpriteRendererPrimitive::Quad;
+							break;
+						case 2:
+							spriteRenderer.primitive = Xen::SpriteRendererPrimitive::Polygon;
+							break;
+						default:
+							break;
+						}
+					}
+					ImGui::PopItemWidth();
+
+					ImGui::NextColumn();
 
 					PaddedText("Sprite Color", 0.0f, 3.0f);
 					ImGui::NextColumn();
 
 					ImGui::PushItemWidth(-0.1f);
-					if (ImGui::ColorEdit4("##Sprite color", color))
+					ImGuiColorEditFlags color_edit_flags = ImGuiColorEditFlags_NoInputs;
+
+					if (ImGui::ColorEdit4("##Sprite color", color, color_edit_flags))
 					{
 						spriteRenderer.color.r = color[0];
 						spriteRenderer.color.g = color[1];
@@ -480,7 +517,11 @@ private:
 	inline static float a = 0.0f;
 	inline static float b = 0.0f;
 
+	int sprite_renderer_item_index = 1; // Sprite Renderer Item Index
+	const char* sprite_renderer_primitives[3] = { "Triangle", "Quad", "Polygon" };
+
 	int camera_index = 1; // 0: Perspective, 1: Orthographic
+	const char* camera_type[2] = {"Perspective", "Orthographic"};
 
 	float position[3] = {};
 
