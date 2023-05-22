@@ -39,7 +39,10 @@ namespace Xen {
 		struct SpriteRenderer
 		{
 			Color color;
+
 			SpriteRendererPrimitive primitive;
+			uint32_t polygon_segment_count = 5;
+
 			Ref<Texture2D> texture;
 
 			float texture_tile_factor;
@@ -47,10 +50,11 @@ namespace Xen {
 			SpriteRenderer() = default;
 			SpriteRenderer(const SpriteRenderer& transform) = default;
 
-			SpriteRenderer(const Color& color, SpriteRendererPrimitive primitive = SpriteRendererPrimitive::Quad) 
+			SpriteRenderer(const Color& color, SpriteRendererPrimitive primitive = SpriteRendererPrimitive::Quad, uint32_t polygon_segments = 4) 
 				: color(color), 
 				texture(nullptr), 
-				texture_tile_factor(1.0f), 
+				texture_tile_factor(1.0f),
+				polygon_segment_count(polygon_segments),
 				primitive(primitive) {}
 
 			SpriteRenderer(const Color& color, Ref<Texture2D> texture, float tile_factor = 1.0f) 

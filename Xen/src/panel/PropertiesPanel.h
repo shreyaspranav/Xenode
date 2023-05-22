@@ -283,7 +283,7 @@ public:
 						texture_file_path = (char*)spriteRenderer.texture->GetFilePath().c_str();
 
 					ImGui::Columns(2, "SpriteRenderer", false);
-					ImGui::SetColumnWidth(0, 100.0f);
+					ImGui::SetColumnWidth(0, 120.0f);
 
 					PaddedText("Sprite Type", 0.0f, 3.0f);
 					ImGui::NextColumn();
@@ -309,6 +309,18 @@ public:
 					ImGui::PopItemWidth();
 
 					ImGui::NextColumn();
+
+					if (sprite_renderer_item_index == 2)
+					{
+						PaddedText("Polygon Segments", 0.0f, 3.0f);
+						ImGui::NextColumn();
+
+						int s_count = spriteRenderer.polygon_segment_count;
+						if (ImGui::DragInt("##PolygonSegments", &s_count, 0.1f, 5, 50))
+							spriteRenderer.polygon_segment_count = s_count;
+
+						ImGui::NextColumn();
+					}
 
 					PaddedText("Sprite Color", 0.0f, 3.0f);
 					ImGui::NextColumn();

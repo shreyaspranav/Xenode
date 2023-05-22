@@ -256,6 +256,12 @@ namespace Xen {
 						break;
 					case SpriteRendererPrimitive::Polygon:
 						// TODO: Renderer2D Implementation
+						Renderer2D::DrawPolygon(transform.position,
+							transform.rotation,
+							{ transform.scale.x, transform.scale.y },
+							spriteRenderer.polygon_segment_count,
+							spriteRenderer.color);
+						break;
 					default:
 						break;
 					}

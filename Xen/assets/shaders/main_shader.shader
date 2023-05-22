@@ -27,7 +27,7 @@ void main()
 
 	vec4 output_color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	if (primitive_type == QUAD || primitive_type == TRIANGLE)
+	if (primitive_type == QUAD || primitive_type == TRIANGLE || primitive_type == POLYGON)
 	{
 		int tex_slot = int(P1);
 		output_color = texture(tex[tex_slot], TextureWorldCoords) * color;

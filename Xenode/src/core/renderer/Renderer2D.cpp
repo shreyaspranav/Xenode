@@ -378,14 +378,19 @@ namespace Xen {
 		XEN_PROFILE_FN();
 
 		Renderer2D::AddPolygon(position, rotation, scale, segments);
-		
-		
+
+		AddColorStatic(segments + 1, color);
+		JumpDeltaVertexIndex(-(segments + 1));
+
+		AddTextureSlot(segments + 1, true);
 	}
 	void Renderer2D::DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const std::vector<Color>& color)
 	{
 		XEN_PROFILE_FN();
 
 		Renderer2D::AddPolygon(position, rotation, scale, segments);
+
+		AddTextureSlot(segments + 1, true);
 	}
 
 	void Renderer2D::DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, float thickness, float innerfade, float outerfade)
@@ -508,9 +513,9 @@ namespace Xen {
 	{
 		for (int i = 0; i < vertex_count; i++)
 		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 3] = color.r;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 4] = color.g;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 5] = color.b;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color.r;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color.g;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color.b;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = color.a;
 		}
 	}
@@ -696,11 +701,6 @@ namespace Xen {
 		stats.circle_count++;
 	}
 
-	void Renderer2D::AddPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments)
-	{
-
-	}
-
 	void Renderer2D::AddTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale)
 	{
 		XEN_PROFILE_FN();
@@ -730,18 +730,96 @@ namespace Xen {
 
 		for (int32_t angle : angles)
 		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (cos(glm::radians(angle + rotation.z)) * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (sin(glm::radians(angle + rotation.z)) * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + cos(glm::radians(angle + rotation.z));
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + sin(glm::radians(angle + rotation.z));
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
 		}
 
 		JumpDeltaVertexIndex(-3);
+
+		glm::mat4 view_mat = glm::mat4(1.0f) *
+			glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0)) *
+			glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
+			glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f));
+
+		glm::vec4 vertex;
+
+		for (int i = 0; i < 3; i++)
+		{
+			vertex = glm::vec4(
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 0],
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 1],
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 2],
+				1.0f
+			);
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = (view_mat * vertex).x;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = (view_mat * vertex).y;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = (view_mat * vertex).z;
+		}
 
 		for (int i = 0; i < 3; i++)
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::TRIANGLE;
 
 		JumpDeltaVertexIndex(-3);
 
+	}
+
+	void Renderer2D::AddPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments)
+	{
+		if (batch_storage[batch_index]->vertex_index > max_vertices_per_batch - segments)
+		{
+			batch_index++;
+
+			// Increase the size of the vector if needed
+			if (batch_index >= batches_allocated)
+			{
+				batch_storage.push_back(std::make_shared<Renderer2DStorage>());
+				batch_storage[batch_index]->textures.push_back(white_texture);
+				batches_allocated = batch_index + 1;
+			}
+		}
+
+		// Polygon Renderering:
+		// No of Vertices: No of sides + 1
+		// No of Vertices: No of sides * 3
+		// Rendering like a triangle fan but with triangles
+
+		for (int i = 0; i < segments; i++)
+		{
+			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + (i * 3) + 0] = batch_storage[batch_index]->index_count;
+			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + (i * 3) + 1] = batch_storage[batch_index]->index_count + i + 1;
+			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + (i * 3) + 2] = batch_storage[batch_index]->index_count + i + 2;
+		}
+
+		batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + ((segments - 1) * 3) + 2] = batch_storage[batch_index]->index_count + 1;
+
+		batch_storage[batch_index]->index_count += segments * 3;
+
+		std::vector<float> angles;
+
+		for (int i = 1; i <= segments; i++)
+			angles.push_back((360.0f / segments) * i);
+
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y;
+		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+
+		for (float angle : angles)
+		{
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 0] = position.x + (cos(glm::radians(angle + rotation.z)) * scale.x);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 1] = position.y + (sin(glm::radians(angle + rotation.z)) * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 2] = position.z;
+
+
+			// Temp Tex Coords:
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = position.x + (cos(glm::radians(angle + rotation.z)) * scale.x + 1.0f);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 8] = position.y + (sin(glm::radians(angle + rotation.z)) * scale.y + 1.0f);
+
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::POLYGON;
+		}
+
+		JumpDeltaVertexIndex(-(segments + 1));
 	}
 
 	void Renderer2D::JumpDeltaVertexIndex(uint32_t index_delta) { batch_storage[batch_index]->vertex_index += index_delta; }
