@@ -121,21 +121,21 @@ public:
 
 			ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_DefaultOpen;
 
-			if (ImGui::TreeNodeEx((std::string(ICON_FA_CUBES) + std::string("  Transform")).c_str(), tree_flags))
+			if (ImGui::CollapsingHeader((std::string(ICON_FA_CUBES) + std::string("  Transform")).c_str(), tree_flags))
 			{
 				//PaddedText("Position ", 0.0f, 3.0f); ImGui::SameLine();
 				DrawVec3Control("Position", transform.position, 0.0f);
 				DrawVec3Control("Rotation", transform.rotation, 0.0f);
 				DrawVec3Control("Scale", transform.scale, 1.0f);
 
-				ImGui::TreePop();
+				//ImGui::TreePop();
 			}
-			ImGui::Separator();
+			//ImGui::Separator();
 
 			backOC:
 			if (m_SelectedEntity.HasAnyComponent<Xen::Component::CameraComp>())
 			{
-				if (ImGui::TreeNodeEx((std::string(ICON_FA_CAMERA) + std::string("  Camera")).c_str(), tree_flags))
+				if (ImGui::CollapsingHeader((std::string(ICON_FA_CAMERA) + std::string("  Camera")).c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 						ImGui::OpenPopup("DeleteComponent");
@@ -249,15 +249,15 @@ public:
 					ImGui::Checkbox("##Primary Camera", &cam.is_primary_camera);
 
 					ImGui::Columns(1);
-					ImGui::TreePop();
+					//ImGui::TreePop();
 				}
-				ImGui::Separator();
+				//ImGui::Separator();
 			}
 
 			backSR:
 			if (m_SelectedEntity.HasAnyComponent<Xen::Component::SpriteRenderer>())
 			{
-				if (ImGui::TreeNodeEx((std::string(ICON_FA_TREE) + std::string("  Sprite Renderer")).c_str(), tree_flags))
+				if (ImGui::CollapsingHeader((std::string(ICON_FA_TREE) + std::string("  Sprite Renderer")).c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 						ImGui::OpenPopup("DeleteComponent");
@@ -355,9 +355,9 @@ public:
 
 					ImGui::Columns(1);
 					
-					ImGui::TreePop();
+					//ImGui::TreePop();
 				}
-				ImGui::Separator();
+				//ImGui::Separator();
 			}
 
 			backCR:
@@ -365,7 +365,7 @@ public:
 			{
 				Xen::Component::CircleRenderer& circle_renderer = m_SelectedEntity.GetComponent<Xen::Component::CircleRenderer>();
 
-				if (ImGui::TreeNodeEx((std::string(ICON_FA_CIRCLE) + std::string("  Circle Renderer")).c_str(), tree_flags))
+				if (ImGui::CollapsingHeader((std::string(ICON_FA_CIRCLE) + std::string("  Circle Renderer")).c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 						ImGui::OpenPopup("DeleteComponent");
@@ -395,7 +395,9 @@ public:
 					ImGui::NextColumn();
 					
 					ImGui::PushItemWidth(-0.1f);
-					if (ImGui::ColorEdit4("##CircleColor", circle_color))
+
+					ImGuiColorEditFlags color_edit_flags = ImGuiColorEditFlags_NoInputs;
+					if (ImGui::ColorEdit4("##CircleColor", circle_color, color_edit_flags))
 					{
 						circle_renderer.color.r = circle_color[0];
 						circle_renderer.color.g = circle_color[1];
@@ -430,9 +432,9 @@ public:
 					ImGui::NextColumn();
 
 					ImGui::Columns(1);
-					ImGui::TreePop();
+					//ImGui::TreePop();
 				}
-				ImGui::Separator();
+				//ImGui::Separator();
 			}
 		}
 

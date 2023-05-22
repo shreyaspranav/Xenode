@@ -251,11 +251,11 @@ namespace Xen {
 		JumpDeltaVertexIndex(-3);
 
 		//Color
-		AddColorStatic(Primitive::TRIANGLE, color);
+		AddColorStatic(3, color);
 		JumpDeltaVertexIndex(-3);
 
 		// Texture ID:
-		AddTextureSlot(Primitive::TRIANGLE, true);
+		AddTextureSlot(3, true);
 	}
 
 	void Renderer2D::DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4])
@@ -270,11 +270,11 @@ namespace Xen {
 		JumpDeltaVertexIndex(-3);
 
 		//Color
-		AddColorArray(Primitive::TRIANGLE, color);
+		AddColorArray(3, color);
 		JumpDeltaVertexIndex(-3);
 
 		// Texture ID:
-		AddTextureSlot(Primitive::TRIANGLE, true);
+		AddTextureSlot(3, true);
 	}
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)
@@ -290,11 +290,11 @@ namespace Xen {
 		JumpDeltaVertexIndex(-4);
 
 		//Color
-		AddColorStatic(Primitive::QUAD, color);
+		AddColorStatic(4, color);
 		JumpDeltaVertexIndex(-4);
 
 		// Texture ID:
-		AddTextureSlot(Primitive::QUAD, true);
+		AddTextureSlot(4, true);
 	}
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[3])
@@ -309,11 +309,11 @@ namespace Xen {
 		JumpDeltaVertexIndex(-4);
 
 		// Color: 
-		AddColorArray(Primitive::QUAD, color);
+		AddColorArray(4, color);
 		JumpDeltaVertexIndex(-4);
 
 		// Texture:
-		AddTextureSlot(Primitive::QUAD, true);
+		AddTextureSlot(4, true);
 	}
 
 
@@ -340,10 +340,10 @@ namespace Xen {
 		JumpDeltaVertexIndex(-4);
 
 		// Color:
-		AddColorStatic(Primitive::QUAD, tintcolor);
+		AddColorStatic(4, tintcolor);
 		JumpDeltaVertexIndex(-4);
 
-		AddTextureSlot(Primitive::QUAD, false, texture);
+		AddTextureSlot(4, false, texture);
 	}
 
 	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor, const float texture_coords[4])
@@ -367,10 +367,25 @@ namespace Xen {
 		JumpDeltaVertexIndex(-4);
 
 		//Color:
-		AddColorArray(Primitive::QUAD, tintcolor);
+		AddColorArray(4, tintcolor);
 		JumpDeltaVertexIndex(-4);
 
-		AddTextureSlot(Primitive::QUAD, false, texture);
+		AddTextureSlot(4, false, texture);
+	}
+
+	void Renderer2D::DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const Color& color)
+	{
+		XEN_PROFILE_FN();
+
+		Renderer2D::AddPolygon(position, rotation, scale, segments);
+		
+		
+	}
+	void Renderer2D::DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const std::vector<Color>& color)
+	{
+		XEN_PROFILE_FN();
+
+		Renderer2D::AddPolygon(position, rotation, scale, segments);
 	}
 
 	void Renderer2D::DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, float thickness, float innerfade, float outerfade)
@@ -489,24 +504,9 @@ namespace Xen {
 		}
 	}
 
-	void Renderer2D::AddColorStatic(Primitive primitive_type, const Color& color)
+	void Renderer2D::AddColorStatic(uint8_t vertex_count, const Color& color)
 	{
-		uint8_t iteration_count = 0;
-		switch (primitive_type)
-		{
-		case Xen::Renderer2D::Primitive::TRIANGLE:
-			iteration_count = 3;
-			break;
-		case Xen::Renderer2D::Primitive::QUAD:
-			iteration_count = 4;
-			break;
-		case Xen::Renderer2D::Primitive::POLYGON:
-			break;
-		default:
-			break;
-		}
-
-		for (int i = 0; i < iteration_count; i++)
+		for (int i = 0; i < vertex_count; i++)
 		{
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 3] = color.r;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 4] = color.g;
@@ -515,24 +515,9 @@ namespace Xen {
 		}
 	}
 
-	void Renderer2D::AddColorArray(Primitive primitive_type, const Color* color)
+	void Renderer2D::AddColorArray(uint8_t vertex_count, const Color* color)
 	{
-		uint8_t iteration_count = 0;
-		switch (primitive_type)
-		{
-		case Xen::Renderer2D::Primitive::TRIANGLE:
-			iteration_count = 3;
-			break;
-		case Xen::Renderer2D::Primitive::QUAD:
-			iteration_count = 4;
-			break;
-		case Xen::Renderer2D::Primitive::POLYGON:
-			break;
-		default:
-			break;
-		}
-
-		for (int i = 0; i < iteration_count; i++)
+		for (int i = 0; i < vertex_count; i++)
 		{
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color[i].r;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color[i].g;
@@ -541,7 +526,7 @@ namespace Xen {
 		}
 	}
 
-	void Renderer2D::AddTextureSlot(Primitive primitive_type, bool is_clear_color, const Ref<Texture2D>& texture)
+	void Renderer2D::AddTextureSlot(uint8_t vertex_count, bool is_clear_color, const Ref<Texture2D>& texture)
 	{
 		if (!is_clear_color)
 		{
@@ -553,55 +538,20 @@ namespace Xen {
 				batch_storage[batch_index]->textures.push_back(texture);
 				//stats.texture_count++;
 
-				switch (primitive_type)
-				{
-				case Xen::Renderer2D::Primitive::TRIANGLE:
-					break;
-				case Xen::Renderer2D::Primitive::QUAD:
-					for (int i = 0; i < 4; i++)
-						batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = batch_storage[batch_index]->textures.size() - 1;
-					break;
-				case Xen::Renderer2D::Primitive::POLYGON:
-					break;
-				default:
-					break;
-				}
+				for (int i = 0; i < vertex_count; i++)
+					batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = batch_storage[batch_index]->textures.size() - 1;
 			}
 
 			else
 			{
-				switch (primitive_type)
-				{
-				case Xen::Renderer2D::Primitive::TRIANGLE:
-					break;
-				case Xen::Renderer2D::Primitive::QUAD:
-					for (int i = 0; i < 4; i++)
-						batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = (float)std::distance(batch_storage[batch_index]->textures.begin(), itr);
-					break;
-				case Xen::Renderer2D::Primitive::POLYGON:
-					break;
-				default:
-					break;
-				}
+				for (int i = 0; i < vertex_count; i++)
+					batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = (float)std::distance(batch_storage[batch_index]->textures.begin(), itr);
 			}
 		}
 
 		else {
-			switch (primitive_type)
-			{
-			case Xen::Renderer2D::Primitive::TRIANGLE:
-				for (int i = 0; i < 3; i++)
-					batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = 0.0f;
-				break;
-			case Xen::Renderer2D::Primitive::QUAD:
-				for (int i = 0; i < 4; i++)
-					batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = 0.0f;
-				break;
-			case Xen::Renderer2D::Primitive::POLYGON:
-				break;
-			default:
-				break;
-			}
+			for (int i = 0; i < vertex_count; i++)
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = 0.0f;
 		}
 	}
 
@@ -744,6 +694,11 @@ namespace Xen {
 		// -------------------------------------------------------------
 
 		stats.circle_count++;
+	}
+
+	void Renderer2D::AddPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments)
+	{
+
 	}
 
 	void Renderer2D::AddTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale)
