@@ -11,19 +11,26 @@ namespace Xen {
 		virtual ~OpenGLFrameBuffer();
 
 		void Invalidate();
+
+		void CreateTextures();
+
 		void Resize(uint32_t width, uint32_t height) override;
 
 		void Bind() override;
 		void Unbind() override;
 
-		uint32_t GetColorAttachmentRendererID() const override;
+		uint32_t GetColorAttachmentRendererID(uint32_t index) const override;
 
 		const FrameBufferSpec& GetFrameBufferSpecification() const override { return m_Spec; }
 
 	private:
 		uint32_t m_FrameBufferID;
-		uint32_t m_ColorAttachmentT, m_DepthAttachmentT;
-		bool frame_buffer_created = 0;
+
+		std::vector<uint32_t> m_ColorAttachments;
+		uint32_t m_DepthAttachmentT;
+
+		bool m_FrameBufferCreated = false;
+		bool m_Multisampled = false;
 
 		FrameBufferSpec m_Spec;
 	};

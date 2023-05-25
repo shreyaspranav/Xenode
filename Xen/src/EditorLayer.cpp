@@ -30,6 +30,10 @@ void EditorLayer::OnAttach()
 	Xen::FrameBufferSpec specs;
 	specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
 	specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
+	specs.samples = 1;
+
+	specs.attachments = { Xen::FrameBufferTextureFormat::RGB8,  
+		Xen::FrameBufferTextureFormat::Depth24_Stencil8 };
 
 	input = Xen::Input::GetInputInterface();
 	input->SetWindow(Xen::DesktopApplication::GetWindow());
@@ -270,7 +274,7 @@ void EditorLayer::OnImGuiUpdate()
 	}
 	m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
 
-	ImGui::Image((void*)m_ViewportFrameBuffer->GetColorAttachmentRendererID(), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::Image((void*)m_ViewportFrameBuffer->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
 
 	// Gizmos: 
 	Xen::Entity selectedEntity = hier_panel.GetSelectedEntity();

@@ -11,118 +11,162 @@
 namespace Xen {
 	OpenGLFrameBuffer::OpenGLFrameBuffer(const FrameBufferSpec& spec) : m_Spec(spec)
 	{
-		Invalidate();
+		m_DepthAttachmentT = 0;
+		OpenGLFrameBuffer::Invalidate();	
 	}
 	OpenGLFrameBuffer::~OpenGLFrameBuffer()
 	{
-		if(OpenGLContext::GetOpenGLVersion() == OpenGLVersion::XEN_OPENGL_API_2_0)
-			glDeleteFramebuffersEXT(1, &m_FrameBufferID);
-		else
-			glDeleteFramebuffers(1, &m_FrameBufferID);
+		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
+
+		if(m_DepthAttachmentT)
+			glDeleteTextures(1, &m_DepthAttachmentT);
+
+		glDeleteFramebuffers(1, &m_FrameBufferID);
 	}
 
 	void OpenGLFrameBuffer::Invalidate()
 	{
 		XEN_PROFILE_FN();
 
-		if (!frame_buffer_created)
-		{
+		OpenGLFrameBuffer::CreateTextures();
 
-			if (OpenGLContext::GetOpenGLVersion() == OpenGLVersion::XEN_OPENGL_API_2_0)
-			{
-				glGenFramebuffersEXT(1, &m_FrameBufferID);
-				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_FrameBufferID);
-			}
-			else
-			{
-				glGenFramebuffers(1, &m_FrameBufferID);
-				glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
-			}
-			
-			if (OpenGLContext::GetOpenGLVersion() >= OpenGLVersion::XEN_OPENGL_API_4_5)
-			{
-				glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorAttachmentT);
-				glBindTexture(GL_TEXTURE_2D, m_ColorAttachmentT);
-				glTextureStorage2D(m_ColorAttachmentT, 1, GL_RGB8, m_Spec.width, m_Spec.height);
-
-				glTextureParameteri(m_ColorAttachmentT, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // was TexParameter
-				glTextureParameteri(m_ColorAttachmentT, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				glTextureParameteri(m_ColorAttachmentT, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTextureParameteri(m_ColorAttachmentT, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-				glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachmentT);
-				glBindTexture(GL_TEXTURE_2D, m_DepthAttachmentT);
-				// glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, m_Spec.width, m_Spec.height); <-- Was this
-				glTextureStorage2D(m_DepthAttachmentT, 1, GL_DEPTH24_STENCIL8, m_Spec.width, m_Spec.height);
-
-				glTextureParameteri(m_ColorAttachmentT, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // was TexParameter
-				glTextureParameteri(m_ColorAttachmentT, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				glTextureParameteri(m_ColorAttachmentT, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTextureParameteri(m_ColorAttachmentT, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-				glBindTexture(GL_TEXTURE_2D, 0);
-			}
-
-			else
-			{
-				glGenTextures(1, &m_ColorAttachmentT);
-				glBindTexture(GL_TEXTURE_2D, m_ColorAttachmentT);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, m_Spec.width, m_Spec.height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-				glGenTextures(1, &m_DepthAttachmentT);
-				glBindTexture(GL_TEXTURE_2D, m_DepthAttachmentT);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_Spec.width, m_Spec.height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
-				glBindTexture(GL_TEXTURE_2D, 0);
-			}
-			if (OpenGLContext::GetOpenGLVersion() == OpenGLVersion::XEN_OPENGL_API_2_0)
-			{
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachmentT, 0);
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachmentT, 0);
-
-				if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
-				{
-					XEN_ENGINE_LOG_ERROR("FrameBuffer is imcomplete!");
-					TRIGGER_BREAKPOINT;
-				}
-				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-			}
-			else
-			{
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachmentT, 0);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachmentT, 0);
-
-				if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-				{
-					XEN_ENGINE_LOG_ERROR("FrameBuffer is imcomplete!");
-					TRIGGER_BREAKPOINT;
-				}
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			}
-
-			frame_buffer_created = 1;
+		if (!m_FrameBufferCreated) {
+			glCreateFramebuffers(1, &m_FrameBufferID);
+			m_FrameBufferCreated = true;
 		}
 		else {
+			// Delete Textures? But seems to work fine without it.
+		}
 
-			if (OpenGLContext::GetOpenGLVersion() >= OpenGLVersion::XEN_OPENGL_API_4_5)
-			{
-				glTextureStorage2D(m_ColorAttachmentT, 1, GL_DEPTH24_STENCIL8, m_Spec.width, m_Spec.height);
-				glTextureStorage2D(m_ColorAttachmentT, 1, GL_RGB8, m_Spec.width, m_Spec.height);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachmentT, 0);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachmentT, 0);
+		for (int i = 0; i < m_ColorAttachments.size(); i++)
+			glNamedFramebufferTexture(m_FrameBufferID, GL_COLOR_ATTACHMENT0 + i, m_ColorAttachments[i], 0);
+		if (m_DepthAttachmentT)
+			glNamedFramebufferTexture(m_FrameBufferID, GL_DEPTH_STENCIL_ATTACHMENT, m_DepthAttachmentT, 0);
+
+
+		if (m_ColorAttachments.size() >= 1)
+		{
+			GLenum draw_buffers[4] = {
+				GL_COLOR_ATTACHMENT0,
+				GL_COLOR_ATTACHMENT1,
+				GL_COLOR_ATTACHMENT2,
+				GL_COLOR_ATTACHMENT3,
+			};
+			glNamedFramebufferDrawBuffers(m_FrameBufferID, m_ColorAttachments.size(), draw_buffers);
+		}
+
+		if (glCheckNamedFramebufferStatus(m_FrameBufferID, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			XEN_ENGINE_LOG_ERROR_SEVERE("Framebuffer Not Complete!");
+			TRIGGER_BREAKPOINT;
+		}
+	}
+
+	void SetupTexture(uint32_t texture_id, uint32_t width, uint32_t height, GLenum internal_format, GLenum format, FrameBufferFiltering filtering, uint32_t samples)
+	{
+		if (samples > 1)
+			glTextureStorage2DMultisample(texture_id, samples, internal_format, width, height, GL_FALSE);
+		else
+		{
+			glTextureStorage2D(texture_id, 1, internal_format, width, height);
+
+			glTextureParameteri(texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+			glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, filtering == FrameBufferFiltering::Linear ? GL_LINEAR : GL_NEAREST);
+			glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, filtering == FrameBufferFiltering::Linear ? GL_LINEAR : GL_NEAREST);
+		}
+	}
+
+	void OpenGLFrameBuffer::CreateTextures()
+	{
+		uint8_t color_attachment_count = 0, depth_attachment_count = 0;
+		uint8_t depth_att_index = 0;
+
+		for (int i = 0; i < m_Spec.attachments.size(); i++) 
+		{
+			if (m_Spec.attachments[i].format <= FrameBufferTextureFormat::ColorAttachment_Last)
+				color_attachment_count++;
+			else {
+				depth_att_index = i;
+				depth_attachment_count++;
 			}
+		}
 
-			//glTextureStorage2D(m_ColorAttachmentT, 1, GL_RGB8, m_Spec.width, m_Spec.height);
-			//glBindTexture(GL_TEXTURE_2D, m_ColorAttachmentT);
-			//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, m_Spec.width, m_Spec.height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-			//glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachmentT, 0);
-			//glBindTexture(GL_TEXTURE_2D, 0);
+		// Make sure that the depth buffer count is either 1 or 0
+		if (depth_attachment_count > 1) 
+		{
+			XEN_ENGINE_LOG_ERROR("Multiple depth attachements not supported by OpenGL!");
+			TRIGGER_BREAKPOINT;
+		}
+
+		if (color_attachment_count > 4)
+		{
+			XEN_ENGINE_LOG_ERROR("Color attachments exceeded 4");
+			TRIGGER_BREAKPOINT;
+		}
+
+		// Check to See if the textures are multisampled from the Framebuffer Specification
+		m_Multisampled = m_Spec.samples > 1;
+		
+		m_ColorAttachments.resize(color_attachment_count);
+
+		// Create the textures:
+		glCreateTextures(m_Multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, 
+			color_attachment_count, 
+			m_ColorAttachments.data());
+
+		if(depth_attachment_count)
+			glCreateTextures(m_Multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, 
+				depth_attachment_count, 
+				&m_DepthAttachmentT);
+
+		uint8_t color_att_index = 0;
+
+		for (int i = 0; i < m_Spec.attachments.size(); i++)
+		{
+			switch (m_Spec.attachments[i].format)
+			{
+			case FrameBufferTextureFormat::None:
+				XEN_ENGINE_LOG_ERROR("Framebuffer Format None is not supported!");
+				TRIGGER_BREAKPOINT;
+				break;
+			case FrameBufferTextureFormat::RI:
+				break;
+			case FrameBufferTextureFormat::RGB8:
+				SetupTexture(m_ColorAttachments[color_att_index],
+					m_Spec.width, m_Spec.height,
+					GL_RGB8,
+					GL_RGBA,
+					m_Spec.attachments[i].filtering,
+					m_Spec.samples);
+				break;
+			case FrameBufferTextureFormat::RGB16F:
+				break;
+			case FrameBufferTextureFormat::RGB32F:
+				break;
+			default:
+				break;
+			}
+			color_att_index++;
+		}
+		
+		if (depth_attachment_count) {
+			switch (m_Spec.attachments[depth_att_index].format)
+			{
+			case FrameBufferTextureFormat::Depth24_Stencil8:
+				SetupTexture(m_DepthAttachmentT,
+					m_Spec.width, m_Spec.height,
+					GL_DEPTH24_STENCIL8,
+					GL_DEPTH24_STENCIL8,
+					m_Spec.attachments[depth_att_index].filtering,
+					m_Spec.samples);
+				break;
+			case FrameBufferTextureFormat::Depth32F_Stencil8:
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
@@ -136,23 +180,22 @@ namespace Xen {
 	void OpenGLFrameBuffer::Bind()
 	{
 		XEN_PROFILE_FN();
-
-		if (OpenGLContext::GetOpenGLVersion() == OpenGLVersion::XEN_OPENGL_API_2_0)
-			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_FrameBufferID);
-		else
-			glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
 	}
+
 	void OpenGLFrameBuffer::Unbind()
 	{
 		XEN_PROFILE_FN();
-
-		if (OpenGLContext::GetOpenGLVersion() == OpenGLVersion::XEN_OPENGL_API_2_0)
-			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		else
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
-	uint32_t OpenGLFrameBuffer::GetColorAttachmentRendererID() const
+
+	uint32_t OpenGLFrameBuffer::GetColorAttachmentRendererID(uint32_t index) const
 	{
-		return m_ColorAttachmentT;
+		if (index > m_ColorAttachments.size() - 1)
+		{
+			XEN_ENGINE_LOG_ERROR("\'index\' out of range");
+			TRIGGER_BREAKPOINT;
+		}
+		return m_ColorAttachments[index];
 	}
 }

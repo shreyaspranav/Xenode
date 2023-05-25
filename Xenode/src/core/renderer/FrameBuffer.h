@@ -4,10 +4,44 @@
 
 namespace Xen {
 
+	enum class FrameBufferTextureFormat
+	{
+		None = 0,
+
+		// Color Attachments:
+		RI		= 1,
+		RGB8	= 2,
+		RGB16F	= 3,
+		RGB32F	= 4,
+
+		ColorAttachment_Last = RGB32F,
+
+		// Depth Attachements:
+		Depth24_Stencil8   = 7,
+		Depth32F_Stencil8  = 8,
+
+		DepthAttachment_Last = Depth24_Stencil8
+	};
+
+	enum class FrameBufferFiltering { Linear, Nearest };
+
+	struct FrameBufferAttachmentSpec
+	{
+		FrameBufferAttachmentSpec() = default;
+		FrameBufferAttachmentSpec(FrameBufferTextureFormat tex_format)
+			:format(tex_format) {}
+
+		FrameBufferTextureFormat format = FrameBufferTextureFormat::None;
+		FrameBufferFiltering filtering = FrameBufferFiltering::Linear;
+
+		bool resizable = false;
+	};
+
 	struct FrameBufferSpec
 	{
 		uint32_t width, height;
-		uint32_t samples = 1;
+		std::vector<FrameBufferAttachmentSpec> attachments;
+		uint8_t samples = 1;
 
 		bool target_swap_chain = false;
 	};
@@ -24,7 +58,7 @@ namespace Xen {
 
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 
-		virtual uint32_t GetColorAttachmentRendererID() const = 0;
+		virtual uint32_t GetColorAttachmentRendererID(uint32_t index) const = 0;
 
 		static Ref<FrameBuffer> CreateFrameBuffer(const FrameBufferSpec& spec);
 	};
