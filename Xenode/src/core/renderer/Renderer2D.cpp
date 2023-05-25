@@ -728,10 +728,12 @@ namespace Xen {
 		angles.push_back(-150);
 		angles.push_back(-30);
 
+		float one_over_root_two = sqrt(2.0) / 2.0;
+
 		for (int32_t angle : angles)
 		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + cos(glm::radians(angle + rotation.z));
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + sin(glm::radians(angle + rotation.z));
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + cos(glm::radians(angle + rotation.z)) * one_over_root_two;
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + sin(glm::radians(angle + rotation.z)) * one_over_root_two;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
 		}
 
@@ -797,6 +799,7 @@ namespace Xen {
 		batch_storage[batch_index]->index_count += segments * 3;
 
 		std::vector<float> angles;
+		float one_over_root_two = sqrt(2.0) / 2.0;
 
 		for (int i = 1; i <= segments; i++)
 			angles.push_back((360.0f / segments) * i);
@@ -807,8 +810,8 @@ namespace Xen {
 
 		for (float angle : angles)
 		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 0] = position.x + (cos(glm::radians(angle + rotation.z)) * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 1] = position.y + (sin(glm::radians(angle + rotation.z)) * scale.y);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 0] = position.x + (cos(glm::radians(angle + rotation.z)) * one_over_root_two);
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 1] = position.y + (sin(glm::radians(angle + rotation.z)) * one_over_root_two);
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 2] = position.z;
 
 
