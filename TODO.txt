@@ -1,0 +1,29 @@
+List of Maintainance stuff to do:
+---------------------------------
+
+-> Reconsidering the build system
+-> Removing the legacy OpenGL support
+-> Replacing old OpenGL functions with new Direct State Access ones
+-> Seperating Mobile and Desktop Specific files to seperate folders
+-> Improving the Input system
+-> Make sure that App does not run if the device does not support OpenGL 4.5
+-> Make the editor theme a little less dark
+==================================================================================
+
+2D Renderer stuff to do:
+------------------------
+
+-> Point Lights, Spot Lights
+-> Hard and Soft shadows
+-> Light Blend modes
+-> 2D material system / Sprite Sheet API
+	-> Emissiveness
+	-> Normal maps
+	-> Reflectiveness
+	-> Tint Color
+	-> Mixing of materials
+	-> Procedural Texture Generation
+-> Bloom 
+-> RendererLayers: sortable layers
+-> Overlay icons and gizmos	
+=================================================================================
