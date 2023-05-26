@@ -167,7 +167,6 @@ namespace Xen {
 
 			batch_storage[i]->texture_slot_index = 1;
 			batch_storage[i]->index_count = 0;
-
 		}
 		batch_index = 0;
 		memset(&stats, 0, sizeof(Renderer2D::Renderer2DStatistics));
@@ -760,6 +759,8 @@ namespace Xen {
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = (view_mat * vertex).z;
 		}
 
+		JumpDeltaVertexIndex(-3);
+
 		for (int i = 0; i < 3; i++)
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::TRIANGLE;
 
@@ -789,12 +790,12 @@ namespace Xen {
 
 		for (int i = 0; i < segments; i++)
 		{
-			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + (i * 3) + 0] = batch_storage[batch_index]->index_count;
-			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + (i * 3) + 1] = batch_storage[batch_index]->index_count + i + 1;
-			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + (i * 3) + 2] = batch_storage[batch_index]->index_count + i + 2;
+			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + (i * 3) + 0] = batch_storage[batch_index]->vertex_index;
+			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + (i * 3) + 1] = batch_storage[batch_index]->vertex_index + i + 1;
+			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + (i * 3) + 2] = batch_storage[batch_index]->vertex_index + i + 2;
 		}
 
-		batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + ((segments - 1) * 3) + 2] = batch_storage[batch_index]->index_count + 1;
+		batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + ((segments - 1) * 3) + 2] = batch_storage[batch_index]->vertex_index + 1;
 
 		batch_storage[batch_index]->index_count += segments * 3;
 
