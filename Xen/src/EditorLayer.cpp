@@ -32,7 +32,15 @@ void EditorLayer::OnAttach()
 	specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
 	specs.samples = 1;
 
-	specs.attachments = { Xen::FrameBufferTextureFormat::RGB8,  
+	Xen::FrameBufferAttachmentSpec main_layer;
+	main_layer.format = Xen::FrameBufferTextureFormat::RGB8;
+	main_layer.clearColor = Xen::Color(0.05f, 0.05f, 0.05f, 1.0f);
+
+	Xen::FrameBufferAttachmentSpec mouse_picking_layer;
+	mouse_picking_layer.format = Xen::FrameBufferTextureFormat::RI;
+	mouse_picking_layer.clearColor = Xen::Color(-1.0f, 0.0f, 0.0f, 1.0f);
+
+	specs.attachments = { main_layer, mouse_picking_layer,
 		Xen::FrameBufferTextureFormat::Depth24_Stencil8 };
 
 	input = Xen::Input::GetInputInterface();
@@ -93,7 +101,8 @@ void EditorLayer::OnUpdate(double timestep)
 	m_ViewportFrameBuffer->Bind();
 
 	Xen::RenderCommand::Clear();
-	Xen::RenderCommand::SetClearColor(Xen::Color(0.13f, 0.13f, 0.13f, 1.0f));
+	m_ViewportFrameBuffer->ClearAttachments();
+	//Xen::RenderCommand::SetClearColor(Xen::Color(0.13f, 0.13f, 0.13f, 1.0f));
 
 	m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
 	m_EditorCamera->LookAtPoint(m_EditorCameraController.GetFocalPoint());

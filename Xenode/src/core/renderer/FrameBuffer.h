@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core.h>
+#include "Structs.h"
 
 namespace Xen {
 
@@ -33,6 +34,7 @@ namespace Xen {
 
 		FrameBufferTextureFormat format = FrameBufferTextureFormat::None;
 		FrameBufferFiltering filtering = FrameBufferFiltering::Linear;
+		Color clearColor;
 
 		bool resizable = false;
 	};
@@ -55,6 +57,8 @@ namespace Xen {
 
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
+		virtual void ClearAttachments() = 0;
+		virtual void ClearColorAttachment(uint32_t index, Color clearColor) = 0;
 
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 

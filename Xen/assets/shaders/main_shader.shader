@@ -1,5 +1,5 @@
 #shadertype: fragment
-#version 140
+#version 450 core
 
 in vec4 color;
 in vec2 TextureWorldCoords;
@@ -11,7 +11,8 @@ flat in float P4;
 flat in float P5;
 flat in float PrimitiveType;
 
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
+layout(location = 1) out int id;
 
 uniform sampler2D tex[8];
 
@@ -59,10 +60,11 @@ void main()
 	}
 
 	fragColor = output_color;
+	id = 69; // Noice :)
 }
 
 #shadertype: vertex
-#version 140
+#version 450 core
 
 in vec3 aPosition;
 in vec4 aColor;

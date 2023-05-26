@@ -18,6 +18,7 @@ namespace Xen {
 
 		void Bind() override;
 		void Unbind() override;
+		void ClearAttachments() override;
 
 		uint32_t GetColorAttachmentRendererID(uint32_t index) const override;
 

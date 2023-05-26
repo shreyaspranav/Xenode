@@ -54,6 +54,8 @@ namespace Xen {
 			};
 			glNamedFramebufferDrawBuffers(m_FrameBufferID, m_ColorAttachments.size(), draw_buffers);
 		}
+		else
+			glNamedFramebufferDrawBuffer(m_FrameBufferID, GL_NONE);
 
 		if (glCheckNamedFramebufferStatus(m_FrameBufferID, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -132,6 +134,12 @@ namespace Xen {
 				TRIGGER_BREAKPOINT;
 				break;
 			case FrameBufferTextureFormat::RI:
+				SetupTexture(m_ColorAttachments[color_att_index],
+					m_Spec.width, m_Spec.height,
+					GL_R32I,
+					GL_RED_INTEGER,
+					m_Spec.attachments[i].filtering,
+					m_Spec.samples);
 				break;
 			case FrameBufferTextureFormat::RGB8:
 				SetupTexture(m_ColorAttachments[color_att_index],
@@ -181,12 +189,57 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
+
+		glNamedFramebufferReadBuffer(m_FrameBufferID, GL_COLOR_ATTACHMENT1);
+		int pixelData;
+		glReadPixels(0, 0, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
+		XEN_ENGINE_LOG_WARN("1: {0}", pixelData);
+
+		//XEN_ENGINE_LOG_WARN("2: {0}");
 	}
 
 	void OpenGLFrameBuffer::Unbind()
 	{
 		XEN_PROFILE_FN();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void OpenGLFrameBuffer::ClearAttachments()
+	{
+
+		uint8_t color_att_index = 0;
+		for (int i = 0; i < m_Spec.attachments.size(); i++)
+		{
+			static const float clearColor[4] = {
+				m_Spec.attachments[i].clearColor.r,
+				m_Spec.attachments[i].clearColor.g,
+				m_Spec.attachments[i].clearColor.b,
+				m_Spec.attachments[i].clearColor.a,
+			};
+
+			int r_color = (int)m_Spec.attachments[i].clearColor.r;
+
+			switch (m_Spec.attachments[i].format)
+			{
+			case FrameBufferTextureFormat::None:
+				XEN_ENGINE_LOG_ERROR("Framebuffer Format None is not supported!");
+				TRIGGER_BREAKPOINT;
+				break;
+			case FrameBufferTextureFormat::RI:
+				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RED_INTEGER, GL_INT, &r_color);
+				break;
+			case FrameBufferTextureFormat::RGB8:
+				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGBA, GL_FLOAT, clearColor);
+				break;
+			case FrameBufferTextureFormat::RGB16F:
+				break;
+			case FrameBufferTextureFormat::RGB32F:
+				break;
+			default:
+				break;
+			}
+			color_att_index++;
+		}
 	}
 
 	uint32_t OpenGLFrameBuffer::GetColorAttachmentRendererID(uint32_t index) const
