@@ -126,7 +126,8 @@ void EditorLayer::OnUpdate(double timestep)
 
 	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport)
 	{
-		int entt_id = m_ViewportFrameBuffer->ReadIntPixel(1, viewport_mouse_pos.x, viewport_mouse_pos.y);
+		// For some reason the red integer attachment is flipped!
+		int entt_id = m_ViewportFrameBuffer->ReadIntPixel(1, viewport_mouse_pos.x, viewport_framebuffer_height - viewport_mouse_pos.y);
 		m_HierarchyPanel.SetSelectedEntity(Xen::Entity((entt::entity)entt_id, m_ActiveScene.get()));
 	}
 	m_ViewportFrameBuffer->Unbind();
