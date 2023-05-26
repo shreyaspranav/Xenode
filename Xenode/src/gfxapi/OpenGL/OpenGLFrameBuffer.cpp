@@ -189,13 +189,6 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
-
-		glNamedFramebufferReadBuffer(m_FrameBufferID, GL_COLOR_ATTACHMENT1);
-		int pixelData;
-		glReadPixels(0, 0, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
-		XEN_ENGINE_LOG_WARN("1: {0}", pixelData);
-
-		//XEN_ENGINE_LOG_WARN("2: {0}");
 	}
 
 	void OpenGLFrameBuffer::Unbind()
@@ -250,5 +243,12 @@ namespace Xen {
 			TRIGGER_BREAKPOINT;
 		}
 		return m_ColorAttachments[index];
+	}
+	int32_t OpenGLFrameBuffer::ReadIntPixel(uint32_t index, int32_t x, int32_t y)
+	{
+		glNamedFramebufferReadBuffer(m_FrameBufferID, GL_COLOR_ATTACHMENT0 + index);
+		int data;
+		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &data);
+		return data;
 	}
 }

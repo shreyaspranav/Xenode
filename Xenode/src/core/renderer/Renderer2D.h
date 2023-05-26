@@ -48,24 +48,24 @@ namespace Xen {
 		static void RenderFrame();
 
 		// Draw Functions:
-		static void DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());
-		static void DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[3]);
+		static void DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color(), int32_t id = -1);
+		static void DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[3], int32_t id = -1);
 
-		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());
-		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4]);
+		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color(), int32_t id = -1);
+		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4], int32_t id = -1);
 		
-		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f, const float tex_coords[4] = nullptr);
-		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor = 1.0f, const float tex_coords[4] = nullptr);
+		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f, const float tex_coords[4] = nullptr, int32_t id = -1);
+		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor = 1.0f, const float tex_coords[4] = nullptr, int32_t id = -1);
 
-		static void DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const Color& color = Color());
-		static void DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const std::vector<Color>& color);
+		static void DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const Color& color = Color(), int32_t id = -1);
+		static void DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const std::vector<Color>& color, int32_t id = -1);
 
 		static void DrawLine(const Vec3& p1, const Vec3& p2, const Color& color = Color(1.0f, 1.0f, 1.0f, 1.0f), float thickness = 1.0f);
 
 		//static void DrawClearPolygon(uint32_t segments, const Vec3& position, float rotation = 0.0f, const Vec2& scale = Vec2(1.0f, 1.0f));
 		static void DrawClearText(const Vec3& position, const Vec3& rotation, const Vec3& scale, const std::string& text, const Color& textColor);
 
-		static void DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale = 1.0f, const Color& color = Color(), float thickness = 1.0f, float innerfade = 0.0f, float outerfade = 0.0f);
+		static void DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale = 1.0f, const Color& color = Color(), float thickness = 1.0f, float innerfade = 0.0f, float outerfade = 0.0f, int32_t id = -1);
 
 		static void SetLineWidth(float width);
 
@@ -80,10 +80,12 @@ namespace Xen {
 
 		static void AddTextureSlot(uint8_t vertex_count, bool is_clear_color, const Ref<Texture2D>& texture = nullptr);
 
-		static void AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale);
-		static void AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale);
-		static void AddTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale);
-		static void AddPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments);
+		static void AddID(uint8_t vertex_count, int32_t id);
+
+		static void AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id);
+		static void AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id);
+		static void AddTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id);
+		static void AddPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, int32_t id);
 
 		static void JumpDeltaVertexIndex(uint32_t index_delta);
 	};

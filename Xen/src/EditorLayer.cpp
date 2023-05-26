@@ -74,8 +74,8 @@ void EditorLayer::OnAttach()
 	//};
 	//quad_entity_1.AddComponent<Xen::Component::NativeScript>().Bind<CameraControlScript>(quad_entity_1);
 
-	hier_panel = SceneHierarchyPanel(m_ActiveScene);
-	prop_panel = PropertiesPanel(hier_panel.GetSelectedEntity());
+	m_HierarchyPanel = SceneHierarchyPanel(m_ActiveScene);
+	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
 
 	m_EditorCameraController = Xen::EditorCameraController(input);
 }
@@ -93,7 +93,7 @@ void EditorLayer::OnUpdate(double timestep)
 
 	bool active = true;
 	m_EditorCameraController.Update(&active);
-	hier_panel.SetActiveScene(m_ActiveScene);
+	m_HierarchyPanel.SetActiveScene(m_ActiveScene);
 
 	Xen::RenderCommand::Clear();
 	m_Timestep = timestep;
@@ -102,6 +102,7 @@ void EditorLayer::OnUpdate(double timestep)
 
 	Xen::RenderCommand::Clear();
 	m_ViewportFrameBuffer->ClearAttachments();
+
 	//Xen::RenderCommand::SetClearColor(Xen::Color(0.13f, 0.13f, 0.13f, 1.0f));
 
 	m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
@@ -123,6 +124,11 @@ void EditorLayer::OnUpdate(double timestep)
 	Xen::Renderer2D::EndScene();
 	Xen::Renderer2D::RenderFrame();
 
+	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport)
+	{
+		int entt_id = m_ViewportFrameBuffer->ReadIntPixel(1, viewport_mouse_pos.x, viewport_mouse_pos.y);
+		m_HierarchyPanel.SetSelectedEntity(Xen::Entity((entt::entity)entt_id, m_ActiveScene.get()));
+	}
 	m_ViewportFrameBuffer->Unbind();
 } 
 
@@ -185,10 +191,10 @@ void EditorLayer::OnImGuiUpdate()
 			auto dock_id_left_down = ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Down, 0.5f, nullptr, &dock_id_left);
 
 			// we now dock our windows into the docking node we made above
-			ImGui::DockBuilderDockWindow(hier_panel.GetPanelTitle().c_str(), dock_id_left);
+			ImGui::DockBuilderDockWindow(m_HierarchyPanel.GetPanelTitle().c_str(), dock_id_left);
 			ImGui::DockBuilderDockWindow("Window Two", dock_id_down);
 			ImGui::DockBuilderDockWindow("Renderer Stats", dock_id_left_down);
-			ImGui::DockBuilderDockWindow(prop_panel.GetPanelTitle().c_str(), dock_id_left_down);
+			ImGui::DockBuilderDockWindow(m_PropertiesPanel.GetPanelTitle().c_str(), dock_id_left_down);
 			//ImGui::DockBuilderDockWindow("Window Three", dock_id_left_down);
 			ImGui::DockBuilderDockWindow((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str(), dockspace_id); // IMP: To Dock In Centre!! use directly 'dockspace_id'
 			ImGui::DockBuilderFinish(dockspace_id);
@@ -251,7 +257,7 @@ void EditorLayer::OnImGuiUpdate()
 
 	ImGui::End();
 
-	hier_panel.OnImGuiRender();
+	m_HierarchyPanel.OnImGuiRender();
 	
 	ImGui::Begin("Window Two");
 	ImGui::Text("Hello");
@@ -260,8 +266,8 @@ void EditorLayer::OnImGuiUpdate()
 
 	ImGui::End();
 
-	prop_panel.OnImGuiRender();
-	prop_panel.SetActiveEntity(hier_panel.GetSelectedEntity());
+	m_PropertiesPanel.OnImGuiRender();
+	m_PropertiesPanel.SetActiveEntity(m_HierarchyPanel.GetSelectedEntity());
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	ImGui::Begin((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str());
@@ -269,6 +275,12 @@ void EditorLayer::OnImGuiUpdate()
 	m_IsMouseHoveredOnViewport = ImGui::IsWindowHovered();
 
 	float y_offset = ImGui::GetWindowHeight() - viewport_framebuffer_height;
+
+	auto[sx, sy] = ImGui::GetCursorScreenPos();
+	auto[mx, my] = ImGui::GetMousePos();
+
+	viewport_mouse_pos.x = mx - sx;
+	viewport_mouse_pos.y = my - sy;
 
 	if (viewport_framebuffer_width != ImGui::GetContentRegionAvail().x || viewport_framebuffer_height != ImGui::GetContentRegionAvail().y)
 	{
@@ -286,7 +298,7 @@ void EditorLayer::OnImGuiUpdate()
 	ImGui::Image((void*)m_ViewportFrameBuffer->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
 
 	// Gizmos: 
-	Xen::Entity selectedEntity = hier_panel.GetSelectedEntity();
+	Xen::Entity selectedEntity = m_HierarchyPanel.GetSelectedEntity();
 
 	if (!selectedEntity.IsNull() && selectedEntity.IsValid()) {
 		

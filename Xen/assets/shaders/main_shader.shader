@@ -12,7 +12,7 @@ flat in float P5;
 flat in float PrimitiveType;
 
 layout(location = 0) out vec4 fragColor;
-layout(location = 1) out int id;
+layout(location = 1) out int entt_id;
 
 uniform sampler2D tex[8];
 
@@ -60,7 +60,7 @@ void main()
 	}
 
 	fragColor = output_color;
-	id = 69; // Noice :)
+	entt_id = int(P5);
 }
 
 #shadertype: vertex

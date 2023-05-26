@@ -43,12 +43,13 @@ private:
 	Xen::Ref<Xen::FrameBuffer> m_ViewportFrameBuffer;
 	Xen::Ref<Xen::Scene> m_ActiveScene;
 
-	SceneHierarchyPanel hier_panel;
-	PropertiesPanel prop_panel; 
+	SceneHierarchyPanel m_HierarchyPanel;
+	PropertiesPanel m_PropertiesPanel; 
 
 	GizmoOperation m_GizmoOperation;
 
 	bool m_IsMouseHoveredOnViewport;
+	Xen::Vec2 viewport_mouse_pos;
 
 	// Editor Camera Stuff------------------------------------
 	Xen::Ref<Xen::Camera> m_EditorCamera;

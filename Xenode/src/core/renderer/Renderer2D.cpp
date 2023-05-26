@@ -238,11 +238,11 @@ namespace Xen {
 		}
 	}
 
-	void Renderer2D::DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)
+	void Renderer2D::DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, int32_t id)
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddTriangle(position, rotation, scale);
+		Renderer2D::AddTriangle(position, rotation, scale, id);
 
 		// Texture Coords
 		AddDefaultTextureCoords(Primitive::TRIANGLE);
@@ -257,11 +257,11 @@ namespace Xen {
 		AddTextureSlot(3, true);
 	}
 
-	void Renderer2D::DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4])
+	void Renderer2D::DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4], int32_t id)
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddTriangle(position, rotation, scale);
+		Renderer2D::AddTriangle(position, rotation, scale, id);
 
 		// Texture Coords
 		AddDefaultTextureCoords(Primitive::TRIANGLE);
@@ -276,12 +276,12 @@ namespace Xen {
 		AddTextureSlot(3, true);
 	}
 
-	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)
+	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, int32_t id)
 	{
 		XEN_PROFILE_FN();
 
 		// Deal with Vertices and Indices:
-		Renderer2D::AddQuad(position, rotation, scale);
+		Renderer2D::AddQuad(position, rotation, scale, id);
 
 		// Texture Coords
 		AddDefaultTextureCoords(Primitive::QUAD);
@@ -296,11 +296,11 @@ namespace Xen {
 		AddTextureSlot(4, true);
 	}
 
-	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[3])
+	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[3], int32_t id)
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddQuad(position, rotation, scale);
+		Renderer2D::AddQuad(position, rotation, scale, id);
 
 		// Texture Coords
 		AddDefaultTextureCoords(Primitive::QUAD);
@@ -316,12 +316,12 @@ namespace Xen {
 	}
 
 
-	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor, float tiling_factor, const float texture_coords[4])
+	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor, float tiling_factor, const float texture_coords[4], int32_t id)
 	{
 		XEN_PROFILE_FN();
 
 		// Deal with Vertices and Indices:
-		Renderer2D::AddQuad(position, rotation, scale);
+		Renderer2D::AddQuad(position, rotation, scale, id);
 
 		// Texture Coords
 		if (texture_coords == nullptr)
@@ -345,11 +345,11 @@ namespace Xen {
 		AddTextureSlot(4, false, texture);
 	}
 
-	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor, const float texture_coords[4])
+	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor, const float texture_coords[4], int32_t id)
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddQuad(position, rotation, scale);
+		Renderer2D::AddQuad(position, rotation, scale, id);
 
 		// Texture Coords
 		if(texture_coords == nullptr)
@@ -372,31 +372,31 @@ namespace Xen {
 		AddTextureSlot(4, false, texture);
 	}
 
-	void Renderer2D::DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const Color& color)
+	void Renderer2D::DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const Color& color, int32_t id)
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddPolygon(position, rotation, scale, segments);
+		Renderer2D::AddPolygon(position, rotation, scale, segments, id);
 
 		AddColorStatic(segments + 1, color);
 		JumpDeltaVertexIndex(-(segments + 1));
 
 		AddTextureSlot(segments + 1, true);
 	}
-	void Renderer2D::DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const std::vector<Color>& color)
+	void Renderer2D::DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const std::vector<Color>& color, int32_t id)
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddPolygon(position, rotation, scale, segments);
+		Renderer2D::AddPolygon(position, rotation, scale, segments, id);
 
 		AddTextureSlot(segments + 1, true);
 	}
 
-	void Renderer2D::DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, float thickness, float innerfade, float outerfade)
+	void Renderer2D::DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, float thickness, float innerfade, float outerfade, int32_t id)
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddCircleQuad(position, rotation, scale);
+		Renderer2D::AddCircleQuad(position, rotation, scale, id);
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -559,7 +559,13 @@ namespace Xen {
 		}
 	}
 
-	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale)
+	void Renderer2D::AddID(uint8_t vertex_count, int32_t id)
+	{
+		for (int i = 0; i < vertex_count; i++)
+			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 13] = (float)id;
+	}
+
+	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id)
 	{
 		XEN_PROFILE_FN();
 
@@ -605,9 +611,13 @@ namespace Xen {
 			JumpDeltaVertexIndex(-4);
 
 			for (int i = 0; i < 4; i++)
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::QUAD;
+			{
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 14] = (float)Primitive::QUAD;
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 13] = (float)id;
+			}
 
 			JumpDeltaVertexIndex(-4);
+
 
 			//----------------
 
@@ -623,6 +633,8 @@ namespace Xen {
 			for (int i = 0; i < 4; i++)
 			{
 				// New code------
+				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 13] = (float)id;
+
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = (transform * temp_vert[i]).x;
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = (transform * temp_vert[i]).y;
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 2] = (transform * temp_vert[i]).z;
@@ -636,7 +648,7 @@ namespace Xen {
 		stats.quad_count++;
 	}
 
-	void Renderer2D::AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale)
+	void Renderer2D::AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id)
 	{
 		XEN_PROFILE_FN();
 
@@ -695,12 +707,16 @@ namespace Xen {
 		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = -1.0f;
 
 		JumpDeltaVertexIndex(-4);
+
+		Renderer2D::AddID(4, id);
+
+		JumpDeltaVertexIndex(-4);
 		// -------------------------------------------------------------
 
 		stats.circle_count++;
 	}
 
-	void Renderer2D::AddTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale)
+	void Renderer2D::AddTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id)
 	{
 		XEN_PROFILE_FN();
 
@@ -766,9 +782,13 @@ namespace Xen {
 
 		JumpDeltaVertexIndex(-3);
 
+		Renderer2D::AddID(3, id);
+
+		JumpDeltaVertexIndex(-3);
+
 	}
 
-	void Renderer2D::AddPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments)
+	void Renderer2D::AddPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, int32_t id)
 	{
 		if (batch_storage[batch_index]->vertex_index > max_vertices_per_batch - segments)
 		{
@@ -822,6 +842,10 @@ namespace Xen {
 
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::POLYGON;
 		}
+
+		JumpDeltaVertexIndex(-(segments + 1));
+
+		Renderer2D::AddID(segments + 1, id);
 
 		JumpDeltaVertexIndex(-(segments + 1));
 	}

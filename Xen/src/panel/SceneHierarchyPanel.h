@@ -19,6 +19,7 @@ public:
 
 	inline const std::string& GetPanelTitle() { return m_PanelTitle; }
 	inline const Xen::Entity& GetSelectedEntity() { return m_SelectedEntity; }
+	inline const void SetSelectedEntity(const Xen::Entity& entity) { m_SelectedEntity = entity; }
 
 	void OnImGuiRender()
 	{

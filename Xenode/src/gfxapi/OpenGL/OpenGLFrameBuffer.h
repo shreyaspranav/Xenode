@@ -21,6 +21,7 @@ namespace Xen {
 		void ClearAttachments() override;
 
 		uint32_t GetColorAttachmentRendererID(uint32_t index) const override;
+		int32_t ReadIntPixel(uint32_t index, int32_t x, int32_t y) override;
 
 		const FrameBufferSpec& GetFrameBufferSpecification() const override { return m_Spec; }
 

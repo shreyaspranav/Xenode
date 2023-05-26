@@ -289,6 +289,22 @@ public:
 					ImGui::NextColumn();
 
 					ImGui::PushItemWidth(-0.1f);
+
+					switch (spriteRenderer.primitive)
+					{
+					case Xen::SpriteRendererPrimitive::Triangle:
+						sprite_renderer_item_index = 0;
+						break;
+					case Xen::SpriteRendererPrimitive::Quad:
+						sprite_renderer_item_index = 1;
+						break;
+					case Xen::SpriteRendererPrimitive::Polygon:
+						sprite_renderer_item_index = 2;
+						break;
+					default:
+						break;
+					}
+
 					ImGui::Combo("##Sprite Type", &sprite_renderer_item_index, sprite_renderer_primitives, IM_ARRAYSIZE(sprite_renderer_primitives));
 					{
 						switch (sprite_renderer_item_index)

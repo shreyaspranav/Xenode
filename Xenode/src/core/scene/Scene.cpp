@@ -237,6 +237,7 @@ namespace Xen {
 			Component::Transform& transform = m_RenderableEntities[i].GetComponent<Component::Transform>();
 			if (m_RenderableEntities[i].HasAnyComponent<Component::SpriteRenderer>())
 			{
+				//XEN_ENGINE_LOG_ERROR("entt id: {0}", (uint32_t)m_RenderableEntities[i]);
 				Component::SpriteRenderer& spriteRenderer = m_RenderableEntities[i].GetComponent<Component::SpriteRenderer>();
 
 				if (spriteRenderer.texture == nullptr) {
@@ -246,13 +247,15 @@ namespace Xen {
 						Renderer2D::DrawClearTriangle(transform.position,
 							transform.rotation,
 							{ transform.scale.x, transform.scale.y },
-							spriteRenderer.color);
+							spriteRenderer.color,
+							(uint32_t)m_RenderableEntities[i]);
 						break;
 					case SpriteRendererPrimitive::Quad:
 						Renderer2D::DrawClearQuad(transform.position,
 							transform.rotation,
 							{ transform.scale.x, transform.scale.y },
-							spriteRenderer.color);
+							spriteRenderer.color,
+							(uint32_t)m_RenderableEntities[i]);
 						break;
 					case SpriteRendererPrimitive::Polygon:
 						// TODO: Renderer2D Implementation
@@ -260,7 +263,8 @@ namespace Xen {
 							transform.rotation,
 							{ transform.scale.x, transform.scale.y },
 							spriteRenderer.polygon_segment_count,
-							spriteRenderer.color);
+							spriteRenderer.color, 
+							(uint32_t)m_RenderableEntities[i]);
 						break;
 					default:
 						break;
@@ -274,7 +278,9 @@ namespace Xen {
 						transform.rotation,
 						{ transform.scale.x, transform.scale.y },
 						spriteRenderer.color,
-						spriteRenderer.texture_tile_factor);
+						spriteRenderer.texture_tile_factor, nullptr,
+						(uint32_t)m_RenderableEntities[i]);
+				// TODO: Address the texture coordinates thing.
 
 			}
 			else if (m_RenderableEntities[i].HasAnyComponent<Component::CircleRenderer>())
@@ -287,7 +293,8 @@ namespace Xen {
 					circleRenderer.color,
 					circleRenderer.thickness,
 					circleRenderer.inner_fade,
-					circleRenderer.outer_fade);
+					circleRenderer.outer_fade, 
+					(uint32_t)m_RenderableEntities[i]);
 			}
 		}
 	}
