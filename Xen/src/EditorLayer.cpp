@@ -34,7 +34,7 @@ void EditorLayer::OnAttach()
 
 	Xen::FrameBufferAttachmentSpec main_layer;
 	main_layer.format = Xen::FrameBufferTextureFormat::RGB8;
-	main_layer.clearColor = Xen::Color(0.05f, 0.05f, 0.05f, 1.0f);
+	main_layer.clearColor = Xen::Color(0.1f, 0.1f, 0.1f, 1.0f);
 
 	Xen::FrameBufferAttachmentSpec mouse_picking_layer;
 	mouse_picking_layer.format = Xen::FrameBufferTextureFormat::RI;
