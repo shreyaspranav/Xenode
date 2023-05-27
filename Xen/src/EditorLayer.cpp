@@ -193,7 +193,7 @@ void EditorLayer::OnImGuiUpdate()
 
 			// we now dock our windows into the docking node we made above
 			ImGui::DockBuilderDockWindow(m_HierarchyPanel.GetPanelTitle().c_str(), dock_id_left);
-			ImGui::DockBuilderDockWindow("Window Two", dock_id_down);
+			ImGui::DockBuilderDockWindow(m_ContentBrowserPanel.GetPanelTitle().c_str(), dock_id_down);
 			ImGui::DockBuilderDockWindow("Renderer Stats", dock_id_left_down);
 			ImGui::DockBuilderDockWindow(m_PropertiesPanel.GetPanelTitle().c_str(), dock_id_left_down);
 			//ImGui::DockBuilderDockWindow("Window Three", dock_id_left_down);
@@ -259,13 +259,8 @@ void EditorLayer::OnImGuiUpdate()
 	ImGui::End();
 
 	m_HierarchyPanel.OnImGuiRender();
-	
-	ImGui::Begin("Window Two");
-	ImGui::Text("Hello");
-	ImGui::Text("Frametime: %fms", m_Timestep);
-	ImGui::Text("This is some content");
 
-	ImGui::End();
+	m_ContentBrowserPanel.OnImGuiEditor();
 
 	m_PropertiesPanel.OnImGuiRender();
 	m_PropertiesPanel.SetActiveEntity(m_HierarchyPanel.GetSelectedEntity());

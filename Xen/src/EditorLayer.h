@@ -3,6 +3,7 @@
 #include <Xenode.h>
 #include "panel/SceneHierarchyPanel.h"
 #include "panel/PropertiesPanel.h"
+#include "panel/ContentBrowserPanel.h"
 
 #include "core/scene/SceneSerializer.h"
 #include "core/scene/EditorCameraController.h"
@@ -43,8 +44,10 @@ private:
 	Xen::Ref<Xen::FrameBuffer> m_ViewportFrameBuffer;
 	Xen::Ref<Xen::Scene> m_ActiveScene;
 
+	// Panels:
 	SceneHierarchyPanel m_HierarchyPanel;
 	PropertiesPanel m_PropertiesPanel; 
+	ContentBrowserPanel m_ContentBrowserPanel;
 
 	GizmoOperation m_GizmoOperation;
 

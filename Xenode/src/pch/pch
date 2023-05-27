@@ -9,6 +9,7 @@
 #include <ctime>
 
 #include <unordered_set>
+#include <filesystem>
 #endif
 #include <functional>
 #include <cstdint>
