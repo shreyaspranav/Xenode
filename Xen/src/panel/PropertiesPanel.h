@@ -22,7 +22,7 @@ public:
 
 	void OnImGuiRender()
 	{
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 
 		//Ortho Camera
 		float z_near_point = 0.0f;

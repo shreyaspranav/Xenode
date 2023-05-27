@@ -109,7 +109,6 @@ void EditorLayer::OnUpdate(double timestep)
 	m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
 	m_EditorCamera->SetScale({ m_EditorCameraController.GetFocalDistance(), m_EditorCameraController.GetFocalDistance(), 1.0f });
 
-	XEN_ENGINE_LOG_WARN(m_EditorCameraController.GetFocalDistance());
 	//m_EditorCamera->LookAtPoint(m_EditorCameraController.GetFocalPoint());
 
 	m_EditorCamera->Update();
