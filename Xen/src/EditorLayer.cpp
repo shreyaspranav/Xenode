@@ -46,7 +46,7 @@ void EditorLayer::OnAttach()
 	input = Xen::Input::GetInputInterface();
 	input->SetWindow(Xen::DesktopApplication::GetWindow());
 
-	m_EditorCamera = std::make_shared<Xen::Camera>(Xen::CameraType::Perspective, viewport_framebuffer_width, viewport_framebuffer_height);
+	m_EditorCamera = std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, viewport_framebuffer_width, viewport_framebuffer_height);
 	m_ViewportFrameBuffer = Xen::FrameBuffer::CreateFrameBuffer(specs);
 
 	Xen::Renderer2D::Init();
@@ -78,7 +78,7 @@ void EditorLayer::OnAttach()
 	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
 	m_ContentBrowserPanel = ContentBrowserPanel();
 
-	m_EditorCameraController = Xen::EditorCameraController(input);
+	m_EditorCameraController = Xen::EditorCameraController(input, Xen::EditorCameraType::_2D);
 }
 
 void EditorLayer::OnDetach()
@@ -107,9 +107,12 @@ void EditorLayer::OnUpdate(double timestep)
 	//Xen::RenderCommand::SetClearColor(Xen::Color(0.13f, 0.13f, 0.13f, 1.0f));
 
 	m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
-	m_EditorCamera->LookAtPoint(m_EditorCameraController.GetFocalPoint());
+	m_EditorCamera->SetScale({ m_EditorCameraController.GetFocalDistance(), m_EditorCameraController.GetFocalDistance(), 1.0f });
 
-	m_EditorCamera->Update(1);
+	XEN_ENGINE_LOG_WARN(m_EditorCameraController.GetFocalDistance());
+	//m_EditorCamera->LookAtPoint(m_EditorCameraController.GetFocalPoint());
+
+	m_EditorCamera->Update();
 	m_ActiveScene->OnUpdate(timestep, m_EditorCamera);
 
 	// Line Rendering Test

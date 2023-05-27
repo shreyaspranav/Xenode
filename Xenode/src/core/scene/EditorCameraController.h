@@ -72,11 +72,26 @@ namespace Xen {
 				m_CameraRightPosition.y =  1.0f * glm::sin(glm::radians(m_CameraAngleAlongFocalPoint.y));
 				m_CameraRightPosition.z = -1.0f * glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y)) * glm::sin(glm::radians(-(m_CameraAngleAlongFocalPoint.x + 90.0f)));
 			}
+
+			else if (m_CameraType == EditorCameraType::_2D)
+			{
+				if (*active) {
+					if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+						Pan(delta);
+					else if (m_Input->IsKeyPressed(KEY_LEFT_CONTROL))
+						Zoom(delta.y);
+				}
+
+				m_CameraPosition = m_FocalPoint;
+				m_CameraUpPosition     = Vec3(0.0f, 1.0f, 0.0f);
+				m_CameraRightPosition  = Vec3(1.0f, 0.0f, 0.0f);
+			}
 		}
 
 		inline const Vec3& GetFocalPoint()			{ return m_FocalPoint; };
 		inline const Vec3& GetCameraPosition()		{ return m_CameraPosition; };
 		inline float GetFocalDistance()				{ return m_FocalDistance; }
+		inline float GetZoom()						{ return m_FocalDistance; }
 
 	private:
 		EditorCameraType m_CameraType;
