@@ -11,8 +11,8 @@ namespace Xen {
 	{
 	public:
 		EditorCameraController() {}
-		EditorCameraController(Ref<Input> input)
-			:m_Input(input)
+		EditorCameraController(Ref<Input> input, EditorCameraType type = EditorCameraType::_3D)
+			:m_Input(input), m_CameraType(type)
 		{
 			m_CameraAngleAlongFocalPoint = Xen::Vec2(90.0f, 0.0f);
 		}
@@ -49,26 +49,29 @@ namespace Xen {
 			Xen::Vec2 delta = ((Vec2&)mouse - m_InitialMouseCoords) * 0.3f;
 			m_InitialMouseCoords = mouse;
 
-			if (*active) {
-				if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE) && m_Input->IsKeyPressed(KEY_LEFT_SHIFT))
-					Pan(delta);
-				else if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))
-					Orbit(delta);
-				else if (m_Input->IsKeyPressed(KEY_LEFT_CONTROL))
-					Zoom(delta.y);
+			if (m_CameraType == EditorCameraType::_3D)
+			{
+				if (*active) {
+					if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE) && m_Input->IsKeyPressed(KEY_LEFT_SHIFT))
+						Pan(delta);
+					else if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))
+						Orbit(delta);
+					else if (m_Input->IsKeyPressed(KEY_LEFT_CONTROL))
+						Zoom(delta.y);
+				}
+
+				m_CameraPosition.x = m_FocalPoint.x + m_FocalDistance * glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y)) * glm::cos(glm::radians(-m_CameraAngleAlongFocalPoint.x));
+				m_CameraPosition.y = m_FocalPoint.y + m_FocalDistance * glm::sin(glm::radians(m_CameraAngleAlongFocalPoint.y));
+				m_CameraPosition.z = m_FocalPoint.z + m_FocalDistance * glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y)) * glm::sin(glm::radians(-m_CameraAngleAlongFocalPoint.x));
+
+				m_CameraUpPosition.x = glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y + 90.0f)) * glm::cos(glm::radians(-m_CameraAngleAlongFocalPoint.x));
+				m_CameraUpPosition.y = glm::sin(glm::radians(m_CameraAngleAlongFocalPoint.y + 90.0f));
+				m_CameraUpPosition.z = glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y + 90.0f)) * glm::sin(glm::radians(-m_CameraAngleAlongFocalPoint.x));
+
+				m_CameraRightPosition.x = -1.0f * glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y)) * glm::cos(glm::radians(-(m_CameraAngleAlongFocalPoint.x + 90.0f)));
+				m_CameraRightPosition.y =  1.0f * glm::sin(glm::radians(m_CameraAngleAlongFocalPoint.y));
+				m_CameraRightPosition.z = -1.0f * glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y)) * glm::sin(glm::radians(-(m_CameraAngleAlongFocalPoint.x + 90.0f)));
 			}
-
-			m_CameraPosition.x = m_FocalPoint.x + m_FocalDistance * glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y)) * glm::cos(glm::radians(-m_CameraAngleAlongFocalPoint.x));
-			m_CameraPosition.y = m_FocalPoint.y + m_FocalDistance * glm::sin(glm::radians(m_CameraAngleAlongFocalPoint.y));
-			m_CameraPosition.z = m_FocalPoint.z + m_FocalDistance * glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y)) * glm::sin(glm::radians(-m_CameraAngleAlongFocalPoint.x));
-
-			m_CameraUpPosition.x = glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y + 90.0f)) * glm::cos(glm::radians(-m_CameraAngleAlongFocalPoint.x));
-			m_CameraUpPosition.y = glm::sin(glm::radians(m_CameraAngleAlongFocalPoint.y + 90.0f));
-			m_CameraUpPosition.z = glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y + 90.0f)) * glm::sin(glm::radians(-m_CameraAngleAlongFocalPoint.x));
-
-			m_CameraRightPosition.x = -1.0f * glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y)) * glm::cos(glm::radians(-(m_CameraAngleAlongFocalPoint.x + 90.0f)));
-			m_CameraRightPosition.y =  1.0f * glm::sin(glm::radians(m_CameraAngleAlongFocalPoint.y));
-			m_CameraRightPosition.z = -1.0f * glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y)) * glm::sin(glm::radians(-(m_CameraAngleAlongFocalPoint.x + 90.0f)));
 		}
 
 		inline const Vec3& GetFocalPoint()			{ return m_FocalPoint; };
@@ -76,6 +79,8 @@ namespace Xen {
 		inline float GetFocalDistance()				{ return m_FocalDistance; }
 
 	private:
+		EditorCameraType m_CameraType;
+
 		Vec3 m_FocalPoint;
 
 		Vec3 m_CameraPosition;

@@ -76,6 +76,7 @@ void EditorLayer::OnAttach()
 
 	m_HierarchyPanel = SceneHierarchyPanel(m_ActiveScene);
 	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
+	m_ContentBrowserPanel = ContentBrowserPanel();
 
 	m_EditorCameraController = Xen::EditorCameraController(input);
 }
