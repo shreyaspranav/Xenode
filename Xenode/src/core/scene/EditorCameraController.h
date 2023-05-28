@@ -15,6 +15,8 @@ namespace Xen {
 			:m_Input(input), m_CameraType(type)
 		{
 			m_CameraAngleAlongFocalPoint = Xen::Vec2(90.0f, 0.0f);
+			if (type == EditorCameraType::_2D)
+				m_FocalDistance = 1.5f;
 		}
 		~EditorCameraController() 
 		{

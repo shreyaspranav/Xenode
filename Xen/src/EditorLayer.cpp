@@ -298,20 +298,15 @@ void EditorLayer::OnImGuiUpdate()
 
 	if (ImGui::BeginDragDropTarget())
 	{
-		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("XEN_CONTENT_BROWSER_DATA"))
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(m_ContentBrowserPanel.GetSceneLoadDropType().c_str()))
 		{
 			std::string path = (const char*)payload->Data;
 			uint32_t size = path.size();
 
-			if (path.at(size - 1) == 'n' &&
-				path.at(size - 2) == 'e' &&
-				path.at(size - 3) == 'x' &&
-				path.at(size - 4) == '.') 
-			{
-				m_ActiveScene = std::make_shared<Xen::Scene>();
-				Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
-				serialiser.Deserialize(path);
-			}			
+			m_ActiveScene = std::make_shared<Xen::Scene>();
+			Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
+
+			serialiser.Deserialize(path);
 		}
 		ImGui::EndDragDropTarget();
 	}

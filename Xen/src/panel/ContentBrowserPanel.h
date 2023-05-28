@@ -20,9 +20,11 @@ public:
 		{
 			m_FileTexture = Xen::Texture2D::CreateTexture2D("assets/textures/file.png", false);
 			m_FolderTexture = Xen::Texture2D::CreateTexture2D("assets/textures/folder.png", false);
+			m_PngTexture = Xen::Texture2D::CreateTexture2D("assets/textures/png.png", false);
 			
 			m_FileTexture->LoadTexture();
 			m_FolderTexture->LoadTexture();
+			m_PngTexture->LoadTexture();
 
 			m_LoadedTextures = true;
 		}
@@ -71,6 +73,10 @@ public:
 
 			Xen::Ref<Xen::Texture2D> icon_to_show = p.is_directory() ? m_FolderTexture : m_FileTexture;
 
+			// Temporary. Load the Texture and display that as the icon instead!
+			if (path.extension().string() == ".png")
+				icon_to_show = m_PngTexture;
+
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 
 			ImGui::PushID(pathString.c_str());
@@ -79,7 +85,13 @@ public:
 			if (ImGui::BeginDragDropSource())
 			{
 				const char* payload_data = pathString.c_str();
-				ImGui::SetDragDropPayload("XEN_CONTENT_BROWSER_DATA", payload_data, pathString.size() + 1);
+				if (path.extension().string() == ".xen")
+					ImGui::SetDragDropPayload(m_SceneLoadDropType.c_str(), payload_data, pathString.size() + 1);
+
+				// TODO: make sure to support all the texture formats:
+				else if (path.extension().string() == ".png")
+					ImGui::SetDragDropPayload(m_TextureLoadDropType.c_str(), payload_data, pathString.size() + 1);
+
 				ImGui::EndDragDropSource();
 			}
 
@@ -97,7 +109,10 @@ public:
 		ImGui::End();
 	}
 
-	const std::string& GetPanelTitle(){ return m_PanelTitle; }
+	inline const std::string& GetPanelTitle() { return m_PanelTitle; }
+
+	inline const std::string& GetSceneLoadDropType()	{ return m_SceneLoadDropType; }
+	inline const std::string& GetTextureLoadDropType()	{ return m_TextureLoadDropType; }
 
 private:
 	std::string m_PanelTitle = std::string(ICON_FA_FOLDER) + std::string(" Content Browser");
@@ -108,8 +123,15 @@ private:
 	std::filesystem::path m_AssetsPath{ "assets" };
 	std::filesystem::path m_CurrentPath{ "assets" };
 
+	// Drag drop types:
+	std::string m_SceneLoadDropType = "XEN_CONTENT_BROWSER_SCENE_LOAD";
+	std::string m_TextureLoadDropType = "XEN_CONTENT_BROWSER_TEXTURE_LOAD";
+
 	Xen::Ref<Xen::Texture2D> m_FolderTexture;
 	Xen::Ref<Xen::Texture2D> m_FileTexture;
+
+	// Temporary:
+	Xen::Ref<Xen::Texture2D> m_PngTexture;
 
 	uint32_t m_IconSize = 80;
 	uint32_t m_IconPadding = 25;
