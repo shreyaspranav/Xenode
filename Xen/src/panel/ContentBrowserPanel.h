@@ -4,6 +4,8 @@
 #include <imgui.h>
 #include <imgui/IconsFontAwesome.h>
 
+#include <core/renderer/Texture.h>
+
 class ContentBrowserPanel 
 {
 public:
@@ -12,8 +14,76 @@ public:
 
 	void OnImGuiEditor()
 	{
+
+		// Load Textures of the icons here:
+		if (!m_LoadedTextures)
+		{
+			m_FileTexture = Xen::Texture2D::CreateTexture2D("assets/textures/file.png", false);
+			m_FolderTexture = Xen::Texture2D::CreateTexture2D("assets/textures/folder.png", false);
+			
+			m_FileTexture->LoadTexture();
+			m_FolderTexture->LoadTexture();
+
+			m_LoadedTextures = true;
+		}
+
+		// The header part of the panel -------------------------------------
 		ImGui::Begin(m_PanelTitle.c_str());
-		ImGui::Text("This is going to the content browser panel!");
+
+		bool up_button_disabled = false;
+
+		if (m_CurrentPath != m_AssetsPath)
+			up_button_disabled = true;
+
+		ImGui::PushDisabled(!up_button_disabled);
+		if(ImGui::Button(m_BackIcon.c_str()))
+			m_CurrentPath = m_CurrentPath.parent_path();
+		ImGui::PopDisabled();
+
+		ImGui::SameLine();
+
+		float windowWidth = ImGui::GetContentRegionAvail().x;
+		float textFieldWidth = 375.0f;
+
+		ImGui::SetCursorPosX(windowWidth - textFieldWidth);
+
+		ImGui::PushItemWidth(textFieldWidth);
+		ImGui::InputTextWithHint(m_SearchIcon.c_str(), "Search in assets", m_SearchBuf, 40);
+		ImGui::PopItemWidth();
+		// -------------------------------------------------------------------
+
+		ImGui::Separator();
+
+		uint32_t panel_width = ImGui::GetContentRegionAvail().x;
+		uint32_t cell_size = m_IconSize + m_IconPadding;
+
+		uint32_t column_count = (uint32_t)(panel_width / cell_size);
+		if (column_count < 1)
+			column_count = 1;
+
+		ImGui::Columns(column_count, "##FileColumns", false);
+
+		for (auto& p : std::filesystem::directory_iterator{ m_CurrentPath })
+		{
+			const auto& path = p.path();
+			std::string pathString = p.path().string();
+			std::string fileName = p.path().filename().string();
+
+			Xen::Ref<Xen::Texture2D> icon_to_show = p.is_directory() ? m_FolderTexture : m_FileTexture;
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+
+			ImGui::ImageButton((ImTextureID)(icon_to_show->GetNativeTextureID()), { (float)m_IconSize, (float)m_IconSize });
+
+			if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && p.is_directory())
+				m_CurrentPath /= path.filename();
+
+			ImGui::TextWrapped(fileName.c_str());
+			ImGui::PopStyleColor();
+			ImGui::NextColumn();
+
+		}
+		ImGui::Columns(1);
 		ImGui::End();
 	}
 
@@ -21,4 +91,20 @@ public:
 
 private:
 	std::string m_PanelTitle = std::string(ICON_FA_FOLDER) + std::string(" Content Browser");
+	std::string m_BackIcon = std::string(ICON_FA_ARROW_UP);
+	std::string m_SearchIcon = std::string(ICON_FA_MAGNIFYING_GLASS);
+	
+	// Hardcoded it to assets, change in future
+	std::filesystem::path m_AssetsPath{ "assets" };
+	std::filesystem::path m_CurrentPath{ "assets" };
+
+	Xen::Ref<Xen::Texture2D> m_FolderTexture;
+	Xen::Ref<Xen::Texture2D> m_FileTexture;
+
+	uint32_t m_IconSize = 80;
+	uint32_t m_IconPadding = 25;
+
+	char m_SearchBuf[40] = "";
+
+	bool m_LoadedTextures = false;
 };

@@ -146,7 +146,6 @@ public:
 						{
 							m_SelectedEntity.DeleteComponent<Xen::Component::CameraComp>();
 							ImGui::EndPopup();
-							ImGui::TreePop();
 							goto backOC;
 						}
 
@@ -268,7 +267,6 @@ public:
 						{
 							m_SelectedEntity.DeleteComponent<Xen::Component::SpriteRenderer>();
 							ImGui::EndPopup();
-							ImGui::TreePop();
 							goto backSR;
 						}
 						ImGui::EndPopup();
@@ -404,7 +402,6 @@ public:
 						{
 							m_SelectedEntity.DeleteComponent<Xen::Component::CircleRenderer>();
 							ImGui::EndPopup();
-							ImGui::TreePop();
 							goto backCR;
 						}
 						ImGui::EndPopup();
