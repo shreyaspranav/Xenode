@@ -52,8 +52,8 @@ namespace Xen {
 	{
 #if 1
 		ImVec4* colors = ImGui::GetStyle().Colors;
-		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-		colors[ImGuiCol_FrameBgActive] = ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
+		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+		colors[ImGuiCol_FrameBgActive] = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
 		colors[ImGuiCol_TabActive] = ImVec4(0.48f, 0.48f, 0.48f, 1.00f);
 		colors[ImGuiCol_WindowBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
 		colors[ImGuiCol_PopupBg] = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
