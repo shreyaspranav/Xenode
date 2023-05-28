@@ -73,7 +73,17 @@ public:
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 
+			ImGui::PushID(pathString.c_str());
 			ImGui::ImageButton((ImTextureID)(icon_to_show->GetNativeTextureID()), { (float)m_IconSize, (float)m_IconSize });
+
+			if (ImGui::BeginDragDropSource())
+			{
+				const char* payload_data = pathString.c_str();
+				ImGui::SetDragDropPayload("XEN_CONTENT_BROWSER_DATA", payload_data, pathString.size() + 1);
+				ImGui::EndDragDropSource();
+			}
+
+			ImGui::PopID();
 
 			if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && p.is_directory())
 				m_CurrentPath /= path.filename();

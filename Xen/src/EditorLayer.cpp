@@ -296,6 +296,26 @@ void EditorLayer::OnImGuiUpdate()
 
 	ImGui::Image((void*)m_ViewportFrameBuffer->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
 
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("XEN_CONTENT_BROWSER_DATA"))
+		{
+			std::string path = (const char*)payload->Data;
+			uint32_t size = path.size();
+
+			if (path.at(size - 1) == 'n' &&
+				path.at(size - 2) == 'e' &&
+				path.at(size - 3) == 'x' &&
+				path.at(size - 4) == '.') 
+			{
+				m_ActiveScene = std::make_shared<Xen::Scene>();
+				Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
+				serialiser.Deserialize(path);
+			}			
+		}
+		ImGui::EndDragDropTarget();
+	}
+
 	// Gizmos: 
 	Xen::Entity selectedEntity = m_HierarchyPanel.GetSelectedEntity();
 
