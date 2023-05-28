@@ -14,8 +14,9 @@ public:
 	PropertiesPanel(const Xen::Entity& entity) : m_SelectedEntity(entity) {}
 	~PropertiesPanel() {}
 
-	inline void SetActiveEntity(const Xen::Entity& entity) { m_SelectedEntity = entity; }
-	inline void SetPanelTitle(const std::string& title) { m_PanelTitle = title; }
+	inline void SetActiveEntity(const Xen::Entity& entity)								{ m_SelectedEntity = entity; }
+	inline void SetPanelTitle(const std::string& title)									{ m_PanelTitle = title; }
+	inline void SetTextureLoadDropType(const std::string& texture_load_drop_type)		{ m_TextureLoadDropType = texture_load_drop_type;  }
 
 	inline const std::string& GetPanelTitle() { return m_PanelTitle; }
 	inline const Xen::Entity& GetSelectedEntity() { return m_SelectedEntity; }
@@ -354,16 +355,29 @@ public:
 					ImGui::NextColumn();
 					PaddedText("Texture", 0.0f, 3.0f);
 
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(m_TextureLoadDropType.c_str()))
+						{
+							std::string texture_path = (const char*)payload->Data;
+							Xen::Ref<Xen::Texture2D> texture_loaded = Xen::Texture2D::CreateTexture2D(texture_path, true);
+							texture_loaded->LoadTexture();
+
+							spriteRenderer.texture = texture_loaded;
+						}
+						ImGui::EndDragDropTarget();
+					}
+
 					ImGui::NextColumn();
 					ImGui::PushItemWidth(-0.1f);
 					if (spriteRenderer.texture == nullptr)
-						PaddedText("No Texture!", 0.0, 3.0f);
+						PaddedText("Drag and drop texture here", 0.0, 3.0f);
 					else
 					{
 						float texture_width = ImGui::GetColumnWidth() - 20.0f;
 
 						ImGui::Image((ImTextureID)spriteRenderer.texture->GetNativeTextureID(),
-							ImVec2(texture_width, (texture_width * spriteRenderer.texture->GetHeight()) / spriteRenderer.texture->GetHeight()));
+							ImVec2(texture_width, (texture_width * spriteRenderer.texture->GetHeight()) / spriteRenderer.texture->GetHeight()), { 0, 1 }, { 1, 0 });
 
 					}
 					ImGui::PopItemWidth();
@@ -563,4 +577,6 @@ private:
 
 	Xen::Entity m_SelectedEntity;
 	std::string m_PanelTitle = std::string(ICON_FA_INFO) + std::string("  Properties");
+
+	std::string m_TextureLoadDropType;
 };

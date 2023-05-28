@@ -78,6 +78,8 @@ void EditorLayer::OnAttach()
 	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
 	m_ContentBrowserPanel = ContentBrowserPanel();
 
+	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
+
 	m_EditorCameraController = Xen::EditorCameraController(input, Xen::EditorCameraType::_2D);
 }
 
