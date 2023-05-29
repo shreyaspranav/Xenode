@@ -62,11 +62,12 @@ private:
 	Xen::Ref<Xen::Texture2D> m_PauseTexture;
 	Xen::Ref<Xen::Texture2D> m_StopTexture;
 
-	enum class EditorState {
-		Play, Edit
-	};
+	enum class EditorState { Play, Edit, Pause };
 
 	EditorState m_EditorState = EditorState::Edit;
+
+	Xen::Ref<Xen::Texture2D> m_PlayOrPause;
+	bool m_EditMode = true;
 
 private:
 	Xen::Vec3 GetCameraFrontDir();

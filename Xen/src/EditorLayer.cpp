@@ -90,6 +90,9 @@ void EditorLayer::OnAttach()
 	m_PlayTexture->LoadTexture();
 	m_StopTexture->LoadTexture();
 	m_PauseTexture->LoadTexture();
+
+	// Assuming that m_EditorState is m_EditorState::Edit in the beginning
+	m_PlayOrPause = m_PlayTexture;
 }
 
 void EditorLayer::OnDetach()
@@ -104,7 +107,6 @@ void EditorLayer::OnUpdate(double timestep)
 	initial_pos = mouse;
 
 	bool active = true;
-	m_EditorCameraController.Update(&active);
 	m_HierarchyPanel.SetActiveScene(m_ActiveScene);
 
 	Xen::RenderCommand::Clear();
@@ -115,15 +117,20 @@ void EditorLayer::OnUpdate(double timestep)
 	Xen::RenderCommand::Clear();
 	m_ViewportFrameBuffer->ClearAttachments();
 
-	//Xen::RenderCommand::SetClearColor(Xen::Color(0.13f, 0.13f, 0.13f, 1.0f));
+	if (m_EditorState == EditorState::Edit)
+	{
+		m_EditorCameraController.Update(&active);
+		m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
+		m_EditorCamera->SetScale({ m_EditorCameraController.GetFocalDistance(), m_EditorCameraController.GetFocalDistance(), 1.0f });
 
-	m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
-	m_EditorCamera->SetScale({ m_EditorCameraController.GetFocalDistance(), m_EditorCameraController.GetFocalDistance(), 1.0f });
+		//m_EditorCamera->LookAtPoint(m_EditorCameraController.GetFocalPoint());
 
-	//m_EditorCamera->LookAtPoint(m_EditorCameraController.GetFocalPoint());
+		m_EditorCamera->Update();
+		m_ActiveScene->OnUpdate(timestep, m_EditorCamera);
+	}
 
-	m_EditorCamera->Update();
-	m_ActiveScene->OnUpdate(timestep, m_EditorCamera);
+	else if (m_EditorState == EditorState::Play || m_EditorState == EditorState::Pause)
+		m_ActiveScene->OnUpdateRuntime(timestep);
 
 	// Line Rendering Test
 
@@ -200,9 +207,9 @@ void EditorLayer::OnImGuiUpdate()
 			// we want (which ever one we DON'T set as NULL, will be returned by the function)
 			// out_id_at_dir is the id of the node in the direction we specified earlier, out_id_at_opposite_dir is in the opposite direction
 
-			auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.3f, nullptr, &dockspace_id);
-			auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
-			auto dock_id_up = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.08f, nullptr, &dockspace_id);
+			auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.22f, nullptr, &dockspace_id); // For the Scene hierarchy panel and properties panel
+			auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);  // For the Content Browser panel
+			auto dock_id_up = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.065f, nullptr, &dockspace_id);    // For the toolbar
 
 			auto dock_id_left_down = ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Down, 0.5f, nullptr, &dock_id_left);
 
@@ -440,12 +447,67 @@ void EditorLayer::OnImGuiUpdate()
 	
 	ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
 
-	ImGui::ImageButton((ImTextureID)m_PlayTexture->GetNativeTextureID(),  { 30.0f, 30.0f }); ImGui::SameLine();
-	ImGui::ImageButton((ImTextureID)m_PauseTexture->GetNativeTextureID(), { 30.0f, 30.0f }); ImGui::SameLine();
-	ImGui::ImageButton((ImTextureID)m_StopTexture->GetNativeTextureID(),  { 30.0f, 30.0f });
+	const char* scene_state;
+	switch (m_EditorState)
+	{
+	case EditorLayer::EditorState::Play:
+		scene_state = "Play";
+		break;
+	case EditorLayer::EditorState::Edit:
+		scene_state = "Edit";
+		break;
+	case EditorLayer::EditorState::Pause:
+		scene_state = "Pause";
+		break;
+	default:
+		break;
+	}
+
+	ImGui::Text("Scene State: %s", scene_state); ImGui::SameLine();
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	float width = 0.0f;
+	width += 25.0f;			// Play/Pause Button
+	width += style.ItemSpacing.x;
+	width += 25.0f;			// Stop Button
+	width += style.ItemSpacing.x;
+	width += ImGui::CalcTextSize("World!").x;
+
+	float avail = ImGui::GetContentRegionAvail().x;
+	float off = (avail - width) * 0.5f;
+	if (off > 0.0f)
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
+
+	if (ImGui::ImageButton((ImTextureID)m_PlayOrPause->GetNativeTextureID(), { 25.0f, 25.0f }))
+	{
+		if (m_PlayOrPause == m_PlayTexture)
+		{
+			m_PlayOrPause = m_PauseTexture;
+			m_EditorState = EditorState::Play;
+		}
+		else {
+			m_PlayOrPause = m_PlayTexture;
+			m_EditorState = EditorState::Pause;
+		}
+
+		m_EditMode = false;
+	}
+
+	ImGui::SameLine();
+
+	ImGui::PushDisabled(m_EditMode);
+
+	if (ImGui::ImageButton((ImTextureID)m_StopTexture->GetNativeTextureID(), { 25.0f, 25.0f })) 
+	{
+		m_EditorState = EditorState::Edit;
+		m_EditMode = true;
+		m_PlayOrPause = m_PlayTexture;
+	}
+
+	ImGui::PopDisabled();
+
 	ImGui::PopStyleColor();
 
-	//ImGui::Text("This is going to be the toolbar!");
 	ImGui::End();
 
 	ImGui::PopStyleVar();
