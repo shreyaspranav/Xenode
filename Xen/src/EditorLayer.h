@@ -58,6 +58,16 @@ private:
 	Xen::Ref<Xen::Camera> m_EditorCamera;
 	Xen::EditorCameraController m_EditorCameraController;
 
+	Xen::Ref<Xen::Texture2D> m_PlayTexture;
+	Xen::Ref<Xen::Texture2D> m_PauseTexture;
+	Xen::Ref<Xen::Texture2D> m_StopTexture;
+
+	enum class EditorState {
+		Play, Edit
+	};
+
+	EditorState m_EditorState = EditorState::Edit;
+
 private:
 	Xen::Vec3 GetCameraFrontDir();
 };

@@ -81,6 +81,15 @@ void EditorLayer::OnAttach()
 	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
 
 	m_EditorCameraController = Xen::EditorCameraController(input, Xen::EditorCameraType::_2D);
+
+
+	m_PlayTexture = Xen::Texture2D::CreateTexture2D("assets/textures/play.png", false);
+	m_StopTexture = Xen::Texture2D::CreateTexture2D("assets/textures/stop.png", false);
+	m_PauseTexture = Xen::Texture2D::CreateTexture2D("assets/textures/pause.png", false);
+
+	m_PlayTexture->LoadTexture();
+	m_StopTexture->LoadTexture();
+	m_PauseTexture->LoadTexture();
 }
 
 void EditorLayer::OnDetach()
@@ -193,12 +202,14 @@ void EditorLayer::OnImGuiUpdate()
 
 			auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.3f, nullptr, &dockspace_id);
 			auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
+			auto dock_id_up = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.08f, nullptr, &dockspace_id);
 
 			auto dock_id_left_down = ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Down, 0.5f, nullptr, &dock_id_left);
 
 			// we now dock our windows into the docking node we made above
 			ImGui::DockBuilderDockWindow(m_HierarchyPanel.GetPanelTitle().c_str(), dock_id_left);
 			ImGui::DockBuilderDockWindow(m_ContentBrowserPanel.GetPanelTitle().c_str(), dock_id_down);
+			ImGui::DockBuilderDockWindow("##toolbar", dock_id_up);
 			ImGui::DockBuilderDockWindow("Renderer Stats", dock_id_left_down);
 			ImGui::DockBuilderDockWindow(m_PropertiesPanel.GetPanelTitle().c_str(), dock_id_left_down);
 			//ImGui::DockBuilderDockWindow("Window Three", dock_id_left_down);
@@ -294,6 +305,7 @@ void EditorLayer::OnImGuiUpdate()
 			m_EditorCamera->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
 		}
 	}
+
 	m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
 
 	ImGui::Image((void*)m_ViewportFrameBuffer->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
@@ -418,6 +430,24 @@ void EditorLayer::OnImGuiUpdate()
 	}
 
 	ImGui::End();
+
+	ImGuiWindowClass window_class;
+	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
+	ImGui::SetNextWindowClass(&window_class);
+
+	ImGuiWindowFlags toolbar_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+	ImGui::Begin("##toolbar", nullptr, toolbar_flags);
+	
+	ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
+
+	ImGui::ImageButton((ImTextureID)m_PlayTexture->GetNativeTextureID(),  { 30.0f, 30.0f }); ImGui::SameLine();
+	ImGui::ImageButton((ImTextureID)m_PauseTexture->GetNativeTextureID(), { 30.0f, 30.0f }); ImGui::SameLine();
+	ImGui::ImageButton((ImTextureID)m_StopTexture->GetNativeTextureID(),  { 30.0f, 30.0f });
+	ImGui::PopStyleColor();
+
+	//ImGui::Text("This is going to be the toolbar!");
+	ImGui::End();
+
 	ImGui::PopStyleVar();
 }
 
