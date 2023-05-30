@@ -101,6 +101,7 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(double timestep)
 {
+	XEN_ENGINE_LOG_INFO("FRAME_START");
 
 	Xen::Vec2 mouse = Xen::Vec2(input->GetMouseX(), input->GetMouseY());
 	Xen::Vec2 delta = (mouse - initial_pos) * 0.3f;
@@ -144,6 +145,7 @@ void EditorLayer::OnUpdate(double timestep)
 
 	Xen::Renderer2D::EndScene();
 	Xen::Renderer2D::RenderFrame();
+	XEN_ENGINE_LOG_INFO("FRAME_END");
 
 	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport)
 	{
@@ -484,10 +486,14 @@ void EditorLayer::OnImGuiUpdate()
 		{
 			m_PlayOrPause = m_PauseTexture;
 			m_EditorState = EditorState::Play;
+
+			m_ActiveScene->OnRuntimeStart();
 		}
 		else {
 			m_PlayOrPause = m_PlayTexture;
 			m_EditorState = EditorState::Pause;
+
+			m_ActiveScene->OnRuntimeStop();
 		}
 
 		m_EditMode = false;
@@ -502,6 +508,8 @@ void EditorLayer::OnImGuiUpdate()
 		m_EditorState = EditorState::Edit;
 		m_EditMode = true;
 		m_PlayOrPause = m_PlayTexture;
+
+		m_ActiveScene->OnRuntimeStop();
 	}
 
 	ImGui::PopDisabled();

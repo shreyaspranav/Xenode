@@ -7,6 +7,9 @@
 #include "core/renderer/Renderer2D.h"
 #include "core/app/Log.h"
 
+// Physics:
+#include <box2d/box2d.h>
+
 namespace Xen {
 	void DoSomething(int a)
 	{
@@ -19,7 +22,8 @@ namespace Xen {
 
 	Scene::~Scene()
 	{
-
+		delete m_PhysicsWorld;
+		m_PhysicsWorld = nullptr;
 	}
 
 	void Scene::OnCreate()
@@ -44,6 +48,75 @@ namespace Xen {
 		m_Registry.clear();
 	}
 
+	void Scene::OnRuntimeStart()
+	{
+		m_PhysicsWorld = new b2World({ 0.0f, -10.0f });
+		auto rigid_body_view = m_Registry.view<Component::RigidBody2D>();
+
+		XEN_ENGINE_LOG_INFO("OnRuntimeStart!");
+
+		for (auto& entity : rigid_body_view)
+		{
+			Entity this_entity = Entity(entity, this);
+
+			Component::Transform& transform = this_entity.GetComponent<Component::Transform>();
+			Component::RigidBody2D& rigidBody2d = this_entity.GetComponent<Component::RigidBody2D>();
+
+			b2BodyDef bodyDefinition;
+			switch (rigidBody2d.bodyType)
+			{
+			case Component::RigidBody2D::BodyType::Static:
+				bodyDefinition.type = b2_staticBody;
+				break;
+			case Component::RigidBody2D::BodyType::Dynamic:
+				bodyDefinition.type = b2_dynamicBody;
+				break;
+			case Component::RigidBody2D::BodyType::Kinematic:
+				bodyDefinition.type = b2_kinematicBody;
+				break;
+			default:
+				break;
+			}
+
+			bodyDefinition.position.Set(transform.position.x, transform.position.y);
+			bodyDefinition.angle = transform.rotation.z;
+
+			b2Body* physicsBody = m_PhysicsWorld->CreateBody(&bodyDefinition);
+			physicsBody->SetFixedRotation(rigidBody2d.fixedRotation);
+
+			// Set the runtime body so that it can deleted later:
+			rigidBody2d.runtimeBody = physicsBody;
+
+			if (this_entity.HasAnyComponent<Component::BoxCollider2D>())
+			{
+				Component::BoxCollider2D& boxCollider = this_entity.GetComponent< Component::BoxCollider2D>();
+
+				b2PolygonShape shape;
+				shape.SetAsBox(
+					boxCollider.size.x * transform.scale.x,
+					boxCollider.size.y * transform.scale.y
+				);
+
+				b2FixtureDef fixtureDef;
+				fixtureDef.shape = &shape;
+				fixtureDef.density = boxCollider.bodyDensity;
+				fixtureDef.friction = boxCollider.bodyFriction;
+				fixtureDef.restitution = boxCollider.bodyRestitution;
+				fixtureDef.restitutionThreshold = boxCollider.bodyRestitionThreshold;
+
+				physicsBody->CreateFixture(&fixtureDef);
+			}
+		}
+	}
+
+	void Scene::OnRuntimeStop()
+	{
+		//delete m_PhysicsWorld;
+		//m_PhysicsWorld = nullptr;
+
+		XEN_ENGINE_LOG_INFO("OnRuntimeStop!");
+	}
+
 	Entity Scene::GetPrimaryCameraEntity()
 	{
 		auto camera_view = m_Registry.view<Component::CameraComp>();
@@ -61,6 +134,7 @@ namespace Xen {
 
 	void Scene::OnUpdateRuntime(double timestep)
 	{
+		XEN_ENGINE_LOG_INFO("RUNTIME_START");
 		m_RenderableEntityIndex = 0;
 		//entt::observer group_observer{ m_Registry, entt::collector.group<Component::Transform, Component::SpriteRenderer>() };
 
@@ -76,6 +150,33 @@ namespace Xen {
 
 				script.scriptable_entity_instance->OnUpdate(timestep);
 			});
+
+		// Simulate Physics:
+		const int32_t velocityIterations = 6;
+		const int32_t positionIterations = 2;
+
+		m_PhysicsWorld->Step(1.0f / 60.0f, velocityIterations, positionIterations);
+
+		auto rigid_body_view = m_Registry.view<Component::RigidBody2D>();
+
+		for (auto& entity : rigid_body_view)
+		{
+			Entity this_entity = Entity(entity, this);
+
+			Component::Transform& transform = this_entity.GetComponent<Component::Transform>();
+			Component::RigidBody2D& rigidBody2d = this_entity.GetComponent<Component::RigidBody2D>();
+
+			b2Body* body = (b2Body*)rigidBody2d.runtimeBody;
+
+			const auto& position = body->GetPosition();
+
+			transform.position.x = position.x;
+			transform.position.y = position.y;
+
+			transform.rotation.z = body->GetAngle();
+		}
+
+
 
 		// Update Cameras
 		auto camera_group_observer = m_Registry.view<Component::Transform, Component::CameraComp>();
@@ -149,11 +250,35 @@ namespace Xen {
 			{
 				Component::SpriteRenderer& spriteRenderer = m_RenderableEntities[i].GetComponent<Component::SpriteRenderer>();
 
-				if (spriteRenderer.texture == nullptr)
-					Renderer2D::DrawClearQuad(transform.position, 
-						transform.rotation, 
-						{ transform.scale.x, transform.scale.y },
-						spriteRenderer.color);
+				if (spriteRenderer.texture == nullptr) {
+					switch (spriteRenderer.primitive)
+					{
+					case SpriteRendererPrimitive::Triangle:
+						Renderer2D::DrawClearTriangle(transform.position,
+							transform.rotation,
+							{ transform.scale.x, transform.scale.y },
+							spriteRenderer.color,
+							(uint32_t)m_RenderableEntities[i]);
+						break;
+					case SpriteRendererPrimitive::Quad:
+						Renderer2D::DrawClearQuad(transform.position,
+							transform.rotation,
+							{ transform.scale.x, transform.scale.y },
+							spriteRenderer.color,
+							(uint32_t)m_RenderableEntities[i]);
+						break;
+					case SpriteRendererPrimitive::Polygon:
+						Renderer2D::DrawPolygon(transform.position,
+							transform.rotation,
+							{ transform.scale.x, transform.scale.y },
+							spriteRenderer.polygon_segment_count,
+							spriteRenderer.color,
+							(uint32_t)m_RenderableEntities[i]);
+						break;
+					default:
+						break;
+					}
+				}
 				else
 					Renderer2D::DrawTexturedQuad(spriteRenderer.texture, 
 						transform.position, 
@@ -176,6 +301,7 @@ namespace Xen {
 					circleRenderer.outer_fade);
 			}
 		}
+		XEN_ENGINE_LOG_INFO("RUNTIME_END");
 	}
 
 	void Scene::OnUpdate(double timestep, const Ref<Camera>& camera)
@@ -258,7 +384,6 @@ namespace Xen {
 							(uint32_t)m_RenderableEntities[i]);
 						break;
 					case SpriteRendererPrimitive::Polygon:
-						// TODO: Renderer2D Implementation
 						Renderer2D::DrawPolygon(transform.position,
 							transform.rotation,
 							{ transform.scale.x, transform.scale.y },

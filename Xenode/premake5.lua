@@ -46,7 +46,8 @@ project "Xenode"
 		"GLFW", 
 		"ImGui",
 		"yaml-cpp",
-		"freetype"
+		"freetype",
+		"Box2D"
 	}
 
 	includedirs {
@@ -66,6 +67,7 @@ project "Xenode"
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.freetype}",
 		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.Box2D}",
 		"%{IncludeDir.Optick}",
 	}
 
@@ -126,10 +128,10 @@ project "Xenode"
 		optimize "On"
 
 	filter { "configurations:Debug", "system:windows" }
-		buildoptions "/MDd"
+		buildoptions "/MTd"
 	
 	filter { "configurations:Release_Debug", "system:windows" }
-		buildoptions "/MD"
+		buildoptions "/MT"
 	
 	filter { "configurations:Production", "system:windows" }
-		buildoptions "/MD"
+		buildoptions "/MT"

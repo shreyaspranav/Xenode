@@ -19,3 +19,6 @@
 [submodule "Xenode/deps/ImGuizmo"]
 	path = deps/ImGuizmo
 	url = https://github.com/shreyaspranav/ImGuizmo.git
+[submodule "deps/box2d"]
+	path = deps/box2d
+	url = https://github.com/shreyaspranav/box2d

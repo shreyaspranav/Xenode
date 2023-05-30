@@ -124,5 +124,45 @@ namespace Xen {
 				};
 			}
 		};
+
+		// Physics Components:
+		struct RigidBody2D
+		{
+			enum class BodyType { Static, Dynamic, Kinematic };
+
+			BodyType bodyType = BodyType::Static;
+			bool fixedRotation = false;
+
+			// Storage for the runtime object
+			void* runtimeBody = nullptr;
+
+			RigidBody2D() = default;
+			RigidBody2D(const RigidBody2D& rigidBody) = default;
+
+			RigidBody2D(BodyType type, bool fixedRotation = false)
+				:bodyType(type), fixedRotation(fixedRotation) {}
+
+		};
+
+		struct BoxCollider2D
+		{
+			Vec2 bodyOffset = { 0.0f, 0.0f };
+			Vec2 size		= { 0.5f, 0.5f }; // This is a half-extents
+
+			float bodyDensity = 1.0f;
+			float bodyFriction = 0.1f;
+			float bodyRestitution = 0.4f;
+			float bodyRestitionThreshold = 0.5f;
+
+			// Storage for the runtime object
+			void* runtimeBody = nullptr;
+
+			BoxCollider2D() = default;
+			BoxCollider2D(const BoxCollider2D& rigidBody) = default;
+
+			BoxCollider2D(const Vec2& bodyOffset, const Vec2& size)
+				:bodyOffset(bodyOffset), size(size) {}
+
+		};
 	}
 }

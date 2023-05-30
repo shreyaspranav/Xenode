@@ -6,6 +6,7 @@
 #include <core/renderer/Camera.h>
 
 class SceneHierarchyPanel;
+class b2World;
 
 namespace Xen {
 	class Entity;
@@ -18,6 +19,9 @@ namespace Xen {
 
 		void OnUpdate(double timestep, const Ref<Camera>& camera);
 		void OnUpdateRuntime(double timestep);
+
+		void OnRuntimeStart();
+		void OnRuntimeStop();
 
 		void OnCreate();
 
@@ -42,6 +46,8 @@ namespace Xen {
 		uint32_t m_RenderableEntityIndex = 0;
 
 		bool m_IsDirty = true;
+
+		b2World* m_PhysicsWorld = nullptr;
 
 		friend class Entity;
 		friend class ::SceneHierarchyPanel;

@@ -65,6 +65,13 @@ public:
 				// Copying a vector every frame ? Inefficient ??
 				m_AvailableComponents = m_Components;
 
+				if (m_AvailableComponents.empty())
+				{
+					ImGui::BeginTooltip();
+					ImGui::Text("No More Available Components!!");
+					ImGui::EndTooltip();
+				}
+
 				if (m_SelectedEntity.HasAnyComponent<Xen::Component::SpriteRenderer>())
 				{
 					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), std::string(ICON_FA_TREE) + std::string(" Sprite Renderer"));
@@ -89,17 +96,11 @@ public:
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
-				if (m_AvailableComponents.empty())
-				{
-					ImGui::BeginTooltip();
-					ImGui::Text("No More Available Components!!");
-					ImGui::EndTooltip();
-				}
-
 				for (const std::string& component : m_AvailableComponents)
 				{
 					if (ImGui::Selectable(component.c_str()))
 					{
+
 						if (component.contains("Sprite Renderer"))
 							m_SelectedEntity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f), nullptr, 1.0f);
 
@@ -108,6 +109,12 @@ public:
 
 						else if (component.contains("Circle Renderer"))
 							m_SelectedEntity.AddComponent<Xen::Component::CircleRenderer>();
+
+						else if (component.contains("Rigid Body 2D"))
+							m_SelectedEntity.AddComponent<Xen::Component::RigidBody2D>();
+
+						else if (component.contains("Box Collider 2D"))
+							m_SelectedEntity.AddComponent<Xen::Component::BoxCollider2D>();
 
 						std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), component);
 						m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
@@ -475,6 +482,128 @@ public:
 				}
 				//ImGui::Separator();
 			}
+
+			backRB:
+			if (m_SelectedEntity.HasAnyComponent<Xen::Component::RigidBody2D>())
+			{
+				if (ImGui::CollapsingHeader((std::string(ICON_FA_CUBES_STACKED) + std::string(" Rigid Body 2D")).c_str(), tree_flags))
+				{
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+						ImGui::OpenPopup("DeleteComponent");
+
+					if (ImGui::BeginPopup("DeleteComponent"))
+					{
+						if (ImGui::Selectable("Delete Component"))
+						{
+							m_SelectedEntity.DeleteComponent<Xen::Component::SpriteRenderer>();
+							ImGui::EndPopup();
+							goto backRB;
+						}
+						ImGui::EndPopup();
+					}
+
+					Xen::Component::RigidBody2D& rBody = m_SelectedEntity.GetComponent< Xen::Component::RigidBody2D>();
+
+					ImGui::Columns(2, "##RigidBody2D", false);
+					ImGui::SetColumnWidth(0, 120.0f);
+
+					switch (rBody.bodyType)
+					{
+					case Xen::Component::RigidBody2D::BodyType::Static:
+						rigid_body_type_index = 0;
+						break;
+					case Xen::Component::RigidBody2D::BodyType::Dynamic:
+						rigid_body_type_index = 1;
+						break;
+					case Xen::Component::RigidBody2D::BodyType::Kinematic:
+						rigid_body_type_index = 2;
+						break;
+					default:
+						break;
+					}
+
+					PaddedText("Body Type", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					if (ImGui::Combo("##BodyType", &rigid_body_type_index, rigid_body_types, IM_ARRAYSIZE(rigid_body_types)))
+					{
+						switch (rigid_body_type_index)
+						{
+						case 0:
+							rBody.bodyType = Xen::Component::RigidBody2D::BodyType::Static;
+							break;
+						case 1:
+							rBody.bodyType = Xen::Component::RigidBody2D::BodyType::Dynamic;
+							break;
+						case 2:
+							rBody.bodyType = Xen::Component::RigidBody2D::BodyType::Kinematic;
+							break;
+						default:
+							break;
+						}
+					}
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Fixed Rotation", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::Checkbox("##FixedRotation", &rBody.fixedRotation);
+
+					ImGui::Columns(1);
+				}
+			}
+
+			backBC:
+			if (m_SelectedEntity.HasAnyComponent<Xen::Component::BoxCollider2D>())
+			{
+				if (ImGui::CollapsingHeader((std::string(ICON_FA_SQUARE) + std::string(" Box Collider 2D")).c_str(), tree_flags))
+				{
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+						ImGui::OpenPopup("DeleteComponent");
+
+					if (ImGui::BeginPopup("DeleteComponent"))
+					{
+						if (ImGui::Selectable("Delete Component"))
+						{
+							m_SelectedEntity.DeleteComponent<Xen::Component::SpriteRenderer>();
+							ImGui::EndPopup();
+							goto backBC;
+						}
+						ImGui::EndPopup();
+					}
+
+					Xen::Component::BoxCollider2D& bCollider = m_SelectedEntity.GetComponent<Xen::Component::BoxCollider2D>();
+
+					DrawVec2Control("Size", bCollider.size);
+					DrawVec2Control("Offset", bCollider.bodyOffset);
+
+					ImGui::Columns(2, "##BoxCollider2D", false);
+					ImGui::SetColumnWidth(0, 120.0f);
+
+					PaddedText("Density", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::DragFloat("##Density", &bCollider.bodyDensity, 0.05f, 0.0f, 10.0f);
+					ImGui::NextColumn();
+
+					PaddedText("Restitution", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::DragFloat("##Restitution", &bCollider.bodyRestitution, 0.05f, 0.0f, 1.0f);
+					ImGui::NextColumn();
+
+					PaddedText("Friction", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::DragFloat("##Friction", &bCollider.bodyFriction, 0.05f, 0.0f, 1.0f);
+					ImGui::NextColumn();
+
+					PaddedText("Restitution Threshold", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::DragFloat("##RestitutionThreshold", &bCollider.bodyRestitionThreshold, 0.05f, 0.0f, 1.0f);
+					//DrawVec2Control("Offset", bCollider.bodyOffset);
+
+					ImGui::Columns(1);
+				}
+			}
 		}
 
 		ImGui::End();
@@ -504,7 +633,7 @@ private:
 		PaddedText(label.c_str(), 0.0f, 3.0f);
 		ImGui::NextColumn();
 
-		ImGui::PushMultiItemsWidths(3, ImGui::GetContentRegionAvailWidth() - 64.5f);
+		ImGui::PushMultiItemsWidths(3, ImGui::GetContentRegionAvailWidth() - 60.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
@@ -552,6 +681,53 @@ private:
 		ImGui::PopID();
 	}
 
+	void DrawVec2Control(const std::string& label, Xen::Vec2& values, float resetValue = 0.0f, float columnWidth = 80.0f)
+	{
+
+		ImGui::PushID(label.c_str());
+
+		ImGui::Columns(2, 0, false);
+		ImGui::SetColumnWidth(0, columnWidth);
+
+		PaddedText(label.c_str(), 0.0f, 3.0f);
+		ImGui::NextColumn();
+
+		ImGui::PushMultiItemsWidths(2, ImGui::GetContentRegionAvailWidth() - 40.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
+
+		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+		ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+		if (ImGui::Button("X", buttonSize))
+			values.x = resetValue;
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##X", &values.x, 0.01f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+		if (ImGui::Button("Y", buttonSize))
+			values.y = resetValue;
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##Y", &values.y, 0.01f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+
+		ImGui::PopStyleVar();
+
+		ImGui::Columns(1);
+
+		ImGui::PopID();
+	}
+
 
 private:
 	const char* tag_buf = "";
@@ -561,6 +737,9 @@ private:
 	int sprite_renderer_item_index = 1; // Sprite Renderer Item Index
 	const char* sprite_renderer_primitives[3] = { "Triangle", "Quad", "Polygon" };
 
+	int rigid_body_type_index = 0;
+	const char* rigid_body_types[3] = { "Static", "Dynamic", "Kinematic" };
+
 	int camera_index = 1; // 0: Perspective, 1: Orthographic
 	const char* camera_type[2] = {"Perspective", "Orthographic"};
 
@@ -568,10 +747,14 @@ private:
 
 	float pad[2] = {};
 
-	std::vector<std::string> m_Components = { std::string(ICON_FA_TREE) + std::string(" Sprite Renderer"),
-								std::string(ICON_FA_CAMERA) + std::string(" Camera"), 
-								std::string(ICON_FA_CODE) + std::string(" Script"), 
-								std::string(ICON_FA_CIRCLE) + std::string(" Circle Renderer") };
+	std::vector<std::string> m_Components = { 
+		std::string(ICON_FA_TREE)				+ std::string(" Sprite Renderer"),
+		std::string(ICON_FA_CAMERA)				+ std::string(" Camera"), 
+		std::string(ICON_FA_CODE)				+ std::string(" Script"), 
+		std::string(ICON_FA_CIRCLE)				+ std::string(" Circle Renderer"), 
+		std::string(ICON_FA_CUBES_STACKED)		+ std::string(" Rigid Body 2D"),
+		std::string(ICON_FA_SQUARE)				+ std::string(" Box Collider 2D"),
+	};
 
 	std::vector<std::string> m_AvailableComponents = m_Components;
 

@@ -74,11 +74,11 @@ project "Xen"
         defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
         optimize "On"
 
-    filter { "configurations:Debug", "system:windows" }
-        buildoptions "/MDd"
-
-    filter { "configurations:Release_Debug", "system:windows" }
-        buildoptions "/MD"
-
-    filter { "configurations:Production", "system:windows" }
-        buildoptions "/MD"
+	filter { "configurations:Debug", "system:windows" }
+		buildoptions "/MTd"
+	
+	filter { "configurations:Release_Debug", "system:windows" }
+		buildoptions "/MT"
+	
+	filter { "configurations:Production", "system:windows" }
+		buildoptions "/MT"

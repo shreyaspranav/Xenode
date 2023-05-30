@@ -218,6 +218,8 @@ namespace Xen {
 			s_Data.shader->Bind();
 			
 			s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * 15);
+
+			XEN_ENGINE_LOG_WARN("Vertices Rendering: {0}", batch_storage[batch_index]->vertex_index);
 			
 			s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->index_count);
 			s_Data.shader->SetIntArray("tex", texture_slots, max_texture_slots);
@@ -567,6 +569,8 @@ namespace Xen {
 
 	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id)
 	{
+
+		//XEN_ENGINE_LOG_ERROR("QUAD_ADDED");
 		XEN_PROFILE_FN();
 
 		if (batch_storage[batch_index]->texture_slot_index >= max_texture_slots || batch_storage[batch_index]->vertex_index > max_vertices_per_batch - 4)
