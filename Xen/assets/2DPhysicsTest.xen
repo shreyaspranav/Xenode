@@ -1,0 +1,35 @@
+Scene: Untitled
+Entities:
+  - Entity: [Camera, 473828532]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [8, 8, 1]
+    CameraComp:
+      Camera:
+        ProjectionType: Orthographic
+        ZNear: 1
+        ZFar: -1
+      IsPrimary: true
+      IsResizable: true
+  - Entity: [Quad 2, 473828532]
+    Transform:
+      Position: [0, -3.58999991, 0]
+      Rotation: [0, 0, 0]
+      Scale: [16.0300007, 1, 1]
+    SpriteRenderer:
+      Color: [1, 1, 1, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+  - Entity: [Quad 1, 473828532]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 21.4099998]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      Color: [1, 1, 1, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+Entity Count: 3

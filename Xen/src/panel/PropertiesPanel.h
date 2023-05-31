@@ -495,7 +495,7 @@ public:
 					{
 						if (ImGui::Selectable("Delete Component"))
 						{
-							m_SelectedEntity.DeleteComponent<Xen::Component::SpriteRenderer>();
+							m_SelectedEntity.DeleteComponent<Xen::Component::RigidBody2D>();
 							ImGui::EndPopup();
 							goto backRB;
 						}
@@ -566,7 +566,7 @@ public:
 					{
 						if (ImGui::Selectable("Delete Component"))
 						{
-							m_SelectedEntity.DeleteComponent<Xen::Component::SpriteRenderer>();
+							m_SelectedEntity.DeleteComponent<Xen::Component::BoxCollider2D>();
 							ImGui::EndPopup();
 							goto backBC;
 						}
@@ -575,30 +575,39 @@ public:
 
 					Xen::Component::BoxCollider2D& bCollider = m_SelectedEntity.GetComponent<Xen::Component::BoxCollider2D>();
 
-					DrawVec2Control("Size", bCollider.size);
-					DrawVec2Control("Offset", bCollider.bodyOffset);
+					DrawVec2Control("Size", bCollider.size, 0.5f, 150.0f);
+					DrawVec2Control("Offset", bCollider.bodyOffset, 0.0f, 150.0f);
 
 					ImGui::Columns(2, "##BoxCollider2D", false);
-					ImGui::SetColumnWidth(0, 120.0f);
+					ImGui::SetColumnWidth(0, 150.0f);
+
 
 					PaddedText("Density", 0.0f, 3.0f);
 					ImGui::NextColumn();
+					ImGui::PushItemWidth(-0.1f);
 					ImGui::DragFloat("##Density", &bCollider.bodyDensity, 0.05f, 0.0f, 10.0f);
+					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 
 					PaddedText("Restitution", 0.0f, 3.0f);
 					ImGui::NextColumn();
+					ImGui::PushItemWidth(-0.1f);
 					ImGui::DragFloat("##Restitution", &bCollider.bodyRestitution, 0.05f, 0.0f, 1.0f);
+					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 
 					PaddedText("Friction", 0.0f, 3.0f);
 					ImGui::NextColumn();
+					ImGui::PushItemWidth(-0.1f);
 					ImGui::DragFloat("##Friction", &bCollider.bodyFriction, 0.05f, 0.0f, 1.0f);
+					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 
 					PaddedText("Restitution Threshold", 0.0f, 3.0f);
 					ImGui::NextColumn();
+					ImGui::PushItemWidth(-0.1f);
 					ImGui::DragFloat("##RestitutionThreshold", &bCollider.bodyRestitionThreshold, 0.05f, 0.0f, 1.0f);
+					ImGui::PopItemWidth();
 					//DrawVec2Control("Offset", bCollider.bodyOffset);
 
 					ImGui::Columns(1);
