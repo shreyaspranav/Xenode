@@ -2,6 +2,7 @@
 
 Xenode is a cross platform game engine that works primarily works in Windows and Linux.
 
+![Xen Editor](XenodeLogo.JPG "Xenode Logo")
 ![Xen Editor](XenEditor.PNG "Xen Editor")
 
 ## Building Xenode
