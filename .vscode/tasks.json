@@ -7,7 +7,7 @@
 
             "windows":{
                 // By Default Windows generates vs2022 projects
-                "command": "premake5",
+                "command": "premake/premake-windows.exe",
                 "args": [
                     "vs2022"
                 ],

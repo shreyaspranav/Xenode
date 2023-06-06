@@ -3,7 +3,17 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/deps/entt/include",
+                "${workspaceFolder}/deps/glad/include",
+                "${workspaceFolder}/deps/glfw/include",
+                "${workspaceFolder}/deps/glm/include",
+                "${workspaceFolder}/deps/imgui",
+                "${workspaceFolder}/deps/ImGuizmo",
+                "${workspaceFolder}/deps/optick/include",
+                "${workspaceFolder}/deps/yaml-cpp/include",
+                "${workspaceFolder}/deps/spdlog",
+                "${workspaceFolder}/Xenode/src",
+                "${workspaceFolder}/Xenode/src/pch"
             ],
             "defines": [
                 "_DEBUG",
@@ -16,7 +26,7 @@
                 "XEN_ENGINE_LOG_ERROR_SEVERE(...)",
                 "XEN_ENGINE_LOG_INFO(...)",
                 "XEN_ENGINE_LOG_WARN(...)",
-                "XEN_ENGINE_LOG_TRACE(...)",
+                "XEN_ENGINE_LOG_TRACE(...)"
             ],
             "windowsSdkVersion": "10.0.22000.0",
             "cStandard": "c17",
