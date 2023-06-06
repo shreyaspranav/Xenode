@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Xen Editor Launch (Release_Debug)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/Release_Debug-windows-x86_64/Xen.exe",
+            "symbolSearchPath": "${workspaceFolder}/bin/Release_Debug-windows-x86_64/",
+            "cwd": "${workspaceFolder}/Xen",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "logging": {
+                "moduleLoad": false,
+                "trace": true
+            },
+        }
+    ]
+}

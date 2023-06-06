@@ -2,7 +2,6 @@ project "Xenode"
 
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++20"
 	pic "on"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
@@ -12,30 +11,16 @@ project "Xenode"
 	pchsource "src/pch/pch.cpp"
 
 	files {
-		"src/core/app/**.cpp",
-		"src/core/app/**.h",
-
-		"src/core/renderer/**.cpp",
-		"src/core/renderer/**.h",
-
-		"src/core/scene/**.cpp",
-		"src/core/scene/**.h",
-
-		"src/imgui/**.cpp",
+		-- Main project source files:
+		"src/core/**.h",
+		"src/gfxapi/**.h",
 		"src/imgui/**.h",
 
-		"src/gfxapi/OpenGL/**.cpp",
-		"src/gfxapi/OpenGL/**.h",
-
-		"src/gfxapi/window/glfw/**.cpp",
-		"src/gfxapi/window/glfw/**.h",
+		"src/core/**.cpp",
+		"src/gfxapi/**.cpp",
+		"src/imgui/**.cpp",
 
 		"src/pch/pch.cpp",
-		"src/pch/pch",
-
-		"src/Xenode.h",
-		"src/Core.h",
-
 
 		--ImGuizmo source files
 		"../deps/ImGuizmo/*.cpp",
@@ -127,11 +112,11 @@ project "Xenode"
 		defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
 		optimize "On"
 
-	filter { "configurations:Debug", "system:windows" }
+	filter "action:vs*"
+		buildoptions "/std:c++latest"	
+
+	filter { "configurations:Debug", "action:vs*" }
 		buildoptions "/MTd"
 	
-	filter { "configurations:Release_Debug", "system:windows" }
-		buildoptions "/MT"
-	
-	filter { "configurations:Production", "system:windows" }
+	filter { "configurations:Release_Debug or Production", "action:vs*" }
 		buildoptions "/MT"

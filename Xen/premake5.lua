@@ -32,7 +32,6 @@ project "Xen"
 
 	links { "Xenode", "yaml-cpp" }
 
-	cppdialect "C++20"
 	pic "on"
 
 	filter "files:deps/ImGuizmo/*.cpp"
@@ -74,11 +73,11 @@ project "Xen"
         defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
         optimize "On"
 
-	filter { "configurations:Debug", "system:windows" }
+	filter "action:vs*"
+		buildoptions "/std:c++latest"
+
+	filter { "configurations:Debug", "action:vs*" }
 		buildoptions "/MTd"
 	
-	filter { "configurations:Release_Debug", "system:windows" }
-		buildoptions "/MT"
-	
-	filter { "configurations:Production", "system:windows" }
+	filter { "configurations:Release_Debug or Production", "action:vs*" }
 		buildoptions "/MT"

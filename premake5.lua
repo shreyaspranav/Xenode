@@ -42,4 +42,4 @@ include "Xenode/"
 include "Xen/"
 include "SandboxApp/"
 
-include "SandboxAppAndroid/SandboxAndroidBuild.lua"
+--include "SandboxAppAndroid/SandboxAndroidBuild.lua"

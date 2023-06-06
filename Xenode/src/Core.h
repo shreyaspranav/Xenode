@@ -1,44 +1,11 @@
 #pragma once
 #include <pch/pch>
 
-#ifdef XEN_PLATFORM_WINDOWS
-  #ifdef XEN_BUILD_LIB
-
-	#ifdef _MSC_VER
-	  #define XEN_API
-	#else
-	  #error Visual Studio only accepted in Windows!
-	#endif
-
-  #endif
-  #ifdef XEN_BUILD_EXE
-
-	#ifdef _MSC_VER
-	  #define XEN_API
-	#else
-	  #error Visual Studio only accepted in Windows!
-	#endif
-  #endif
+#ifdef XEN_BUILD_LIB
+	#define XEN_API
 #endif
-
-#ifdef XEN_PLATFORM_LINUX
-  #ifdef XEN_BUILD_LIB
-
-	#ifdef __GNUG__
-	  #define XEN_API __attribute__((visibility("default")))
-	#else
-	  #error GCC only accepted in Linux!
-	#endif
-
-  #endif
-  #ifdef XEN_BUILD_EXEC
-
-	#ifdef __GNUG__
-	  #define XEN_API
-	#else
-	  #error GCC only accepted in Linux!
-	#endif
-  #endif
+#ifdef XEN_BUILD_EXE
+	#define XEN_API
 #endif
 
 #ifdef XEN_PLATFORM_ANDROID

@@ -27,7 +27,6 @@ project "SandboxApp"
 
 	links { "Xenode" }
 
-	cppdialect "C++20"
 	pic "on"
 
 	filter { "options:enable-profiling"}
@@ -69,11 +68,11 @@ project "SandboxApp"
         defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
         optimize "On"
 
-    filter { "configurations:Debug", "system:windows" }
-        buildoptions "/MDd"
+	filter "action:vs*"
+		buildoptions "/std:c++latest"
 
-    filter { "configurations:Release_Debug", "system:windows" }
-        buildoptions "/MD"
-
-    filter { "configurations:Production", "system:windows" }
-        buildoptions "/MD"
+	filter { "configurations:Debug", "action:vs*" }
+		buildoptions "/MTd"
+	
+	filter { "configurations:Release_Debug or Production", "action:vs*" }
+		buildoptions "/MT"
