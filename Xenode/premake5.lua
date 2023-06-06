@@ -8,9 +8,6 @@ project "Xenode"
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/")
 
-	pchheader "pch"
-	pchsource "src/pch/pch.cpp"
-
 	files {
 		-- Main project source files:
 		"src/core/**.h",
@@ -96,7 +93,7 @@ project "Xenode"
 		}
 
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_LIB", "XEN_DEVICE_DESKTOP" }
-		buildoptions "-std=gnu++2b"
+
 		links { "pthread", "dl" } -- IMP: GLFW fails to link without these
 
 	filter "configurations:Debug"
@@ -112,6 +109,9 @@ project "Xenode"
 		optimize "On"
 
 	filter "action:vs*"
+		pchheader "pch"
+		pchsource "src/pch/pch.cpp"
+
 		buildoptions "/std:c++latest"	
 		flags { "MultiProcessorCompile" }
 
@@ -125,4 +125,6 @@ project "Xenode"
 		}
 
 		defines {" _SILENCE_ALL_CXX23_DEPRECATION_WARNINGS" }
+	filter "action:gmake*"
+		buildoptions { "-std=c++2b", "-Wa,-mbig-obj" }
 

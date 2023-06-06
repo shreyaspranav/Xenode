@@ -30,7 +30,7 @@ project "Xen"
 
 	}
 
-	links { "Xenode", "yaml-cpp" }
+	links { "Xenode", "yaml-cpp", "GLFW", "ImGui", "Box2D" }
 
 	pic "on"
 
@@ -56,7 +56,7 @@ project "Xen"
 			"%{wks.location}/Xenode/src/platform/linux",
 			"%{wks.location}/Xenode/src"
 		}
-		buildoptions "-std=gnu++2b"
+
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXEC", "XEN_DEVICE_DESKTOP" }
 
 	filter "configurations:Debug"
@@ -87,4 +87,10 @@ project "Xen"
 		}
 
 		defines {" _SILENCE_ALL_CXX23_DEPRECATION_WARNINGS" }
+
+	filter "action:gmake*"
+		links { "pthread" }
+		buildoptions{ "-std=c++2b", "-Wa,-mbig-obj" }
+
+
 

@@ -6,6 +6,8 @@ workspace "Xenode"
 
 	startproject "Xen"
 
+	--toolset "clang"
+
 -- dependencies:
 
 group "Dependencies"
