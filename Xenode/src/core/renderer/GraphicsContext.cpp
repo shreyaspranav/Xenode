@@ -14,5 +14,6 @@ namespace Xen {
 		case GraphicsAPI::XEN_OPENGL_API:
 			return new OpenGLContext((GLFWwindow*)window->GetNativeWindow());
 		}
+		return nullptr;
 	}
 }

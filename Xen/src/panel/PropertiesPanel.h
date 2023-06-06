@@ -457,7 +457,7 @@ public:
 					ImGui::NextColumn();
 
 					ImGui::PushItemWidth(-0.1f);
-					if (ImGui::SliderFloat("##Thickness", &circle_renderer.thickness, 0.0f, 1.0f));
+					ImGui::SliderFloat("##Thickness", &circle_renderer.thickness, 0.0f, 1.0f);
 					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 
@@ -465,7 +465,7 @@ public:
 					ImGui::NextColumn();
 
 					ImGui::PushItemWidth(-0.1f);
-					if (ImGui::SliderFloat("##Innerfade", &circle_renderer.inner_fade, 0.0f, 1.0f));
+					ImGui::SliderFloat("##Innerfade", &circle_renderer.inner_fade, 0.0f, 1.0f);
 					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 
@@ -473,7 +473,7 @@ public:
 					ImGui::NextColumn();
 
 					ImGui::PushItemWidth(-0.1f);
-					if (ImGui::SliderFloat("##OuterFade", &circle_renderer.outer_fade, 0.0f, 1.0f));
+					ImGui::SliderFloat("##OuterFade", &circle_renderer.outer_fade, 0.0f, 1.0f);
 					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 

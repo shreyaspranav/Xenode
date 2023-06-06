@@ -3,6 +3,8 @@
 #ifdef XEN_LOG_ON
 
 #include <Core.h>
+
+#pragma warning(push, 0)
 #include <spdlog/spdlog.h>
 
 #ifdef XEN_DEVICE_DESKTOP
@@ -11,9 +13,11 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
+
 #elif XEN_PLATFORM_ANDROID
 #include <spdlog/sinks/android_sink.h>
 #endif
+#pragma warning(pop)
 
 namespace Xen {
 	class XEN_API Log

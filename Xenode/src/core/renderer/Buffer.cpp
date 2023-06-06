@@ -13,6 +13,7 @@ namespace Xen {
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLFloatBuffer>(count);
 		}
+		return nullptr;
 	}
 
 	Ref<ElementBuffer> ElementBuffer::CreateElementBuffer(uint32_t count)
@@ -22,5 +23,6 @@ namespace Xen {
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLElementBuffer>(count);
 		}
+		return nullptr;
 	}
 }

@@ -15,5 +15,6 @@ namespace Xen {
 		default:
 			break;
 		}
+		return nullptr;
 	}
 }

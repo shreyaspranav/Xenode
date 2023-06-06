@@ -2,6 +2,7 @@ project "Xen"
 
 	kind "ConsoleApp"
 	language "C++"
+	staticruntime "On"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/")
@@ -74,4 +75,16 @@ project "Xen"
 	filter "action:vs*"
 		buildoptions "/std:c++latest"
 		flags { "MultiProcessorCompile" }
+
+		-- Disable warnings that I don't care:
+		disablewarnings {
+			"4244", -- conversion from 'type1' to 'type2'
+			"4267", -- conversion from 'size_t' to other numeric data type
+			"4018", -- Signed/Unsigned mismatch
+			"4146", -- Unary minus operator applied to unsigned type: the number will still remain unsigned and show weird results 
+			"4858", -- Some C++20 Deprication warning (remove and remove_if) 
+			"4312", -- type cast to greater size
+		}
+
+		defines {" _SILENCE_ALL_CXX23_DEPRECATION_WARNINGS" }
 

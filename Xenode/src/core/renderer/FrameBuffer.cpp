@@ -13,7 +13,7 @@ namespace Xen {
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLFrameBuffer>(spec);
-			//return nullptr;
 		}
+		return nullptr;
 	}
 }

@@ -66,9 +66,6 @@ namespace Xen {
 		
 		glfwSwapInterval(m_UserPointer.props.vsync);
 
-		int count;
-		const GLFWvidmode* modes = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
 		m_Cursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 		glfwSetCursor(m_Window, m_Cursor);
 	}

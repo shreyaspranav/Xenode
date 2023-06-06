@@ -13,6 +13,7 @@ namespace Xen {
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLShader>(filePath);
 		}
+		return nullptr;
 	}
 
 	Ref<Shader> Shader::CreateShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath, ShaderType type)
@@ -22,5 +23,6 @@ namespace Xen {
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLShader>(vertexShaderFilePath, fragmentShaderFilePath, type);
 		}
+		return nullptr;
 	}
 }
