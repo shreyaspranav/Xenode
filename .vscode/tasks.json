@@ -1,35 +1,68 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "generate-projects",
+            "type": "shell",
+
+            "windows":{
+                // By Default Windows generates vs2022 projects
+                "command": "premake5",
+                "args": [
+                    "vs2022"
+                ],
+            },
+
+            "group": "build"
+
+        },
+        {
             "label": "build-Debug",
             "type": "shell",
-            "command": "cmd.exe /c build.bat",
-            "args": [
-            ],
+
+            "windows":{
+                // By Default Windows builds uses MSVC++ compiler
+                "command": "msbuild",
+                "args": [
+                    "-p:Configuration=Debug"
+                ],
+                "problemMatcher": "$msCompile"
+
+
+                //"command": "mingw32-make",
+                //"args": [
+                //    "config=debug"
+                //],
+            },
+
             "group": "build",
             "presentation": {
-                // Reveal the output only if unrecognized errors occur.
                 "reveal": "silent"
             },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
-            "problemMatcher": "$msCompile"
         },
         {
             "label": "build-Release_Debug",
             "type": "shell",
-            "command": "cmd.exe /c build-release.bat",
-            "args": [
-            ],
+
+            "windows":{
+                // By Default Windows builds uses MSVC++ compiler
+                "command": "msbuild",
+                "args": [
+                    "-p:Configuration=Release_Debug"
+                ],
+                "problemMatcher": "$msCompile"
+
+
+                //"command": "mingw32-make",
+                //"args": [
+                //    "config=release_debug"
+                //],
+            },
+
             "group": "build",
             "presentation": {
-                // Reveal the output only if unrecognized errors occur.
                 "reveal": "silent"
             },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
-            "problemMatcher": "$msCompile"
         }
     ]
 }   
