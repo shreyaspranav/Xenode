@@ -20,7 +20,6 @@ project "SandboxApp"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.freetype}",
 		"%{IncludeDir.Optick}",
 
 	}
@@ -35,7 +34,6 @@ project "SandboxApp"
 	filter "system:windows"
 
 		systemversion "latest"
-		flags { "MultiProcessorCompile" }
 
 		includedirs {
 			"%{wks.location}/Xenode/src/platform/windows",
@@ -70,9 +68,6 @@ project "SandboxApp"
 
 	filter "action:vs*"
 		buildoptions "/std:c++latest"
+		flags { "MultiProcessorCompile" }
 
-	filter { "configurations:Debug", "action:vs*" }
-		buildoptions "/MTd"
-	
-	filter { "configurations:Release_Debug or Production", "action:vs*" }
-		buildoptions "/MT"
+		

@@ -31,7 +31,6 @@ project "Xenode"
 		"GLFW", 
 		"ImGui",
 		"yaml-cpp",
-		"freetype",
 		"Box2D"
 	}
 
@@ -78,7 +77,6 @@ project "Xenode"
 	filter "system:windows"
 
 		systemversion "latest"
-		flags { "MultiProcessorCompile" }
 
 		files {
 			"src/platform/windows/**.cpp",
@@ -114,9 +112,4 @@ project "Xenode"
 
 	filter "action:vs*"
 		buildoptions "/std:c++latest"	
-
-	filter { "configurations:Debug", "action:vs*" }
-		buildoptions "/MTd"
-	
-	filter { "configurations:Release_Debug or Production", "action:vs*" }
-		buildoptions "/MT"
+		flags { "MultiProcessorCompile" }

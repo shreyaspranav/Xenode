@@ -25,7 +25,6 @@ project "Xen"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
-		"%{IncludeDir.freetype}",
 		"%{IncludeDir.ImGuizmo}",
 
 	}
@@ -40,7 +39,6 @@ project "Xen"
 	filter "system:windows"
 
 		systemversion "latest"
-		flags { "MultiProcessorCompile" }
 
 		includedirs {
 			"%{wks.location}/Xenode/src/platform/windows",
@@ -75,9 +73,5 @@ project "Xen"
 
 	filter "action:vs*"
 		buildoptions "/std:c++latest"
+		flags { "MultiProcessorCompile" }
 
-	filter { "configurations:Debug", "action:vs*" }
-		buildoptions "/MTd"
-	
-	filter { "configurations:Release_Debug or Production", "action:vs*" }
-		buildoptions "/MT"
