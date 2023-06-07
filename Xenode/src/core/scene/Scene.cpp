@@ -10,6 +10,9 @@
 // Physics:
 #include <box2d/box2d.h>
 
+#define DEGTORAD 0.0174532925199432957f
+#define RADTODEG 57.295779513082320876f
+
 namespace Xen {
 	void DoSomething(int a)
 	{
@@ -78,10 +81,12 @@ namespace Xen {
 				break;
 			}
 
-			bodyDefinition.position.Set(transform.position.x, transform.position.y);
-			bodyDefinition.angle = transform.rotation.z;
+			//bodyDefinition.position.Set(transform.position.x, transform.position.y);
+			//bodyDefinition.angle = transform.rotation.z;
 
 			b2Body* physicsBody = m_PhysicsWorld->CreateBody(&bodyDefinition);
+			physicsBody->SetTransform({transform.position.x, transform.position.y}, transform.rotation.z * DEGTORAD);
+
 			physicsBody->SetFixedRotation(rigidBody2d.fixedRotation);
 
 			// Set the runtime body so that it can deleted later:
@@ -173,7 +178,9 @@ namespace Xen {
 			transform.position.x = position.x;
 			transform.position.y = position.y;
 
-			transform.rotation.z = body->GetAngle();
+			transform.rotation.z = (body->GetAngle() * RADTODEG);
+
+			body->SetTransform( body->GetPosition(), body->GetAngle() );
 		}
 
 
