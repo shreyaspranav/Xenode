@@ -10,8 +10,8 @@
 // Physics:
 #include <box2d/box2d.h>
 
-#define DEGTORAD 0.0174532925199432957f
-#define RADTODEG 57.295779513082320876f
+constexpr auto DEGTORAD = 0.0174532925199432957f;
+constexpr auto RADTODEG = 57.295779513082320876f;
 
 namespace Xen {
 	void DoSomething(int a)
@@ -107,7 +107,7 @@ namespace Xen {
 				fixtureDef.density = boxCollider.bodyDensity;
 				fixtureDef.friction = boxCollider.bodyFriction;
 				fixtureDef.restitution = boxCollider.bodyRestitution;
-				fixtureDef.restitutionThreshold = boxCollider.bodyRestitionThreshold;
+				fixtureDef.restitutionThreshold = boxCollider.bodyRestitutionThreshold;
 
 				physicsBody->CreateFixture(&fixtureDef);
 			}

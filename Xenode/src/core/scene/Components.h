@@ -128,7 +128,7 @@ namespace Xen {
 		// Physics Components:
 		struct RigidBody2D
 		{
-			enum class BodyType { Static, Dynamic, Kinematic };
+			enum class BodyType : int8_t { Static, Dynamic, Kinematic };
 
 			BodyType bodyType = BodyType::Static;
 			bool fixedRotation = false;
@@ -152,7 +152,7 @@ namespace Xen {
 			float bodyDensity = 1.0f;
 			float bodyFriction = 0.1f;
 			float bodyRestitution = 0.4f;
-			float bodyRestitionThreshold = 0.5f;
+			float bodyRestitutionThreshold = 0.5f;
 
 			// Storage for the runtime object
 			void* runtimeBody = nullptr;

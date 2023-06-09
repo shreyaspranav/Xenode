@@ -58,10 +58,13 @@ namespace Xen {
 		if (entity.HasAnyComponent<Component::Tag>())
 		{
 			Component::Tag& tag = entity.GetComponent<Component::Tag>();
-			yamlEmitter << YAML::Flow << YAML::BeginSeq << tag.tag << "473828532" << YAML::EndSeq;
+			yamlEmitter << YAML::Flow << YAML::BeginSeq << tag.tag;
 		}
 		else
-			yamlEmitter << YAML::Flow << YAML::BeginSeq << "##TagLess##" << "473828532" << YAML::EndSeq;
+			yamlEmitter << YAML::Flow << YAML::BeginSeq << "##TagLess##";
+
+		// UUID:
+		yamlEmitter << "69696969" << YAML::EndSeq;
 
 		if (entity.HasAnyComponent<Component::Transform>())
 		{
@@ -83,6 +86,10 @@ namespace Xen {
 
 			yamlEmitter << YAML::Key << "SpriteRenderer";
 			yamlEmitter << YAML::BeginMap; // SpriteRenderer
+
+			yamlEmitter << YAML::Key << "SpritePrimitive" << YAML::Value << (int8_t)spriteRenderer.primitive;
+			if (spriteRenderer.primitive == SpriteRendererPrimitive::Polygon)
+				yamlEmitter << YAML::Key << "PolygonSegments" << YAML::Value << spriteRenderer.polygon_segment_count;
 
 			yamlEmitter << YAML::Key << "Color" << YAML::Value << spriteRenderer.color;
 
@@ -147,6 +154,37 @@ namespace Xen {
 
 			yamlEmitter << YAML::EndMap; // CameraComp
 		}
+
+		// 2D physics stuff:------------------------------------------------------------------------------------
+		if (entity.HasAnyComponent<Component::RigidBody2D>())
+		{
+			Component::RigidBody2D& rigidBody = entity.GetComponent<Component::RigidBody2D>();
+
+			yamlEmitter << YAML::Key << "RigidBody2D" << YAML::BeginMap;
+
+			yamlEmitter << YAML::Key << "FixedRotation" << YAML::Value << rigidBody.fixedRotation;
+			yamlEmitter << YAML::Key << "BodyType" << YAML::Value << (int8_t)rigidBody.bodyType;
+
+			yamlEmitter << YAML::EndMap;
+		}
+
+		if (entity.HasAnyComponent<Component::BoxCollider2D>())
+		{
+			Component::BoxCollider2D& boxCollider = entity.GetComponent<Component::BoxCollider2D>();
+
+			yamlEmitter << YAML::Key << "BoxCollider2D" << YAML::BeginMap;
+
+			yamlEmitter << YAML::Key << "Size" << YAML::Value << boxCollider.size;
+			yamlEmitter << YAML::Key << "Offset" << YAML::Value << boxCollider.bodyOffset;
+
+			yamlEmitter << YAML::Key << "Density" << YAML::Value << boxCollider.bodyDensity;
+			yamlEmitter << YAML::Key << "Friction" << YAML::Value << boxCollider.bodyFriction;
+			yamlEmitter << YAML::Key << "Restitution" << YAML::Value << boxCollider.bodyRestitution;
+			yamlEmitter << YAML::Key << "RestitutionThreshold" << YAML::Value << boxCollider.bodyRestitutionThreshold;
+
+			yamlEmitter << YAML::EndMap;
+		}
+		// ----------------------------------------------------------------------------------------------------
 
 		yamlEmitter << YAML::EndMap; // Entity
 	}
@@ -249,6 +287,8 @@ namespace Xen {
 						spriteRenderer_component["Color"][3].as<float>()
 					);
 
+					SpriteRendererPrimitive primitive = (SpriteRendererPrimitive)spriteRenderer_component["SpritePrimitive"].as<int32_t>();
+
 					const YAML::Node& texture_node = spriteRenderer_component["Texture"];
 
 					if (texture_node["TextureFileRelPath"].as<std::string>() != "null")
@@ -259,7 +299,7 @@ namespace Xen {
 
 					float texture_tile_factor = texture_node["TextureTilingFactor"].as<float>();
 
-					entt.AddComponent<Component::SpriteRenderer>(color, nullptr, texture_tile_factor);
+					entt.AddComponent<Component::SpriteRenderer>(color, primitive, 5);
 				}
 
 				// CircleRenderer Component-------------------------------------------------
@@ -316,10 +356,45 @@ namespace Xen {
 					camera->SetNearPoint(ZNear);
 					camera->SetFarPoint(ZFar);
 
-					entt.AddComponent<Component::CameraComp>(camera);
-					Component::CameraComp& camera_comp = entt.GetComponent<Component::CameraComp>();
+					Component::CameraComp& camera_comp = entt.AddComponent<Component::CameraComp>(camera);
 					camera_comp.is_primary_camera = isPrimary;
 					camera_comp.is_resizable = isResizable;
+				}
+
+				// 2D Physics Components:
+				// RigidBody2D:-----------------------------------------------------------------------------
+				const YAML::Node& rigidBodyComponent = entity["RigidBody2D"];
+				if (rigidBodyComponent)
+				{
+					Component::RigidBody2D::BodyType bodyType = (Component::RigidBody2D::BodyType)rigidBodyComponent["BodyType"].as<int32_t>();
+					bool fixedRotation = rigidBodyComponent["FixedRotation"].as<bool>();
+
+					entt.AddComponent<Component::RigidBody2D>(bodyType, fixedRotation);
+				}
+
+				// BoxCollider2D:---------------------------------------------------------------------------
+				const YAML::Node& boxColliderComponent = entity["BoxCollider2D"];
+				if (boxColliderComponent)
+				{
+					Vec2 size = Vec2(
+						boxColliderComponent["Size"][0].as<float>(),
+						boxColliderComponent["Size"][1].as<float>()
+					);
+
+					Vec2 offset = Vec2(
+						boxColliderComponent["Offset"][0].as<float>(),
+						boxColliderComponent["Offset"][1].as<float>()
+					);
+
+					Component::BoxCollider2D& boxColliderComp = entt.AddComponent<Component::BoxCollider2D>();
+
+					boxColliderComp.size = size;
+					boxColliderComp.bodyOffset = offset;
+					boxColliderComp.bodyDensity = boxColliderComponent["Density"].as<float>();
+					boxColliderComp.bodyFriction = boxColliderComponent["Friction"].as<float>();
+					boxColliderComp.bodyRestitution = boxColliderComponent["Restitution"].as<float>();
+					boxColliderComp.bodyRestitutionThreshold = boxColliderComponent["RestitutionThreshold"].as<float>();
+					
 				}
 			}
 		}

@@ -606,7 +606,7 @@ public:
 					PaddedText("Restitution Threshold", 0.0f, 3.0f);
 					ImGui::NextColumn();
 					ImGui::PushItemWidth(-0.1f);
-					ImGui::DragFloat("##RestitutionThreshold", &bCollider.bodyRestitionThreshold, 0.05f, 0.0f, 1.0f);
+					ImGui::DragFloat("##RestitutionThreshold", &bCollider.bodyRestitutionThreshold, 0.05f, 0.0f, 1.0f);
 					ImGui::PopItemWidth();
 					//DrawVec2Control("Offset", bCollider.bodyOffset);
 
