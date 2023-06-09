@@ -18,6 +18,7 @@ namespace Xen {
 	{
 	private:
 		Ref<Window> m_Window;
+		bool m_FirstTime = true;
 	public:
 		ImGuiLayer() {}
 		virtual ~ImGuiLayer() {}
