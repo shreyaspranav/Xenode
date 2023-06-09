@@ -146,11 +146,11 @@ public:
 				if (ImGui::CollapsingHeader((std::string(ICON_FA_CAMERA) + std::string("  Camera")).c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-						ImGui::OpenPopup("DeleteComponent");
+						ImGui::OpenPopup("DeleteComponentCamera");
 
-					if (ImGui::BeginPopup("DeleteComponent"))
+					if (ImGui::BeginPopup("DeleteComponentCamera"))
 					{
-						if (ImGui::Selectable("Delete Component"))
+						if (ImGui::Selectable("Delete Component: Camera"))
 						{
 							m_SelectedEntity.DeleteComponent<Xen::Component::CameraComp>();
 							ImGui::EndPopup();
@@ -267,11 +267,11 @@ public:
 				if (ImGui::CollapsingHeader((std::string(ICON_FA_TREE) + std::string("  Sprite Renderer")).c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-						ImGui::OpenPopup("DeleteComponent");
+						ImGui::OpenPopup("DeleteComponentSpriteRenderer");
 
-					if (ImGui::BeginPopup("DeleteComponent"))
+					if (ImGui::BeginPopup("DeleteComponentSpriteRenderer"))
 					{
-						if (ImGui::Selectable("Delete Component"))
+						if (ImGui::Selectable("Delete Component: Sprite Renderer"))
 						{
 							m_SelectedEntity.DeleteComponent<Xen::Component::SpriteRenderer>();
 							ImGui::EndPopup();
@@ -415,11 +415,11 @@ public:
 				if (ImGui::CollapsingHeader((std::string(ICON_FA_CIRCLE) + std::string("  Circle Renderer")).c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-						ImGui::OpenPopup("DeleteComponent");
+						ImGui::OpenPopup("DeleteComponentCircleRenderer");
 
-					if (ImGui::BeginPopup("DeleteComponent"))
+					if (ImGui::BeginPopup("DeleteComponentCircleRenderer"))
 					{
-						if (ImGui::Selectable("Delete Component"))
+						if (ImGui::Selectable("Delete Component: Circle Renderer"))
 						{
 							m_SelectedEntity.DeleteComponent<Xen::Component::CircleRenderer>();
 							ImGui::EndPopup();
@@ -489,11 +489,11 @@ public:
 				if (ImGui::CollapsingHeader((std::string(ICON_FA_CUBES_STACKED) + std::string(" Rigid Body 2D")).c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-						ImGui::OpenPopup("DeleteComponent");
+						ImGui::OpenPopup("DeleteComponentRigidBody2D");
 
-					if (ImGui::BeginPopup("DeleteComponent"))
+					if (ImGui::BeginPopup("DeleteComponentRigidBody2D"))
 					{
-						if (ImGui::Selectable("Delete Component"))
+						if (ImGui::Selectable("Delete Component: Rigid Body 2D"))
 						{
 							m_SelectedEntity.DeleteComponent<Xen::Component::RigidBody2D>();
 							ImGui::EndPopup();
@@ -560,11 +560,11 @@ public:
 				if (ImGui::CollapsingHeader((std::string(ICON_FA_SQUARE) + std::string(" Box Collider 2D")).c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-						ImGui::OpenPopup("DeleteComponent");
+						ImGui::OpenPopup("DeleteComponentBoxCollider2D");
 
-					if (ImGui::BeginPopup("DeleteComponent"))
+					if (ImGui::BeginPopup("DeleteComponentBoxCollider2D"))
 					{
-						if (ImGui::Selectable("Delete Component"))
+						if (ImGui::Selectable("Delete Component: Box Collider 2D"))
 						{
 							m_SelectedEntity.DeleteComponent<Xen::Component::BoxCollider2D>();
 							ImGui::EndPopup();
