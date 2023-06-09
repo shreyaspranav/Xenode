@@ -68,7 +68,7 @@ namespace Xen {
 			colors[ImGuiCol_Button] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
 			colors[ImGuiCol_ButtonHovered] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
 			colors[ImGuiCol_ButtonActive] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-			colors[ImGuiCol_Header] = ImVec4(0.18f, 0.18f, 0.18f, 0.31f);
+			colors[ImGuiCol_Header] = ImVec4(0.37f, 0.37f, 0.37f, 0.31f);
 			colors[ImGuiCol_HeaderHovered] = ImVec4(0.23f, 0.23f, 0.23f, 0.80f);
 			colors[ImGuiCol_HeaderActive] = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
 			colors[ImGuiCol_SeparatorHovered] = ImVec4(1.00f, 0.66f, 0.00f, 1.00f);
