@@ -16,6 +16,8 @@ Xen::Ref<Xen::Input> input;
 bool orbit_over = false;
 Xen::Vec2 initial_pos;
 
+float line_width = 1.0f;
+
 EditorLayer::EditorLayer()
 {
 	m_Timestep = 0.0f;
@@ -101,7 +103,6 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(double timestep)
 {
-	XEN_ENGINE_LOG_INFO("FRAME_START");
 
 	Xen::Vec2 mouse = Xen::Vec2(input->GetMouseX(), input->GetMouseY());
 	Xen::Vec2 delta = (mouse - initial_pos) * 0.3f;
@@ -145,7 +146,6 @@ void EditorLayer::OnUpdate(double timestep)
 
 	Xen::Renderer2D::EndScene();
 	Xen::Renderer2D::RenderFrame();
-	XEN_ENGINE_LOG_INFO("FRAME_END");
 
 	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport)
 	{
@@ -340,100 +340,102 @@ void EditorLayer::OnImGuiUpdate()
 	if (!selectedEntity.IsNull() && selectedEntity.IsValid()) {
 		
 		Xen::Entity camera_entt = m_ActiveScene->GetPrimaryCameraEntity();
-		if (!camera_entt.IsNull() && camera_entt.IsValid())
-		{
-			Xen::Component::CameraComp& camera_comp = camera_entt.GetComponent<Xen::Component::CameraComp>();
-			if (camera_comp.camera->GetProjectionType() == Xen::CameraType::Orthographic)
-				ImGuizmo::SetOrthographic(true);
-			else
-				ImGuizmo::SetOrthographic(false);
-		}
-		else {
-			if (m_EditorCamera->GetProjectionType() == Xen::CameraType::Orthographic)
-				ImGuizmo::SetOrthographic(true);
-			else
-				ImGuizmo::SetOrthographic(false);
-		}
+		//if (!camera_entt.IsNull() && camera_entt.IsValid())
+		//{
+		//	Xen::Component::CameraComp& camera_comp = camera_entt.GetComponent<Xen::Component::CameraComp>();
+		//	if (camera_comp.camera->GetProjectionType() == Xen::CameraType::Orthographic)
+		//		ImGuizmo::SetOrthographic(true);
+		//	else
+		//		ImGuizmo::SetOrthographic(false);
+		//}
+		//else {
+		//	if (m_EditorCamera->GetProjectionType() == Xen::CameraType::Orthographic)
+		//		ImGuizmo::SetOrthographic(true);
+		//	else
+		//		ImGuizmo::SetOrthographic(false);
+		//}
 
-		ImGuizmo::SetDrawlist();
+		//ImGuizmo::SetOrthographic(true);
 
-		float y_offset = ImGui::GetWindowHeight() - viewport_framebuffer_height; // To eliminate the offset caused by the window title
-
-		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + y_offset, viewport_framebuffer_width, viewport_framebuffer_height);
-
-		glm::mat4 camera_view;
-		glm::mat4 camera_projection;
-
-		if (!camera_entt.IsNull() && camera_entt.IsValid())
-		{
-			camera_view = camera_entt.GetComponent<Xen::Component::CameraComp>().camera->GetViewMatrix();
-			camera_projection = camera_entt.GetComponent<Xen::Component::CameraComp>().camera->GetProjectionMatrix();
-		}
-		else
-		{
-			camera_view = m_EditorCamera->GetViewMatrix();
-			camera_projection = m_EditorCamera->GetProjectionMatrix();
-		}
-
-		Xen::Component::Transform& entity_transform_comp = selectedEntity.GetComponent<Xen::Component::Transform>();
-
-		glm::vec3 degrees_vec = glm::vec3(glm::radians(entity_transform_comp.rotation.x),
-			glm::radians(entity_transform_comp.rotation.y),
-			glm::radians(entity_transform_comp.rotation.z));
-
-		glm::mat4 entity_transform = glm::translate(glm::mat4(1.0f), entity_transform_comp.position.GetVec())
-						* glm::toMat4(glm::quat(degrees_vec))
-						* glm::scale(glm::mat4(1.0f), entity_transform_comp.scale.GetVec());
-
-		switch (m_GizmoOperation)
-		{
-		case GizmoOperation::Translate:
-			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection), 
-				ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
-			break;
-		case GizmoOperation::Rotate2D:
-			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
-				ImGuizmo::ROTATE_Z, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
-			break;
-		case GizmoOperation::Rotate3D:
-			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
-				ImGuizmo::ROTATE_Z, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
-			break;
-		case GizmoOperation::Scale:
-			ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
-				ImGuizmo::SCALE, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
-			break;
-
-		}
-
-		//ImGuizmo::AllowAxisFlip(1);
-		//TODO: Fix rotation gizmos in 3D perspective mode
-		if (ImGuizmo::IsUsing())
-		{
-			glm::vec3 translation, rotation, scale, skew;
-			glm::quat orientation;
-			glm::vec4 perspective;
-
-			glm::decompose(entity_transform, scale, orientation, translation, skew, perspective);
-
-			rotation = glm::eulerAngles(orientation);
-
-			//Xen::DecomposeTransform(entity_transform, translation, rotation, scale);
-
-			rotation.x = glm::degrees(rotation.x);
-			rotation.y = glm::degrees(rotation.y);
-			rotation.z = glm::degrees(rotation.z);
-
-			glm::vec3 delta_rotation = rotation - entity_transform_comp.rotation.GetVec();
-
-			entity_transform_comp.rotation.x += delta_rotation.x;
-			entity_transform_comp.rotation.y += delta_rotation.y;
-			entity_transform_comp.rotation.z += delta_rotation.z;
-
-
-			entity_transform_comp.position = translation;
-			entity_transform_comp.scale = scale;
-		}
+		//ImGuizmo::SetDrawlist();
+		//
+		//float y_offset = ImGui::GetWindowHeight() - viewport_framebuffer_height; // To eliminate the offset caused by the window title
+		//
+		//ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + y_offset, viewport_framebuffer_width, viewport_framebuffer_height);
+		//
+		//glm::mat4 camera_view;
+		//glm::mat4 camera_projection;
+		//
+		//if (!camera_entt.IsNull() && camera_entt.IsValid())
+		//{
+		//	camera_view = camera_entt.GetComponent<Xen::Component::CameraComp>().camera->GetViewMatrix();
+		//	camera_projection = camera_entt.GetComponent<Xen::Component::CameraComp>().camera->GetProjectionMatrix();
+		//}
+		//else
+		//{
+		//	camera_view = m_EditorCamera->GetViewMatrix();
+		//	camera_projection = m_EditorCamera->GetProjectionMatrix();
+		//}
+		//
+		//Xen::Component::Transform& entity_transform_comp = selectedEntity.GetComponent<Xen::Component::Transform>();
+		//
+		//glm::vec3 degrees_vec = glm::vec3(glm::radians(entity_transform_comp.rotation.x),
+		//	glm::radians(entity_transform_comp.rotation.y),
+		//	glm::radians(entity_transform_comp.rotation.z));
+		//
+		//glm::mat4 entity_transform = glm::translate(glm::mat4(1.0f), entity_transform_comp.position.GetVec())
+		//				* glm::toMat4(glm::quat(degrees_vec))
+		//				* glm::scale(glm::mat4(1.0f), entity_transform_comp.scale.GetVec());
+		//
+		//switch (m_GizmoOperation)
+		//{
+		//case GizmoOperation::Translate:
+		//	ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection), 
+		//		ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
+		//	break;
+		//case GizmoOperation::Rotate2D:
+		//	ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
+		//		ImGuizmo::ROTATE_Z, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
+		//	break;
+		//case GizmoOperation::Rotate3D:
+		//	ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
+		//		ImGuizmo::ROTATE_Z, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
+		//	break;
+		//case GizmoOperation::Scale:
+		//	ImGuizmo::Manipulate(glm::value_ptr(camera_view), glm::value_ptr(camera_projection),
+		//		ImGuizmo::SCALE, ImGuizmo::LOCAL, glm::value_ptr(entity_transform));
+		//	break;
+		//
+		//}
+		//
+		////ImGuizmo::AllowAxisFlip(1);
+		////TODO: Fix rotation gizmos in 3D perspective mode
+		//if (ImGuizmo::IsUsing())
+		//{
+		//	glm::vec3 translation, rotation, scale, skew;
+		//	glm::quat orientation;
+		//	glm::vec4 perspective;
+		//
+		//	glm::decompose(entity_transform, scale, orientation, translation, skew, perspective);
+		//
+		//	rotation = glm::eulerAngles(orientation);
+		//
+		//	//Xen::DecomposeTransform(entity_transform, translation, rotation, scale);
+		//
+		//	rotation.x = glm::degrees(rotation.x);
+		//	rotation.y = glm::degrees(rotation.y);
+		//	rotation.z = glm::degrees(rotation.z);
+		//
+		//	glm::vec3 delta_rotation = rotation - entity_transform_comp.rotation.GetVec();
+		//
+		//	entity_transform_comp.rotation.x += delta_rotation.x;
+		//	entity_transform_comp.rotation.y += delta_rotation.y;
+		//	entity_transform_comp.rotation.z += delta_rotation.z;
+		//
+		//
+		//	entity_transform_comp.position = translation;
+		//	entity_transform_comp.scale = scale;
+		//}
 
 		//ImGuizmo::DrawCubes(glm::value_ptr(camera_view), glm::value_ptr(camera_projection), glm::value_ptr(entity_transform), 1);
 	}
@@ -519,6 +521,10 @@ void EditorLayer::OnImGuiUpdate()
 	ImGui::End();
 
 	ImGui::PopStyleVar();
+
+	//ImGui::Begin("Test");
+	//ImGui::SliderFloat("Circle Thickness", &line_width, 0.0f, 1.0f);
+	//ImGui::End();
 }
 
 void EditorLayer::OnFixedUpdate()

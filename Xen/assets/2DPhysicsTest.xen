@@ -1,27 +1,18 @@
 Scene: Untitled
 Entities:
-  - Entity: [Quad 1, 69696969]
+  - Entity: [Camera, 15530350233465881569]
     Transform:
-      Position: [0, -1.86264515e-09, 0]
-      Rotation: [0, 0, 21.4099941]
-      Scale: [0.999999523, 0.999999523, 1]
-    SpriteRenderer:
-      SpritePrimitive: 1
-      Color: [1, 1, 1, 1]
-      Texture:
-        TextureFileRelPath: "null"
-        TextureTilingFactor: 1
-    RigidBody2D:
-      FixedRotation: false
-      BodyType: 1
-    BoxCollider2D:
-      Offset: [0, 0]
-      Size: [0.5, 0.5]
-      Density: 1
-      Friction: 0.100000001
-      Restitution: 0.400000006
-      RestitutionThreshold: 0.5
-  - Entity: [Quad 2, 69696969]
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [8, 8, 1]
+    CameraComp:
+      Camera:
+        ProjectionType: Orthographic
+        ZNear: 1
+        ZFar: -1
+      IsPrimary: true
+      IsResizable: true
+  - Entity: [Quad 2, 2604930576838438700]
     Transform:
       Position: [0, -3.58999991, 0.00100000005]
       Rotation: [0, 0, 0]
@@ -36,22 +27,31 @@ Entities:
       FixedRotation: false
       BodyType: 0
     BoxCollider2D:
-      Offset: [0, 0]
       Size: [0.5, 0.5]
+      Offset: [0, 0]
       Density: 1
       Friction: 0.100000001
       Restitution: 0.400000006
       RestitutionThreshold: 0.5
-  - Entity: [Camera, 69696969]
+  - Entity: [Quad 1, 6136894365519135435]
     Transform:
-      Position: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [8, 8, 1]
-    CameraComp:
-      Camera:
-        ProjectionType: Orthographic
-        ZNear: 1
-        ZFar: -1
-      IsPrimary: true
-      IsResizable: true
+      Position: [0, -1.86264515e-09, 0]
+      Rotation: [0, 0, 21.4099941]
+      Scale: [0.999999523, 0.999999523, 1]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [1, 1, 1, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+    RigidBody2D:
+      FixedRotation: false
+      BodyType: 1
+    BoxCollider2D:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
+      Density: 1
+      Friction: 0.100000001
+      Restitution: 0.400000006
+      RestitutionThreshold: 0.5
 Entity Count: 3

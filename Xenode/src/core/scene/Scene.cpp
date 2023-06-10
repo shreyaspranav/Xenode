@@ -36,8 +36,18 @@ namespace Xen {
 	Entity Scene::CreateEntity(const std::string& name)
 	{
 		Entity e = Entity(this);
-		e.AddComponent<Xen::Component::Transform>(Xen::Vec3(0.0f), Xen::Vec3(0.0f), Xen::Vec3(1.0f));
-		e.AddComponent<Xen::Component::Tag>(name);
+		e.AddComponent<Component::ID>();
+		e.AddComponent<Component::Tag>(name);
+		e.AddComponent<Component::Transform>(Xen::Vec3(0.0f), Xen::Vec3(0.0f), Xen::Vec3(1.0f));
+		return e;
+	}
+
+	Entity Scene::CreateEntityWithUUID(const std::string& name, UUID id)
+	{
+		Entity e = Entity(this);
+		e.AddComponent<Component::ID>(id);
+		e.AddComponent<Component::Tag>(name);
+		e.AddComponent<Component::Transform>(Xen::Vec3(0.0f), Xen::Vec3(0.0f), Xen::Vec3(1.0f));
 		return e;
 	}
 
@@ -55,8 +65,6 @@ namespace Xen {
 	{
 		m_PhysicsWorld = new b2World({ 0.0f, -10.0f });
 		auto rigid_body_view = m_Registry.view<Component::RigidBody2D>();
-
-		XEN_ENGINE_LOG_INFO("OnRuntimeStart!");
 
 		for (auto& entity : rigid_body_view)
 		{
@@ -118,8 +126,6 @@ namespace Xen {
 	{
 		//delete m_PhysicsWorld;
 		//m_PhysicsWorld = nullptr;
-
-		XEN_ENGINE_LOG_INFO("OnRuntimeStop!");
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()
@@ -139,7 +145,6 @@ namespace Xen {
 
 	void Scene::OnUpdateRuntime(double timestep)
 	{
-		XEN_ENGINE_LOG_INFO("RUNTIME_START");
 		m_RenderableEntityIndex = 0;
 		//entt::observer group_observer{ m_Registry, entt::collector.group<Component::Transform, Component::SpriteRenderer>() };
 
@@ -308,7 +313,6 @@ namespace Xen {
 					circleRenderer.outer_fade);
 			}
 		}
-		XEN_ENGINE_LOG_INFO("RUNTIME_END");
 	}
 
 	void Scene::OnUpdate(double timestep, const Ref<Camera>& camera)

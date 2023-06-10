@@ -26,7 +26,7 @@ namespace Xen {
 	uint32_t batch_index = 0;
 	uint32_t batches_allocated = 1;
 
-	float line_width = 2.0f;
+	float line_width = 1.0f;
 
 	uint32_t stride_count = 15;
 
@@ -219,7 +219,7 @@ namespace Xen {
 			
 			s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * 15);
 
-			XEN_ENGINE_LOG_WARN("Vertices Rendering: {0}", batch_storage[batch_index]->vertex_index);
+			//XEN_ENGINE_LOG_WARN("Vertices Rendering: {0}", batch_storage[batch_index]->vertex_index);
 			
 			s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->index_count);
 			s_Data.shader->SetIntArray("tex", texture_slots, max_texture_slots);
@@ -422,6 +422,61 @@ namespace Xen {
 	void Renderer2D::SetLineWidth(float width)
 	{
 		line_width = width;
+	}
+
+	void Renderer2D::DrawQuadOutline(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)
+	{
+		Vec3 p1, p2, p3, p4;
+
+		if (rotation.x == 0.0f && rotation.y == 0.0f && rotation.z == 0.0f)
+		{
+			p1 = {
+				position.x + (0.5f * scale.x),
+				position.y + (0.5f * scale.y),
+				position.z
+			};
+
+			p2 = {
+				position.x - (0.5f * scale.x),
+				position.y + (0.5f * scale.y),
+				position.z
+			};
+
+			p3 = {
+				position.x - (0.5f * scale.x),
+				position.y - (0.5f * scale.y),
+				position.z
+			};
+
+			p4 = {
+				position.x + (0.5f * scale.x),
+				position.y - (0.5f * scale.y),
+				position.z
+			};
+		}
+
+		else {
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), position.GetVec())
+				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0))
+				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0))
+				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1))
+				* glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f));
+
+			p1 = Vec3(transform * temp_vert[0]);
+			p2 = Vec3(transform * temp_vert[1]);
+			p3 = Vec3(transform * temp_vert[2]);
+			p4 = Vec3(transform * temp_vert[3]);
+		}
+
+		Renderer2D::DrawLine(p1, p2, color);
+		Renderer2D::DrawLine(p2, p3, color);
+		Renderer2D::DrawLine(p3, p4, color);
+		Renderer2D::DrawLine(p4, p1, color);
+	}
+
+	void Renderer2D::DrawCircleOutline(const Vec3& position, const Color& color, float thickness)
+	{
+		Renderer2D::DrawClearCircle(position, 0.0f, 1.0f, color, thickness, 0.001f, 0.001f);
 	}
 
 	Renderer2D::Renderer2DStatistics& Renderer2D::GetStatistics() { return stats; }

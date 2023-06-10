@@ -4,6 +4,7 @@
 #include <entt.hpp>
 
 #include <core/renderer/Camera.h>
+#include <core/app/UUID.h>
 
 class SceneHierarchyPanel;
 class b2World;
@@ -28,6 +29,7 @@ namespace Xen {
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		Entity CreateEntity(const std::string& name = std::string());
+		Entity CreateEntityWithUUID(const std::string& name, UUID id);
 		void DestroyEntity(Entity entity);
 
 		void DestroyAllEntities();
@@ -85,8 +87,8 @@ namespace Xen {
 
 		bool IsNull() { return m_Entity == entt::null ? true : false; }
 		bool IsValid() { return m_Scene->m_Registry.valid(m_Entity); }
-		//bool operator==(const Entity& other) { return other.m_Entity == m_Entity; }
-		//bool operator!=(const Entity& other) { return other.m_Entity != m_Entity; }
+		bool operator==(const Entity& other) { return other.m_Entity == m_Entity; }
+		bool operator!=(const Entity& other) { return other.m_Entity != m_Entity; }
 
 	private:
 		entt::entity m_Entity = entt::null;

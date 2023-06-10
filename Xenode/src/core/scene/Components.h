@@ -1,5 +1,6 @@
 #pragma once
 
+#include <core/app/UUID.h>
 #include <core/renderer/Structs.h>
 #include <core/renderer/Texture.h>
 #include <core/renderer/Camera.h>
@@ -13,6 +14,15 @@ namespace Xen {
 	};
 
 	namespace Component {
+
+		struct ID 
+		{
+			UUID id;
+
+			ID() : id(UUID()) {}
+			ID(const UUID& id) : id(id) {}
+			ID(const ID& tag) = default;
+		};
 
 		struct Tag
 		{

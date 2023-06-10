@@ -21,6 +21,17 @@ namespace Xen {
 	{
 	}
 
+	static UUID GetUUID(Entity e)
+	{
+		if (e.HasAnyComponent<Component::ID>())
+			return e.GetComponent<Component::ID>().id;
+
+		XEN_ENGINE_LOG_ERROR_SEVERE("ID Component NOT found");
+		TRIGGER_BREAKPOINT;
+
+		return UUID(0);
+	}
+
 	YAML::Emitter& operator<<(YAML::Emitter& yamlEmitter, const Color& color)
 	{
 		yamlEmitter << YAML::Flow;
@@ -64,7 +75,7 @@ namespace Xen {
 			yamlEmitter << YAML::Flow << YAML::BeginSeq << "##TagLess##";
 
 		// UUID:
-		yamlEmitter << "69696969" << YAML::EndSeq;
+		yamlEmitter << GetUUID(entity) << YAML::EndSeq;
 
 		if (entity.HasAnyComponent<Component::Transform>())
 		{
@@ -245,12 +256,11 @@ namespace Xen {
 		{
 			for (const YAML::Node& entity : entities)
 			{
-				Entity entt = Entity(m_Scene.get());
-
 				std::string tag = entity["Entity"][0].as<std::string>();
 				uint64_t uuid = entity["Entity"][1].as<uint64_t>();
 
-				entt.AddComponent<Component::Tag>(tag);
+				//Entity entt = m_Scene->CreateEntityWithUUID(tag, UUID(uuid));
+				Entity entt = m_Scene->CreateEntity(tag);
 
 				// Transform Component------------------------------------------------------
 				const YAML::Node& transform_component = entity["Transform"];
@@ -274,7 +284,10 @@ namespace Xen {
 						transform_component["Scale"][2].as<float>()
 					);
 
-					entt.AddComponent<Component::Transform>(position, rotation, scale);
+					Component::Transform& trans = entt.GetComponent<Component::Transform>();
+					trans.position = position;
+					trans.rotation = rotation;
+					trans.scale = scale;
 				}
 				// SpriteRenderer Component-----------------------------------------------
 				const YAML::Node& spriteRenderer_component = entity["SpriteRenderer"];
