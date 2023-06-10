@@ -323,6 +323,9 @@ void EditorLayer::OnImGuiUpdate()
 	{
 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(m_ContentBrowserPanel.GetSceneLoadDropType().c_str()))
 		{
+			if (m_EditorState != EditorState::Edit)
+				m_EditorState = EditorState::Edit;
+
 			std::string path = (const char*)payload->Data;
 			uint32_t size = path.size();
 
