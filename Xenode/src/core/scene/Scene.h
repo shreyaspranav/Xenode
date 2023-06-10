@@ -36,6 +36,8 @@ namespace Xen {
 
 		Entity GetPrimaryCameraEntity();
 
+		static Ref<Scene> Copy(Ref<Scene> srcScene);
+
 	private:
 		void SortRenderableEntities();
 

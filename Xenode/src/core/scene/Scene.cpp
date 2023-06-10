@@ -143,6 +143,37 @@ namespace Xen {
 		return Entity();
 	}
 
+	Ref<Scene> Scene::Copy(Ref<Scene> srcScene)
+	{
+		Ref<Scene> newScene = std::make_shared<Scene>();
+
+		newScene->m_FramebufferWidth = srcScene->m_FramebufferWidth;
+		newScene->m_FramebufferHeight = srcScene->m_FramebufferHeight;
+
+		newScene->m_RenderableEntities = srcScene->m_RenderableEntities;
+		newScene->m_ZCoordinates = srcScene->m_ZCoordinates;
+		newScene->m_RenderableEntityIndex = srcScene->m_RenderableEntityIndex;
+
+		newScene->m_IsDirty = srcScene->m_IsDirty;
+
+		entt::registry& srcSceneRegistry = srcScene->m_Registry;
+		entt::registry& dstSceneRegistry = newScene->m_Registry;
+
+		auto entt_view = srcSceneRegistry.view<Component::ID>();
+
+		for (entt::entity e : entt_view)
+		{
+			Entity entt = Entity(e, srcScene.get());
+			Component::ID id = entt.GetComponent<Component::ID>();
+			Component::Tag tag = entt.GetComponent<Component::Tag>();
+
+			newScene->CreateEntityWithUUID(tag.tag, id.id);
+		}
+
+
+		return newScene;
+	}
+
 	void Scene::OnUpdateRuntime(double timestep)
 	{
 		m_RenderableEntityIndex = 0;

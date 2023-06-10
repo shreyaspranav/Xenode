@@ -238,10 +238,12 @@ void EditorLayer::OnImGuiUpdate()
 				
 				if (!filePath.empty())
 				{
-					m_ActiveScene = std::make_shared<Xen::Scene>();
-					Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
+					m_EditorScene = std::make_shared<Xen::Scene>();
+					Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_EditorScene);
 					//serialiser.Deserialize("assets/scene.xen");
 					serialiser.Deserialize(filePath);
+
+					m_ActiveScene = m_EditorScene;
 				}
 			}
 
@@ -329,10 +331,12 @@ void EditorLayer::OnImGuiUpdate()
 			std::string path = (const char*)payload->Data;
 			uint32_t size = path.size();
 
-			m_ActiveScene = std::make_shared<Xen::Scene>();
-			Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
+			m_EditorScene = std::make_shared<Xen::Scene>();
+			Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_EditorScene);
 
 			serialiser.Deserialize(path);
+
+			m_ActiveScene = m_EditorScene;
 		}
 		ImGui::EndDragDropTarget();
 	}
@@ -492,13 +496,13 @@ void EditorLayer::OnImGuiUpdate()
 			m_PlayOrPause = m_PauseTexture;
 			m_EditorState = EditorState::Play;
 
-			m_ActiveScene->OnRuntimeStart();
+			OnScenePlay();
 		}
 		else {
 			m_PlayOrPause = m_PlayTexture;
 			m_EditorState = EditorState::Pause;
 
-			m_ActiveScene->OnRuntimeStop();
+			OnScenePause();
 		}
 
 		m_EditMode = false;
@@ -531,6 +535,35 @@ void EditorLayer::OnImGuiUpdate()
 }
 
 void EditorLayer::OnFixedUpdate()
+{
+
+}
+
+void EditorLayer::OnScenePlay()
+{
+	// Set the active scene equal to the editor scene so that the editor scene stays updated:
+	m_EditorScene = m_ActiveScene;
+
+	// Copy the editor scene into the runtime scene:
+	//m_RuntimeScene = Xen::Scene::Copy(m_EditorScene);
+
+	// Set the runtime scene as the active scene
+	//m_ActiveScene = m_RuntimeScene;
+
+	//m_RuntimeScene->OnRuntimeStart();
+	m_ActiveScene->OnRuntimeStart();
+}
+
+void EditorLayer::OnSceneStop()
+{
+	m_ActiveScene->OnRuntimeStop();
+	//m_RuntimeScene->OnRuntimeStop();
+	m_RuntimeScene = nullptr;
+
+	m_ActiveScene = m_EditorScene;
+}
+
+void EditorLayer::OnScenePause()
 {
 
 }

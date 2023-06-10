@@ -27,6 +27,10 @@ public:
 	void OnImGuiUpdate() override;
 	void OnFixedUpdate() override;
 
+	void OnScenePlay();
+	void OnSceneStop();
+	void OnScenePause();
+
 	void OnWindowResizeEvent(Xen::WindowResizeEvent& event) override;
 
 	void OnMouseScrollEvent(Xen::MouseScrollEvent& event) override;
@@ -43,6 +47,7 @@ private:
 
 	Xen::Ref<Xen::FrameBuffer> m_ViewportFrameBuffer;
 	Xen::Ref<Xen::Scene> m_ActiveScene;
+	Xen::Ref<Xen::Scene> m_EditorScene, m_RuntimeScene;
 
 	// Panels:
 	SceneHierarchyPanel m_HierarchyPanel;
