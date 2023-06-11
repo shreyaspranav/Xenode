@@ -44,7 +44,12 @@ public:
 
 		if (ImGui::BeginPopup("DeleteEntity"))
 		{
-			if (ImGui::Selectable("Delete Entity"))
+			if (ImGui::Selectable("Clone Entity"))
+				m_Scene->CopyEntity(m_CurrentRightClickedEntity);
+
+			ImGui::Separator();
+
+			if (ImGui::Selectable("Delete"))
 				m_Scene->DestroyEntity(m_CurrentRightClickedEntity);
 
 			ImGui::EndPopup();

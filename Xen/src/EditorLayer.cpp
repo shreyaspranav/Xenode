@@ -252,6 +252,8 @@ void EditorLayer::OnImGuiUpdate()
 					serialiser.Deserialize(filePath);
 
 					m_ActiveScene = m_EditorScene;
+
+					m_HierarchyPanel.SetActiveScene(m_ActiveScene);
 				}
 			}
 
@@ -345,6 +347,8 @@ void EditorLayer::OnImGuiUpdate()
 			serialiser.Deserialize(path);
 
 			m_ActiveScene = m_EditorScene;
+
+			m_HierarchyPanel.SetActiveScene(m_ActiveScene);
 		}
 		ImGui::EndDragDropTarget();
 	}

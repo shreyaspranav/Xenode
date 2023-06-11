@@ -30,6 +30,8 @@ namespace Xen {
 
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string& name, UUID id);
+		Entity CopyEntity(Entity entity);
+
 		void DestroyEntity(Entity entity);
 
 		void DestroyAllEntities();

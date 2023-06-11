@@ -19,7 +19,7 @@ namespace Xen {
 	}
 
 	template<typename Comp>
-	static void CopyComponent(entt::registry& srcSceneRegistry, entt::registry& dstSceneRegistry, const std::unordered_map<UUID, Entity>& uuidMap)
+	static void CopyComponentAllEntities(entt::registry& srcSceneRegistry, entt::registry& dstSceneRegistry, const std::unordered_map<UUID, Entity>& uuidMap)
 	{
 		auto srcRegView = srcSceneRegistry.view<Component::ID>();
 		for (entt::entity src_entt : srcRegView)
@@ -33,7 +33,16 @@ namespace Xen {
 				dstSceneRegistry.emplace_or_replace<Comp>(dst_entt, compToBeCopied);
 			}
 		}
+	}
 
+	template<typename Comp>
+	static void CopyComponent(Entity src, Entity dst)
+	{
+		if (src.HasAnyComponent<Comp>())
+		{
+			Comp& toBeCopiedComponent = src.GetComponent<Comp>();
+			dst.AddComponent<Comp>(toBeCopiedComponent);
+		}
 	}
 
 	Scene::Scene()
@@ -67,6 +76,24 @@ namespace Xen {
 		e.AddComponent<Component::Tag>(name);
 		e.AddComponent<Component::Transform>(Xen::Vec3(0.0f), Xen::Vec3(0.0f), Xen::Vec3(1.0f));
 		return e;
+	}
+
+	Entity Scene::CopyEntity(Entity entity)
+	{
+		Entity newEntity = Entity(this);
+		newEntity.AddComponent<Component::ID>();
+		newEntity.AddComponent<Component::Tag>(entity.GetComponent<Component::Tag>().tag);
+
+		CopyComponent<Component::Transform>(entity, newEntity);
+		CopyComponent<Component::CameraComp>(entity, newEntity);
+		CopyComponent<Component::SpriteRenderer>(entity, newEntity);
+		CopyComponent<Component::CircleRenderer>(entity, newEntity);
+		CopyComponent<Component::TextRenderer>(entity, newEntity);
+		CopyComponent<Component::RigidBody2D>(entity, newEntity);
+		CopyComponent<Component::BoxCollider2D>(entity, newEntity);
+		CopyComponent<Component::NativeScript>(entity, newEntity);
+
+		return newEntity;
 	}
 
 	void Scene::DestroyEntity(Entity entity)
@@ -194,14 +221,14 @@ namespace Xen {
 			//uuidEntityMap[id.id] = new_entt;
 		}
 
-		CopyComponent<Component::Transform>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
-		CopyComponent<Component::CameraComp>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
-		CopyComponent<Component::SpriteRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
-		CopyComponent<Component::CircleRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
-		CopyComponent<Component::TextRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
-		CopyComponent<Component::RigidBody2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
-		CopyComponent<Component::BoxCollider2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
-		CopyComponent<Component::NativeScript>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::Transform>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::CameraComp>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::SpriteRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::CircleRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::TextRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::RigidBody2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::BoxCollider2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::NativeScript>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 
 		return newScene;
 	}
@@ -250,8 +277,6 @@ namespace Xen {
 
 			body->SetTransform( body->GetPosition(), body->GetAngle() );
 		}
-
-
 
 		// Update Cameras
 		auto camera_group_observer = m_Registry.view<Component::Transform, Component::CameraComp>();
@@ -525,6 +550,8 @@ namespace Xen {
 			{
 				Component::Transform& transform_one = one.GetComponent<Component::Transform>();
 				Component::Transform& transform_another = another.GetComponent<Component::Transform>();
+
+				XEN_ENGINE_LOG_INFO("Sorting: {0} and {1}", one.GetComponent<Component::Tag>().tag, another.GetComponent<Component::Tag>().tag);
 
 				// To avoid Z fighting, make sure that no renderable entities have same z position:
 				if (transform_one.position.z == transform_another.position.z)
