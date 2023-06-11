@@ -18,6 +18,24 @@ namespace Xen {
 	{
 	}
 
+	template<typename Comp>
+	static void CopyComponent(entt::registry& srcSceneRegistry, entt::registry& dstSceneRegistry, const std::unordered_map<UUID, Entity>& uuidMap)
+	{
+		auto srcRegView = srcSceneRegistry.view<Component::ID>();
+		for (entt::entity src_entt : srcRegView)
+		{
+			UUID uuid = srcSceneRegistry.get<Component::ID>(src_entt).id;
+			entt::entity dst_entt = uuidMap.at(uuid);
+
+			if (srcSceneRegistry.any_of<Comp>(src_entt))
+			{
+				auto& compToBeCopied = srcSceneRegistry.get<Comp>(src_entt);
+				dstSceneRegistry.emplace_or_replace<Comp>(dst_entt, compToBeCopied);
+			}
+		}
+
+	}
+
 	Scene::Scene()
 	{
 		OnCreate();
@@ -124,8 +142,8 @@ namespace Xen {
 
 	void Scene::OnRuntimeStop()
 	{
-		//delete m_PhysicsWorld;
-		//m_PhysicsWorld = nullptr;
+		delete m_PhysicsWorld;
+		m_PhysicsWorld = nullptr;
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()
@@ -156,6 +174,8 @@ namespace Xen {
 
 		newScene->m_IsDirty = srcScene->m_IsDirty;
 
+		std::unordered_map<UUID, Entity> uuidEntityMap;
+
 		entt::registry& srcSceneRegistry = srcScene->m_Registry;
 		entt::registry& dstSceneRegistry = newScene->m_Registry;
 
@@ -167,9 +187,21 @@ namespace Xen {
 			Component::ID id = entt.GetComponent<Component::ID>();
 			Component::Tag tag = entt.GetComponent<Component::Tag>();
 
-			newScene->CreateEntityWithUUID(tag.tag, id.id);
+			Entity new_entt = newScene->CreateEntityWithUUID(tag.tag, id.id);
+
+			uuidEntityMap.insert({ id.id, new_entt });
+
+			//uuidEntityMap[id.id] = new_entt;
 		}
 
+		CopyComponent<Component::Transform>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponent<Component::CameraComp>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponent<Component::SpriteRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponent<Component::CircleRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponent<Component::TextRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponent<Component::RigidBody2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponent<Component::BoxCollider2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponent<Component::NativeScript>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 
 		return newScene;
 	}

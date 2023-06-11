@@ -41,6 +41,9 @@ namespace Xen {
 	private:
 		void SortRenderableEntities();
 
+		//template<typename Component>
+		//static void CopyComponent(const Ref<Scene>& srcScene, const Ref<Scene>& dstScene, const std::unordered_map<UUID, Entity>& uuidMap);
+
 	private:
 		entt::registry m_Registry;
 		uint32_t m_FramebufferWidth = 1, m_FramebufferHeight = 1;

@@ -11,6 +11,14 @@ namespace Xen {
 		~UUID();
 
 		operator uint64_t() const { return m_ID; }
+
+		bool operator==(UUID id) { return m_ID == id.m_ID; }
+		bool operator!=(UUID id) { return m_ID != id.m_ID; }
+
+		bool operator< (UUID id) { return m_ID <  id.m_ID; }
+		bool operator> (UUID id) { return m_ID >  id.m_ID; }
+		bool operator<=(UUID id) { return m_ID <= id.m_ID; }
+		bool operator>=(UUID id) { return m_ID >= id.m_ID; }
 	private:
 		uint64_t m_ID;
 	};

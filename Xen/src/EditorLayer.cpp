@@ -53,7 +53,10 @@ void EditorLayer::OnAttach()
 
 	Xen::Renderer2D::Init();
 
-	m_ActiveScene = std::make_shared<Xen::Scene>();
+	m_EditorScene = std::make_shared<Xen::Scene>();
+	m_RuntimeScene = std::make_shared<Xen::Scene>();
+	m_ActiveScene = m_EditorScene;
+
 	m_EditorCamera->Update();
 
 	// To add native scripts to the entities
@@ -109,7 +112,7 @@ void EditorLayer::OnUpdate(double timestep)
 	initial_pos = mouse;
 
 	bool active = true;
-	m_HierarchyPanel.SetActiveScene(m_ActiveScene);
+	//m_HierarchyPanel.SetActiveScene(m_ActiveScene);
 
 	Xen::RenderCommand::Clear();
 	m_Timestep = timestep;
@@ -129,10 +132,15 @@ void EditorLayer::OnUpdate(double timestep)
 
 		m_EditorCamera->Update();
 		m_ActiveScene->OnUpdate(timestep, m_EditorCamera);
+
+		m_EditorScene = m_ActiveScene;
 	}
 
-	else if (m_EditorState == EditorState::Play || m_EditorState == EditorState::Pause)
+	else if (m_EditorState == EditorState::Play || m_EditorState == EditorState::Pause) 
+	{
+		m_ActiveScene = m_RuntimeScene;
 		m_ActiveScene->OnUpdateRuntime(timestep);
+	}
 
 	// Line Rendering Test
 
@@ -494,8 +502,6 @@ void EditorLayer::OnImGuiUpdate()
 		if (m_PlayOrPause == m_PlayTexture)
 		{
 			m_PlayOrPause = m_PauseTexture;
-			m_EditorState = EditorState::Play;
-
 			OnScenePlay();
 		}
 		else {
@@ -518,7 +524,7 @@ void EditorLayer::OnImGuiUpdate()
 		m_EditMode = true;
 		m_PlayOrPause = m_PlayTexture;
 
-		m_ActiveScene->OnRuntimeStop();
+		OnSceneStop();
 	}
 
 	ImGui::PopDisabled();
@@ -541,26 +547,22 @@ void EditorLayer::OnFixedUpdate()
 
 void EditorLayer::OnScenePlay()
 {
-	// Set the active scene equal to the editor scene so that the editor scene stays updated:
-	m_EditorScene = m_ActiveScene;
+	m_EditorState = EditorState::Play;
 
-	// Copy the editor scene into the runtime scene:
-	//m_RuntimeScene = Xen::Scene::Copy(m_EditorScene);
-
-	// Set the runtime scene as the active scene
-	//m_ActiveScene = m_RuntimeScene;
-
-	//m_RuntimeScene->OnRuntimeStart();
+	m_RuntimeScene = Xen::Scene::Copy(m_EditorScene);
+	m_ActiveScene = m_RuntimeScene;
 	m_ActiveScene->OnRuntimeStart();
+
+	m_HierarchyPanel.SetActiveScene(m_RuntimeScene);
 }
 
 void EditorLayer::OnSceneStop()
 {
 	m_ActiveScene->OnRuntimeStop();
-	//m_RuntimeScene->OnRuntimeStop();
-	m_RuntimeScene = nullptr;
-
 	m_ActiveScene = m_EditorScene;
+
+	m_HierarchyPanel.SetActiveScene(m_EditorScene);
+	//m_HierarchyPanel.SetActiveScene(m_EditorScene);
 }
 
 void EditorLayer::OnScenePause()
