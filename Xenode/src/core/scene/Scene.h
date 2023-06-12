@@ -42,6 +42,11 @@ namespace Xen {
 	private:
 		void SortRenderableEntities();
 
+		void UpdateNativeScripts(double timestep);
+		void UpdateCameras();
+		void SimulatePhysics(double fixedTimeStep);
+		void RenderSprites();
+
 	private:
 		entt::registry m_Registry;
 		uint32_t m_FramebufferWidth = 1, m_FramebufferHeight = 1;

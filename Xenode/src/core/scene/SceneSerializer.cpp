@@ -304,15 +304,21 @@ namespace Xen {
 
 					const YAML::Node& texture_node = spriteRenderer_component["Texture"];
 
+					Ref<Texture2D> texture = nullptr;
+
 					if (texture_node["TextureFileRelPath"].as<std::string>() != "null")
 					{
-						XEN_ENGINE_LOG_WARN("Texture deserialization not yet implemented");
-						XEN_ENGINE_LOG_WARN(texture_node["TextureFileRelPath"].as<std::string>());
+						texture = Texture2D::CreateTexture2D(texture_node["TextureFileRelPath"].as<std::string>(), true);
+						texture->LoadTexture();
+
+						//XEN_ENGINE_LOG_WARN("Texture deserialization not yet implemented");
+						//XEN_ENGINE_LOG_WARN(texture_node["TextureFileRelPath"].as<std::string>());
 					}
 
 					float texture_tile_factor = texture_node["TextureTilingFactor"].as<float>();
 
-					entt.AddComponent<Component::SpriteRenderer>(color, primitive, 5);
+					auto& sprite = entt.AddComponent<Component::SpriteRenderer>(color, primitive, 5);
+					sprite.texture = texture;
 				}
 
 				// CircleRenderer Component-------------------------------------------------

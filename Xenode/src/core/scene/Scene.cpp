@@ -248,8 +248,67 @@ namespace Xen {
 		m_RenderableEntityIndex = 0;
 		//entt::observer group_observer{ m_Registry, entt::collector.group<Component::Transform, Component::SpriteRenderer>() };
 
+		UpdateNativeScripts(timestep);
+
+		SimulatePhysics(1.0 / 60.0);
+
+		UpdateCameras();
+
+		RenderSprites();
+	}
+
+	void Scene::OnUpdate(double timestep, const Ref<Camera>& camera)
+	{
+		m_RenderableEntityIndex = 0;
+
+		Renderer2D::BeginScene(camera);
+
+		RenderSprites();
+	}
+
+	void Scene::OnViewportResize(uint32_t width, uint32_t height)
+	{
+		m_FramebufferWidth = width;
+		m_FramebufferHeight = height;
+
+		auto camera_group_observer = m_Registry.view<Component::Transform, Component::CameraComp>();
+		RenderCommand::OnWindowResize(width, height);
+		for (auto& entity : camera_group_observer)
+		{
+			Component::CameraComp& camera = camera_group_observer.get<Component::CameraComp>(entity);
+
+			if (camera.is_primary_camera && camera.is_resizable)
+			{
+				camera.camera->OnViewportResize(width, height);
+				camera.camera->Update();
+			}
+		}
+	}
+
+	void Scene::SortRenderableEntities()
+	{
+		std::sort(m_RenderableEntities.begin(),
+			m_RenderableEntities.begin() + m_RenderableEntityIndex,
+			[](const Entity& one, const Entity& another)
+			{
+				Component::Transform& transform_one = one.GetComponent<Component::Transform>();
+				Component::Transform& transform_another = another.GetComponent<Component::Transform>();
+
+				//XEN_ENGINE_LOG_INFO("Sorting: {0} and {1}", one.GetComponent<Component::Tag>().tag, another.GetComponent<Component::Tag>().tag);
+
+				// To avoid Z fighting, make sure that no renderable entities have same z position:
+				if (transform_one.position.z == transform_another.position.z)
+					transform_one.position.z += 0.001f;
+
+				return transform_one.position.z > transform_another.position.z;
+			});
+
+		std::sort(m_ZCoordinates.rbegin(), m_ZCoordinates.rend());
+	}
+	void Scene::UpdateNativeScripts(double timestep)
+	{
 		// Run Native Scripts
-		m_Registry.view<Component::NativeScript>().each([=](auto entity, Component::NativeScript& script) 
+		m_Registry.view<Component::NativeScript>().each([=](auto entity, Component::NativeScript& script)
 			{
 				if (!script.scriptable_entity_instance)
 				{
@@ -260,12 +319,33 @@ namespace Xen {
 
 				script.scriptable_entity_instance->OnUpdate(timestep);
 			});
+	}
+	void Scene::UpdateCameras()
+	{
+		// Update Cameras
+		auto camera_group_observer = m_Registry.view<Component::Transform, Component::CameraComp>();
+		for (auto& entity : camera_group_observer)
+		{
+			Component::Transform& transform = camera_group_observer.get<Component::Transform>(entity);
+			Component::CameraComp& camera = camera_group_observer.get<Component::CameraComp>(entity);
 
+			if (camera.is_primary_camera)
+			{
+				camera.camera->SetPosition(transform.position);
+				camera.camera->SetRotation(transform.rotation);
+				camera.camera->SetScale(transform.scale);
+				camera.camera->Update();
+				Renderer2D::BeginScene(camera.camera);
+			}
+		}
+	}
+	void Scene::SimulatePhysics(double fixedTimeStep)
+	{
 		// Simulate Physics:
 		const int32_t velocityIterations = 6;
 		const int32_t positionIterations = 2;
 
-		m_PhysicsWorld->Step(1.0f / 60.0f, velocityIterations, positionIterations);
+		m_PhysicsWorld->Step(fixedTimeStep, velocityIterations, positionIterations);
 
 		auto rigid_body_view = m_Registry.view<Component::RigidBody2D>();
 
@@ -285,140 +365,12 @@ namespace Xen {
 
 			transform.rotation.z = (body->GetAngle() * RADTODEG);
 
-			body->SetTransform( body->GetPosition(), body->GetAngle() );
-		}
-
-		// Update Cameras
-		auto camera_group_observer = m_Registry.view<Component::Transform, Component::CameraComp>();
-		for (auto& entity : camera_group_observer)
-		{
-			Component::Transform& transform = camera_group_observer.get<Component::Transform>(entity);
-			Component::CameraComp& camera = camera_group_observer.get<Component::CameraComp>(entity);
-
-			if (camera.is_primary_camera)
-			{
-				camera.camera->SetPosition(transform.position);
-				camera.camera->SetRotation(transform.rotation);
-				camera.camera->SetScale(transform.scale);
-				camera.camera->Update();
-				Renderer2D::BeginScene(camera.camera);
-			}
-		}
-
-		// Render Sprites
-		auto sprite_group_observer = m_Registry.view<Component::SpriteRenderer>();
-		auto circle_group_observer = m_Registry.view<Component::CircleRenderer>();
-
-		for (auto& entity : sprite_group_observer)
-		{	
-			Component::Transform& transform = Entity(entity, this).GetComponent<Component::Transform>();
-			if (m_RenderableEntities.size() < m_RenderableEntityIndex + 1)
-			{
-				m_RenderableEntities.push_back(Entity(entity, this));
-				m_ZCoordinates.push_back(transform.position.z);
-			}
-			else {
-				m_RenderableEntities[m_RenderableEntityIndex] = Entity(entity, this);
-
-				if (m_ZCoordinates[m_RenderableEntityIndex] != transform.position.z)
-					m_IsDirty = true;
-
-				m_ZCoordinates[m_RenderableEntityIndex] = transform.position.z;
-			}
-			
-			m_RenderableEntityIndex++;
-		}
-		
-		for (auto& entity : circle_group_observer)
-		{
-			Component::Transform& transform = Entity(entity, this).GetComponent<Component::Transform>();
-			if (m_RenderableEntities.size() < m_RenderableEntityIndex + 1)
-			{
-				m_RenderableEntities.push_back(Entity(entity, this));
-				m_ZCoordinates.push_back(transform.position.z);
-			}
-			else {
-				m_RenderableEntities[m_RenderableEntityIndex] = Entity(entity, this);
-
-				if (m_ZCoordinates[m_RenderableEntityIndex] != transform.position.z)
-					m_IsDirty = true;
-
-				m_ZCoordinates[m_RenderableEntityIndex] = transform.position.z;
-			}
-			m_RenderableEntityIndex++;
-		}
-
-
-		if(m_IsDirty)
-			SortRenderableEntities();
-		m_IsDirty = false;
-
-		for (int i = 0; i < m_RenderableEntityIndex; i++)
-		{
-			Component::Transform& transform = m_RenderableEntities[i].GetComponent<Component::Transform>();
-			if (m_RenderableEntities[i].HasAnyComponent<Component::SpriteRenderer>())
-			{
-				Component::SpriteRenderer& spriteRenderer = m_RenderableEntities[i].GetComponent<Component::SpriteRenderer>();
-
-				if (spriteRenderer.texture == nullptr) {
-					switch (spriteRenderer.primitive)
-					{
-					case SpriteRendererPrimitive::Triangle:
-						Renderer2D::DrawClearTriangle(transform.position,
-							transform.rotation,
-							{ transform.scale.x, transform.scale.y },
-							spriteRenderer.color,
-							(uint32_t)m_RenderableEntities[i]);
-						break;
-					case SpriteRendererPrimitive::Quad:
-						Renderer2D::DrawClearQuad(transform.position,
-							transform.rotation,
-							{ transform.scale.x, transform.scale.y },
-							spriteRenderer.color,
-							(uint32_t)m_RenderableEntities[i]);
-						break;
-					case SpriteRendererPrimitive::Polygon:
-						Renderer2D::DrawPolygon(transform.position,
-							transform.rotation,
-							{ transform.scale.x, transform.scale.y },
-							spriteRenderer.polygon_segment_count,
-							spriteRenderer.color,
-							(uint32_t)m_RenderableEntities[i]);
-						break;
-					default:
-						break;
-					}
-				}
-				else
-					Renderer2D::DrawTexturedQuad(spriteRenderer.texture, 
-						transform.position, 
-						transform.rotation, 
-						{ transform.scale.x, transform.scale.y },
-						spriteRenderer.color,
-						spriteRenderer.texture_tile_factor);
-
-			}
-			else if (m_RenderableEntities[i].HasAnyComponent<Component::CircleRenderer>())
-			{
-				Component::CircleRenderer& circleRenderer = m_RenderableEntities[i].GetComponent<Component::CircleRenderer>();
-
-				Renderer2D::DrawClearCircle(transform.position, 
-					transform.rotation, 
-					{ transform.scale.x, transform.scale.y },
-					circleRenderer.color, 
-					circleRenderer.thickness, 
-					circleRenderer.inner_fade, 
-					circleRenderer.outer_fade);
-			}
+			body->SetTransform(body->GetPosition(), body->GetAngle());
 		}
 	}
 
-	void Scene::OnUpdate(double timestep, const Ref<Camera>& camera)
+	void Scene::RenderSprites()
 	{
-		m_RenderableEntityIndex = 0;
-
-		Renderer2D::BeginScene(camera);
-
 		// Render Sprites
 		auto sprite_group_observer = m_Registry.view<Component::SpriteRenderer>();
 		auto circle_group_observer = m_Registry.view<Component::CircleRenderer>();
@@ -472,7 +424,6 @@ namespace Xen {
 			Component::Transform& transform = m_RenderableEntities[i].GetComponent<Component::Transform>();
 			if (m_RenderableEntities[i].HasAnyComponent<Component::SpriteRenderer>())
 			{
-				//XEN_ENGINE_LOG_ERROR("entt id: {0}", (uint32_t)m_RenderableEntities[i]);
 				Component::SpriteRenderer& spriteRenderer = m_RenderableEntities[i].GetComponent<Component::SpriteRenderer>();
 
 				if (spriteRenderer.texture == nullptr) {
@@ -497,24 +448,20 @@ namespace Xen {
 							transform.rotation,
 							{ transform.scale.x, transform.scale.y },
 							spriteRenderer.polygon_segment_count,
-							spriteRenderer.color, 
+							spriteRenderer.color,
 							(uint32_t)m_RenderableEntities[i]);
 						break;
 					default:
 						break;
 					}
 				}
-
-				// TODO: Primitive thing for the textured ones:
 				else
 					Renderer2D::DrawTexturedQuad(spriteRenderer.texture,
 						transform.position,
 						transform.rotation,
 						{ transform.scale.x, transform.scale.y },
 						spriteRenderer.color,
-						spriteRenderer.texture_tile_factor, nullptr,
-						(uint32_t)m_RenderableEntities[i]);
-				// TODO: Address the texture coordinates thing.
+						spriteRenderer.texture_tile_factor);
 
 			}
 			else if (m_RenderableEntities[i].HasAnyComponent<Component::CircleRenderer>())
@@ -531,45 +478,5 @@ namespace Xen {
 					(uint32_t)m_RenderableEntities[i]);
 			}
 		}
-	}
-
-	void Scene::OnViewportResize(uint32_t width, uint32_t height)
-	{
-		m_FramebufferWidth = width;
-		m_FramebufferHeight = height;
-
-		auto camera_group_observer = m_Registry.view<Component::Transform, Component::CameraComp>();
-		RenderCommand::OnWindowResize(width, height);
-		for (auto& entity : camera_group_observer)
-		{
-			Component::CameraComp& camera = camera_group_observer.get<Component::CameraComp>(entity);
-
-			if (camera.is_primary_camera && camera.is_resizable)
-			{
-				camera.camera->OnViewportResize(width, height);
-				camera.camera->Update();
-			}
-		}
-	}
-
-	void Scene::SortRenderableEntities()
-	{
-		std::sort(m_RenderableEntities.begin(),
-			m_RenderableEntities.begin() + m_RenderableEntityIndex,
-			[](const Entity& one, const Entity& another)
-			{
-				Component::Transform& transform_one = one.GetComponent<Component::Transform>();
-				Component::Transform& transform_another = another.GetComponent<Component::Transform>();
-
-				//XEN_ENGINE_LOG_INFO("Sorting: {0} and {1}", one.GetComponent<Component::Tag>().tag, another.GetComponent<Component::Tag>().tag);
-
-				// To avoid Z fighting, make sure that no renderable entities have same z position:
-				if (transform_one.position.z == transform_another.position.z)
-					transform_one.position.z += 0.001f;
-
-				return transform_one.position.z > transform_another.position.z;
-			});
-
-		std::sort(m_ZCoordinates.rbegin(), m_ZCoordinates.rend());
 	}
 }
