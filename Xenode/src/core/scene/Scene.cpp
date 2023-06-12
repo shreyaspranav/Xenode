@@ -461,7 +461,9 @@ namespace Xen {
 						transform.rotation,
 						{ transform.scale.x, transform.scale.y },
 						spriteRenderer.color,
-						spriteRenderer.texture_tile_factor);
+						spriteRenderer.texture_tile_factor,
+						nullptr,
+						(uint32_t)m_RenderableEntities[i]);
 
 			}
 			else if (m_RenderableEntities[i].HasAnyComponent<Component::CircleRenderer>())

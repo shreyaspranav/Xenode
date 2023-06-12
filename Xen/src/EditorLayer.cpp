@@ -239,7 +239,11 @@ void EditorLayer::OnImGuiUpdate()
 		if (ImGui::BeginMenu("File"))
 		{
 			ImGui::MenuItem("Xenode", NULL, false, false);
-			if (ImGui::MenuItem("New")) {}
+			if (ImGui::MenuItem("New"))
+			{
+				m_EditorScene->NewScene();
+				m_HierarchyPanel.SetActiveScene(m_ActiveScene);
+			}
 			if (ImGui::MenuItem("Open", "Ctrl+O")) 
 			{
 				const std::string& filePath = Xen::Utils::OpenFileDialogOpen("Xenode 2D Scene (*.xen)\0*.*\0");
