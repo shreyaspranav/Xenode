@@ -246,11 +246,7 @@ void EditorLayer::OnImGuiUpdate()
 				
 				if (!filePath.empty())
 				{
-					m_EditorScene = std::make_shared<Xen::Scene>();
-					Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_EditorScene);
-					//serialiser.Deserialize("assets/scene.xen");
-					serialiser.Deserialize(filePath);
-
+					OpenScene(filePath);
 					m_ActiveScene = m_EditorScene;
 
 					m_HierarchyPanel.SetActiveScene(m_ActiveScene);
@@ -262,10 +258,7 @@ void EditorLayer::OnImGuiUpdate()
 				const std::string& filePath = Xen::Utils::OpenFileDialogSave("Xenode 2D Scene (*.xen)\0*.*\0");
 
 				if (!filePath.empty())
-				{
-					Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_ActiveScene);
-					serialiser.Serialize(filePath);
-				}
+					SaveScene(filePath);
 
 			}
 			if (ImGui::MenuItem("Save As..")) {}
@@ -341,11 +334,7 @@ void EditorLayer::OnImGuiUpdate()
 			std::string path = (const char*)payload->Data;
 			uint32_t size = path.size();
 
-			m_EditorScene = std::make_shared<Xen::Scene>();
-			Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_EditorScene);
-
-			serialiser.Deserialize(path);
-
+			OpenScene(path);
 			m_ActiveScene = m_EditorScene;
 
 			m_HierarchyPanel.SetActiveScene(m_ActiveScene);
@@ -572,6 +561,19 @@ void EditorLayer::OnSceneStop()
 void EditorLayer::OnScenePause()
 {
 
+}
+
+void EditorLayer::OpenScene(const std::string& filePath)
+{
+	m_EditorScene->NewScene();
+	Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_EditorScene);
+	serialiser.Deserialize(filePath);
+}
+
+void EditorLayer::SaveScene(const std::string& filePath)
+{
+	Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_EditorScene);
+	serialiser.Serialize(filePath);
 }
 
 void EditorLayer::OnWindowResizeEvent(Xen::WindowResizeEvent& event)

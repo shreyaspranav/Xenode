@@ -31,6 +31,9 @@ public:
 	void OnSceneStop();
 	void OnScenePause();
 
+	void OpenScene(const std::string& filePath);
+	void SaveScene(const std::string& filePath);
+
 	void OnWindowResizeEvent(Xen::WindowResizeEvent& event) override;
 
 	void OnMouseScrollEvent(Xen::MouseScrollEvent& event) override;

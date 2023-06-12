@@ -9,6 +9,7 @@
 
 // Physics:
 #include <box2d/box2d.h>
+#include "SceneSerializer.h"
 
 constexpr auto DEGTORAD = 0.0174532925199432957f;
 constexpr auto RADTODEG = 57.295779513082320876f;
@@ -104,6 +105,9 @@ namespace Xen {
 	void Scene::DestroyAllEntities()
 	{
 		m_Registry.clear();
+		m_RenderableEntities.clear();
+		m_ZCoordinates.clear();
+		m_RenderableEntityIndex = 0;
 	}
 
 	void Scene::OnRuntimeStart()
@@ -186,6 +190,12 @@ namespace Xen {
 		}
 
 		return Entity();
+	}
+
+	void Scene::NewScene()
+	{
+		DestroyAllEntities();
+		m_IsDirty = true;
 	}
 
 	Ref<Scene> Scene::Copy(Ref<Scene> srcScene)
@@ -551,7 +561,7 @@ namespace Xen {
 				Component::Transform& transform_one = one.GetComponent<Component::Transform>();
 				Component::Transform& transform_another = another.GetComponent<Component::Transform>();
 
-				XEN_ENGINE_LOG_INFO("Sorting: {0} and {1}", one.GetComponent<Component::Tag>().tag, another.GetComponent<Component::Tag>().tag);
+				//XEN_ENGINE_LOG_INFO("Sorting: {0} and {1}", one.GetComponent<Component::Tag>().tag, another.GetComponent<Component::Tag>().tag);
 
 				// To avoid Z fighting, make sure that no renderable entities have same z position:
 				if (transform_one.position.z == transform_another.position.z)

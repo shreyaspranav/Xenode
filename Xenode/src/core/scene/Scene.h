@@ -31,20 +31,16 @@ namespace Xen {
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string& name, UUID id);
 		Entity CopyEntity(Entity entity);
-
 		void DestroyEntity(Entity entity);
-
 		void DestroyAllEntities();
 
 		Entity GetPrimaryCameraEntity();
 
-		static Ref<Scene> Copy(Ref<Scene> srcScene);
+		void NewScene();
 
+		static Ref<Scene> Copy(Ref<Scene> srcScene);
 	private:
 		void SortRenderableEntities();
-
-		//template<typename Component>
-		//static void CopyComponent(const Ref<Scene>& srcScene, const Ref<Scene>& dstScene, const std::unordered_map<UUID, Entity>& uuidMap);
 
 	private:
 		entt::registry m_Registry;
