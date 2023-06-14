@@ -60,6 +60,10 @@ private:
 	GizmoOperation m_GizmoOperation;
 
 	bool m_IsMouseHoveredOnViewport;
+
+	// To disable mouse picking when mouse is over a gizmo:
+	bool m_IsMousePickingWorking = true;
+
 	Xen::Vec2 viewport_mouse_pos;
 
 	// Editor Camera Stuff------------------------------------
