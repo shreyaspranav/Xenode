@@ -40,6 +40,8 @@ Makefile
 *.lib
 
 # Executables
+# except the premake build tool
+!premake/premake-windows.exe
 *.exe
 *.out
 *.app
