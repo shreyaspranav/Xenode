@@ -41,7 +41,7 @@ Makefile
 
 # Executables
 # except the premake build tool
-!premake/premake-windows.exe
+!premake-windows.exe
 *.exe
 *.out
 *.app
