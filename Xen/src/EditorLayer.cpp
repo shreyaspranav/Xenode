@@ -297,7 +297,11 @@ void EditorLayer::OnImGuiUpdate()
 	m_ContentBrowserPanel.OnImGuiEditor();
 
 	m_PropertiesPanel.OnImGuiRender();
-	m_PropertiesPanel.SetActiveEntity(m_HierarchyPanel.GetSelectedEntity());
+
+	if(m_EditorState == EditorState::Edit)
+		m_PropertiesPanel.SetActiveEntity(m_HierarchyPanel.GetSelectedEntity());
+	else 
+		m_PropertiesPanel.SetActiveEntity(m_ActiveScene->GetRuntimeEntity(m_HierarchyPanel.GetSelectedEntity(), m_ActiveScene));
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	ImGui::Begin((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str());
@@ -559,7 +563,6 @@ void EditorLayer::OnSceneStop()
 	m_ActiveScene = m_EditorScene;
 
 	m_HierarchyPanel.SetActiveScene(m_EditorScene);
-	//m_HierarchyPanel.SetActiveScene(m_EditorScene);
 }
 
 void EditorLayer::OnScenePause()

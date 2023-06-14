@@ -31,6 +31,8 @@ namespace Xen {
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string& name, UUID id);
 		Entity CopyEntity(Entity entity);
+		Entity GetRuntimeEntity(Entity editorEntity, const Ref<Scene>& runtimeScene);
+
 		void DestroyEntity(Entity entity);
 		void DestroyAllEntities();
 
@@ -56,6 +58,7 @@ namespace Xen {
 		uint32_t m_RenderableEntityIndex = 0;
 
 		bool m_IsDirty = true;
+		bool m_isRunningOnRuntime = false;
 
 		b2World* m_PhysicsWorld = nullptr;
 

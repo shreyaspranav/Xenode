@@ -97,6 +97,32 @@ namespace Xen {
 		return newEntity;
 	}
 
+	Entity Scene::GetRuntimeEntity(Entity editorEntity, const Ref<Scene>& runtimeScene)
+	{
+		if (editorEntity == Entity())
+			return Entity();
+
+		if (!editorEntity.IsValid())
+			return Entity();
+		if (!m_isRunningOnRuntime && editorEntity.IsNull())
+			return editorEntity;
+		else {
+			UUID editorEntityUUID = editorEntity.GetComponent<Component::ID>().id;
+
+			auto runtimeSceneIDView = runtimeScene->m_Registry.view<Component::ID>();
+			for (entt::entity e : runtimeSceneIDView)
+			{
+				Entity entt = Entity(e, runtimeScene.get());
+				UUID runtimeEntityUUID = entt.GetComponent<Component::ID>().id;
+
+				if (runtimeEntityUUID == editorEntityUUID)
+					return entt;
+			}
+			XEN_ENGINE_LOG_ERROR("Runtime Entity with the specified UUID is not found!");
+			return editorEntity;
+		}
+	}
+
 	void Scene::DestroyEntity(Entity entity)
 	{
 		m_Registry.destroy((entt::entity)entity);
@@ -112,6 +138,8 @@ namespace Xen {
 
 	void Scene::OnRuntimeStart()
 	{
+		m_isRunningOnRuntime = true;
+
 		m_PhysicsWorld = new b2World({ 0.0f, -10.0f });
 		auto rigid_body_view = m_Registry.view<Component::RigidBody2D>();
 
@@ -175,6 +203,8 @@ namespace Xen {
 	{
 		delete m_PhysicsWorld;
 		m_PhysicsWorld = nullptr;
+
+		m_isRunningOnRuntime = false;
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()
