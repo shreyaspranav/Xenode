@@ -18,6 +18,8 @@ Xen::Vec2 initial_pos;
 
 float line_width = 1.0f;
 
+bool operator&(const KeyTransformOperation& o1, const KeyTransformOperation& o2) { return static_cast<uint16_t>(o1) & static_cast<uint16_t>(o2); }
+
 EditorLayer::EditorLayer()
 {
 	m_Timestep = 0.0f;
@@ -48,7 +50,11 @@ void EditorLayer::OnAttach()
 	input = Xen::Input::GetInputInterface();
 	input->SetWindow(Xen::DesktopApplication::GetWindow());
 
-	m_EditorCamera = std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, viewport_framebuffer_width, viewport_framebuffer_height);
+	m_EditorCamera = std::make_shared<Xen::Camera>(
+		m_GameMode == GameMode::_2D ? Xen::CameraType::Orthographic : Xen::CameraType::Perspective, 
+		viewport_framebuffer_width, 
+		viewport_framebuffer_height
+	);
 	m_ViewportFrameBuffer = Xen::FrameBuffer::CreateFrameBuffer(specs);
 
 	Xen::Renderer2D::Init();
@@ -126,11 +132,20 @@ void EditorLayer::OnUpdate(double timestep)
 	{
 		m_EditorCameraController.Update(&active);
 		m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
-		m_EditorCamera->SetScale({ m_EditorCameraController.GetFocalDistance(), m_EditorCameraController.GetFocalDistance(), 1.0f });
 
-		//m_EditorCamera->LookAtPoint(m_EditorCameraController.GetFocalPoint());
+		if (m_GameMode == GameMode::_2D) 
+		{
+			m_EditorCamera->SetScale({ m_EditorCameraController.GetFocalDistance(), m_EditorCameraController.GetFocalDistance(), 1.0f });
+			m_EditorCamera->Update(false);
+		}
 
-		m_EditorCamera->Update();
+		else if (m_GameMode == GameMode::_3D)
+		{
+			m_EditorCamera->LookAtPoint(m_EditorCameraController.GetFocalPoint());
+			m_EditorCamera->Update(true);
+		}
+
+
 		m_ActiveScene->OnUpdate(timestep, m_EditorCamera);
 
 		m_EditorScene = m_ActiveScene;
@@ -419,6 +434,48 @@ void EditorLayer::OnImGuiUpdate()
 				entity_transform_comp.position = translation;
 				entity_transform_comp.scale = scale;
 			}
+
+			// Key Transform Operations:
+			// TODO: Work on the speed of the translation thing:
+			// TODO: Rotation for X and Y axis:
+
+			float speed = 0.01f;
+
+			if (m_KeyTransformOperation != KeyTransformOperation::None)
+			{
+				m_IsMousePickingWorking = false;
+				auto& transformComp = selectedEntity.GetComponent<Xen::Component::Transform>();
+				if (m_KeyTransformOperation & KeyTransformOperation::TranslateX)
+				{
+					if (m_GameMode == GameMode::_2D)
+						transformComp.position.x += m_EditorCameraController.GetMouseDelta().x * speed;
+				}
+
+				if (m_KeyTransformOperation & KeyTransformOperation::TranslateY)
+				{
+					if (m_GameMode == GameMode::_2D)
+						transformComp.position.y -= m_EditorCameraController.GetMouseDelta().y * speed;
+				}
+
+				if (m_KeyTransformOperation & KeyTransformOperation::TranslateY)
+				{
+
+				}
+
+				if (m_KeyTransformOperation & KeyTransformOperation::RotateZ)
+					transformComp.rotation.z -= m_EditorCameraController.GetMouseDelta().y;
+
+				if (m_KeyTransformOperation & KeyTransformOperation::ScaleX)
+					transformComp.scale.x += m_EditorCameraController.GetMouseDelta().x * speed;
+				if (m_KeyTransformOperation & KeyTransformOperation::ScaleY)
+					transformComp.scale.y += m_EditorCameraController.GetMouseDelta().x * speed;
+
+				if (m_KeyTransformOperation != KeyTransformOperation::None && input->IsMouseButtonPressed(Xen::MouseKeyCode::MOUSE_BUTTON_LEFT))
+				{
+					m_KeyTransformOperation = KeyTransformOperation::None;
+					m_IsMousePickingWorking = true;
+				}
+			}
 		}
 	}
 
@@ -589,6 +646,36 @@ void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 			break;
 		case Xen::KeyCode::KEY_E:
 			m_GizmoOperation = GizmoOperation::Scale;
+			break;
+
+		// Setting Up Key transformations here:
+		case Xen::KeyCode::KEY_T:
+			m_KeyTransformOperation = m_GameMode == GameMode::_2D ? KeyTransformOperation::Translate2D : KeyTransformOperation::Translate;
+			break;
+		case Xen::KeyCode::KEY_R:
+			m_KeyTransformOperation = m_GameMode == GameMode::_2D ? KeyTransformOperation::Rotate2D : KeyTransformOperation::Rotate;
+			break;
+		case Xen::KeyCode::KEY_S:
+			m_KeyTransformOperation = m_GameMode == GameMode::_2D ? KeyTransformOperation::Scale2D : KeyTransformOperation::Scale;
+			break;
+
+		case Xen::KeyCode::KEY_X:
+			if (m_KeyTransformOperation & TranslateX || m_KeyTransformOperation & TranslateY || m_KeyTransformOperation & TranslateZ)
+				m_KeyTransformOperation = TranslateX;
+			else if (m_KeyTransformOperation & RotateX || m_KeyTransformOperation & RotateY || m_KeyTransformOperation & RotateZ)
+				m_KeyTransformOperation = RotateX;
+			else if (m_KeyTransformOperation & ScaleX || m_KeyTransformOperation & ScaleY || m_KeyTransformOperation & ScaleZ)
+				m_KeyTransformOperation = ScaleX;
+			break;
+		case Xen::KeyCode::KEY_Y:
+			if (m_KeyTransformOperation & TranslateX || m_KeyTransformOperation & TranslateY || m_KeyTransformOperation & TranslateZ)
+				m_KeyTransformOperation = TranslateY;
+			else if (m_KeyTransformOperation & RotateX || m_KeyTransformOperation & RotateY || m_KeyTransformOperation & RotateZ)
+				m_KeyTransformOperation = RotateY;
+			else if (m_KeyTransformOperation & ScaleX || m_KeyTransformOperation & ScaleY || m_KeyTransformOperation & ScaleZ)
+				m_KeyTransformOperation = ScaleY;
+			break;
+		case Xen::KeyCode::KEY_Z:
 			break;
 		}
 	}	

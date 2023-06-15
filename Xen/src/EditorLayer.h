@@ -8,15 +8,42 @@
 #include "core/scene/SceneSerializer.h"
 #include "core/scene/EditorCameraController.h"
 
+enum KeyTransformOperation : uint16_t
+{
+	None = 0,
+
+	TranslateX = BIT(0),
+	TranslateY = BIT(1),
+	TranslateZ = BIT(2),
+	RotateX = BIT(3),
+	RotateY = BIT(4),
+	RotateZ = BIT(5),
+	ScaleX = BIT(6),
+	ScaleY = BIT(7),
+	ScaleZ = BIT(8),
+
+	Translate = TranslateX | TranslateY | TranslateZ,
+	Rotate = RotateX | RotateY | RotateZ,
+	Scale = ScaleX | ScaleY | ScaleZ,
+
+	Translate2D = TranslateX | TranslateY,
+	Rotate2D = RotateZ,
+	Scale2D = ScaleX | ScaleY
+};
+
 class EditorLayer : public Xen::Layer
 {
 public:
-	enum class GizmoOperation {
+	enum class GameMode { _2D, _3D };
+
+	enum class GizmoOperation
+	{
 		Translate,
 		Rotate2D, Rotate3D,
 		Scale
 	};
 
+	enum class EditorState { Play, Edit, Pause };
 
 	EditorLayer();
 	virtual ~EditorLayer();
@@ -45,6 +72,7 @@ public:
 
 private:
 	double m_Timestep;
+	GameMode m_GameMode = GameMode::_2D;
 
 	uint32_t viewport_framebuffer_width = 1, viewport_framebuffer_height = 1;
 
@@ -58,6 +86,7 @@ private:
 	ContentBrowserPanel m_ContentBrowserPanel;
 
 	GizmoOperation m_GizmoOperation;
+	KeyTransformOperation m_KeyTransformOperation = KeyTransformOperation::None;
 
 	bool m_IsMouseHoveredOnViewport;
 
@@ -74,13 +103,8 @@ private:
 	Xen::Ref<Xen::Texture2D> m_PauseTexture;
 	Xen::Ref<Xen::Texture2D> m_StopTexture;
 
-	enum class EditorState { Play, Edit, Pause };
-
 	EditorState m_EditorState = EditorState::Edit;
 
 	Xen::Ref<Xen::Texture2D> m_PlayOrPause;
 	bool m_EditMode = true;
-
-private:
-	Xen::Vec3 GetCameraFrontDir();
 };

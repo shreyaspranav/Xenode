@@ -48,18 +48,18 @@ namespace Xen {
 		void Update(bool* active)
 		{
 			Xen::Vec2 mouse = Xen::Vec2(m_Input->GetMouseX(), m_Input->GetMouseY());
-			Xen::Vec2 delta = ((Vec2&)mouse - m_InitialMouseCoords) * 0.3f;
+			m_MouseDelta = ((Vec2&)mouse - m_InitialMouseCoords) * 0.3f;
 			m_InitialMouseCoords = mouse;
 
 			if (m_CameraType == EditorCameraType::_3D)
 			{
 				if (*active) {
 					if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE) && m_Input->IsKeyPressed(KEY_LEFT_SHIFT))
-						Pan(delta);
+						Pan(m_MouseDelta);
 					else if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))
-						Orbit(delta);
+						Orbit(m_MouseDelta);
 					else if (m_Input->IsKeyPressed(KEY_LEFT_CONTROL))
-						Zoom(delta.y);
+						Zoom(m_MouseDelta.y);
 				}
 
 				m_CameraPosition.x = m_FocalPoint.x + m_FocalDistance * glm::cos(glm::radians(m_CameraAngleAlongFocalPoint.y)) * glm::cos(glm::radians(-m_CameraAngleAlongFocalPoint.x));
@@ -79,9 +79,9 @@ namespace Xen {
 			{
 				if (*active) {
 					if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
-						Pan(delta);
+						Pan(m_MouseDelta);
 					else if (m_Input->IsKeyPressed(KEY_LEFT_CONTROL))
-						Zoom(delta.y);
+						Zoom(m_MouseDelta.y);
 				}
 
 				m_CameraPosition = m_FocalPoint;
@@ -90,6 +90,7 @@ namespace Xen {
 			}
 		}
 
+		inline const Vec2& GetMouseDelta()			{ return m_MouseDelta; }
 		inline const Vec3& GetFocalPoint()			{ return m_FocalPoint; };
 		inline const Vec3& GetCameraPosition()		{ return m_CameraPosition; };
 		inline float GetFocalDistance()				{ return m_FocalDistance; }
@@ -106,6 +107,8 @@ namespace Xen {
 
 		Vec2 m_CameraAngleAlongFocalPoint;
 		Vec2 m_InitialMouseCoords;
+
+		Vec2 m_MouseDelta;
 
 		Ref<Input> m_Input;
 
