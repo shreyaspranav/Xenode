@@ -37,7 +37,7 @@ void EditorLayer::OnAttach()
 	specs.samples = 1;
 
 	Xen::FrameBufferAttachmentSpec main_layer;
-	main_layer.format = Xen::FrameBufferTextureFormat::RGB8;
+	main_layer.format = Xen::FrameBufferTextureFormat::RGB16F;
 	main_layer.clearColor = Xen::Color(0.1f, 0.1f, 0.1f, 1.0f);
 
 	Xen::FrameBufferAttachmentSpec mouse_picking_layer;
@@ -439,7 +439,7 @@ void EditorLayer::OnImGuiUpdate()
 			// TODO: Work on the speed of the translation thing:
 			// TODO: Rotation for X and Y axis:
 
-			float speed = 0.01f;
+			float speed = 0.01f * m_EditorCameraController.GetFocalDistance();
 
 			if (m_KeyTransformOperation != KeyTransformOperation::None)
 			{

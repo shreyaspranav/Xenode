@@ -150,8 +150,20 @@ namespace Xen {
 					m_Spec.samples);
 				break;
 			case FrameBufferTextureFormat::RGB16F:
+				SetupTexture(m_ColorAttachments[color_att_index],
+					m_Spec.width, m_Spec.height,
+					GL_RGB16F,
+					GL_RGBA,
+					m_Spec.attachments[i].filtering,
+					m_Spec.samples);
 				break;
 			case FrameBufferTextureFormat::RGB32F:
+				SetupTexture(m_ColorAttachments[color_att_index],
+					m_Spec.width, m_Spec.height,
+					GL_RGB32F,
+					GL_RGBA,
+					m_Spec.attachments[i].filtering,
+					m_Spec.samples);
 				break;
 			default:
 				break;
@@ -171,6 +183,12 @@ namespace Xen {
 					m_Spec.samples);
 				break;
 			case FrameBufferTextureFormat::Depth32F_Stencil8:
+				SetupTexture(m_DepthAttachmentT,
+					m_Spec.width, m_Spec.height,
+					GL_DEPTH32F_STENCIL8,
+					GL_DEPTH32F_STENCIL8,
+					m_Spec.attachments[depth_att_index].filtering,
+					m_Spec.samples);
 				break;
 			default:
 				break;
