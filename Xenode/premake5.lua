@@ -29,7 +29,8 @@ project "Xenode"
 		"GLFW", 
 		"ImGui",
 		"yaml-cpp",
-		"Box2D"
+		"Box2D",
+		"Lua"
 	}
 
 	includedirs {
@@ -51,6 +52,7 @@ project "Xenode"
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Box2D}",
 		"%{IncludeDir.Optick}",
+		"%{IncludeDir.Lua}",
 	}
 
 	defines {"_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS", "_CRT_SECURE_NO_WARNINGS"}

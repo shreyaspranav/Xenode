@@ -15,6 +15,7 @@ group "Dependencies"
 	include "deps/imgui"
 	include "deps/yaml-cpp"
 	include "deps/box2d"
+	include "deps/lua"
 group ""
 
 IncludeDir = {}
@@ -30,6 +31,7 @@ IncludeDir["yaml_cpp"] 		= "%{wks.location}/deps/yaml-cpp/include"
 IncludeDir["ImGuizmo"] 		= "%{wks.location}/deps/ImGuizmo"
 IncludeDir["Optick"] 		= "%{wks.location}/deps/optick/include"
 IncludeDir["Box2D"] 		= "%{wks.location}/deps/box2d/include"
+IncludeDir["Lua"] 			= "%{wks.location}/deps/lua/include"
 
 newoption {
 	trigger = "enable-profiling", 
