@@ -154,7 +154,7 @@ void EditorLayer::OnUpdate(double timestep)
 	else if (m_EditorState == EditorState::Play || m_EditorState == EditorState::Pause) 
 	{
 		m_ActiveScene = m_RuntimeScene;
-		m_ActiveScene->OnUpdateRuntime(timestep);
+		m_ActiveScene->OnUpdateRuntime(timestep, m_ScenePaused);
 	}
 
 	// Line Rendering Test
@@ -571,13 +571,17 @@ void EditorLayer::OnFixedUpdate()
 
 void EditorLayer::OnScenePlay()
 {
-	m_EditorState = EditorState::Play;
+	m_ScenePaused = false;
 
-	m_RuntimeScene = Xen::Scene::Copy(m_EditorScene);
-	m_ActiveScene = m_RuntimeScene;
-	m_ActiveScene->OnRuntimeStart();
+	if (m_EditorState != EditorState::Pause)
+	{
+		m_RuntimeScene = Xen::Scene::Copy(m_EditorScene);
+		m_ActiveScene = m_RuntimeScene;
+		m_ActiveScene->OnRuntimeStart();
+	}
 
 	m_HierarchyPanel.SetActiveScene(m_RuntimeScene);
+	m_EditorState = EditorState::Play;
 }
 
 void EditorLayer::OnSceneStop()
@@ -590,7 +594,7 @@ void EditorLayer::OnSceneStop()
 
 void EditorLayer::OnScenePause()
 {
-
+	m_ScenePaused = true;
 }
 
 void EditorLayer::OpenScene(const std::string& filePath)

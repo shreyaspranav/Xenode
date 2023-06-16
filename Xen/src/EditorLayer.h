@@ -89,6 +89,7 @@ private:
 	KeyTransformOperation m_KeyTransformOperation = KeyTransformOperation::None;
 
 	bool m_IsMouseHoveredOnViewport;
+	bool m_ScenePaused = false;
 
 	// To disable mouse picking when mouse is over a gizmo:
 	bool m_IsMousePickingWorking = true;

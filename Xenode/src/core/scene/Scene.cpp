@@ -273,14 +273,15 @@ namespace Xen {
 		return newScene;
 	}
 
-	void Scene::OnUpdateRuntime(double timestep)
+	void Scene::OnUpdateRuntime(double timestep, bool paused)
 	{
 		m_RenderableEntityIndex = 0;
 		//entt::observer group_observer{ m_Registry, entt::collector.group<Component::Transform, Component::SpriteRenderer>() };
 
-		UpdateNativeScripts(timestep);
-
-		SimulatePhysics(1.0 / 60.0);
+		if (!paused) {
+			UpdateNativeScripts(timestep);
+			SimulatePhysics(1.0 / 60.0);
+		}
 
 		UpdateCameras();
 

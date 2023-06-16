@@ -19,7 +19,7 @@ namespace Xen {
 		~Scene();
 
 		void OnUpdate(double timestep, const Ref<Camera>& camera);
-		void OnUpdateRuntime(double timestep);
+		void OnUpdateRuntime(double timestep, bool paused); // if 'paused' = true scripts and physics won't be updated
 
 		void OnRuntimeStart();
 		void OnRuntimeStop();
