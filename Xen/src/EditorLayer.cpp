@@ -563,11 +563,12 @@ void EditorLayer::OnImGuiUpdate()
 
 	ImGui::SameLine();
 
+	ImGui::PushDisabled(m_EditorState != EditorState::Pause);
 	if (ImGui::ImageButton((ImTextureID)m_StepTexture->GetNativeTextureID(), { 25.0f, 25.0f }))
 	{
 		m_SceneStepped = true;
 	}
-
+	ImGui::PopDisabled();
 	ImGui::PopDisabled();
 
 	ImGui::PopStyleColor();
