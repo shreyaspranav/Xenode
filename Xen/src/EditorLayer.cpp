@@ -97,10 +97,12 @@ void EditorLayer::OnAttach()
 	m_PlayTexture = Xen::Texture2D::CreateTexture2D("assets/textures/play.png", false);
 	m_StopTexture = Xen::Texture2D::CreateTexture2D("assets/textures/stop.png", false);
 	m_PauseTexture = Xen::Texture2D::CreateTexture2D("assets/textures/pause.png", false);
+	m_StepTexture = Xen::Texture2D::CreateTexture2D("assets/textures/step.png", false);
 
 	m_PlayTexture->LoadTexture();
 	m_StopTexture->LoadTexture();
 	m_PauseTexture->LoadTexture();
+	m_StepTexture->LoadTexture();
 
 	// Assuming that m_EditorState is m_EditorState::Edit in the beginning
 	m_PlayOrPause = m_PlayTexture;
@@ -154,7 +156,14 @@ void EditorLayer::OnUpdate(double timestep)
 	else if (m_EditorState == EditorState::Play || m_EditorState == EditorState::Pause) 
 	{
 		m_ActiveScene = m_RuntimeScene;
-		m_ActiveScene->OnUpdateRuntime(timestep, m_ScenePaused);
+
+		if (m_SceneStepped) {
+			m_ActiveScene->OnUpdateRuntime(timestep, false);
+			m_SceneStepped = false;
+		}
+		else 
+			m_ActiveScene->OnUpdateRuntime(timestep, m_ScenePaused);
+
 	}
 
 	// Line Rendering Test
@@ -506,7 +515,7 @@ void EditorLayer::OnImGuiUpdate()
 		break;
 	}
 
-	ImGui::Text("Scene State: %s", scene_state); ImGui::SameLine();
+	//ImGui::Text("Scene State: %s", scene_state); ImGui::SameLine();
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	float width = 0.0f;
@@ -514,7 +523,8 @@ void EditorLayer::OnImGuiUpdate()
 	width += style.ItemSpacing.x;
 	width += 25.0f;			// Stop Button
 	width += style.ItemSpacing.x;
-	width += ImGui::CalcTextSize("World!").x;
+	width += 25.0f;			// Step Button
+	width += style.ItemSpacing.x;
 
 	float avail = ImGui::GetContentRegionAvail().x;
 	float off = (avail - width) * 0.5f;
@@ -549,6 +559,13 @@ void EditorLayer::OnImGuiUpdate()
 		m_PlayOrPause = m_PlayTexture;
 
 		OnSceneStop();
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::ImageButton((ImTextureID)m_StepTexture->GetNativeTextureID(), { 25.0f, 25.0f }))
+	{
+		m_SceneStepped = true;
 	}
 
 	ImGui::PopDisabled();

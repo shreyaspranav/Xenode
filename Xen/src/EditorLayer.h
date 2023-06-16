@@ -90,6 +90,7 @@ private:
 
 	bool m_IsMouseHoveredOnViewport;
 	bool m_ScenePaused = false;
+	bool m_SceneStepped = false;
 
 	// To disable mouse picking when mouse is over a gizmo:
 	bool m_IsMousePickingWorking = true;
@@ -103,6 +104,7 @@ private:
 	Xen::Ref<Xen::Texture2D> m_PlayTexture;
 	Xen::Ref<Xen::Texture2D> m_PauseTexture;
 	Xen::Ref<Xen::Texture2D> m_StopTexture;
+	Xen::Ref<Xen::Texture2D> m_StepTexture;
 
 	EditorState m_EditorState = EditorState::Edit;
 
