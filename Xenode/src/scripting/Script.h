@@ -1,11 +1,13 @@
 #pragma once
 #include <Core.h>
 
-#include "ScriptLang.h"
-
 namespace Xen {
 	class XEN_API Script
 	{
-		static Ref<Script> CreateScript(ScriptLang lang);
+	public:
+		static Ref<Script> CreateScript(const std::string& filePath);
+
+
+		virtual inline const std::string& GetFilePath() const = 0;
 	};
 }

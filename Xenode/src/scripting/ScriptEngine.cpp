@@ -2,13 +2,14 @@
 #include "ScriptEngine.h"
 
 #include "core/app/Log.h"
+#include "core/app/DesktopApplication.h"
 
 #include "lua/LuaScriptEngine.h"
 
 namespace Xen {
-	Ref<ScriptEngine> ScriptEngine::InitScriptEngine(ScriptLang lang) 
+	Ref<ScriptEngine> ScriptEngine::InitScriptEngine() 
 	{
-		switch (lang)
+		switch (DesktopApplication::GetScriptingLanguage())
 		{
 		case ScriptLang::Lua:
 			return std::make_shared<LuaScriptEngine>();

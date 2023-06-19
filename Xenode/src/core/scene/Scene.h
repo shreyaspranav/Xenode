@@ -6,6 +6,8 @@
 #include <core/renderer/Camera.h>
 #include <core/app/UUID.h>
 
+#include <scripting/ScriptEngine.h>
+
 class SceneHierarchyPanel;
 class b2World;
 
@@ -61,6 +63,8 @@ namespace Xen {
 		bool m_isRunningOnRuntime = false;
 
 		b2World* m_PhysicsWorld = nullptr;
+
+		Ref<ScriptEngine> m_ScriptEngine;
 
 		friend class Entity;
 		friend class ::SceneHierarchyPanel;

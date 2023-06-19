@@ -9,6 +9,7 @@
 #include "Window.h"
 #include "core/renderer/GraphicsContext.h"
 #include "imgui/ImGuiLayer.h" 
+#include "scripting/ScriptLang.h"
 
 namespace Xen {
 
@@ -21,9 +22,9 @@ namespace Xen {
 		inline static Ref<Window> window;
 		GraphicsContext* m_Context;
 		inline static GraphicsAPI m_Api = GraphicsAPI::XEN_OPENGL_API;
+		inline static ScriptLang m_ScriptingLanguage = ScriptLang::Lua;
 
 		Ref<ImGuiLayer> m_ImGuiLayer;
-
 
 	public:
 		uint32_t window_width, window_height;
@@ -73,8 +74,9 @@ namespace Xen {
 		void OnMouseButtonReleaseEvent(Event& event);
 		void OnMouseScrollEvent(Event& event);
 
-		static inline void SetGraphicsAPI(GraphicsAPI api) { m_Api = api; }
-		static inline GraphicsAPI GetGraphicsAPI() { return m_Api; }
+		static inline void SetGraphicsAPI(GraphicsAPI api)		{ m_Api = api; }
+		static inline GraphicsAPI GetGraphicsAPI()				{ return m_Api; }
+		static inline ScriptLang GetScriptingLanguage()			{ return m_ScriptingLanguage; }
 	};
 
 	XEN_API DesktopApplication* CreateDesktopApplication();

@@ -59,6 +59,15 @@ namespace Xen {
 
 	void Scene::OnCreate()
 	{
+		m_ScriptEngine = ScriptEngine::InitScriptEngine();
+
+		Ref<Script> script1 = Script::CreateScript("assets/scripts/ScriptOne.lua");
+		Ref<Script> script2 = Script::CreateScript("assets/scripts/ScriptTwo.lua");
+
+		m_ScriptEngine->AddScript(script1);
+		m_ScriptEngine->AddScript(script2);
+
+		m_ScriptEngine->OnSetup();
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
