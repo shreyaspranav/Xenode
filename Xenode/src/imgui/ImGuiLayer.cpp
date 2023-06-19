@@ -85,9 +85,6 @@ namespace Xen {
 
 			m_FirstTime = false;
 		}
-
-		ImGui::ShowStyleEditor();
-
 	}
 
 	void ImGuiLayer::OnUpdate(double timestep)

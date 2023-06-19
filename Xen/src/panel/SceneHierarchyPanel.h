@@ -83,7 +83,7 @@ private:
 		{
 			base_flags |= ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-			if (entity.HasAllComponent<Xen::Component::SpriteRenderer>())
+			if (entity.HasAnyComponent<Xen::Component::SpriteRenderer>())
 			{
 				ImGui::TreeNodeEx((std::string(ICON_FA_TREE) + std::string("  Sprite Renderer")).c_str(), base_flags);
 				if(ImGui::IsItemClicked())
@@ -92,7 +92,7 @@ private:
 					m_SelectedEntity = Xen::Entity();
 			}
 
-			if (entity.HasAllComponent<Xen::Component::NativeScript>())
+			if (entity.HasAnyComponent<Xen::Component::NativeScript>())
 			{
 				ImGui::TreeNodeEx((std::string(ICON_FA_CODE) + std::string("  Script")).c_str(), base_flags);
 				if (ImGui::IsItemClicked())
@@ -101,7 +101,7 @@ private:
 					m_SelectedEntity = Xen::Entity();
 			}
 
-			if (entity.HasAllComponent<Xen::Component::CameraComp>())
+			if (entity.HasAnyComponent<Xen::Component::CameraComp>())
 			{
 				ImGui::TreeNodeEx((std::string(ICON_FA_CAMERA) + std::string("  Orthographic Camera")).c_str(), base_flags);
 				if (ImGui::IsItemClicked())
@@ -110,9 +110,27 @@ private:
 					m_SelectedEntity = Xen::Entity();
 			}
 			
-			if (entity.HasAllComponent<Xen::Component::CircleRenderer>())
+			if (entity.HasAnyComponent<Xen::Component::CircleRenderer>())
 			{
 				ImGui::TreeNodeEx((std::string(ICON_FA_CIRCLE) + std::string(" Circle Renderer")).c_str(), base_flags);
+				if (ImGui::IsItemClicked())
+					m_SelectedEntity = entity;
+				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
+					m_SelectedEntity = Xen::Entity();
+			}
+
+			if (entity.HasAnyComponent<Xen::Component::BoxCollider2D>())
+			{
+				ImGui::TreeNodeEx((std::string(ICON_FA_SQUARE) + std::string(" Box Collider 2D")).c_str(), base_flags);
+				if (ImGui::IsItemClicked())
+					m_SelectedEntity = entity;
+				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
+					m_SelectedEntity = Xen::Entity();
+			}
+
+			if (entity.HasAnyComponent<Xen::Component::RigidBody2D>())
+			{
+				ImGui::TreeNodeEx((std::string(ICON_FA_CUBES_STACKED) + std::string(" Rigid Body 2D")).c_str(), base_flags);
 				if (ImGui::IsItemClicked())
 					m_SelectedEntity = entity;
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
