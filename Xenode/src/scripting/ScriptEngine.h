@@ -13,7 +13,8 @@ namespace Xen {
 
 		virtual void AddScript(Ref<Script> script) = 0;
 
-		virtual void OnSetup() = 0;
+		virtual void OnStart() = 0;
+		virtual void OnUpdate(double timestep) = 0;
 	};
 }
 

@@ -7,6 +7,11 @@ namespace Xen {
 	class XEN_API LuaScript : public Script
 	{
 	public:
+		std::string 
+			onStartFunction			= "OnStart",
+			onUpdateFunction		= "OnUpdate",
+			onFixedUpdateFunction	= "OnFixedUpdate";
+	public:
 		LuaScript(const std::string& filePath);
 		virtual ~LuaScript();
 

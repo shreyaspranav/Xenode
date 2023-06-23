@@ -16,7 +16,8 @@ namespace Xen {
 
 		void AddScript(Ref<Script> script) override;
 
-		void OnSetup() override;
+		void OnStart() override;
+		void OnUpdate(double timestep) override;
 	private:
 		lua_State* m_LuaVM;
 		std::vector<Ref<LuaScript>> m_Scripts;

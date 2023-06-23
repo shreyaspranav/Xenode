@@ -47,6 +47,7 @@ namespace Xen {
 		void SortRenderableEntities();
 
 		void UpdateNativeScripts(double timestep);
+		void UpdateScripts(double timestep);
 		void UpdateCameras();
 		void SimulatePhysics(double fixedTimeStep);
 		void RenderSprites();

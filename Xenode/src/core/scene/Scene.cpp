@@ -60,14 +60,6 @@ namespace Xen {
 	void Scene::OnCreate()
 	{
 		m_ScriptEngine = ScriptEngine::InitScriptEngine();
-
-		Ref<Script> script1 = Script::CreateScript("assets/scripts/ScriptOne.lua");
-		Ref<Script> script2 = Script::CreateScript("assets/scripts/ScriptTwo.lua");
-
-		m_ScriptEngine->AddScript(script1);
-		m_ScriptEngine->AddScript(script2);
-
-		m_ScriptEngine->OnSetup();
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -147,6 +139,15 @@ namespace Xen {
 
 	void Scene::OnRuntimeStart()
 	{
+		// Temp:============================================
+		Ref<Script> script1 = Script::CreateScript("assets/scripts/ScriptOne.lua");
+		Ref<Script> script2 = Script::CreateScript("assets/scripts/ScriptTwo.lua");
+
+		m_ScriptEngine->AddScript(script1);
+		m_ScriptEngine->AddScript(script2);
+
+		m_ScriptEngine->OnStart();
+		//==================================================
 		m_isRunningOnRuntime = true;
 
 		m_PhysicsWorld = new b2World({ 0.0f, -10.0f });
@@ -288,7 +289,12 @@ namespace Xen {
 		//entt::observer group_observer{ m_Registry, entt::collector.group<Component::Transform, Component::SpriteRenderer>() };
 
 		if (!paused) {
+			// C++ Scripts:
 			UpdateNativeScripts(timestep);
+
+			// Lua/C# Scripts:
+			UpdateScripts(timestep);
+
 			SimulatePhysics(1.0 / 60.0);
 		}
 
@@ -359,6 +365,11 @@ namespace Xen {
 
 				script.scriptable_entity_instance->OnUpdate(timestep);
 			});
+	}
+	void Scene::UpdateScripts(double timestep)
+	{
+		// Run Scripts(Lua/C#)
+		m_ScriptEngine->OnUpdate(timestep);
 	}
 	void Scene::UpdateCameras()
 	{
