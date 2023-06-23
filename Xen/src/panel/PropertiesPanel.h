@@ -7,6 +7,8 @@
 #include "core/app/Log.h"
 #include <glm/gtc/type_ptr.hpp>
 
+#include "StringValues.h"
+
 class PropertiesPanel {
 
 public:
@@ -74,25 +76,37 @@ public:
 
 				if (m_SelectedEntity.HasAnyComponent<Xen::Component::SpriteRenderer>())
 				{
-					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), std::string(ICON_FA_TREE) + std::string(" Sprite Renderer"));
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_SPRITE_RENDERER);
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
 				if (m_SelectedEntity.HasAnyComponent<Xen::Component::CircleRenderer>())
 				{
-					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), std::string(ICON_FA_CIRCLE) + std::string(" Circle Renderer"));
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_CIRCLE_RENDERER);
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
 				if (m_SelectedEntity.HasAnyComponent<Xen::Component::CameraComp>())
 				{
-					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), std::string(ICON_FA_CAMERA) + std::string(" Camera"));
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_CAMERA);
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
 				if (m_SelectedEntity.HasAnyComponent<Xen::Component::NativeScript>())
 				{
-					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), std::string(ICON_FA_CODE) + std::string(" Script"));
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_NATIVE_SCRIPT);
+					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
+				}
+
+				if (m_SelectedEntity.HasAnyComponent<Xen::Component::BoxCollider2D>())
+				{
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_BOX_COLLIDER_2D);
+					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
+				}
+
+				if (m_SelectedEntity.HasAnyComponent<Xen::Component::RigidBody2D>())
+				{
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_RIGID_BODY_2D);
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
@@ -129,7 +143,7 @@ public:
 
 			ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_DefaultOpen;
 
-			if (ImGui::CollapsingHeader((std::string(ICON_FA_CUBES) + std::string("  Transform")).c_str(), tree_flags))
+			if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_TRANSFORM.c_str(), tree_flags))
 			{
 				//PaddedText("Position ", 0.0f, 3.0f); ImGui::SameLine();
 				DrawVec3Control("Position", transform.position, 0.0f);
@@ -143,7 +157,7 @@ public:
 			backOC:
 			if (m_SelectedEntity.HasAnyComponent<Xen::Component::CameraComp>())
 			{
-				if (ImGui::CollapsingHeader((std::string(ICON_FA_CAMERA) + std::string("  Camera")).c_str(), tree_flags))
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_CAMERA.c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 						ImGui::OpenPopup("DeleteComponentCamera");
@@ -264,7 +278,7 @@ public:
 			backSR:
 			if (m_SelectedEntity.HasAnyComponent<Xen::Component::SpriteRenderer>())
 			{
-				if (ImGui::CollapsingHeader((std::string(ICON_FA_TREE) + std::string("  Sprite Renderer")).c_str(), tree_flags))
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_SPRITE_RENDERER.c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 						ImGui::OpenPopup("DeleteComponentSpriteRenderer");
@@ -412,7 +426,7 @@ public:
 			{
 				Xen::Component::CircleRenderer& circle_renderer = m_SelectedEntity.GetComponent<Xen::Component::CircleRenderer>();
 
-				if (ImGui::CollapsingHeader((std::string(ICON_FA_CIRCLE) + std::string("  Circle Renderer")).c_str(), tree_flags))
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_CIRCLE_RENDERER.c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 						ImGui::OpenPopup("DeleteComponentCircleRenderer");
@@ -486,7 +500,7 @@ public:
 			backRB:
 			if (m_SelectedEntity.HasAnyComponent<Xen::Component::RigidBody2D>())
 			{
-				if (ImGui::CollapsingHeader((std::string(ICON_FA_CUBES_STACKED) + std::string(" Rigid Body 2D")).c_str(), tree_flags))
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_RIGID_BODY_2D.c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 						ImGui::OpenPopup("DeleteComponentRigidBody2D");
@@ -557,7 +571,7 @@ public:
 			backBC:
 			if (m_SelectedEntity.HasAnyComponent<Xen::Component::BoxCollider2D>())
 			{
-				if (ImGui::CollapsingHeader((std::string(ICON_FA_SQUARE) + std::string(" Box Collider 2D")).c_str(), tree_flags))
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_BOX_COLLIDER_2D.c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 						ImGui::OpenPopup("DeleteComponentBoxCollider2D");
@@ -757,18 +771,19 @@ private:
 	float pad[2] = {};
 
 	std::vector<std::string> m_Components = { 
-		std::string(ICON_FA_TREE)				+ std::string(" Sprite Renderer"),
-		std::string(ICON_FA_CAMERA)				+ std::string(" Camera"), 
-		std::string(ICON_FA_CODE)				+ std::string(" Script"), 
-		std::string(ICON_FA_CIRCLE)				+ std::string(" Circle Renderer"), 
-		std::string(ICON_FA_CUBES_STACKED)		+ std::string(" Rigid Body 2D"),
-		std::string(ICON_FA_SQUARE)				+ std::string(" Box Collider 2D"),
+		Xen::StringValues::COMPONENT_SPRITE_RENDERER,
+		Xen::StringValues::COMPONENT_CAMERA,
+		Xen::StringValues::COMPONENT_NATIVE_SCRIPT,
+		Xen::StringValues::COMPONENT_CIRCLE_RENDERER,
+		Xen::StringValues::COMPONENT_RIGID_BODY_2D,
+		Xen::StringValues::COMPONENT_BOX_COLLIDER_2D,
+		
 	};
 
 	std::vector<std::string> m_AvailableComponents = m_Components;
 
 	Xen::Entity m_SelectedEntity;
-	std::string m_PanelTitle = std::string(ICON_FA_INFO) + std::string("  Properties");
+	std::string m_PanelTitle = Xen::StringValues::PANEL_TITLE_PROPERTIES;
 
 	std::string m_TextureLoadDropType;
 };

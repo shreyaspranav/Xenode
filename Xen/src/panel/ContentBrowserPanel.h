@@ -6,6 +6,8 @@
 
 #include <core/renderer/Texture.h>
 
+#include "StringValues.h"
+
 class ContentBrowserPanel 
 {
 public:
@@ -115,7 +117,7 @@ public:
 	inline const std::string& GetTextureLoadDropType()	{ return m_TextureLoadDropType; }
 
 private:
-	std::string m_PanelTitle = std::string(ICON_FA_FOLDER) + std::string(" Content Browser");
+	std::string m_PanelTitle = Xen::StringValues::PANEL_TITLE_CONTENT_BROWSER;
 	std::string m_BackIcon = std::string(ICON_FA_ARROW_UP);
 	std::string m_SearchIcon = std::string(ICON_FA_MAGNIFYING_GLASS);
 	

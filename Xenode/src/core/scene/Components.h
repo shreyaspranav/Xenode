@@ -4,6 +4,7 @@
 #include <core/renderer/Structs.h>
 #include <core/renderer/Texture.h>
 #include <core/renderer/Camera.h>
+#include <scripting/Script.h>
 #include "ScriptableEntity.h"
 #include <pch/pch>
 
@@ -68,7 +69,7 @@ namespace Xen {
 				primitive(primitive) {}
 
 			SpriteRenderer(const Color& color, Ref<Texture2D> texture, float tile_factor = 1.0f) 
-				: color(color), texture(texture), texture_tile_factor(tile_factor) {}
+				: color(color), texture(texture), texture_tile_factor(tile_factor), primitive(SpriteRendererPrimitive::Quad) {}
 		};
 
 		struct CircleRenderer
@@ -133,6 +134,17 @@ namespace Xen {
 					script->scriptable_entity_instance = nullptr; 
 				};
 			}
+		};
+
+		struct ScriptComp
+		{
+			Ref<Script> script_instance = nullptr;
+
+			ScriptComp() = default;
+			ScriptComp(const ScriptComp& comp) = default;
+
+			ScriptComp(const Ref<Script>& script)
+				: script_instance(script) {}
 		};
 
 		// Physics Components:

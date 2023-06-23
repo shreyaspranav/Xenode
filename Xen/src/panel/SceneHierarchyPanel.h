@@ -7,6 +7,8 @@
 
 #include "core/app/Log.h"
 
+#include "StringValues.h"
+
 class SceneHierarchyPanel {
 
 public:
@@ -85,7 +87,7 @@ private:
 
 			if (entity.HasAnyComponent<Xen::Component::SpriteRenderer>())
 			{
-				ImGui::TreeNodeEx((std::string(ICON_FA_TREE) + std::string("  Sprite Renderer")).c_str(), base_flags);
+				ImGui::TreeNodeEx(Xen::StringValues::COMPONENT_SPRITE_RENDERER.c_str(), base_flags);
 				if(ImGui::IsItemClicked())
 					m_SelectedEntity = entity;
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
@@ -94,7 +96,7 @@ private:
 
 			if (entity.HasAnyComponent<Xen::Component::NativeScript>())
 			{
-				ImGui::TreeNodeEx((std::string(ICON_FA_CODE) + std::string("  Script")).c_str(), base_flags);
+				ImGui::TreeNodeEx(Xen::StringValues::COMPONENT_NATIVE_SCRIPT.c_str(), base_flags);
 				if (ImGui::IsItemClicked())
 					m_SelectedEntity = entity;
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
@@ -103,7 +105,7 @@ private:
 
 			if (entity.HasAnyComponent<Xen::Component::CameraComp>())
 			{
-				ImGui::TreeNodeEx((std::string(ICON_FA_CAMERA) + std::string("  Orthographic Camera")).c_str(), base_flags);
+				ImGui::TreeNodeEx(Xen::StringValues::COMPONENT_CAMERA.c_str(), base_flags);
 				if (ImGui::IsItemClicked())
 					m_SelectedEntity = entity;
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
@@ -112,16 +114,7 @@ private:
 			
 			if (entity.HasAnyComponent<Xen::Component::CircleRenderer>())
 			{
-				ImGui::TreeNodeEx((std::string(ICON_FA_CIRCLE) + std::string(" Circle Renderer")).c_str(), base_flags);
-				if (ImGui::IsItemClicked())
-					m_SelectedEntity = entity;
-				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
-					m_SelectedEntity = Xen::Entity();
-			}
-
-			if (entity.HasAnyComponent<Xen::Component::BoxCollider2D>())
-			{
-				ImGui::TreeNodeEx((std::string(ICON_FA_SQUARE) + std::string(" Box Collider 2D")).c_str(), base_flags);
+				ImGui::TreeNodeEx(Xen::StringValues::COMPONENT_CIRCLE_RENDERER.c_str(), base_flags);
 				if (ImGui::IsItemClicked())
 					m_SelectedEntity = entity;
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
@@ -130,7 +123,16 @@ private:
 
 			if (entity.HasAnyComponent<Xen::Component::RigidBody2D>())
 			{
-				ImGui::TreeNodeEx((std::string(ICON_FA_CUBES_STACKED) + std::string(" Rigid Body 2D")).c_str(), base_flags);
+				ImGui::TreeNodeEx(Xen::StringValues::COMPONENT_RIGID_BODY_2D.c_str(), base_flags);
+				if (ImGui::IsItemClicked())
+					m_SelectedEntity = entity;
+				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
+					m_SelectedEntity = Xen::Entity();
+			}
+
+			if (entity.HasAnyComponent<Xen::Component::BoxCollider2D>())
+			{
+				ImGui::TreeNodeEx(Xen::StringValues::COMPONENT_BOX_COLLIDER_2D.c_str(), base_flags);
 				if (ImGui::IsItemClicked())
 					m_SelectedEntity = entity;
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
@@ -149,7 +151,7 @@ private:
 	Xen::Entity m_CurrentRightClickedEntity;
 
 	Xen::Ref<Xen::Scene> m_Scene;
-	std::string m_PanelTitle = std::string(ICON_FA_LIST) + std::string(" Scene Hierarchy");
+	std::string m_PanelTitle = Xen::StringValues::PANEL_TITLE_SCENE_HIERARCHY;
 
 	bool m_DeleteEntityDisplayed = 0;
 };

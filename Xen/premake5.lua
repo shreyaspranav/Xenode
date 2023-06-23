@@ -18,6 +18,7 @@ project "Xen"
 
 	includedirs {
 		"%{wks.location}/Xenode/src/core/",
+		"%{wks.location}/Xen/src",
 
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
