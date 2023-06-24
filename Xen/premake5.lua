@@ -2,10 +2,10 @@ project "Xen"
 
 	kind "ConsoleApp"
 	language "C++"
-	staticruntime "On"
+	staticruntime "on"
 
-	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
-	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/")
+	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
+	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/%{prj.name}")
 
 	files {
 		"src/**.cpp",
@@ -34,6 +34,11 @@ project "Xen"
 	links { "Xenode", "yaml-cpp", "GLFW", "ImGui", "Box2D" }
 
 	pic "on"
+
+	postbuildcommands {
+		"{COPYFILE} %{wks.location}/bin/" .. bin_folder .. "/bin/yaml-cpp/yaml-cpp.dll %{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}"
+
+	}
 
 	filter "files:deps/ImGuizmo/*.cpp"
 		flags { "NoPCH" }

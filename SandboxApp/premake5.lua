@@ -2,10 +2,10 @@ project "SandboxApp"
 
 	kind "ConsoleApp"
 	language "C++"
-	staticruntime "On"
+	staticruntime "on"
 
-	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
-	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/")
+	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
+	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/%{prj.name}")
 
 	files {
 		"src/**.cpp",
@@ -26,6 +26,10 @@ project "SandboxApp"
 	}
 
 	links { "Xenode" }
+
+	postbuildcommands {
+		"{COPYFILE} %{wks.location}/bin/" .. bin_folder .. "/bin/yaml-cpp/yaml-cpp.dll %{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}"
+	}
 
 	pic "on"
 
