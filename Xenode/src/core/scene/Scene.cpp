@@ -94,6 +94,7 @@ namespace Xen {
 		CopyComponent<Component::RigidBody2D>(entity, newEntity);
 		CopyComponent<Component::BoxCollider2D>(entity, newEntity);
 		CopyComponent<Component::NativeScript>(entity, newEntity);
+		CopyComponent<Component::ScriptComp>(entity, newEntity);
 
 		return newEntity;
 	}
@@ -139,15 +140,16 @@ namespace Xen {
 
 	void Scene::OnRuntimeStart()
 	{
-		// Temp:============================================
-		Ref<Script> script1 = Script::CreateScript("assets/scripts/ScriptOne.lua");
-		Ref<Script> script2 = Script::CreateScript("assets/scripts/ScriptTwo.lua");
+		auto view = m_Registry.view<Component::ScriptComp>();
 
-		m_ScriptEngine->AddScript(script1);
-		m_ScriptEngine->AddScript(script2);
+		for (auto& e : view)
+		{
+			Entity entt = Entity(e, this);
 
-		m_ScriptEngine->OnStart();
-		//==================================================
+			Component::ScriptComp& scriptComp = entt.GetComponent<Component::ScriptComp>();
+			m_ScriptEngine->OnStart(scriptComp.script_instance);
+		}
+
 		m_isRunningOnRuntime = true;
 
 		m_PhysicsWorld = new b2World({ 0.0f, -10.0f });
@@ -279,6 +281,7 @@ namespace Xen {
 		CopyComponentAllEntities<Component::RigidBody2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::BoxCollider2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::NativeScript>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::ScriptComp>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 
 		return newScene;
 	}
@@ -369,7 +372,16 @@ namespace Xen {
 	void Scene::UpdateScripts(double timestep)
 	{
 		// Run Scripts(Lua/C#)
-		m_ScriptEngine->OnUpdate(timestep);
+
+		auto view = m_Registry.view<Component::ScriptComp>();
+
+		for (auto& e : view)
+		{
+			Entity entt = Entity(e, this);
+
+			Component::ScriptComp& scriptComp = entt.GetComponent<Component::ScriptComp>();
+			m_ScriptEngine->OnUpdate(scriptComp.script_instance, timestep);
+		}
 	}
 	void Scene::UpdateCameras()
 	{
