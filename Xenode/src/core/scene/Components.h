@@ -139,12 +139,24 @@ namespace Xen {
 		struct ScriptComp
 		{
 			Ref<Script> script_instance = nullptr;
+			
+			// Temp: Will replace after having a asset manager
+			std::string script_file_path = "";
 
 			ScriptComp() = default;
 			ScriptComp(const ScriptComp& comp) = default;
 
 			ScriptComp(const Ref<Script>& script)
-				: script_instance(script) {}
+				: script_instance(script) 
+			{
+				script_file_path = script->GetFilePath();
+			}
+
+			ScriptComp(const std::string& filePath)
+				: script_file_path(filePath)
+			{
+				script_instance = Script::CreateScript(filePath);
+			}
 		};
 
 		// Physics Components:

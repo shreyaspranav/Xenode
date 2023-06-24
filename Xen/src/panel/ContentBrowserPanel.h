@@ -5,6 +5,7 @@
 #include <imgui/IconsFontAwesome.h>
 
 #include <core/renderer/Texture.h>
+#include <core/app/DesktopApplication.h>
 
 #include "StringValues.h"
 
@@ -90,6 +91,9 @@ public:
 				if (path.extension().string() == ".xen")
 					ImGui::SetDragDropPayload(m_SceneLoadDropType.c_str(), payload_data, pathString.size() + 1);
 
+				else if (path.extension().string() == ".lua" && Xen::DesktopApplication::GetScriptingLanguage() == ScriptLang::Lua)
+					ImGui::SetDragDropPayload(m_ScriptLoadDropType.c_str(), payload_data, pathString.size() + 1);
+
 				// TODO: make sure to support all the texture formats:
 				else if (path.extension().string() == ".png")
 					ImGui::SetDragDropPayload(m_TextureLoadDropType.c_str(), payload_data, pathString.size() + 1);
@@ -115,6 +119,7 @@ public:
 
 	inline const std::string& GetSceneLoadDropType()	{ return m_SceneLoadDropType; }
 	inline const std::string& GetTextureLoadDropType()	{ return m_TextureLoadDropType; }
+	inline const std::string& GetScriptLoadDropType()	{ return m_ScriptLoadDropType; }
 
 private:
 	std::string m_PanelTitle = Xen::StringValues::PANEL_TITLE_CONTENT_BROWSER;
@@ -128,6 +133,7 @@ private:
 	// Drag drop types:
 	std::string m_SceneLoadDropType = "XEN_CONTENT_BROWSER_SCENE_LOAD";
 	std::string m_TextureLoadDropType = "XEN_CONTENT_BROWSER_TEXTURE_LOAD";
+	std::string m_ScriptLoadDropType = "XEN_CONTENT_BROWSER_SCRIPT_LOAD";
 
 	Xen::Ref<Xen::Texture2D> m_FolderTexture;
 	Xen::Ref<Xen::Texture2D> m_FileTexture;

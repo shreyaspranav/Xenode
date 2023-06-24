@@ -90,6 +90,7 @@ void EditorLayer::OnAttach()
 	m_ContentBrowserPanel = ContentBrowserPanel();
 
 	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
+	m_PropertiesPanel.SetScriptLoadDropType(m_ContentBrowserPanel.GetScriptLoadDropType());
 
 	m_EditorCameraController = Xen::EditorCameraController(input, Xen::EditorCameraType::_2D);
 

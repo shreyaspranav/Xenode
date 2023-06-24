@@ -18,7 +18,8 @@ public:
 
 	inline void SetActiveEntity(const Xen::Entity& entity)								{ m_SelectedEntity = entity; }
 	inline void SetPanelTitle(const std::string& title)									{ m_PanelTitle = title; }
-	inline void SetTextureLoadDropType(const std::string& texture_load_drop_type)		{ m_TextureLoadDropType = texture_load_drop_type;  }
+	inline void SetTextureLoadDropType(const std::string& texture_load_drop_type)		{ m_TextureLoadDropType = texture_load_drop_type; }
+	inline void SetScriptLoadDropType(const std::string& script_load_drop_type)			{ m_ScriptLoadDropType = script_load_drop_type;  }
 
 	inline const std::string& GetPanelTitle() { return m_PanelTitle; }
 	inline const Xen::Entity& GetSelectedEntity() { return m_SelectedEntity; }
@@ -31,7 +32,7 @@ public:
 		float z_near_point = 0.0f;
 		float z_far_point = 0.0f;
 		float fov = 0.0f;
-
+		ImGui::ShowDemoWindow();
 		ImGui::Begin(m_PanelTitle.c_str());
 
 		if (!m_SelectedEntity.IsNull() && m_SelectedEntity.IsValid())
@@ -433,52 +434,6 @@ public:
 				//ImGui::Separator();
 			}
 
-			backNS:
-			if (m_SelectedEntity.HasAnyComponent<Xen::Component::NativeScript>())
-			{
-				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_NATIVE_SCRIPT.c_str(), tree_flags))
-				{
-					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-						ImGui::OpenPopup("DeleteComponentNativeScript");
-
-					if (ImGui::BeginPopup("DeleteComponentNativeScript"))
-					{
-						if (ImGui::Selectable("Delete Component: Native Script"))
-						{
-							m_SelectedEntity.DeleteComponent<Xen::Component::NativeScript>();
-							ImGui::EndPopup();
-							goto backNS;
-						}
-						ImGui::EndPopup();
-					}
-
-					PaddedText("To Be Implemented!", 0.0f, 3.0f);
-				}
-			}
-
-			backS:
-			if (m_SelectedEntity.HasAnyComponent<Xen::Component::ScriptComp>())
-			{
-				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_SCRIPT.c_str(), tree_flags))
-				{
-					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-						ImGui::OpenPopup("DeleteComponentScript");
-
-					if (ImGui::BeginPopup("DeleteComponentScript"))
-					{
-						if (ImGui::Selectable("Delete Component: Script"))
-						{
-							m_SelectedEntity.DeleteComponent<Xen::Component::ScriptComp>();
-							ImGui::EndPopup();
-							goto backS;
-						}
-						ImGui::EndPopup();
-					}
-
-					PaddedText("To Be Implemented!", 0.0f, 3.0f);
-				}
-			}
-
 			backCR:
 			if (m_SelectedEntity.HasAnyComponent<Xen::Component::CircleRenderer>())
 			{
@@ -685,6 +640,82 @@ public:
 					ImGui::Columns(1);
 				}
 			}
+
+		backNS:
+			if (m_SelectedEntity.HasAnyComponent<Xen::Component::NativeScript>())
+			{
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_NATIVE_SCRIPT.c_str(), tree_flags))
+				{
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+						ImGui::OpenPopup("DeleteComponentNativeScript");
+
+					if (ImGui::BeginPopup("DeleteComponentNativeScript"))
+					{
+						if (ImGui::Selectable("Delete Component: Native Script"))
+						{
+							m_SelectedEntity.DeleteComponent<Xen::Component::NativeScript>();
+							ImGui::EndPopup();
+							goto backNS;
+						}
+						ImGui::EndPopup();
+					}
+
+					PaddedText("To Be Implemented!", 0.0f, 3.0f);
+				}
+			}
+
+			backS:
+			if (m_SelectedEntity.HasAnyComponent<Xen::Component::ScriptComp>())
+			{
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_SCRIPT.c_str(), tree_flags))
+				{
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+						ImGui::OpenPopup("DeleteComponentScript");
+
+					if (ImGui::BeginPopup("DeleteComponentScript"))
+					{
+						if (ImGui::Selectable("Delete Component: Script"))
+						{
+							m_SelectedEntity.DeleteComponent<Xen::Component::ScriptComp>();
+							ImGui::EndPopup();
+							goto backS;
+						}
+						ImGui::EndPopup();
+					}
+
+					Xen::Component::ScriptComp& script_comp = m_SelectedEntity.GetComponent<Xen::Component::ScriptComp>();
+
+					ImGui::Columns(2, "##Script", false);
+
+					PaddedText("Script", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::SetColumnWidth(0, 120.0f);
+
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::InputText("##Script", (char*)script_comp.script_file_path.c_str(), script_comp.script_file_path.size() + 1, ImGuiInputTextFlags_ReadOnly);
+
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(m_ScriptLoadDropType.c_str()))
+						{
+							std::string script_path = (const char*)payload->Data;
+
+							script_comp.script_instance = Xen::Script::CreateScript(script_path);
+							script_comp.script_file_path = script_path;
+						}
+						ImGui::EndDragDropTarget();
+					}
+
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+					ImGui::Columns(1);
+
+					ImGui::Separator();
+					ImGui::Columns(2, "##Script", false);
+					PaddedText("Public Fields:", 0.0f, 3.0f);
+					ImGui::Columns(1);
+				}
+			}
 		}
 
 		ImGui::End();
@@ -845,4 +876,5 @@ private:
 	std::string m_PanelTitle = Xen::StringValues::PANEL_TITLE_PROPERTIES;
 
 	std::string m_TextureLoadDropType;
+	std::string m_ScriptLoadDropType;
 };
