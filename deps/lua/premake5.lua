@@ -55,3 +55,61 @@ project "Lua"
 		runtime "Release"
 		optimize "on"
 		symbols "off"
+
+project "LuaI"
+
+	kind "ConsoleApp"
+	language "C"
+	pic "on"
+	staticruntime "On"
+
+	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
+	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/")
+
+	files {
+		"src/lua.c"
+	}
+
+	links "Lua"
+
+	filter "configurations:Debug"
+		runtime "Debug"
+		symbols "on"
+
+	filter "configurations:Release_Debug"
+		runtime "Release"
+		optimize "on"
+
+	filter "configurations:Production"
+		runtime "Release"
+		optimize "on"
+		symbols "off"
+
+project "LuaC"
+
+	kind "ConsoleApp"
+	language "C"
+	pic "on"
+	staticruntime "On"
+
+	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/")
+	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/")
+
+	files {
+		"src/luac.c"
+	}
+
+	links "Lua"
+
+	filter "configurations:Debug"
+		runtime "Debug"
+		symbols "on"
+
+	filter "configurations:Release_Debug"
+		runtime "Release"
+		optimize "on"
+
+	filter "configurations:Production"
+		runtime "Release"
+		optimize "on"
+		symbols "off"
