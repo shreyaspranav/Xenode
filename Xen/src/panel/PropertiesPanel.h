@@ -124,6 +124,9 @@ public:
 						else if (component.contains("Circle Renderer"))
 							m_SelectedEntity.AddComponent<Xen::Component::CircleRenderer>();
 
+						else if (component.contains("Native Script"))
+							m_SelectedEntity.AddComponent<Xen::Component::NativeScript>();
+
 						else if (component.contains("Rigid Body 2D"))
 							m_SelectedEntity.AddComponent<Xen::Component::RigidBody2D>();
 
@@ -419,6 +422,29 @@ public:
 					//ImGui::TreePop();
 				}
 				//ImGui::Separator();
+			}
+
+			backNS:
+			if (m_SelectedEntity.HasAnyComponent<Xen::Component::NativeScript>())
+			{
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_NATIVE_SCRIPT.c_str(), tree_flags))
+				{
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+						ImGui::OpenPopup("DeleteComponentNativeScript");
+
+					if (ImGui::BeginPopup("DeleteComponentSpriteRenderer"))
+					{
+						if (ImGui::Selectable("Delete Component: Native Script"))
+						{
+							m_SelectedEntity.DeleteComponent<Xen::Component::NativeScript>();
+							ImGui::EndPopup();
+							goto backNS;
+						}
+						ImGui::EndPopup();
+					}
+
+					PaddedText("To Be Implemented!", 0.0f, 3.0f);
+				}
 			}
 
 			backCR:
