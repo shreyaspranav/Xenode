@@ -98,6 +98,12 @@ public:
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
+				if (m_SelectedEntity.HasAnyComponent<Xen::Component::ScriptComp>())
+				{
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_SCRIPT);
+					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
+				}
+
 				if (m_SelectedEntity.HasAnyComponent<Xen::Component::BoxCollider2D>())
 				{
 					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_BOX_COLLIDER_2D);
@@ -126,6 +132,9 @@ public:
 
 						else if (component.contains("Native Script"))
 							m_SelectedEntity.AddComponent<Xen::Component::NativeScript>();
+
+						else if (component.contains(" Script"))
+							m_SelectedEntity.AddComponent<Xen::Component::ScriptComp>();
 
 						else if (component.contains("Rigid Body 2D"))
 							m_SelectedEntity.AddComponent<Xen::Component::RigidBody2D>();
@@ -432,13 +441,36 @@ public:
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 						ImGui::OpenPopup("DeleteComponentNativeScript");
 
-					if (ImGui::BeginPopup("DeleteComponentSpriteRenderer"))
+					if (ImGui::BeginPopup("DeleteComponentNativeScript"))
 					{
 						if (ImGui::Selectable("Delete Component: Native Script"))
 						{
 							m_SelectedEntity.DeleteComponent<Xen::Component::NativeScript>();
 							ImGui::EndPopup();
 							goto backNS;
+						}
+						ImGui::EndPopup();
+					}
+
+					PaddedText("To Be Implemented!", 0.0f, 3.0f);
+				}
+			}
+
+			backS:
+			if (m_SelectedEntity.HasAnyComponent<Xen::Component::ScriptComp>())
+			{
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_SCRIPT.c_str(), tree_flags))
+				{
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+						ImGui::OpenPopup("DeleteComponentScript");
+
+					if (ImGui::BeginPopup("DeleteComponentScript"))
+					{
+						if (ImGui::Selectable("Delete Component: Script"))
+						{
+							m_SelectedEntity.DeleteComponent<Xen::Component::ScriptComp>();
+							ImGui::EndPopup();
+							goto backS;
 						}
 						ImGui::EndPopup();
 					}
@@ -800,6 +832,7 @@ private:
 		Xen::StringValues::COMPONENT_SPRITE_RENDERER,
 		Xen::StringValues::COMPONENT_CAMERA,
 		Xen::StringValues::COMPONENT_NATIVE_SCRIPT,
+		Xen::StringValues::COMPONENT_SCRIPT,
 		Xen::StringValues::COMPONENT_CIRCLE_RENDERER,
 		Xen::StringValues::COMPONENT_RIGID_BODY_2D,
 		Xen::StringValues::COMPONENT_BOX_COLLIDER_2D,

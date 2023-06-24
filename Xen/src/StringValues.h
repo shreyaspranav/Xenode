@@ -17,7 +17,8 @@ namespace Xen {
 		const std::string 
 			COMPONENT_TRANSFORM				= std::string(ICON_FA_CUBES)         + std::string(" Transform"),
 			COMPONENT_SPRITE_RENDERER		= std::string(ICON_FA_TREE)          + std::string(" Sprite Renderer"),
-			COMPONENT_NATIVE_SCRIPT			= std::string(ICON_FA_CODE)          + std::string(" Native Script"),
+			COMPONENT_NATIVE_SCRIPT			= std::string(ICON_FA_FILE_CODE)     + std::string(" Native Script"),
+			COMPONENT_SCRIPT				= std::string(ICON_FA_CODE)          + std::string(" Script"),
 			COMPONENT_CAMERA				= std::string(ICON_FA_CAMERA)        + std::string(" Orthographic Camera"),
 			COMPONENT_CIRCLE_RENDERER		= std::string(ICON_FA_CIRCLE)        + std::string(" Circle Renderer"),
 			COMPONENT_BOX_COLLIDER_2D		= std::string(ICON_FA_SQUARE)        + std::string(" Box Collider 2D"),
