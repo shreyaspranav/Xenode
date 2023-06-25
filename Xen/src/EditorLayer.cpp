@@ -31,22 +31,6 @@ EditorLayer::~EditorLayer()
 
 void EditorLayer::OnAttach()
 {
-	Xen::FrameBufferSpec specs;
-	specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
-	specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
-	specs.samples = 1;
-
-	Xen::FrameBufferAttachmentSpec main_layer;
-	main_layer.format = Xen::FrameBufferTextureFormat::RGB16F;
-	main_layer.clearColor = Xen::Color(0.1f, 0.1f, 0.1f, 1.0f);
-
-	Xen::FrameBufferAttachmentSpec mouse_picking_layer;
-	mouse_picking_layer.format = Xen::FrameBufferTextureFormat::RI;
-	mouse_picking_layer.clearColor = Xen::Color(-1.0f, 0.0f, 0.0f, 1.0f);
-
-	specs.attachments = { main_layer, mouse_picking_layer,
-		Xen::FrameBufferTextureFormat::Depth24_Stencil8 };
-
 	input = Xen::Input::GetInputInterface();
 	input->SetWindow(Xen::DesktopApplication::GetWindow());
 
@@ -55,7 +39,6 @@ void EditorLayer::OnAttach()
 		viewport_framebuffer_width, 
 		viewport_framebuffer_height
 	);
-	m_ViewportFrameBuffer = Xen::FrameBuffer::CreateFrameBuffer(specs);
 
 	Xen::Renderer2D::Init();
 
@@ -121,15 +104,9 @@ void EditorLayer::OnUpdate(double timestep)
 	initial_pos = mouse;
 
 	bool active = true;
-	//m_HierarchyPanel.SetActiveScene(m_ActiveScene);
 
 	Xen::RenderCommand::Clear();
 	m_Timestep = timestep;
-
-	m_ViewportFrameBuffer->Bind();
-
-	Xen::RenderCommand::Clear();
-	m_ViewportFrameBuffer->ClearAttachments();
 
 	if (m_EditorState == EditorState::Edit)
 	{
@@ -180,10 +157,14 @@ void EditorLayer::OnUpdate(double timestep)
 	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport && m_IsMousePickingWorking)
 	{
 		// For some reason the red integer attachment is flipped!
-		int entt_id = m_ViewportFrameBuffer->ReadIntPixel(1, viewport_mouse_pos.x, viewport_framebuffer_height - viewport_mouse_pos.y);
+		int entt_id = m_ActiveScene->GetSceneFrameBuffer()->ReadIntPixel(m_ActiveScene->GetMousePickingFrameBufferIndex(),
+			viewport_mouse_pos.x, 
+			viewport_framebuffer_height - viewport_mouse_pos.y);
+
 		m_HierarchyPanel.SetSelectedEntity(Xen::Entity((entt::entity)entt_id, m_ActiveScene.get()));
 	}
-	m_ViewportFrameBuffer->Unbind();
+
+	m_ActiveScene->OnRender();
 } 
 
 void EditorLayer::OnImGuiUpdate()
@@ -345,14 +326,14 @@ void EditorLayer::OnImGuiUpdate()
 			viewport_framebuffer_width = ImGui::GetContentRegionAvail().x;
 			viewport_framebuffer_height = ImGui::GetContentRegionAvail().y;
 
-			m_ViewportFrameBuffer->Resize(viewport_framebuffer_width, viewport_framebuffer_height);
+			m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
 			m_EditorCamera->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
 		}
 	}
 
-	m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
+	//m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
 
-	ImGui::Image((void*)m_ViewportFrameBuffer->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::Image((void*)m_ActiveScene->GetSceneFrameBuffer()->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
 
 	if (ImGui::BeginDragDropTarget())
 	{
@@ -597,6 +578,8 @@ void EditorLayer::OnScenePlay()
 	}
 
 	m_HierarchyPanel.SetActiveScene(m_RuntimeScene);
+	m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
+
 	m_EditorState = EditorState::Play;
 }
 

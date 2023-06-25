@@ -60,6 +60,26 @@ namespace Xen {
 	void Scene::OnCreate()
 	{
 		m_ScriptEngine = ScriptEngine::InitScriptEngine();
+
+		Xen::FrameBufferSpec specs;
+		specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
+		specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
+
+		// TODO FIX: When samples is more than 1, some weird texture atlas shows up instead of the scene
+		specs.samples = 1;
+
+		Xen::FrameBufferAttachmentSpec main_layer;
+		main_layer.format = Xen::FrameBufferTextureFormat::RGB16F;
+		main_layer.clearColor = Xen::Color(0.1f, 0.1f, 0.1f, 1.0f);
+
+		Xen::FrameBufferAttachmentSpec mouse_picking_layer;
+		mouse_picking_layer.format = Xen::FrameBufferTextureFormat::RI;
+		mouse_picking_layer.clearColor = Xen::Color(-1.0f, 0.0f, 0.0f, 1.0f);
+
+		specs.attachments = { main_layer, mouse_picking_layer,
+			Xen::FrameBufferTextureFormat::Depth24_Stencil8 };
+
+		m_SceneFrameBuffer = FrameBuffer::CreateFrameBuffer(specs);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -123,6 +143,11 @@ namespace Xen {
 			XEN_ENGINE_LOG_ERROR("Runtime Entity with the specified UUID is not found!");
 			return editorEntity;
 		}
+	}
+
+	const Ref<FrameBuffer>& Scene::GetSceneFrameBuffer()
+	{
+		return m_SceneFrameBuffer;
 	}
 
 	void Scene::DestroyEntity(Entity entity)
@@ -315,6 +340,17 @@ namespace Xen {
 		RenderSprites();
 	}
 
+	void Scene::OnRender()
+	{
+		RenderCommand::Clear();
+		m_SceneFrameBuffer->ClearAttachments();
+
+		Renderer2D::EndScene();
+		Renderer2D::RenderFrame();
+
+		m_SceneFrameBuffer->Unbind();
+	}
+
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
 		m_FramebufferWidth = width;
@@ -332,6 +368,8 @@ namespace Xen {
 				camera.camera->Update();
 			}
 		}
+
+		m_SceneFrameBuffer->Resize(width, height);
 	}
 
 	void Scene::SortRenderableEntities()
@@ -434,6 +472,8 @@ namespace Xen {
 
 	void Scene::RenderSprites()
 	{
+		m_SceneFrameBuffer->Bind();
+
 		// Render Sprites
 		auto sprite_group_observer = m_Registry.view<Component::SpriteRenderer>();
 		auto circle_group_observer = m_Registry.view<Component::CircleRenderer>();
@@ -543,8 +583,5 @@ namespace Xen {
 					(uint32_t)m_RenderableEntities[i]);
 			}
 		}
-
-		Renderer2D::EndScene();
-		Renderer2D::RenderFrame();
 	}
 }

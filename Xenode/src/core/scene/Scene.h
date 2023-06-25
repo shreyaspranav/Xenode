@@ -7,6 +7,7 @@
 #include <core/app/UUID.h>
 
 #include <scripting/ScriptEngine.h>
+#include <core/renderer/FrameBuffer.h>
 
 class SceneHierarchyPanel;
 class b2World;
@@ -21,7 +22,8 @@ namespace Xen {
 		~Scene();
 
 		void OnUpdate(double timestep, const Ref<Camera>& camera);
-		void OnUpdateRuntime(double timestep, bool paused); // if 'paused' = true scripts and physics won't be updated
+		void OnUpdateRuntime(double timestep, bool paused); // if 'paused' = true, scripts and physics won't be updated
+		void OnRender();
 
 		void OnRuntimeStart();
 		void OnRuntimeStop();
@@ -34,6 +36,10 @@ namespace Xen {
 		Entity CreateEntityWithUUID(const std::string& name, UUID id);
 		Entity CopyEntity(Entity entity);
 		Entity GetRuntimeEntity(Entity editorEntity, const Ref<Scene>& runtimeScene);
+
+		const Ref<FrameBuffer>& GetSceneFrameBuffer();
+
+		inline uint8_t GetMousePickingFrameBufferIndex() { return 1; }
 
 		void DestroyEntity(Entity entity);
 		void DestroyAllEntities();
@@ -66,6 +72,7 @@ namespace Xen {
 		b2World* m_PhysicsWorld = nullptr;
 
 		Ref<ScriptEngine> m_ScriptEngine;
+		Ref<FrameBuffer> m_SceneFrameBuffer;
 
 		friend class Entity;
 		friend class ::SceneHierarchyPanel;
