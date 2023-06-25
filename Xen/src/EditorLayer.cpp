@@ -353,6 +353,8 @@ void EditorLayer::OnImGuiUpdate()
 		ImGui::EndDragDropTarget();
 	}
 
+	m_IsMousePickingWorking = true;
+
 	if (m_EditorState == EditorState::Edit)
 	{
 		Xen::Entity selectedEntity = m_HierarchyPanel.GetSelectedEntity();
