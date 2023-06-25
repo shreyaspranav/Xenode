@@ -543,5 +543,8 @@ namespace Xen {
 					(uint32_t)m_RenderableEntities[i]);
 			}
 		}
+
+		Renderer2D::EndScene();
+		Renderer2D::RenderFrame();
 	}
 }

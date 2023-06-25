@@ -18,5 +18,7 @@ namespace Xen {
 
 		XEN_ENGINE_LOG_ERROR("Unknown Scripting Language!");
 		TRIGGER_BREAKPOINT;
+
+		return nullptr;
 	}
 }

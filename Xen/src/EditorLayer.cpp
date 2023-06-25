@@ -177,9 +177,6 @@ void EditorLayer::OnUpdate(double timestep)
 	//	Xen::Renderer2D::DrawLine(Xen::Vec3(i, -5.0f, 0.0f), Xen::Vec3(i, 5.0f, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
 	//}
 
-	Xen::Renderer2D::EndScene();
-	Xen::Renderer2D::RenderFrame();
-
 	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport && m_IsMousePickingWorking)
 	{
 		// For some reason the red integer attachment is flipped!
