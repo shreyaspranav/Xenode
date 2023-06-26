@@ -86,6 +86,12 @@ public:
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
+				if (m_SelectedEntity.HasAnyComponent<Xen::Component::PointLight>())
+				{
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_POINT_LIGHT);
+					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
+				}
+
 				if (m_SelectedEntity.HasAnyComponent<Xen::Component::CameraComp>())
 				{
 					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_CAMERA);
@@ -129,6 +135,9 @@ public:
 
 						else if (component.contains("Circle Renderer"))
 							m_SelectedEntity.AddComponent<Xen::Component::CircleRenderer>();
+
+						else if (component.contains("Point Light"))
+							m_SelectedEntity.AddComponent<Xen::Component::PointLight>();
 
 						else if (component.contains("Native Script"))
 							m_SelectedEntity.AddComponent<Xen::Component::NativeScript>();
@@ -509,6 +518,82 @@ public:
 				//ImGui::Separator();
 			}
 
+			backPL:
+			if (m_SelectedEntity.HasAnyComponent<Xen::Component::PointLight>())
+			{
+				Xen::Component::PointLight& point_light = m_SelectedEntity.GetComponent<Xen::Component::PointLight>();
+
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_POINT_LIGHT.c_str(), tree_flags))
+				{
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+						ImGui::OpenPopup("DeleteComponentPointLight");
+
+					if (ImGui::BeginPopup("DeleteComponentPointLight"))
+					{
+						if (ImGui::Selectable("Delete Component: Point Light"))
+						{
+							m_SelectedEntity.DeleteComponent<Xen::Component::PointLight>();
+							ImGui::EndPopup();
+							goto backPL;
+						}
+						ImGui::EndPopup();
+					}
+					float light_color[4] = {
+						point_light.lightColor.r,
+						point_light.lightColor.g,
+						point_light.lightColor.b,
+						point_light.lightColor.a,
+					};
+
+					ImGui::Columns(2, "##PointLight", false);
+					ImGui::SetColumnWidth(0, 100.0f);
+
+					PaddedText("Light Color", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+
+					ImGuiColorEditFlags color_edit_flags = ImGuiColorEditFlags_NoInputs;
+					if (ImGui::ColorEdit4("##LightColor", light_color, color_edit_flags))
+					{
+						point_light.lightColor.r = light_color[0];
+						point_light.lightColor.g = light_color[1];
+						point_light.lightColor.b = light_color[2];
+						point_light.lightColor.a = light_color[3];
+					}
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Radius", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::DragFloat("##Radius", &point_light.radius, 0.01f, 1.0f);
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Falloff A", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::SliderFloat("##FallofA", &point_light.fallofA, 0.1f, 10.0f);
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Falloff B", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::SliderFloat("##FalloffB", &point_light.fallofB, 0.1f, 10.0f);
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					ImGui::Columns(1);
+					//ImGui::TreePop();
+				}
+				//ImGui::Separator();
+			}
+
 			backRB:
 			if (m_SelectedEntity.HasAnyComponent<Xen::Component::RigidBody2D>())
 			{
@@ -864,6 +949,7 @@ private:
 		Xen::StringValues::COMPONENT_NATIVE_SCRIPT,
 		Xen::StringValues::COMPONENT_SCRIPT,
 		Xen::StringValues::COMPONENT_CIRCLE_RENDERER,
+		Xen::StringValues::COMPONENT_POINT_LIGHT,
 		Xen::StringValues::COMPONENT_RIGID_BODY_2D,
 		Xen::StringValues::COMPONENT_BOX_COLLIDER_2D,
 		

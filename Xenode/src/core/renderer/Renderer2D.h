@@ -70,7 +70,7 @@ namespace Xen {
 
 		static void SetLineWidth(float width);
 
-		static void PointLight(const Vec3& position, const Color& color, float fallofA, float fallofB, int32_t id = -1);
+		static void PointLight(const Vec3& position, const Color& color, float radius, float fallofA, float fallofB, int32_t id = -1);
 
 		// Outline Only(for Debugging)
 		static void DrawQuadOutline(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());

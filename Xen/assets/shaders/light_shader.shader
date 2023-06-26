@@ -12,13 +12,13 @@ layout(location = 0) out vec4 lightColor;
 
 void main()
 {
-	float d = distance(vec2(0.0, 0.0), worldCoords * 5.0);
+	float d = distance(vec2(0.0, 0.0), worldCoords * 50.0);
 
 	float intensity = 1.0 / (1.0 + fallofA * d + fallofB * d * d);
 
 	if(intensity < 0.01)
 		intensity = 0.0;
-	lightColor = vec4(1.0, 1.0, 1.0, intensity) * color;
+	lightColor = vec4(1.0, 1.0, 1.0, 1.0) * intensity * color;
 }
 
 #shadertype: vertex

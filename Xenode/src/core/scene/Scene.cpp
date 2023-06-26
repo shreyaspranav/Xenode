@@ -90,7 +90,8 @@ namespace Xen {
 
 		Xen::FrameBufferAttachmentSpec light_layer;
 		light_layer.format = Xen::FrameBufferTextureFormat::RGB8;
-		light_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
+		//light_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
+		light_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
 		unlit_fb_specs.attachments = { main_layer, mask_layer, mouse_picking_layer,
 			Xen::FrameBufferTextureFormat::Depth24_Stencil8 };
@@ -134,6 +135,7 @@ namespace Xen {
 		CopyComponent<Component::BoxCollider2D>(entity, newEntity);
 		CopyComponent<Component::NativeScript>(entity, newEntity);
 		CopyComponent<Component::ScriptComp>(entity, newEntity);
+		CopyComponent<Component::PointLight>(entity, newEntity);
 
 		return newEntity;
 	}
@@ -167,7 +169,7 @@ namespace Xen {
 	const Ref<FrameBuffer>& Scene::GetSceneFrameBuffer()
 	{
 		// TODO: change this to the final framebuffer:
-		return m_UnlitSceneFB;
+		return m_LightMaskFB;
 	}
 
 	void Scene::DestroyEntity(Entity entity)
@@ -327,6 +329,7 @@ namespace Xen {
 		CopyComponentAllEntities<Component::BoxCollider2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::NativeScript>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::ScriptComp>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::PointLight>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 
 		return newScene;
 	}
@@ -368,6 +371,8 @@ namespace Xen {
 		m_UnlitSceneFB->ClearAttachments();
 
 		Renderer2D::EndScene();
+
+		RenderCommand::SetAdditiveBlendMode(false);
 		Renderer2D::RenderFrame();
 
 		m_UnlitSceneFB->Unbind();
@@ -376,6 +381,7 @@ namespace Xen {
 		RenderCommand::Clear();
 		m_LightMaskFB->ClearAttachments();
 
+		RenderCommand::SetAdditiveBlendMode(true);
 		Renderer2D::RenderLights();
 
 		m_LightMaskFB->Unbind();
@@ -617,6 +623,15 @@ namespace Xen {
 	}
 	void Scene::RenderLights()
 	{
-		Renderer2D::PointLight({ 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, 1.0f, 1.0f);
+		auto view = m_Registry.view<Component::PointLight>();
+
+		for (const entt::entity& e : view)
+		{
+			Entity entt = Entity(e, this);
+			Component::Transform& transform = entt.GetComponent<Component::Transform>();
+			Component::PointLight& light = entt.GetComponent<Component::PointLight>();
+			
+			Renderer2D::PointLight(transform.position, light.lightColor, light.radius, light.fallofA, light.fallofB);
+		}
 	}
 }

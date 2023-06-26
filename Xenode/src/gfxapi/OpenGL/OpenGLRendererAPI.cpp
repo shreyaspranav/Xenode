@@ -22,6 +22,15 @@ namespace Xen {
 	{
 		glViewport(0, 0, width, height);
 	}
+	void OpenGLRendererAPI::SetAdditiveBlendMode(bool b)
+	{
+		if(b)
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		else 
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glBlendEquation(GL_FUNC_ADD);
+	}
 	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices)
 	{
 		XEN_PROFILE_FN();

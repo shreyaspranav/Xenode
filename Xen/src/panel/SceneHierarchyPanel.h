@@ -121,6 +121,15 @@ private:
 					m_SelectedEntity = Xen::Entity();
 			}
 
+			if (entity.HasAnyComponent<Xen::Component::PointLight>())
+			{
+				ImGui::TreeNodeEx(Xen::StringValues::COMPONENT_POINT_LIGHT.c_str(), base_flags);
+				if (ImGui::IsItemClicked())
+					m_SelectedEntity = entity;
+				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
+					m_SelectedEntity = Xen::Entity();
+			}
+
 			if (entity.HasAnyComponent<Xen::Component::RigidBody2D>())
 			{
 				ImGui::TreeNodeEx(Xen::StringValues::COMPONENT_RIGID_BODY_2D.c_str(), base_flags);

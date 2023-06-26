@@ -159,6 +159,19 @@ namespace Xen {
 			}
 		};
 
+		struct PointLight
+		{
+			float radius = 1.0f;
+			float fallofA = 1.0f;
+			float fallofB = 1.0f;
+
+			Color lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+			PointLight() = default;
+			PointLight(const Color& color, float radius = 1.0f, float fallofA = 1.0f, float fallofB = 1.0f)
+				:lightColor(color), radius(radius), fallofA(fallofA), fallofB(fallofB) {}
+		};
+
 		// Physics Components:
 		struct RigidBody2D
 		{

@@ -13,6 +13,8 @@ namespace Xen {
 		void SetClearColor(const Color& color) override;
 		void OnWindowResize(uint32_t width, uint32_t height) override;
 
+		void SetAdditiveBlendMode(bool b) override;
+
 		//Draw Commands
 		void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices) override;
 		void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t indices) override;

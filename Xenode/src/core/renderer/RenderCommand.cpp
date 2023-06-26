@@ -33,6 +33,11 @@ namespace Xen {
 		s_Api->OnWindowResize(width, height);
 	}
 
+	void RenderCommand::SetAdditiveBlendMode(bool b)
+	{
+		s_Api->SetAdditiveBlendMode(b);
+	}
+
 	void RenderCommand::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices)
 	{
 		s_Api->DrawIndexed(vertexArray, indices);
