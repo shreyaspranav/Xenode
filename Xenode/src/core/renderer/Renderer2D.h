@@ -46,6 +46,7 @@ namespace Xen {
 		static void EndScene();
 		
 		static void RenderFrame();
+		static void RenderLights();
 
 		// Draw Functions:
 		static void DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color(), int32_t id = -1);
@@ -68,6 +69,8 @@ namespace Xen {
 		static void DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale = 1.0f, const Color& color = Color(), float thickness = 1.0f, float innerfade = 0.0f, float outerfade = 0.0f, int32_t id = -1);
 
 		static void SetLineWidth(float width);
+
+		static void PointLight(const Vec3& position, const Color& color, float fallofA, float fallofB, int32_t id = -1);
 
 		// Outline Only(for Debugging)
 		static void DrawQuadOutline(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());

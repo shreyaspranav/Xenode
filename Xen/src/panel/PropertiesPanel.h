@@ -32,7 +32,6 @@ public:
 		float z_near_point = 0.0f;
 		float z_far_point = 0.0f;
 		float fov = 0.0f;
-		ImGui::ShowDemoWindow();
 		ImGui::Begin(m_PanelTitle.c_str());
 
 		if (!m_SelectedEntity.IsNull() && m_SelectedEntity.IsValid())

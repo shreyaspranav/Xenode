@@ -61,25 +61,44 @@ namespace Xen {
 	{
 		m_ScriptEngine = ScriptEngine::InitScriptEngine();
 
-		Xen::FrameBufferSpec specs;
-		specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
-		specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
+		Xen::FrameBufferSpec unlit_fb_specs;
+		unlit_fb_specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
+		unlit_fb_specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
 
 		// TODO FIX: When samples is more than 1, some weird texture atlas shows up instead of the scene
-		specs.samples = 1;
+		unlit_fb_specs.samples = 1;
 
+		// Unlit Scene FrameBuffer configuration:
 		Xen::FrameBufferAttachmentSpec main_layer;
 		main_layer.format = Xen::FrameBufferTextureFormat::RGB8;
-		main_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
+		main_layer.clearColor = Xen::Color(0.1f, 0.1f, 0.1f, 1.0f);
+
+		Xen::FrameBufferAttachmentSpec mask_layer;
+		mask_layer.format = Xen::FrameBufferTextureFormat::RGB8;
+		mask_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
 
 		Xen::FrameBufferAttachmentSpec mouse_picking_layer;
 		mouse_picking_layer.format = Xen::FrameBufferTextureFormat::RI;
 		mouse_picking_layer.clearColor = Xen::Color(-1.0f, 0.0f, 0.0f, 1.0f);
 
-		specs.attachments = { main_layer, mouse_picking_layer,
+		// LightMask FrameBuffer configuration:
+		Xen::FrameBufferSpec lightmask_specs;
+		lightmask_specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
+		lightmask_specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
+
+		lightmask_specs.samples = 1;
+
+		Xen::FrameBufferAttachmentSpec light_layer;
+		light_layer.format = Xen::FrameBufferTextureFormat::RGB8;
+		light_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
+
+		unlit_fb_specs.attachments = { main_layer, mask_layer, mouse_picking_layer,
 			Xen::FrameBufferTextureFormat::Depth24_Stencil8 };
 
-		m_SceneFrameBuffer = FrameBuffer::CreateFrameBuffer(specs);
+		lightmask_specs.attachments = { light_layer };
+
+		m_UnlitSceneFB = FrameBuffer::CreateFrameBuffer(unlit_fb_specs);
+		m_LightMaskFB = FrameBuffer::CreateFrameBuffer(lightmask_specs);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -147,7 +166,8 @@ namespace Xen {
 
 	const Ref<FrameBuffer>& Scene::GetSceneFrameBuffer()
 	{
-		return m_SceneFrameBuffer;
+		// TODO: change this to the final framebuffer:
+		return m_UnlitSceneFB;
 	}
 
 	void Scene::DestroyEntity(Entity entity)
@@ -329,6 +349,7 @@ namespace Xen {
 		UpdateCameras();
 
 		RenderSprites();
+		RenderLights();
 	}
 
 	void Scene::OnUpdate(double timestep, const Ref<Camera>& camera)
@@ -338,17 +359,26 @@ namespace Xen {
 		Renderer2D::BeginScene(camera);
 
 		RenderSprites();
+		RenderLights();
 	}
 
 	void Scene::OnRender()
 	{
 		RenderCommand::Clear();
-		m_SceneFrameBuffer->ClearAttachments();
+		m_UnlitSceneFB->ClearAttachments();
 
 		Renderer2D::EndScene();
 		Renderer2D::RenderFrame();
 
-		m_SceneFrameBuffer->Unbind();
+		m_UnlitSceneFB->Unbind();
+
+		m_LightMaskFB->Bind();
+		RenderCommand::Clear();
+		m_LightMaskFB->ClearAttachments();
+
+		Renderer2D::RenderLights();
+
+		m_LightMaskFB->Unbind();
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
@@ -369,7 +399,8 @@ namespace Xen {
 			}
 		}
 
-		m_SceneFrameBuffer->Resize(width, height);
+		m_UnlitSceneFB->Resize(width, height);
+		m_LightMaskFB->Resize(width, height);
 	}
 
 	void Scene::SortRenderableEntities()
@@ -472,7 +503,7 @@ namespace Xen {
 
 	void Scene::RenderSprites()
 	{
-		m_SceneFrameBuffer->Bind();
+		m_UnlitSceneFB->Bind();
 
 		// Render Sprites
 		auto sprite_group_observer = m_Registry.view<Component::SpriteRenderer>();
@@ -583,5 +614,9 @@ namespace Xen {
 					(uint32_t)m_RenderableEntities[i]);
 			}
 		}
+	}
+	void Scene::RenderLights()
+	{
+		Renderer2D::PointLight({ 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, 1.0f, 1.0f);
 	}
 }

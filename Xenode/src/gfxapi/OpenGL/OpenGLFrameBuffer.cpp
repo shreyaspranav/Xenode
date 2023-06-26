@@ -221,7 +221,7 @@ namespace Xen {
 		uint8_t color_att_index = 0;
 		for (int i = 0; i < m_Spec.attachments.size(); i++)
 		{
-			static const float clearColor[4] = {
+			float clearColor[4] = {
 				m_Spec.attachments[i].clearColor.r,
 				m_Spec.attachments[i].clearColor.g,
 				m_Spec.attachments[i].clearColor.b,

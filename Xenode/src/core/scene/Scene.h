@@ -39,7 +39,7 @@ namespace Xen {
 
 		const Ref<FrameBuffer>& GetSceneFrameBuffer();
 
-		inline uint8_t GetMousePickingFrameBufferIndex() { return 1; }
+		inline uint8_t GetMousePickingFrameBufferIndex() { return 2; }
 
 		void DestroyEntity(Entity entity);
 		void DestroyAllEntities();
@@ -57,6 +57,7 @@ namespace Xen {
 		void UpdateCameras();
 		void SimulatePhysics(double fixedTimeStep);
 		void RenderSprites();
+		void RenderLights();
 
 	private:
 		entt::registry m_Registry;
@@ -72,7 +73,10 @@ namespace Xen {
 		b2World* m_PhysicsWorld = nullptr;
 
 		Ref<ScriptEngine> m_ScriptEngine;
-		Ref<FrameBuffer> m_SceneFrameBuffer;
+
+		// FrameBuffers:
+		Ref<FrameBuffer> m_UnlitSceneFB;
+		Ref<FrameBuffer> m_LightMaskFB;
 
 		friend class Entity;
 		friend class ::SceneHierarchyPanel;

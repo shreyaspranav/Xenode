@@ -49,6 +49,11 @@ namespace Xen {
 		uint32_t vertex_index;
 		uint32_t index_count;
 
+		float* light_verts;
+		uint32_t* light_indices;
+		uint32_t light_vertex_index;
+		uint32_t light_index_count;
+
 		float* line_verts;
 		uint32_t line_index;
 
@@ -58,14 +63,17 @@ namespace Xen {
 		Renderer2DStorage()
 		{
 			line_verts = new float[max_lines_per_batch * 7];
+			line_index = 0;
 
 			verts = new float[max_vertices_per_batch * stride_count];
 			indices = new uint32_t[max_quads_per_batch * 6];
-
-			line_index = 0;
 			vertex_index = 0;
-
 			index_count = 0;
+
+			light_verts = new float[max_vertices_per_batch * stride_count];
+			light_indices = new uint32_t[max_quads_per_batch * 6];
+			light_vertex_index = 0;
+			light_index_count = 0;
 
 			texture_slot_index = 1;
 		}
@@ -76,6 +84,9 @@ namespace Xen {
 
 			delete[] verts;
 			delete[] indices;
+
+			delete[] light_verts;
+			delete[] light_indices;
 		}
 	};
 
@@ -93,9 +104,6 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
-		lineBufferLayout.AddBufferElement(BufferElement("aLinePosition", 5, 3, 0, BufferDataType::Float, false));
-		lineBufferLayout.AddBufferElement(BufferElement("aLineColor", 10, 4, 3, BufferDataType::Float, false));
-
 		bufferLayout.AddBufferElement(BufferElement("aPosition", 1, 3, 0, BufferDataType::Float, false));
 		bufferLayout.AddBufferElement(BufferElement("aColor", 2, 4, 3, BufferDataType::Float, false));
 		bufferLayout.AddBufferElement(BufferElement("aTextureWorldCoords", 3, 2, 7, BufferDataType::Float, false));
@@ -105,6 +113,9 @@ namespace Xen {
 		bufferLayout.AddBufferElement(BufferElement("aP4", 7, 1, 12, BufferDataType::Float, false));
 		bufferLayout.AddBufferElement(BufferElement("aP5", 8, 1, 13, BufferDataType::Float, false));
 		bufferLayout.AddBufferElement(BufferElement("aPrimitiveType", 9, 1, 14, BufferDataType::Float, false));
+
+		lineBufferLayout.AddBufferElement(BufferElement("aLinePosition", 5, 3, 0, BufferDataType::Float, false));
+		lineBufferLayout.AddBufferElement(BufferElement("aLineColor", 10, 4, 3, BufferDataType::Float, false));
 
 		white_texture =  Texture2D::CreateTexture2D(1, 1, &white_texture_data, sizeof(uint32_t));
 
@@ -138,8 +149,12 @@ namespace Xen {
 		s_Data.shader = Shader::CreateShader("assets/shaders/main_shader.shader");
 		s_Data.shader->LoadShader(bufferLayout);
 
+		s_Data.lightShader = Shader::CreateShader("assets/shaders/light_shader.shader");
+		s_Data.lightShader->LoadShader(bufferLayout);
+
 		ShaderLib::AddShader("LineShader", s_Data.lineShader);
 		ShaderLib::AddShader("MainShader", s_Data.shader);
+		ShaderLib::AddShader("LightShader", s_Data.lightShader);
 
 		batch_storage.push_back(std::make_shared<Renderer2DStorage>());
 		batch_storage[0]->textures.push_back(white_texture);
@@ -164,9 +179,11 @@ namespace Xen {
 			batch_storage[i]->line_index = 0;
 			
 			batch_storage[i]->vertex_index = 0;
+			batch_storage[i]->light_vertex_index = 0;
 
 			batch_storage[i]->texture_slot_index = 1;
 			batch_storage[i]->index_count = 0;
+			batch_storage[i]->light_index_count = 0;
 		}
 		batch_index = 0;
 		memset(&stats, 0, sizeof(Renderer2D::Renderer2DStatistics));
@@ -217,26 +234,28 @@ namespace Xen {
 			s_Data.vertexArray->Bind();
 			s_Data.shader->Bind();
 			
-			s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * 15);
-
-			//XEN_ENGINE_LOG_WARN("Vertices Rendering: {0}", batch_storage[batch_index]->vertex_index);
+			s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * stride_count);
 			
 			s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->index_count);
 			s_Data.shader->SetIntArray("tex", texture_slots, max_texture_slots);
 			
 			s_Data.shader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
 			RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->index_count);
+		}
+	}
 
-			//std::cout << "=================================================================================================================================================\n";
-			//for (int j = 0; i < batch_storage[i]->vertex_index; i++)
-			//{
-			//	for (int k = 0; k < 15; k++)
-			//		std::cout << batch_storage[(j * 15) + k] << "\t";
-			//
-			//	std::cout << "\n";
-			//}
-			//std::cout << "=================================================================================================================================================\n";
+	void Renderer2D::RenderLights()
+	{
+		for (int i = 0; i <= batch_index; i++)
+		{
+			s_Data.vertexArray->Bind();
+			s_Data.lightShader->Bind();
 
+			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count);
+			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count);
+
+			s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->light_index_count);
 		}
 	}
 
@@ -422,6 +441,78 @@ namespace Xen {
 	void Renderer2D::SetLineWidth(float width)
 	{
 		line_width = width;
+	}
+
+	void Renderer2D::PointLight(const Vec3& position, const Color& color, float fallofA, float fallofB, int32_t id)
+	{
+		if (batch_storage[batch_index]->light_vertex_index > max_vertices_per_batch - 4)
+		{
+			batch_index++;
+
+			// Increase the size of the vector if needed
+			if (batch_index >= batches_allocated)
+			{
+				batch_storage.push_back(std::make_shared<Renderer2DStorage>());
+				batch_storage[batch_index]->textures.push_back(white_texture);
+				batches_allocated = batch_index + 1;
+			}
+		}
+
+		for (int i = 0; i < 6; i++)
+			batch_storage[batch_index]->light_indices[batch_storage[batch_index]->light_index_count + i] = batch_storage[batch_index]->light_vertex_index + default_quad_indices[i];
+
+		batch_storage[batch_index]->light_index_count += 6;
+
+
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x + 5.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y + 5.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 2] = position.z;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x - 5.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y + 5.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 2] = position.z;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x - 5.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y - 5.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 2] = position.z;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x + 5.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y - 5.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 2] = position.z;
+
+		batch_storage[batch_index]->light_vertex_index -= 4;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = 1.0f;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = -1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = 1.0f;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = -1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = -1.0f;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = -1.0f;
+
+		batch_storage[batch_index]->light_vertex_index -= 4;
+
+		for (int i = 0; i < 4; i++)
+		{
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 3] = color.r;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 4] = color.g;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 5] = color.b;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 6] = color.a;
+
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 9 ] = fallofA;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 10] = fallofB;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 11] = (float)id;
+		}
+
+		//batch_storage[batch_index]->light_vertex_index -= 4;
+
+
+		//----------------
 	}
 
 	void Renderer2D::DrawQuadOutline(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)
