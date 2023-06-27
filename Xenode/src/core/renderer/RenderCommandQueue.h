@@ -24,10 +24,8 @@ namespace Xen {
 		Ref<ElementBuffer> indexBuffer;
 		Ref<Shader> shader;
 
-		Ref<VertexArray> lightVertexArray;
-		Ref<FloatBuffer> lightVertexBuffer;
-		Ref<ElementBuffer> lightIndexBuffer;
 		Ref<Shader> lightShader;
+		Ref<Shader> screenShader;
 
 		SceneData()
 		{}

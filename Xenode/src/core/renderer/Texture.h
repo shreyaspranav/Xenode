@@ -32,6 +32,8 @@ namespace Xen {
 		static Ref<Texture2D> CreateTexture2D(const std::string& filepath, bool flip_on_load);
 		static Ref<Texture2D> CreateTexture2D(uint32_t width, uint32_t height, void* data, uint32_t size);
 
+		static void BindTexture(uint32_t id, uint8_t slot);
+
 		virtual bool operator==(const Ref<Texture2D> texture) const = 0;
 	};
 }

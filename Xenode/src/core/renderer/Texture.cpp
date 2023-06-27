@@ -25,4 +25,12 @@ namespace Xen {
 		}
 		return nullptr;
 	}
+	void Texture2D::BindTexture(uint32_t id, uint8_t slot)
+	{
+		switch (DesktopApplication::GetGraphicsAPI())
+		{
+		case GraphicsAPI::XEN_OPENGL_API:
+			OpenGLTexture::BindTextureExtID(id, slot);
+		}
+	}
 }

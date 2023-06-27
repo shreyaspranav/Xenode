@@ -64,6 +64,11 @@ namespace Xen {
 
 	}
 
+	OpenGLTexture::OpenGLTexture(uint32_t rendererID)
+	{
+		m_TextureID = rendererID;
+	}
+
 	OpenGLTexture::~OpenGLTexture()
 	{
 		glDeleteTextures(1, &m_TextureID);
@@ -188,5 +193,9 @@ namespace Xen {
 			glActiveTexture(GL_TEXTURE0 + slot);
 			glBindTexture(GL_TEXTURE_2D, m_TextureID);
 		}
+	}
+	void OpenGLTexture::BindTextureExtID(uint32_t id, uint8_t slot)
+	{
+		glBindTextureUnit(slot, id);
 	}
 }

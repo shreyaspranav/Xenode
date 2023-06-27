@@ -6,6 +6,7 @@
 
 #include "core/renderer/Renderer2D.h"
 #include "core/app/Log.h"
+#include "core/renderer/ScreenRenderer.h"
 
 // Physics:
 #include <box2d/box2d.h>
@@ -71,7 +72,7 @@ namespace Xen {
 		// Unlit Scene FrameBuffer configuration:
 		Xen::FrameBufferAttachmentSpec main_layer;
 		main_layer.format = Xen::FrameBufferTextureFormat::RGB8;
-		main_layer.clearColor = Xen::Color(0.1f, 0.1f, 0.1f, 1.0f);
+		main_layer.clearColor = Xen::Color(0.6f, 0.6f, 0.6f, 1.0f);
 
 		Xen::FrameBufferAttachmentSpec mask_layer;
 		mask_layer.format = Xen::FrameBufferTextureFormat::RGB8;
@@ -93,13 +94,30 @@ namespace Xen {
 		//light_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
 		light_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
+		// Final Scene FrameBuffer configuration:
+		Xen::FrameBufferSpec final_scene_specs;
+		final_scene_specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
+		final_scene_specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
+
+		final_scene_specs.samples = 1;
+
+		Xen::FrameBufferAttachmentSpec final_layer;
+		final_layer.format = Xen::FrameBufferTextureFormat::RGB8;
+		//light_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
+		final_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
+
 		unlit_fb_specs.attachments = { main_layer, mask_layer, mouse_picking_layer,
 			Xen::FrameBufferTextureFormat::Depth24_Stencil8 };
 
 		lightmask_specs.attachments = { light_layer };
 
+		final_scene_specs.attachments = { final_layer };
+
 		m_UnlitSceneFB = FrameBuffer::CreateFrameBuffer(unlit_fb_specs);
 		m_LightMaskFB = FrameBuffer::CreateFrameBuffer(lightmask_specs);
+		m_FinalSceneFB = FrameBuffer::CreateFrameBuffer(final_scene_specs);
+
+		ScreenRenderer2D::Init();
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -169,7 +187,7 @@ namespace Xen {
 	const Ref<FrameBuffer>& Scene::GetSceneFrameBuffer()
 	{
 		// TODO: change this to the final framebuffer:
-		return m_LightMaskFB;
+		return m_FinalSceneFB;
 	}
 
 	void Scene::DestroyEntity(Entity entity)
@@ -383,8 +401,19 @@ namespace Xen {
 
 		RenderCommand::SetAdditiveBlendMode(true);
 		Renderer2D::RenderLights();
-
 		m_LightMaskFB->Unbind();
+
+		//Ref<Texture2D> unlitSceneTexture = Texture2D::CreateTexture2D(m_UnlitSceneFB->GetColorAttachmentRendererID(0));
+		//Ref<Texture2D> lightMapTexture = Texture2D::CreateTexture2D(m_LightMaskFB->GetColorAttachmentRendererID(0));
+
+		m_FinalSceneFB->Bind();
+		RenderCommand::Clear();
+		m_FinalSceneFB->ClearAttachments();
+
+		RenderCommand::SetAdditiveBlendMode(false);
+		//ScreenRenderer2D::RenderTextureToScreen(nullptr);
+		ScreenRenderer2D::RenderFinalSceneToScreen(m_UnlitSceneFB->GetColorAttachmentRendererID(0), m_LightMaskFB->GetColorAttachmentRendererID(0));
+		m_FinalSceneFB->Unbind();
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
@@ -407,6 +436,7 @@ namespace Xen {
 
 		m_UnlitSceneFB->Resize(width, height);
 		m_LightMaskFB->Resize(width, height);
+		m_FinalSceneFB->Resize(width, height);
 	}
 
 	void Scene::SortRenderableEntities()

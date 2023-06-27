@@ -16,6 +16,7 @@ namespace Xen {
 		//Draw Commands
 		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices) = 0;
 		virtual void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t indices) = 0;
+		virtual void DrawTriangles(const Ref<VertexArray>& vertexArray, uint32_t indices) = 0;
 
 		virtual void SetLineWidth(float width) = 0;
 	};

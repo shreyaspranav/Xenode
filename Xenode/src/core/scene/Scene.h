@@ -77,6 +77,7 @@ namespace Xen {
 		// FrameBuffers:
 		Ref<FrameBuffer> m_UnlitSceneFB;
 		Ref<FrameBuffer> m_LightMaskFB;
+		Ref<FrameBuffer> m_FinalSceneFB;
 
 		friend class Entity;
 		friend class ::SceneHierarchyPanel;

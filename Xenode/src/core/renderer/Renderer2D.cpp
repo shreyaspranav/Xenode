@@ -250,10 +250,10 @@ namespace Xen {
 		{
 			s_Data.vertexArray->Bind();
 			s_Data.lightShader->Bind();
-
+		
 			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count);
 			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count);
-
+		
 			s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
 			RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->light_index_count);
 		}

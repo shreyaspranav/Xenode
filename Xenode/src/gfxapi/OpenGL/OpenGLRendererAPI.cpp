@@ -42,6 +42,11 @@ namespace Xen {
 		XEN_PROFILE_FN();
 		glDrawArrays(GL_LINES, 0, indices);
 	}
+	void OpenGLRendererAPI::DrawTriangles(const Ref<VertexArray>& vertexArray, uint32_t indices)
+	{
+		XEN_PROFILE_FN();
+		glDrawArrays(GL_TRIANGLES, 0, indices);
+	}
 	void OpenGLRendererAPI::SetLineWidth(float width)
 	{
 		glLineWidth(width);
