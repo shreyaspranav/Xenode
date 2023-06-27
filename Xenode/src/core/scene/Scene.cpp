@@ -71,12 +71,12 @@ namespace Xen {
 
 		// Unlit Scene FrameBuffer configuration:
 		Xen::FrameBufferAttachmentSpec main_layer;
-		main_layer.format = Xen::FrameBufferTextureFormat::RGB8;
-		main_layer.clearColor = Xen::Color(0.6f, 0.6f, 0.6f, 1.0f);
+		main_layer.format = Xen::FrameBufferTextureFormat::RGB16F;
+		main_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
 		Xen::FrameBufferAttachmentSpec mask_layer;
 		mask_layer.format = Xen::FrameBufferTextureFormat::RGB8;
-		mask_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
+		mask_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
 		Xen::FrameBufferAttachmentSpec mouse_picking_layer;
 		mouse_picking_layer.format = Xen::FrameBufferTextureFormat::RI;
@@ -90,7 +90,7 @@ namespace Xen {
 		lightmask_specs.samples = 1;
 
 		Xen::FrameBufferAttachmentSpec light_layer;
-		light_layer.format = Xen::FrameBufferTextureFormat::RGB8;
+		light_layer.format = Xen::FrameBufferTextureFormat::RGB16F;
 		//light_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
 		light_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -412,7 +412,7 @@ namespace Xen {
 
 		RenderCommand::SetAdditiveBlendMode(false);
 		//ScreenRenderer2D::RenderTextureToScreen(nullptr);
-		ScreenRenderer2D::RenderFinalSceneToScreen(m_UnlitSceneFB->GetColorAttachmentRendererID(0), m_LightMaskFB->GetColorAttachmentRendererID(0));
+		ScreenRenderer2D::RenderFinalSceneToScreen(m_UnlitSceneFB->GetColorAttachmentRendererID(0), m_UnlitSceneFB->GetColorAttachmentRendererID(1), m_LightMaskFB->GetColorAttachmentRendererID(0));
 		m_FinalSceneFB->Unbind();
 	}
 

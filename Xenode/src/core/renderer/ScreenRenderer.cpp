@@ -9,6 +9,7 @@
 namespace Xen {
 
 	Ref<Shader> screenShader;
+	float ambientLightIntensity = 0.3f;
 
 	void ScreenRenderer2D::Init()
 	{
@@ -22,7 +23,7 @@ namespace Xen {
 		//texture->Bind(0);
 		RenderCommand::DrawTriangles(nullptr, 6);
 	}
-	void ScreenRenderer2D::RenderFinalSceneToScreen(uint32_t unlitSceneTextureID, uint32_t lightMapTextureID)
+	void ScreenRenderer2D::RenderFinalSceneToScreen(uint32_t unlitSceneTextureID, uint32_t sceneMaskTextureID, uint32_t lightMapTextureID)
 	{
 		screenShader->Bind();
 
@@ -31,10 +32,18 @@ namespace Xen {
 
 		Texture2D::BindTexture(unlitSceneTextureID, 0);
 		Texture2D::BindTexture(lightMapTextureID, 1);
+		Texture2D::BindTexture(sceneMaskTextureID, 2);
 
 		screenShader->SetInt("u_UnlitSceneTexture", 0);
 		screenShader->SetInt("u_LightMapTexture", 1);
+		screenShader->SetInt("u_SceneMaskTexture", 2);
+
+		screenShader->SetFloat("u_AmbientLightIntensity", ambientLightIntensity);
 
 		RenderCommand::DrawTriangles(nullptr, 6);
+	}
+	void ScreenRenderer2D::SetAmbientLightIntensity(float intensity)
+	{
+		ambientLightIntensity = intensity;
 	}
 }
