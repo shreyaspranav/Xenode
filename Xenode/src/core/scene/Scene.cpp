@@ -102,7 +102,7 @@ namespace Xen {
 		final_scene_specs.samples = 1;
 
 		Xen::FrameBufferAttachmentSpec final_layer;
-		final_layer.format = Xen::FrameBufferTextureFormat::RGB8;
+		final_layer.format = Xen::FrameBufferTextureFormat::RGB16F;
 		//light_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
 		final_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
 

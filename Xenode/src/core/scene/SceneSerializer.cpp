@@ -134,6 +134,21 @@ namespace Xen {
 			yamlEmitter << YAML::EndMap; // CircleRenderer
 		}
 
+		if (entity.HasAnyComponent<Component::PointLight>())
+		{
+			Component::PointLight& pointLight = entity.GetComponent<Component::PointLight>();
+
+			yamlEmitter << YAML::Key << "PointLight";
+			yamlEmitter << YAML::BeginMap; // PointLight
+
+			yamlEmitter << YAML::Key << "Color" << YAML::Value << pointLight.lightColor;
+			yamlEmitter << YAML::Key << "Radius" << YAML::Value << pointLight.radius;
+			yamlEmitter << YAML::Key << "FallofA" << YAML::Value << pointLight.fallofA;
+			yamlEmitter << YAML::Key << "FallofB" << YAML::Value << pointLight.fallofB;
+
+			yamlEmitter << YAML::EndMap; // PointLight
+		}
+
 		if (entity.HasAnyComponent<Component::CameraComp>())
 		{
 			Component::CameraComp& camera = entity.GetComponent<Component::CameraComp>();
@@ -337,6 +352,24 @@ namespace Xen {
 					float outerfade = circleRenderer_component["OuterFade"].as<float>();
 
 					entt.AddComponent<Component::CircleRenderer>(color, thickness, innerfade, outerfade);
+				}
+
+				// PointLight Component-------------------------------------------------
+				const YAML::Node& pointLight_component = entity["PointLight"];
+				if (pointLight_component)
+				{
+					Color color = Color(
+						pointLight_component["Color"][0].as<float>(),
+						pointLight_component["Color"][1].as<float>(),
+						pointLight_component["Color"][2].as<float>(),
+						pointLight_component["Color"][3].as<float>()
+					);
+
+					float radius = pointLight_component["Radius"].as<float>();
+					float fallofA = pointLight_component["FallofA"].as<float>();
+					float fallofB = pointLight_component["FallofB"].as<float>();
+
+					entt.AddComponent<Component::PointLight>(color, radius, fallofA, fallofB);
 				}
 
 				//CameraComp Component--------------------------------------------------------
