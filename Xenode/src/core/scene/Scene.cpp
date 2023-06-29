@@ -584,10 +584,12 @@ namespace Xen {
 			m_RenderableEntityIndex++;
 		}
 
+		// TODO: Make RenderableLayers, that can be arranged in order and can be rendered in order
+		// This sorting of renderable entities kind of buggy, hence disabled.
 
-		if (m_IsDirty)
-			SortRenderableEntities();
-		m_IsDirty = false;
+		//if (m_IsDirty)
+		//	SortRenderableEntities();
+		//m_IsDirty = false;
 
 		for (int i = 0; i < m_RenderableEntityIndex; i++)
 		{
