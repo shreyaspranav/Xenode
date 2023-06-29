@@ -4,6 +4,7 @@
 #include "panel/SceneHierarchyPanel.h"
 #include "panel/PropertiesPanel.h"
 #include "panel/ContentBrowserPanel.h"
+#include "panel/SceneSettingsPanel.h"
 
 #include "core/scene/SceneSerializer.h"
 #include "core/scene/EditorCameraController.h"
@@ -82,6 +83,7 @@ private:
 
 	// Panels:
 	SceneHierarchyPanel m_HierarchyPanel;
+	SceneSettingsPanel m_SceneSettingsPanel;
 	PropertiesPanel m_PropertiesPanel; 
 	ContentBrowserPanel m_ContentBrowserPanel;
 

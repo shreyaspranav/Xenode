@@ -8,6 +8,7 @@ namespace Xen {
 		// Panel titles:
 		const std::string
 			PANEL_TITLE_SCENE_HIERARCHY		= std::string(ICON_FA_LIST)          + std::string(" Scene Hierarchy"),
+			PANEL_TITLE_SCENE_SETTINGS		= std::string(ICON_FA_GEAR)          + std::string(" Scene Settings"),
 			PANEL_TITLE_PROPERTIES			= std::string(ICON_FA_INFO)          + std::string(" Properties"),
 			PANEL_TITLE_CONTENT_BROWSER		= std::string(ICON_FA_FOLDER)        + std::string(" Content Browser"),
 			PANEL_TITLE_VIEWPORT			= std::string(ICON_FA_MOUNTAIN_SUN)  + std::string(" 2D Viewport");

@@ -71,6 +71,7 @@ void EditorLayer::OnAttach()
 	m_HierarchyPanel = SceneHierarchyPanel(m_ActiveScene);
 	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
 	m_ContentBrowserPanel = ContentBrowserPanel();
+	m_SceneSettingsPanel = SceneSettingsPanel();
 
 	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
 	m_PropertiesPanel.SetScriptLoadDropType(m_ContentBrowserPanel.GetScriptLoadDropType());
@@ -230,7 +231,7 @@ void EditorLayer::OnImGuiUpdate()
 			ImGui::DockBuilderDockWindow(m_HierarchyPanel.GetPanelTitle().c_str(), dock_id_left);
 			ImGui::DockBuilderDockWindow(m_ContentBrowserPanel.GetPanelTitle().c_str(), dock_id_down);
 			ImGui::DockBuilderDockWindow("##toolbar", dock_id_up);
-			ImGui::DockBuilderDockWindow("Renderer Stats", dock_id_left_down);
+			ImGui::DockBuilderDockWindow(m_SceneSettingsPanel.GetPanelTitle().c_str(), dock_id_left_down);
 			ImGui::DockBuilderDockWindow(m_PropertiesPanel.GetPanelTitle().c_str(), dock_id_left_down);
 			//ImGui::DockBuilderDockWindow("Window Three", dock_id_left_down);
 			ImGui::DockBuilderDockWindow((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str(), dockspace_id); // IMP: To Dock In Centre!! use directly 'dockspace_id'
@@ -298,6 +299,8 @@ void EditorLayer::OnImGuiUpdate()
 	m_HierarchyPanel.OnImGuiRender();
 
 	m_ContentBrowserPanel.OnImGuiEditor();
+
+	m_SceneSettingsPanel.OnImGuiRender();
 
 	m_PropertiesPanel.OnImGuiRender();
 
