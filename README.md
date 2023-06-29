@@ -10,7 +10,7 @@ Xenode has a lot of dependencies that needs to cloned properly for a successful 
 
 ## Requirements
 * x64 based processor
-* GPU with atleast OpenGL 3.0 support for better experience
+* GPU with OpenGL 4.5 support
 
 _32 bit builds are officially not supported_
 
@@ -51,9 +51,8 @@ To make a cross platform 3D and 2D game engine and ship a production level game 
 
 ### Things to implement in the game engine in the near future
 * Text rendering
-* 2D particle system
-* 2D lighting and shadows
-* Serialisation of scenes
+* 2D Particle system
+* 2D Shadows
 * Scripting system
 * Asset manager and content manager
 * UI Library
