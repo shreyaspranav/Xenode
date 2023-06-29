@@ -158,7 +158,7 @@ void EditorLayer::OnUpdate(double timestep)
 	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport && m_IsMousePickingWorking)
 	{
 		// For some reason the red integer attachment is flipped!
-		int entt_id = m_ActiveScene->GetSceneFrameBuffer()->ReadIntPixel(m_ActiveScene->GetMousePickingFrameBufferIndex(),
+		int entt_id = m_ActiveScene->GetUnlitSceneFrameBuffer()->ReadIntPixel(m_ActiveScene->GetMousePickingFrameBufferIndex(),
 			viewport_mouse_pos.x, 
 			viewport_framebuffer_height - viewport_mouse_pos.y);
 

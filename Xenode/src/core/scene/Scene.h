@@ -38,6 +38,7 @@ namespace Xen {
 		Entity GetRuntimeEntity(Entity editorEntity, const Ref<Scene>& runtimeScene);
 
 		const Ref<FrameBuffer>& GetSceneFrameBuffer();
+		const Ref<FrameBuffer>& GetUnlitSceneFrameBuffer();
 
 		inline uint8_t GetMousePickingFrameBufferIndex() { return 2; }
 

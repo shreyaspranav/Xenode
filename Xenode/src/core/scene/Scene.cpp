@@ -190,6 +190,11 @@ namespace Xen {
 		return m_FinalSceneFB;
 	}
 
+	const Ref<FrameBuffer>& Scene::GetUnlitSceneFrameBuffer()
+	{
+		return m_UnlitSceneFB;
+	}
+
 	void Scene::DestroyEntity(Entity entity)
 	{
 		m_Registry.destroy((entt::entity)entity);
