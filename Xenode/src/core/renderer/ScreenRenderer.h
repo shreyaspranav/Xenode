@@ -11,5 +11,6 @@ namespace Xen {
 		static void RenderFinalSceneToScreen(uint32_t unlitSceneTextureID, uint32_t sceneMaskTextureID, uint32_t lightMapTextureID);
 
 		static void SetAmbientLightIntensity(float intensity);
+		static float GetAmbientLightIntensity();
 	};
 }

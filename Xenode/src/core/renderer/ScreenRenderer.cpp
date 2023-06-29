@@ -46,4 +46,6 @@ namespace Xen {
 	{
 		ambientLightIntensity = intensity;
 	}
+
+	float ScreenRenderer2D::GetAmbientLightIntensity() { return ambientLightIntensity; }
 }

@@ -1,13 +1,12 @@
 #pragma once
 
 #include "Core.h"
-#include "core/scene/Scene.h"
-#include "core/scene/Components.h"
 #include "imgui.h"
 
 #include "core/app/Log.h"
 
 #include "StringValues.h"
+#include "core/renderer/ScreenRenderer.h"
 
 class SceneSettingsPanel {
 
@@ -21,8 +20,35 @@ public:
 	void OnImGuiRender()
 	{
 		ImGui::Begin(m_PanelTitle.c_str());
-		ImGui::Text("This is going to be The Scene Settings panel!");
+
+		ImGui::Columns(2, "##SceneSettings", false);
+		ImGui::SetColumnWidth(0, 100.0f);
+
+		PaddedText("Ambient Light", 0.0f, 3.0f);
+		ImGui::NextColumn();
+
+		float ambientLight = Xen::ScreenRenderer2D::GetAmbientLightIntensity();
+
+		ImGui::PushItemWidth(-0.1f);
+		if (ImGui::SliderFloat("##AmbientLight", &ambientLight, 0.0f, 1.0f))
+			Xen::ScreenRenderer2D::SetAmbientLightIntensity(ambientLight);
+		ImGui::PopItemWidth();
+
+		ImGui::Columns(1);
+
 		ImGui::End();
+	}
+
+private:
+	void PaddedText(const std::string& text, float padding_x, float padding_y)
+	{
+		ImVec2 sz = ImGui::CalcTextSize(text.c_str());
+		ImVec2 cursor = ImGui::GetCursorPos();
+		ImGui::InvisibleButton("##padded-text", ImVec2((padding_x * 2) + sz.x, (padding_y * 2) + sz.y));    // ImVec2 operators require imgui_internal.h include and -DIMGUI_DEFINE_MATH_OPERATORS=1
+		ImVec2 final_cursor_pos = ImGui::GetCursorPos();
+		ImGui::SetCursorPos(ImVec2(padding_x + cursor.x, padding_y + cursor.y));
+		ImGui::Text(text.c_str());
+		ImGui::SetCursorPos(final_cursor_pos);
 	}
 
 private:
