@@ -32,6 +32,14 @@ jobs:
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
+      
+    - name: Init Submodules
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: git submodule init
+      
+    - name: Update Submodules
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: git submodule update
 
     - name: Configure Projects using premake
       working-directory: ${{env.GITHUB_WORKSPACE}}
