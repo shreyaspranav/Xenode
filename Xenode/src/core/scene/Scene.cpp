@@ -553,6 +553,9 @@ namespace Xen {
 		for (auto& entity : sprite_group_observer)
 		{
 			Component::Transform& transform = Entity(entity, this).GetComponent<Component::Transform>();
+
+			XEN_ENGINE_LOG_INFO("Z: {0}", transform.position.z);
+
 			if (m_RenderableEntities.size() < m_RenderableEntityIndex + 1)
 			{
 				m_RenderableEntities.push_back(Entity(entity, this));
@@ -580,10 +583,10 @@ namespace Xen {
 			}
 			else {
 				m_RenderableEntities[m_RenderableEntityIndex] = Entity(entity, this);
-
+		
 				if (m_ZCoordinates[m_RenderableEntityIndex] != transform.position.z)
 					m_IsDirty = true;
-
+		
 				m_ZCoordinates[m_RenderableEntityIndex] = transform.position.z;
 			}
 			m_RenderableEntityIndex++;
@@ -592,9 +595,25 @@ namespace Xen {
 		// TODO: Make RenderableLayers, that can be arranged in order and can be rendered in order
 		// This sorting of renderable entities kind of buggy, hence disabled.
 
-		//if (m_IsDirty)
-		//	SortRenderableEntities();
-		//m_IsDirty = false;
+		if (m_IsDirty) {
+			//m_Registry.sort<Component::SpriteRenderer>([&](const entt::entity& lhs, const entt::entity& rhs)
+			//	{
+			//		Component::Transform& lhsTransform = m_Registry.get<Component::Transform>(lhs);
+			//		Component::Transform& rhsTransform = m_Registry.get<Component::Transform>(rhs);
+			//
+			//		return lhsTransform.position.z > rhsTransform.position.z;
+			//	});
+			//
+			//m_Registry.sort<Component::CircleRenderer>([&](const entt::entity& lhs, const entt::entity& rhs)
+			//	{
+			//		Component::Transform& lhsTransform = m_Registry.get<Component::Transform>(lhs);
+			//		Component::Transform& rhsTransform = m_Registry.get<Component::Transform>(rhs);
+			//
+			//		return lhsTransform.position.z > rhsTransform.position.z;
+			//	});
+		}
+			//SortRenderableEntities();
+		m_IsDirty = false;
 
 		for (int i = 0; i < m_RenderableEntityIndex; i++)
 		{
