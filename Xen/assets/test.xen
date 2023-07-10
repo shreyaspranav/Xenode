@@ -1,0 +1,25 @@
+Scene: Untitled
+Entities:
+  - Entity: [Unnamed, 11551743252643768797]
+    Transform:
+      Position: [0.527777672, -0.354166746, -0.430000007]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 3
+      Color: [1, 0, 0, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+  - Entity: [Unnamed, 17975040064900089549]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [1, 1, 1, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+Entity Count: 2

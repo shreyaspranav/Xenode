@@ -554,25 +554,59 @@ namespace Xen {
 		{
 			Component::Transform& transform = Entity(entity, this).GetComponent<Component::Transform>();
 
-			XEN_ENGINE_LOG_INFO("Z: {0}", transform.position.z);
+			Component::SpriteRenderer& spriteRenderer = Entity(entity, this).GetComponent<Component::SpriteRenderer>();
 
-			if (m_RenderableEntities.size() < m_RenderableEntityIndex + 1)
-			{
-				m_RenderableEntities.push_back(Entity(entity, this));
-				m_ZCoordinates.push_back(transform.position.z);
+			if (spriteRenderer.texture == nullptr) {
+				switch (spriteRenderer.primitive)
+				{
+				case Component::SpriteRenderer::Primitive::Triangle:
+					Renderer2D::DrawClearTriangle(transform.position,
+						transform.rotation,
+						{ transform.scale.x, transform.scale.y },
+						spriteRenderer.color,
+						(uint32_t)entity);
+					break;
+				case Component::SpriteRenderer::Primitive::Quad:
+					Renderer2D::DrawClearQuad(transform.position,
+						transform.rotation,
+						{ transform.scale.x, transform.scale.y },
+						spriteRenderer.color,
+						(uint32_t)entity);
+					break;
+				case Component::SpriteRenderer::Primitive::Polygon:
+					Renderer2D::DrawPolygon(transform.position,
+						transform.rotation,
+						{ transform.scale.x, transform.scale.y },
+						spriteRenderer.polygon_segment_count,
+						spriteRenderer.color,
+						(uint32_t)entity);
+					break;
+				case Component::SpriteRenderer::Primitive::Circle:
+					Renderer2D::DrawClearCircle(transform.position,
+						transform.rotation,
+						{ transform.scale.x, transform.scale.y },
+						spriteRenderer.color,
+						spriteRenderer.circle_properties.thickness,
+						spriteRenderer.circle_properties.innerfade,
+						spriteRenderer.circle_properties.outerfade,
+						(uint32_t)entity);
+					break;
+				default:
+					break;
+				}
 			}
-			else {
-				m_RenderableEntities[m_RenderableEntityIndex] = Entity(entity, this);
+			else
+				Renderer2D::DrawTexturedQuad(spriteRenderer.texture,
+					transform.position,
+					transform.rotation,
+					{ transform.scale.x, transform.scale.y },
+					spriteRenderer.color,
+					spriteRenderer.texture_tile_factor,
+					nullptr,
+					(uint32_t)entity);
 
-				if (m_ZCoordinates[m_RenderableEntityIndex] != transform.position.z)
-					m_IsDirty = true;
-
-				m_ZCoordinates[m_RenderableEntityIndex] = transform.position.z;
-			}
-
-			m_RenderableEntityIndex++;
 		}
-
+#if 0
 		for (auto& entity : circle_group_observer)
 		{
 			Component::Transform& transform = Entity(entity, this).GetComponent<Component::Transform>();
@@ -591,18 +625,19 @@ namespace Xen {
 			}
 			m_RenderableEntityIndex++;
 		}
+#endif
 
 		// TODO: Make RenderableLayers, that can be arranged in order and can be rendered in order
 		// This sorting of renderable entities kind of buggy, hence disabled.
 
-		if (m_IsDirty) {
-			//m_Registry.sort<Component::SpriteRenderer>([&](const entt::entity& lhs, const entt::entity& rhs)
-			//	{
-			//		Component::Transform& lhsTransform = m_Registry.get<Component::Transform>(lhs);
-			//		Component::Transform& rhsTransform = m_Registry.get<Component::Transform>(rhs);
-			//
-			//		return lhsTransform.position.z > rhsTransform.position.z;
-			//	});
+		if (true) {
+			m_Registry.sort<Component::SpriteRenderer>([&](const entt::entity& lhs, const entt::entity& rhs)
+				{
+					Component::Transform& lhsTransform = m_Registry.get<Component::Transform>(lhs);
+					Component::Transform& rhsTransform = m_Registry.get<Component::Transform>(rhs);
+			
+					return lhsTransform.position.z > rhsTransform.position.z;
+				});
 			//
 			//m_Registry.sort<Component::CircleRenderer>([&](const entt::entity& lhs, const entt::entity& rhs)
 			//	{
@@ -614,7 +649,7 @@ namespace Xen {
 			SortRenderableEntities();
 		}
 		m_IsDirty = false;
-
+#if 0
 		for (int i = 0; i < m_RenderableEntityIndex; i++)
 		{
 			Component::Transform& transform = m_RenderableEntities[i].GetComponent<Component::Transform>();
@@ -625,26 +660,36 @@ namespace Xen {
 				if (spriteRenderer.texture == nullptr) {
 					switch (spriteRenderer.primitive)
 					{
-					case SpriteRendererPrimitive::Triangle:
+					case Component::SpriteRenderer::Primitive::Triangle:
 						Renderer2D::DrawClearTriangle(transform.position,
 							transform.rotation,
 							{ transform.scale.x, transform.scale.y },
 							spriteRenderer.color,
 							(uint32_t)m_RenderableEntities[i]);
 						break;
-					case SpriteRendererPrimitive::Quad:
+					case Component::SpriteRenderer::Primitive::Quad:
 						Renderer2D::DrawClearQuad(transform.position,
 							transform.rotation,
 							{ transform.scale.x, transform.scale.y },
 							spriteRenderer.color,
 							(uint32_t)m_RenderableEntities[i]);
 						break;
-					case SpriteRendererPrimitive::Polygon:
+					case Component::SpriteRenderer::Primitive::Polygon:
 						Renderer2D::DrawPolygon(transform.position,
 							transform.rotation,
 							{ transform.scale.x, transform.scale.y },
 							spriteRenderer.polygon_segment_count,
 							spriteRenderer.color,
+							(uint32_t)m_RenderableEntities[i]);
+						break;
+					case Component::SpriteRenderer::Primitive::Circle:
+						Renderer2D::DrawClearCircle(transform.position,
+							transform.rotation,
+							{ transform.scale.x, transform.scale.y },
+							spriteRenderer.color,
+							spriteRenderer.circle_properties.thickness,
+							spriteRenderer.circle_properties.innerfade,
+							spriteRenderer.circle_properties.outerfade,
 							(uint32_t)m_RenderableEntities[i]);
 						break;
 					default:
@@ -675,7 +720,8 @@ namespace Xen {
 					circleRenderer.outer_fade, 
 					(uint32_t)m_RenderableEntities[i]);
 			}
-		}
+		
+#endif
 	}
 	void Scene::RenderLights()
 	{

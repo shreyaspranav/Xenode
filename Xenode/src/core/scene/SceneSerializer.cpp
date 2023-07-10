@@ -93,7 +93,7 @@ namespace Xen {
 			yamlEmitter << YAML::BeginMap; // SpriteRenderer
 
 			yamlEmitter << YAML::Key << "SpritePrimitive" << YAML::Value << (int8_t)spriteRenderer.primitive;
-			if (spriteRenderer.primitive == SpriteRendererPrimitive::Polygon)
+			if (spriteRenderer.primitive == Component::SpriteRenderer::Primitive::Polygon)
 				yamlEmitter << YAML::Key << "PolygonSegments" << YAML::Value << spriteRenderer.polygon_segment_count;
 
 			yamlEmitter << YAML::Key << "Color" << YAML::Value << spriteRenderer.color;
@@ -309,7 +309,7 @@ namespace Xen {
 						spriteRenderer_component["Color"][3].as<float>()
 					);
 
-					SpriteRendererPrimitive primitive = (SpriteRendererPrimitive)spriteRenderer_component["SpritePrimitive"].as<int32_t>();
+					Component::SpriteRenderer::Primitive primitive = (Component::SpriteRenderer::Primitive)spriteRenderer_component["SpritePrimitive"].as<int32_t>();
 
 					const YAML::Node& texture_node = spriteRenderer_component["Texture"];
 

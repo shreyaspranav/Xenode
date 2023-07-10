@@ -299,6 +299,10 @@ public:
 			backSR:
 			if (m_SelectedEntity.HasAnyComponent<Xen::Component::SpriteRenderer>())
 			{
+				typedef Xen::Component::SpriteRenderer::Primitive SpritePrimitive;
+				typedef Xen::Component::SpriteRenderer::CircleProperties CircleProperties;
+				typedef Xen::Component::SpriteRenderer::PolygonProperties PolygonProperties;
+
 				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_SPRITE_RENDERER.c_str(), tree_flags))
 				{
 					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
@@ -333,14 +337,17 @@ public:
 
 					switch (spriteRenderer.primitive)
 					{
-					case Xen::SpriteRendererPrimitive::Triangle:
+					case SpritePrimitive::Triangle:
 						sprite_renderer_item_index = 0;
 						break;
-					case Xen::SpriteRendererPrimitive::Quad:
+					case SpritePrimitive::Quad:
 						sprite_renderer_item_index = 1;
 						break;
-					case Xen::SpriteRendererPrimitive::Polygon:
+					case SpritePrimitive::Polygon:
 						sprite_renderer_item_index = 2;
+						break;
+					case SpritePrimitive::Circle:
+						sprite_renderer_item_index = 3;
 						break;
 					default:
 						break;
@@ -351,13 +358,16 @@ public:
 						switch (sprite_renderer_item_index)
 						{
 						case 0:
-							spriteRenderer.primitive = Xen::SpriteRendererPrimitive::Triangle;
+							spriteRenderer.primitive = SpritePrimitive::Triangle;
 							break;
 						case 1:
-							spriteRenderer.primitive = Xen::SpriteRendererPrimitive::Quad;
+							spriteRenderer.primitive = SpritePrimitive::Quad;
 							break;
 						case 2:
-							spriteRenderer.primitive = Xen::SpriteRendererPrimitive::Polygon;
+							spriteRenderer.primitive = SpritePrimitive::Polygon;
+							break;
+						case 3:
+							spriteRenderer.primitive = SpritePrimitive::Circle;
 							break;
 						default:
 							break;
@@ -379,6 +389,33 @@ public:
 						ImGui::NextColumn();
 					}
 
+					else if (sprite_renderer_item_index == 3)
+					{
+						PaddedText("Thickness", 0.0f, 3.0f);
+						ImGui::NextColumn();
+
+						ImGui::PushItemWidth(-0.1f);
+						ImGui::SliderFloat("##Thickness", &spriteRenderer.circle_properties.thickness, 0.0f, 1.0f);
+						ImGui::PopItemWidth();
+						ImGui::NextColumn();
+
+						PaddedText("Inner Fade", 0.0f, 3.0f);
+						ImGui::NextColumn();
+
+						ImGui::PushItemWidth(-0.1f);
+						ImGui::SliderFloat("##Innerfade", &spriteRenderer.circle_properties.innerfade, 0.0f, 1.0f);
+						ImGui::PopItemWidth();
+						ImGui::NextColumn();
+
+						PaddedText("Outer Fade", 0.0f, 3.0f);
+						ImGui::NextColumn();
+
+						ImGui::PushItemWidth(-0.1f);
+						ImGui::SliderFloat("##OuterFade", &spriteRenderer.circle_properties.outerfade, 0.0f, 1.0f);
+						ImGui::PopItemWidth();
+						ImGui::NextColumn();
+					}
+
 					PaddedText("Sprite Color", 0.0f, 3.0f);
 					ImGui::NextColumn();
 
@@ -395,44 +432,50 @@ public:
 					ImGui::PopItemWidth();
 
 					ImGui::NextColumn();
-					PaddedText("Texture", 0.0f, 3.0f);
 
-					if (ImGui::BeginDragDropTarget())
+					// TEMP: Add support for textured circles:
+
+					if (sprite_renderer_item_index != 3)
 					{
-						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(m_TextureLoadDropType.c_str()))
+						PaddedText("Texture", 0.0f, 3.0f);
+
+						if (ImGui::BeginDragDropTarget())
 						{
-							std::string texture_path = (const char*)payload->Data;
-							Xen::Ref<Xen::Texture2D> texture_loaded = Xen::Texture2D::CreateTexture2D(texture_path, true);
-							texture_loaded->LoadTexture();
+							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(m_TextureLoadDropType.c_str()))
+							{
+								std::string texture_path = (const char*)payload->Data;
+								Xen::Ref<Xen::Texture2D> texture_loaded = Xen::Texture2D::CreateTexture2D(texture_path, true);
+								texture_loaded->LoadTexture();
 
-							spriteRenderer.texture = texture_loaded;
+								spriteRenderer.texture = texture_loaded;
+							}
+							ImGui::EndDragDropTarget();
 						}
-						ImGui::EndDragDropTarget();
-					}
-
-					ImGui::NextColumn();
-					ImGui::PushItemWidth(-0.1f);
-					if (spriteRenderer.texture == nullptr)
-						PaddedText("Drag and drop texture here", 0.0, 3.0f);
-					else
-					{
-						float texture_width = ImGui::GetColumnWidth() - 20.0f;
-
-						ImGui::Image((ImTextureID)spriteRenderer.texture->GetNativeTextureID(),
-							ImVec2(texture_width, (texture_width * spriteRenderer.texture->GetHeight()) / spriteRenderer.texture->GetHeight()), { 0, 1 }, { 1, 0 });
-
-					}
-					ImGui::PopItemWidth();
-
-					if (spriteRenderer.texture != nullptr)
-					{
-						ImGui::NextColumn();
-						PaddedText("Tile Factor", 0.0f, 3.0f);
 
 						ImGui::NextColumn();
 						ImGui::PushItemWidth(-0.1f);
-						ImGui::DragFloat("##TileFactor", &spriteRenderer.texture_tile_factor, 0.01f, 0.0001f, 100.0f);
+						if (spriteRenderer.texture == nullptr)
+							PaddedText("Drag and drop texture here", 0.0, 3.0f);
+						else
+						{
+							float texture_width = ImGui::GetColumnWidth() - 20.0f;
+
+							ImGui::Image((ImTextureID)spriteRenderer.texture->GetNativeTextureID(),
+								ImVec2(texture_width, (texture_width * spriteRenderer.texture->GetHeight()) / spriteRenderer.texture->GetHeight()), { 0, 1 }, { 1, 0 });
+
+						}
 						ImGui::PopItemWidth();
+
+						if (spriteRenderer.texture != nullptr)
+						{
+							ImGui::NextColumn();
+							PaddedText("Tile Factor", 0.0f, 3.0f);
+
+							ImGui::NextColumn();
+							ImGui::PushItemWidth(-0.1f);
+							ImGui::DragFloat("##TileFactor", &spriteRenderer.texture_tile_factor, 0.01f, 0.0001f, 100.0f);
+							ImGui::PopItemWidth();
+						}
 					}
 
 					ImGui::Columns(1);
@@ -931,7 +974,7 @@ private:
 	inline static float b = 0.0f;
 
 	int sprite_renderer_item_index = 1; // Sprite Renderer Item Index
-	const char* sprite_renderer_primitives[3] = { "Triangle", "Quad", "Polygon" };
+	const char* sprite_renderer_primitives[4] = { "Triangle", "Quad", "Polygon", "Circle"};
 
 	int rigid_body_type_index = 0;
 	const char* rigid_body_types[3] = { "Static", "Dynamic", "Kinematic" };

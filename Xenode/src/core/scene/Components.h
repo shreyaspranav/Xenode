@@ -10,9 +10,6 @@
 
 namespace Xen {
 
-	enum class SpriteRendererPrimitive {
-		Triangle, Quad, Polygon
-	};
 
 	namespace Component {
 
@@ -49,9 +46,16 @@ namespace Xen {
 
 		struct SpriteRenderer
 		{
+			enum class Primitive { Triangle, Quad, Polygon, Circle };
+
+			struct CircleProperties		{ float thickness = 1.0f, innerfade = 0.0f, outerfade = 0.0f; };
+			struct PolygonProperties	{ uint32_t segment_count = 5; };
+
 			Color color;
 
-			SpriteRendererPrimitive primitive;
+			Primitive primitive;
+			CircleProperties circle_properties;
+
 			uint32_t polygon_segment_count = 5;
 
 			Ref<Texture2D> texture;
@@ -61,7 +65,7 @@ namespace Xen {
 			SpriteRenderer() = default;
 			SpriteRenderer(const SpriteRenderer& transform) = default;
 
-			SpriteRenderer(const Color& color, SpriteRendererPrimitive primitive = SpriteRendererPrimitive::Quad, uint32_t polygon_segments = 4) 
+			SpriteRenderer(const Color& color, Primitive primitive = Primitive::Quad, uint32_t polygon_segments = 4) 
 				: color(color), 
 				texture(nullptr), 
 				texture_tile_factor(1.0f),
@@ -69,7 +73,7 @@ namespace Xen {
 				primitive(primitive) {}
 
 			SpriteRenderer(const Color& color, Ref<Texture2D> texture, float tile_factor = 1.0f) 
-				: color(color), texture(texture), texture_tile_factor(tile_factor), primitive(SpriteRendererPrimitive::Quad) {}
+				: color(color), texture(texture), texture_tile_factor(tile_factor), primitive(Primitive::Quad) {}
 		};
 
 		struct CircleRenderer
