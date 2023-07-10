@@ -15,12 +15,6 @@
 #include "core/app/Log.h"
 
 namespace Xen {
-	SceneSerializer::SceneSerializer(const Ref<Scene>& scene) : m_Scene(scene)
-	{}
-	SceneSerializer::~SceneSerializer()
-	{
-	}
-
 	static UUID GetUUID(Entity e)
 	{
 		if (e.HasAnyComponent<Component::ID>())
@@ -215,7 +209,7 @@ namespace Xen {
 		yamlEmitter << YAML::EndMap; // Entity
 	}
 
-	void SceneSerializer::Serialize(const std::string& filePath)
+	void SceneSerializer::Serialize(const Ref<Scene>& scene, const std::string& filePath)
 	{
 		YAML::Emitter yamlEmitter;
 
@@ -225,9 +219,9 @@ namespace Xen {
 		yamlEmitter << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 
 		uint32_t entity_count = 0;
-		m_Scene->m_Registry.each([&](auto& entityID) {
+		scene->m_Registry.each([&](auto& entityID) {
 
-			Entity entity = Entity(entityID, m_Scene.get());
+			Entity entity = Entity(entityID, scene.get());
 			entity_count++;
 			
 			SerializeEntity(yamlEmitter, entity, entity_count);  
@@ -241,12 +235,12 @@ namespace Xen {
 		out_stream << yamlEmitter.c_str();
 		out_stream.close();
 	}
-	void SceneSerializer::SerializeBinary(const std::string& filePath)
+	void SceneSerializer::SerializeBinary(const Ref<Scene>& scene, const std::string& filePath)
 	{
 		XEN_ENGINE_LOG_ERROR("Not Yet Implemented!");
 		TRIGGER_BREAKPOINT;
 	}
-	void SceneSerializer::Deserialize(const std::string& filePath)
+	void SceneSerializer::Deserialize(const Ref<Scene>& scene, const std::string& filePath)
 	{
 		std::ifstream file_stream(filePath);
 		std::stringstream scene_string_data;
@@ -275,7 +269,7 @@ namespace Xen {
 				uint64_t uuid = entity["Entity"][1].as<uint64_t>();
 
 				//Entity entt = m_Scene->CreateEntityWithUUID(tag, UUID(uuid));
-				Entity entt = m_Scene->CreateEntity(tag);
+				Entity entt = scene->CreateEntity(tag);
 
 				// Transform Component------------------------------------------------------
 				const YAML::Node& transform_component = entity["Transform"];
@@ -383,8 +377,8 @@ namespace Xen {
 					{
 						camera = std::make_shared<Camera>(
 							CameraType::Orthographic,
-							m_Scene->m_FramebufferWidth,
-							m_Scene->m_FramebufferHeight
+							scene->m_FramebufferWidth,
+							scene->m_FramebufferHeight
 						);
 					}
 
@@ -392,8 +386,8 @@ namespace Xen {
 					{
 						camera = std::make_shared<Camera>(
 							CameraType::Perspective,
-							m_Scene->m_FramebufferWidth,
-							m_Scene->m_FramebufferHeight
+							scene->m_FramebufferWidth,
+							scene->m_FramebufferHeight
 							);
 
 						float FovAngle = camera_node["FovAngle"].as<float>();
@@ -452,7 +446,7 @@ namespace Xen {
 		}
 		
 	}
-	void SceneSerializer::DeserializeBinary(const std::string& filePath)
+	void SceneSerializer::DeserializeBinary(const Ref<Scene>& scene, const std::string& filePath)
 	{
 		XEN_ENGINE_LOG_ERROR("Not Yet Implemented!");
 		TRIGGER_BREAKPOINT;

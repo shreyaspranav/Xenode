@@ -604,14 +604,12 @@ void EditorLayer::OnScenePause()
 void EditorLayer::OpenScene(const std::string& filePath)
 {
 	m_EditorScene->NewScene();
-	Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_EditorScene);
-	serialiser.Deserialize(filePath);
+	Xen::SceneSerializer::Deserialize(m_EditorScene, filePath);
 }
 
 void EditorLayer::SaveScene(const std::string& filePath)
 {
-	Xen::SceneSerializer serialiser = Xen::SceneSerializer(m_EditorScene);
-	serialiser.Serialize(filePath);
+	Xen::SceneSerializer::Serialize(m_EditorScene, filePath);
 }
 
 void EditorLayer::OnWindowResizeEvent(Xen::WindowResizeEvent& event)

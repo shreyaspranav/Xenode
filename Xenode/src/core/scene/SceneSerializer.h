@@ -7,17 +7,11 @@ namespace Xen {
 	class SceneSerializer
 	{
 	public:
-		SceneSerializer(const Ref<Scene>& scene);
-		~SceneSerializer();
+		static void Serialize(const Ref<Scene>& scene, const std::string& filePath);
+		static void SerializeBinary(const Ref<Scene>& scene, const std::string& filePath);
 
-		void Serialize(const std::string& filePath);
-		void SerializeBinary(const std::string& filePath);
-
-		void Deserialize(const std::string& filePath);
-		void DeserializeBinary(const std::string& filePath);
-
-	private:
-		Ref<Scene> m_Scene;
+		static void Deserialize(const Ref<Scene>& scene, const std::string& filePath);
+		static void DeserializeBinary(const Ref<Scene>& scene, const std::string& filePath);
 	};
 }
 

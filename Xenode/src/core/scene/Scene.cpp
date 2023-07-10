@@ -611,8 +611,8 @@ namespace Xen {
 			//
 			//		return lhsTransform.position.z > rhsTransform.position.z;
 			//	});
+			SortRenderableEntities();
 		}
-			//SortRenderableEntities();
 		m_IsDirty = false;
 
 		for (int i = 0; i < m_RenderableEntityIndex; i++)
