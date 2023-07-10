@@ -186,7 +186,6 @@ namespace Xen {
 
 	const Ref<FrameBuffer>& Scene::GetSceneFrameBuffer()
 	{
-		// TODO: change this to the final framebuffer:
 		return m_FinalSceneFB;
 	}
 
