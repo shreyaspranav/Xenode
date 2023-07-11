@@ -423,6 +423,13 @@ public:
 					ImGui::PopItemWidth();
 
 					ImGui::NextColumn();
+					
+					PaddedText("Alpha", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::SliderFloat("##Alpha", &spriteRenderer.color.a, 0.0f, 1.0f);
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
 
 					// TEMP: Add support for textured circles:
 
