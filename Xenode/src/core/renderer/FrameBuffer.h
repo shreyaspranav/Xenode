@@ -60,9 +60,11 @@ namespace Xen {
 		virtual void ClearAttachments() = 0;
 
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
-		virtual int32_t ReadIntPixel(uint32_t index, int32_t x, int32_t y) = 0;
 
+		virtual int32_t ReadIntPixel(uint32_t index, int32_t x, int32_t y) = 0;
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index) const = 0;
+
+		virtual void SetClearColor(uint32_t index, const Color& color) = 0;
 
 		static Ref<FrameBuffer> CreateFrameBuffer(const FrameBufferSpec& spec);
 	};

@@ -1,6 +1,49 @@
 Scene: Untitled
 Entities:
-  - Entity: [Circle, 9602576580327741704]
+  - Entity: [Ambient Light, 18176414060398358842]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    AmbientLight:
+      Color: [1, 0.999989986, 0.999989986, 1]
+      Intensity: 0.931999981
+  - Entity: [Triangle, 9337648574309974424]
+    Transform:
+      Position: [-2.7791841, -0.154340744, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 0
+      Color: [0.306249499, 0.862538218, 0.876106203, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+  - Entity: [Quad, 5543064956304628024]
+    Transform:
+      Position: [-1.11897111, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1.25, 1.25, 1.25]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [0.351174355, 0, 1, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+  - Entity: [Polygon, 14622890826523268125]
+    Transform:
+      Position: [0.824758768, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 2
+      PolygonProperties:
+        Segments: 6
+      Color: [0.940476179, 1, 0, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+  - Entity: [Circle, 10853923060942068367]
     Transform:
       Position: [2.63826323, 0, -0.150000006]
       Rotation: [0, 0, 0]
@@ -15,39 +58,4 @@ Entities:
       Texture:
         TextureFileRelPath: "null"
         TextureTilingFactor: 1
-  - Entity: [Polygon, 11661416157792903236]
-    Transform:
-      Position: [0.824758768, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    SpriteRenderer:
-      SpritePrimitive: 2
-      PolygonProperties:
-        Segments: 6
-      Color: [0.940476179, 1, 0, 1]
-      Texture:
-        TextureFileRelPath: "null"
-        TextureTilingFactor: 1
-  - Entity: [Quad, 12579307430409598589]
-    Transform:
-      Position: [-1.11897111, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1.25, 1.25, 1.25]
-    SpriteRenderer:
-      SpritePrimitive: 1
-      Color: [0.351174355, 0, 1, 1]
-      Texture:
-        TextureFileRelPath: "null"
-        TextureTilingFactor: 1
-  - Entity: [Triangle, 1233924637667484726]
-    Transform:
-      Position: [-2.7791841, -0.154340744, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    SpriteRenderer:
-      SpritePrimitive: 0
-      Color: [0.306249499, 0.862538218, 0.876106203, 1]
-      Texture:
-        TextureFileRelPath: "null"
-        TextureTilingFactor: 1
-Entity Count: 4
+Entity Count: 5

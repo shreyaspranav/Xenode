@@ -23,6 +23,8 @@ namespace Xen {
 		uint32_t GetColorAttachmentRendererID(uint32_t index) const override;
 		int32_t ReadIntPixel(uint32_t index, int32_t x, int32_t y) override;
 
+		void SetClearColor(uint32_t index, const Color& color) override;
+
 		const FrameBufferSpec& GetFrameBufferSpecification() const override { return m_Spec; }
 
 	private:

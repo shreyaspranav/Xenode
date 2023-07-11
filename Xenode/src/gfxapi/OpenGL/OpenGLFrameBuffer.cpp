@@ -271,4 +271,13 @@ namespace Xen {
 		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &data);
 		return data;
 	}
+	void OpenGLFrameBuffer::SetClearColor(uint32_t index, const Color& color)
+	{
+		if (index >= m_Spec.attachments.size()) {
+			XEN_ENGINE_LOG_ERROR("\'index\' is out of range");
+			return;
+		}
+
+		m_Spec.attachments[index].clearColor = color;
+	}
 }

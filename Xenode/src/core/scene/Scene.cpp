@@ -92,7 +92,7 @@ namespace Xen {
 		Xen::FrameBufferAttachmentSpec light_layer;
 		light_layer.format = Xen::FrameBufferTextureFormat::RGB16F;
 		//light_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
-		light_layer.clearColor = Xen::Color(0.1f, 0.1f, 0.1f, 1.0f);
+		light_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
 		// Final Scene FrameBuffer configuration:
 		Xen::FrameBufferSpec final_scene_specs;
@@ -153,6 +153,7 @@ namespace Xen {
 		CopyComponent<Component::NativeScript>(entity, newEntity);
 		CopyComponent<Component::ScriptComp>(entity, newEntity);
 		CopyComponent<Component::PointLight>(entity, newEntity);
+		CopyComponent<Component::AmbientLight>(entity, newEntity);
 
 		return newEntity;
 	}
@@ -350,6 +351,7 @@ namespace Xen {
 		CopyComponentAllEntities<Component::NativeScript>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::ScriptComp>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::PointLight>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::AmbientLight>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 
 		return newScene;
 	}
@@ -602,26 +604,6 @@ namespace Xen {
 					(uint32_t)entity);
 
 		}
-#if 0
-		for (auto& entity : circle_group_observer)
-		{
-			Component::Transform& transform = Entity(entity, this).GetComponent<Component::Transform>();
-			if (m_RenderableEntities.size() < m_RenderableEntityIndex + 1)
-			{
-				m_RenderableEntities.push_back(Entity(entity, this));
-				m_ZCoordinates.push_back(transform.position.z);
-			}
-			else {
-				m_RenderableEntities[m_RenderableEntityIndex] = Entity(entity, this);
-		
-				if (m_ZCoordinates[m_RenderableEntityIndex] != transform.position.z)
-					m_IsDirty = true;
-		
-				m_ZCoordinates[m_RenderableEntityIndex] = transform.position.z;
-			}
-			m_RenderableEntityIndex++;
-		}
-#endif
 
 		// TODO: Make RenderableLayers, that can be arranged in order and can be rendered in order
 		// This sorting of renderable entities kind of buggy, hence disabled.
@@ -634,96 +616,24 @@ namespace Xen {
 			
 					return lhsTransform.position.z > rhsTransform.position.z;
 				});
-			//
-			//m_Registry.sort<Component::CircleRenderer>([&](const entt::entity& lhs, const entt::entity& rhs)
-			//	{
-			//		Component::Transform& lhsTransform = m_Registry.get<Component::Transform>(lhs);
-			//		Component::Transform& rhsTransform = m_Registry.get<Component::Transform>(rhs);
-			//
-			//		return lhsTransform.position.z > rhsTransform.position.z;
-			//	});
 			SortRenderableEntities();
 		}
 		m_IsDirty = false;
-#if 0
-		for (int i = 0; i < m_RenderableEntityIndex; i++)
-		{
-			Component::Transform& transform = m_RenderableEntities[i].GetComponent<Component::Transform>();
-			if (m_RenderableEntities[i].HasAnyComponent<Component::SpriteRenderer>())
-			{
-				Component::SpriteRenderer& spriteRenderer = m_RenderableEntities[i].GetComponent<Component::SpriteRenderer>();
-
-				if (spriteRenderer.texture == nullptr) {
-					switch (spriteRenderer.primitive)
-					{
-					case Component::SpriteRenderer::Primitive::Triangle:
-						Renderer2D::DrawClearTriangle(transform.position,
-							transform.rotation,
-							{ transform.scale.x, transform.scale.y },
-							spriteRenderer.color,
-							(uint32_t)m_RenderableEntities[i]);
-						break;
-					case Component::SpriteRenderer::Primitive::Quad:
-						Renderer2D::DrawClearQuad(transform.position,
-							transform.rotation,
-							{ transform.scale.x, transform.scale.y },
-							spriteRenderer.color,
-							(uint32_t)m_RenderableEntities[i]);
-						break;
-					case Component::SpriteRenderer::Primitive::Polygon:
-						Renderer2D::DrawPolygon(transform.position,
-							transform.rotation,
-							{ transform.scale.x, transform.scale.y },
-							spriteRenderer.polygon_segment_count,
-							spriteRenderer.color,
-							(uint32_t)m_RenderableEntities[i]);
-						break;
-					case Component::SpriteRenderer::Primitive::Circle:
-						Renderer2D::DrawClearCircle(transform.position,
-							transform.rotation,
-							{ transform.scale.x, transform.scale.y },
-							spriteRenderer.color,
-							spriteRenderer.circle_properties.thickness,
-							spriteRenderer.circle_properties.innerfade,
-							spriteRenderer.circle_properties.outerfade,
-							(uint32_t)m_RenderableEntities[i]);
-						break;
-					default:
-						break;
-					}
-				}
-				else
-					Renderer2D::DrawTexturedQuad(spriteRenderer.texture,
-						transform.position,
-						transform.rotation,
-						{ transform.scale.x, transform.scale.y },
-						spriteRenderer.color,
-						spriteRenderer.texture_tile_factor,
-						nullptr,
-						(uint32_t)m_RenderableEntities[i]);
-
-			}
-			else if (m_RenderableEntities[i].HasAnyComponent<Component::CircleRenderer>())
-			{
-				Component::CircleRenderer& circleRenderer = m_RenderableEntities[i].GetComponent<Component::CircleRenderer>();
-
-				Renderer2D::DrawClearCircle(transform.position,
-					transform.rotation,
-					{ transform.scale.x, transform.scale.y },
-					circleRenderer.color,
-					circleRenderer.thickness,
-					circleRenderer.inner_fade,
-					circleRenderer.outer_fade, 
-					(uint32_t)m_RenderableEntities[i]);
-			}
-		
-#endif
 	}
 	void Scene::RenderLights()
 	{
-		auto view = m_Registry.view<Component::PointLight>();
+		auto point_light_view = m_Registry.view<Component::PointLight>();
+		auto ambient_light_view = m_Registry.view<Component::AmbientLight>();
 
-		for (const entt::entity& e : view)
+		for (const entt::entity& e : ambient_light_view)
+		{
+			Entity entt = Entity(e, this);
+			Component::AmbientLight& light = entt.GetComponent<Component::AmbientLight>();
+			
+			m_LightMaskFB->SetClearColor(0, light.color * light.intensity);
+		}
+
+		for (const entt::entity& e : point_light_view)
 		{
 			Entity entt = Entity(e, this);
 			Component::Transform& transform = entt.GetComponent<Component::Transform>();

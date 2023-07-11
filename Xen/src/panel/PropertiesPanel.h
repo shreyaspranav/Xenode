@@ -86,6 +86,12 @@ public:
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
+				if (m_SelectedEntity.HasAnyComponent<Xen::Component::AmbientLight>())
+				{
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_AMBIENT_LIGHT);
+					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
+				}
+
 				if (m_SelectedEntity.HasAnyComponent<Xen::Component::CameraComp>())
 				{
 					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_CAMERA);
@@ -129,6 +135,9 @@ public:
 
 						else if (component.contains("Point Light"))
 							m_SelectedEntity.AddComponent<Xen::Component::PointLight>();
+
+						else if (component.contains("Ambient Light"))
+							m_SelectedEntity.AddComponent<Xen::Component::AmbientLight>();
 
 						else if (component.contains("Native Script"))
 							m_SelectedEntity.AddComponent<Xen::Component::NativeScript>();
@@ -567,6 +576,65 @@ public:
 				//ImGui::Separator();
 			}
 
+			backAL:
+			if (m_SelectedEntity.HasAnyComponent<Xen::Component::AmbientLight>())
+			{
+				Xen::Component::AmbientLight& ambient_light = m_SelectedEntity.GetComponent<Xen::Component::AmbientLight>();
+
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_AMBIENT_LIGHT.c_str(), tree_flags))
+				{
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+						ImGui::OpenPopup("DeleteComponentAmbientLight");
+
+					if (ImGui::BeginPopup("DeleteComponentAmbientLight"))
+					{
+						if (ImGui::Selectable("Delete Component: Ambient Light"))
+						{
+							m_SelectedEntity.DeleteComponent<Xen::Component::AmbientLight>();
+							ImGui::EndPopup();
+							goto backPL;
+						}
+						ImGui::EndPopup();
+					}
+					float light_color[4] = {
+						ambient_light.color.r,
+						ambient_light.color.g,
+						ambient_light.color.b,
+						ambient_light.color.a,
+					};
+
+					ImGui::Columns(2, "##AmbientLight", false);
+					ImGui::SetColumnWidth(0, 100.0f);
+
+					PaddedText("Color", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+
+					ImGuiColorEditFlags color_edit_flags = ImGuiColorEditFlags_NoInputs;
+					if (ImGui::ColorEdit4("##LightColor", light_color, color_edit_flags))
+					{
+						ambient_light.color.r = light_color[0];
+						ambient_light.color.g = light_color[1];
+						ambient_light.color.b = light_color[2];
+						ambient_light.color.a = light_color[3];
+					}
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Intensity", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::SliderFloat("##Intensity", &ambient_light.intensity, 0.0f, 1.0f);
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					ImGui::Columns(1);
+				}
+				//ImGui::Separator();
+			}
+
 			backRB:
 			if (m_SelectedEntity.HasAnyComponent<Xen::Component::RigidBody2D>())
 			{
@@ -925,6 +993,7 @@ private:
 		Xen::StringValues::COMPONENT_NATIVE_SCRIPT,
 		Xen::StringValues::COMPONENT_SCRIPT,
 		Xen::StringValues::COMPONENT_POINT_LIGHT,
+		Xen::StringValues::COMPONENT_AMBIENT_LIGHT,
 		Xen::StringValues::COMPONENT_RIGID_BODY_2D,
 		Xen::StringValues::COMPONENT_BOX_COLLIDER_2D,
 		

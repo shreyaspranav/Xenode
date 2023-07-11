@@ -16,6 +16,9 @@ namespace Xen {
 		Color(float value, float alpha) : r(value), g(value), b(value), a(alpha) {}	//Greyscale Color
 
 		glm::vec4 GetVec() const { return glm::vec4(r, g, b, a); }
+
+		// Don't multiply alpha?
+		Color operator*(float val) { return Color(r * val, g * val, b * val, a); }
 	};
 
 	struct Vec2

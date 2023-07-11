@@ -148,6 +148,19 @@ namespace Xen {
 			yamlEmitter << YAML::EndMap; // PointLight
 		}
 
+		if (entity.HasAnyComponent<Component::AmbientLight>())
+		{
+			Component::AmbientLight& ambientLight = entity.GetComponent<Component::AmbientLight>();
+
+			yamlEmitter << YAML::Key << "AmbientLight";
+			yamlEmitter << YAML::BeginMap; // AmbientLight
+
+			yamlEmitter << YAML::Key << "Color" << YAML::Value << ambientLight.color;
+			yamlEmitter << YAML::Key << "Intensity" << YAML::Value << ambientLight.intensity;
+
+			yamlEmitter << YAML::EndMap; // AmbientLight
+		}
+
 		if (entity.HasAnyComponent<Component::CameraComp>())
 		{
 			Component::CameraComp& camera = entity.GetComponent<Component::CameraComp>();
@@ -360,6 +373,22 @@ namespace Xen {
 					float fallofB = pointLight_component["FallofB"].as<float>();
 
 					entt.AddComponent<Component::PointLight>(color, radius, fallofA, fallofB);
+				}
+
+				// PointLight Component-------------------------------------------------
+				const YAML::Node& ambientLight_component = entity["AmbientLight"];
+				if (ambientLight_component)
+				{
+					Color color = Color(
+						ambientLight_component["Color"][0].as<float>(),
+						ambientLight_component["Color"][1].as<float>(),
+						ambientLight_component["Color"][2].as<float>(),
+						ambientLight_component["Color"][3].as<float>()
+					);
+
+					float intensity = ambientLight_component["Intensity"].as<float>();
+
+					entt.AddComponent<Component::AmbientLight>(color, intensity);
 				}
 
 				//CameraComp Component--------------------------------------------------------

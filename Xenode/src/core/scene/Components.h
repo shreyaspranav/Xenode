@@ -161,6 +161,16 @@ namespace Xen {
 				:lightColor(color), radius(radius), fallofA(fallofA), fallofB(fallofB) {}
 		};
 
+		struct AmbientLight
+		{
+			Color color;
+			float intensity = 0.1f;
+
+			AmbientLight() = default;
+			AmbientLight(const Color& color, float intensity)
+				:color(color), intensity(intensity) {}
+		};
+
 		// Physics Components:
 		struct RigidBody2D
 		{

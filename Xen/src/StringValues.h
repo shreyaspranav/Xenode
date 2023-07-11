@@ -3,7 +3,7 @@
 #include <imgui/IconsFontAwesome.h>
 
 namespace Xen {
-	namespace StringValues 
+	namespace StringValues
 	{
 		// Panel titles:
 		const std::string
@@ -21,6 +21,7 @@ namespace Xen {
 			COMPONENT_SCRIPT				= std::string(ICON_FA_CODE)          + std::string(" Script"),
 			COMPONENT_CAMERA				= std::string(ICON_FA_CAMERA)        + std::string(" Orthographic Camera"),
 			COMPONENT_POINT_LIGHT			= std::string(ICON_FA_LIGHTBULB)     + std::string(" Point Light"),
+			COMPONENT_AMBIENT_LIGHT			= std::string(ICON_FA_SUN)           + std::string(" Ambient Light"),
 			COMPONENT_BOX_COLLIDER_2D		= std::string(ICON_FA_SQUARE)        + std::string(" Box Collider 2D"),
 			COMPONENT_RIGID_BODY_2D			= std::string(ICON_FA_CUBES_STACKED) + std::string(" Rigid Body 2D");
 
