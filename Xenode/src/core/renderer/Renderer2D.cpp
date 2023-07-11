@@ -443,7 +443,7 @@ namespace Xen {
 		line_width = width;
 	}
 
-	void Renderer2D::PointLight(const Vec3& position, const Color& color, float radius, float fallofA, float fallofB, int32_t id)
+	void Renderer2D::PointLight(const Vec3& position, const Color& color, float radius, float intensity, float fallofA, float fallofB, int32_t id)
 	{
 		if (batch_storage[batch_index]->light_vertex_index > max_vertices_per_batch - 4)
 		{
@@ -506,7 +506,7 @@ namespace Xen {
 
 			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 9 ] = fallofA;
 			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 10] = fallofB;
-			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 11] = (float)id;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 11] = intensity;
 		}
 
 		//batch_storage[batch_index]->light_vertex_index -= 4;

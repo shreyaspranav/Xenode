@@ -3,10 +3,10 @@
 
 in vec4 color;
 in vec2 worldCoords;
+in float lightIntensity;
 
-flat in float fallofA;
-flat in float fallofB;
-flat in float enttID;
+in float fallofA;
+in float fallofB;
 
 layout(location = 0) out vec4 lightColor;
 
@@ -14,11 +14,11 @@ void main()
 {
 	float d = distance(vec2(0.0, 0.0), worldCoords * 50.0);
 
-	float intensity = 1.0 / (1.0 + fallofA * d + fallofB * d * d);
+	float i = 1.0 / (1.0 + fallofA * d + fallofB * d * d);
 
-	if(intensity < 0.01)
-		intensity = 0.0;
-	lightColor = vec4(1.0, 1.0, 1.0, 1.0) * intensity * color;
+	if(i < 0.01)
+		i = 0.0;
+	lightColor = vec4(1.0, 1.0, 1.0, 1.0) * i * lightIntensity * color;
 }
 
 #shadertype: vertex
@@ -35,9 +35,9 @@ in float aP3;
 out vec4 color;
 out vec2 worldCoords;
 
-flat out float fallofA;
-flat out float fallofB;
-flat out float enttID;
+out float fallofA;
+out float fallofB;
+out float lightIntensity;
 
 uniform mat4 u_ViewProjectionMatrix;
 
@@ -50,5 +50,5 @@ void main()
 
 	fallofA = aP1;
 	fallofB = aP2;
-	enttID = aP3;
+	lightIntensity = aP3;
 }

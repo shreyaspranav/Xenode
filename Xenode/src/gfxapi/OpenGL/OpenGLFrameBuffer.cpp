@@ -243,8 +243,10 @@ namespace Xen {
 				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGBA, GL_FLOAT, clearColor);
 				break;
 			case FrameBufferTextureFormat::RGB16F:
+				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGBA, GL_FLOAT, clearColor);
 				break;
 			case FrameBufferTextureFormat::RGB32F:
+				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGBA, GL_FLOAT, clearColor);
 				break;
 			default:
 				break;

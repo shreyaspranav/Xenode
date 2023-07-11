@@ -15,10 +15,12 @@ void main()
 {
 	float light_intensity_on_free_space = 0.7;
 
-	if(texture(u_SceneMaskTexture, textureCoords) == vec4(1.0, 1.0, 1.0, 1.0))
-		finalOutput = max(texture(u_UnlitSceneTexture, textureCoords) * texture(u_LightMapTexture, textureCoords), texture(u_UnlitSceneTexture, textureCoords) * u_AmbientLightIntensity);
-	else
-		finalOutput = texture(u_UnlitSceneTexture, textureCoords) + texture(u_LightMapTexture, textureCoords) * light_intensity_on_free_space;
+	finalOutput = texture(u_UnlitSceneTexture, textureCoords) * texture(u_LightMapTexture, textureCoords);
+
+	//if(texture(u_SceneMaskTexture, textureCoords) == vec4(1.0, 1.0, 1.0, 1.0))
+	//	finalOutput = max(texture(u_UnlitSceneTexture, textureCoords) * texture(u_LightMapTexture, textureCoords), texture(u_UnlitSceneTexture, textureCoords) * u_AmbientLightIntensity);
+	//else
+	//	finalOutput = texture(u_UnlitSceneTexture, textureCoords) + texture(u_LightMapTexture, textureCoords) * light_intensity_on_free_space;
 
 
 }

@@ -150,6 +150,7 @@ namespace Xen {
 		struct PointLight
 		{
 			float radius = 1.0f;
+			float intensity = 1.0f;
 			float fallofA = 1.0f;
 			float fallofB = 1.0f;
 

@@ -537,6 +537,14 @@ public:
 					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 
+					PaddedText("Intensity", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::DragFloat("##Intensity", &point_light.intensity, 0.01f, 200.0f);
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
 					PaddedText("Falloff A", 0.0f, 3.0f);
 					ImGui::NextColumn();
 
@@ -892,8 +900,6 @@ private:
 
 private:
 	const char* tag_buf = "";
-	inline static float a = 0.0f;
-	inline static float b = 0.0f;
 
 	int sprite_renderer_item_index = 1; // Sprite Renderer Item Index
 	const char* sprite_renderer_primitives[4] = { 
@@ -907,7 +913,7 @@ private:
 	const char* rigid_body_types[3] = { "Static", "Dynamic", "Kinematic" };
 
 	int camera_index = 1; // 0: Perspective, 1: Orthographic
-	const char* camera_type[2] = {"Perspective", "Orthographic"};
+	const char* camera_type[2] = { "Perspective", "Orthographic" };
 
 	float position[3] = {};
 
