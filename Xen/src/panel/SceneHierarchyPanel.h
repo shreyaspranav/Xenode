@@ -111,15 +111,6 @@ private:
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
 					m_SelectedEntity = Xen::Entity();
 			}
-			
-			if (entity.HasAnyComponent<Xen::Component::CircleRenderer>())
-			{
-				ImGui::TreeNodeEx(Xen::StringValues::COMPONENT_CIRCLE_RENDERER.c_str(), base_flags);
-				if (ImGui::IsItemClicked())
-					m_SelectedEntity = entity;
-				if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
-					m_SelectedEntity = Xen::Entity();
-			}
 
 			if (entity.HasAnyComponent<Xen::Component::PointLight>())
 			{

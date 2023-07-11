@@ -147,7 +147,6 @@ namespace Xen {
 		CopyComponent<Component::Transform>(entity, newEntity);
 		CopyComponent<Component::CameraComp>(entity, newEntity);
 		CopyComponent<Component::SpriteRenderer>(entity, newEntity);
-		CopyComponent<Component::CircleRenderer>(entity, newEntity);
 		CopyComponent<Component::TextRenderer>(entity, newEntity);
 		CopyComponent<Component::RigidBody2D>(entity, newEntity);
 		CopyComponent<Component::BoxCollider2D>(entity, newEntity);
@@ -344,8 +343,7 @@ namespace Xen {
 
 		CopyComponentAllEntities<Component::Transform>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::CameraComp>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
-		CopyComponentAllEntities<Component::SpriteRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
-		CopyComponentAllEntities<Component::CircleRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::SpriteRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);;
 		CopyComponentAllEntities<Component::TextRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::RigidBody2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::BoxCollider2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
@@ -547,7 +545,6 @@ namespace Xen {
 
 		// Render Sprites
 		auto sprite_group_observer = m_Registry.view<Component::SpriteRenderer>();
-		auto circle_group_observer = m_Registry.view<Component::CircleRenderer>();
 
 		for (auto& entity : sprite_group_observer)
 		{
@@ -576,7 +573,7 @@ namespace Xen {
 					Renderer2D::DrawPolygon(transform.position,
 						transform.rotation,
 						{ transform.scale.x, transform.scale.y },
-						spriteRenderer.polygon_segment_count,
+						spriteRenderer.polygon_properties.segment_count,
 						spriteRenderer.color,
 						(uint32_t)entity);
 					break;

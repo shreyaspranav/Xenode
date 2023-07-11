@@ -80,12 +80,6 @@ public:
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
-				if (m_SelectedEntity.HasAnyComponent<Xen::Component::CircleRenderer>())
-				{
-					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_CIRCLE_RENDERER);
-					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
-				}
-
 				if (m_SelectedEntity.HasAnyComponent<Xen::Component::PointLight>())
 				{
 					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_POINT_LIGHT);
@@ -132,9 +126,6 @@ public:
 
 						else if (component.contains("Camera"))
 							m_SelectedEntity.AddComponent<Xen::Component::CameraComp>(std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, 22, 22));
-
-						else if (component.contains("Circle Renderer"))
-							m_SelectedEntity.AddComponent<Xen::Component::CircleRenderer>();
 
 						else if (component.contains("Point Light"))
 							m_SelectedEntity.AddComponent<Xen::Component::PointLight>();
@@ -382,9 +373,9 @@ public:
 						PaddedText("Polygon Segments", 0.0f, 3.0f);
 						ImGui::NextColumn();
 
-						int s_count = spriteRenderer.polygon_segment_count;
+						int s_count = spriteRenderer.polygon_properties.segment_count;
 						if (ImGui::DragInt("##PolygonSegments", &s_count, 0.1f, 5, 50))
-							spriteRenderer.polygon_segment_count = s_count;
+							spriteRenderer.polygon_properties.segment_count = s_count;
 
 						ImGui::NextColumn();
 					}
@@ -480,82 +471,6 @@ public:
 
 					ImGui::Columns(1);
 					
-					//ImGui::TreePop();
-				}
-				//ImGui::Separator();
-			}
-
-			backCR:
-			if (m_SelectedEntity.HasAnyComponent<Xen::Component::CircleRenderer>())
-			{
-				Xen::Component::CircleRenderer& circle_renderer = m_SelectedEntity.GetComponent<Xen::Component::CircleRenderer>();
-
-				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_CIRCLE_RENDERER.c_str(), tree_flags))
-				{
-					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-						ImGui::OpenPopup("DeleteComponentCircleRenderer");
-
-					if (ImGui::BeginPopup("DeleteComponentCircleRenderer"))
-					{
-						if (ImGui::Selectable("Delete Component: Circle Renderer"))
-						{
-							m_SelectedEntity.DeleteComponent<Xen::Component::CircleRenderer>();
-							ImGui::EndPopup();
-							goto backCR;
-						}
-						ImGui::EndPopup();
-					}
-					float circle_color[4] = {
-						circle_renderer.color.r,
-						circle_renderer.color.g,
-						circle_renderer.color.b,
-						circle_renderer.color.a,
-					};
-
-					ImGui::Columns(2, "##CircleRenderer", false);
-					ImGui::SetColumnWidth(0, 100.0f);
-
-					PaddedText("Circle Color", 0.0f, 3.0f);
-					ImGui::NextColumn();
-					
-					ImGui::PushItemWidth(-0.1f);
-
-					ImGuiColorEditFlags color_edit_flags = ImGuiColorEditFlags_NoInputs;
-					if (ImGui::ColorEdit4("##CircleColor", circle_color, color_edit_flags))
-					{
-						circle_renderer.color.r = circle_color[0];
-						circle_renderer.color.g = circle_color[1];
-						circle_renderer.color.b = circle_color[2];
-						circle_renderer.color.a = circle_color[3];
-					}
-					ImGui::PopItemWidth();
-					ImGui::NextColumn();
-
-					PaddedText("Thickness", 0.0f, 3.0f);
-					ImGui::NextColumn();
-
-					ImGui::PushItemWidth(-0.1f);
-					ImGui::SliderFloat("##Thickness", &circle_renderer.thickness, 0.0f, 1.0f);
-					ImGui::PopItemWidth();
-					ImGui::NextColumn();
-
-					PaddedText("Inner Fade", 0.0f, 3.0f);
-					ImGui::NextColumn();
-
-					ImGui::PushItemWidth(-0.1f);
-					ImGui::SliderFloat("##Innerfade", &circle_renderer.inner_fade, 0.0f, 1.0f);
-					ImGui::PopItemWidth();
-					ImGui::NextColumn();
-
-					PaddedText("Outer Fade", 0.0f, 3.0f);
-					ImGui::NextColumn();
-
-					ImGui::PushItemWidth(-0.1f);
-					ImGui::SliderFloat("##OuterFade", &circle_renderer.outer_fade, 0.0f, 1.0f);
-					ImGui::PopItemWidth();
-					ImGui::NextColumn();
-
-					ImGui::Columns(1);
 					//ImGui::TreePop();
 				}
 				//ImGui::Separator();
@@ -991,7 +906,6 @@ private:
 		Xen::StringValues::COMPONENT_CAMERA,
 		Xen::StringValues::COMPONENT_NATIVE_SCRIPT,
 		Xen::StringValues::COMPONENT_SCRIPT,
-		Xen::StringValues::COMPONENT_CIRCLE_RENDERER,
 		Xen::StringValues::COMPONENT_POINT_LIGHT,
 		Xen::StringValues::COMPONENT_RIGID_BODY_2D,
 		Xen::StringValues::COMPONENT_BOX_COLLIDER_2D,

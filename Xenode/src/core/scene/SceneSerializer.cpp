@@ -93,8 +93,28 @@ namespace Xen {
 			yamlEmitter << YAML::BeginMap; // SpriteRenderer
 
 			yamlEmitter << YAML::Key << "SpritePrimitive" << YAML::Value << (int8_t)spriteRenderer.primitive;
+
 			if (spriteRenderer.primitive == Component::SpriteRenderer::Primitive::Polygon)
-				yamlEmitter << YAML::Key << "PolygonSegments" << YAML::Value << spriteRenderer.polygon_segment_count;
+			{
+				yamlEmitter << YAML::Key << "PolygonProperties";
+				yamlEmitter << YAML::BeginMap; // PolygonProperties
+
+				yamlEmitter << YAML::Key << "Segments" << YAML::Value << spriteRenderer.polygon_properties.segment_count;
+
+				yamlEmitter << YAML::EndMap; // PolygonProperties
+			}
+
+			else if (spriteRenderer.primitive == Component::SpriteRenderer::Primitive::Circle) 
+			{
+				yamlEmitter << YAML::Key << "CircleProperties";
+				yamlEmitter << YAML::BeginMap; // CircleProperties
+
+				yamlEmitter << YAML::Key << "Thickness" << YAML::Value << spriteRenderer.circle_properties.thickness;
+				yamlEmitter << YAML::Key << "InnerFade" << YAML::Value << spriteRenderer.circle_properties.innerfade;
+				yamlEmitter << YAML::Key << "OuterFade" << YAML::Value << spriteRenderer.circle_properties.outerfade;
+
+				yamlEmitter << YAML::EndMap;
+			}
 
 			yamlEmitter << YAML::Key << "Color" << YAML::Value << spriteRenderer.color;
 
@@ -111,21 +131,6 @@ namespace Xen {
 			yamlEmitter << YAML::EndMap;
 
 			yamlEmitter << YAML::EndMap; // SpriteRenderer
-		}
-
-		if (entity.HasAnyComponent<Component::CircleRenderer>())
-		{
-			Component::CircleRenderer& circleRenderer = entity.GetComponent<Component::CircleRenderer>();
-			
-			yamlEmitter << YAML::Key << "CircleRenderer";
-			yamlEmitter << YAML::BeginMap; // CircleRenderer
-
-			yamlEmitter << YAML::Key << "Color" << YAML::Value << circleRenderer.color;
-			yamlEmitter << YAML::Key << "Thickness" << YAML::Value << circleRenderer.thickness;
-			yamlEmitter << YAML::Key << "InnerFade" << YAML::Value << circleRenderer.inner_fade;
-			yamlEmitter << YAML::Key << "OuterFade" << YAML::Value << circleRenderer.outer_fade;
-
-			yamlEmitter << YAML::EndMap; // CircleRenderer
 		}
 
 		if (entity.HasAnyComponent<Component::PointLight>())
@@ -268,7 +273,6 @@ namespace Xen {
 				std::string tag = entity["Entity"][0].as<std::string>();
 				uint64_t uuid = entity["Entity"][1].as<uint64_t>();
 
-				//Entity entt = m_Scene->CreateEntityWithUUID(tag, UUID(uuid));
 				Entity entt = scene->CreateEntity(tag);
 
 				// Transform Component------------------------------------------------------
@@ -302,6 +306,8 @@ namespace Xen {
 				const YAML::Node& spriteRenderer_component = entity["SpriteRenderer"];
 				if (spriteRenderer_component)
 				{
+					auto& sprite = entt.AddComponent<Component::SpriteRenderer>();
+
 					Color color = Color(
 						spriteRenderer_component["Color"][0].as<float>(),
 						spriteRenderer_component["Color"][1].as<float>(),
@@ -309,43 +315,33 @@ namespace Xen {
 						spriteRenderer_component["Color"][3].as<float>()
 					);
 
-					Component::SpriteRenderer::Primitive primitive = (Component::SpriteRenderer::Primitive)spriteRenderer_component["SpritePrimitive"].as<int32_t>();
+					sprite.color = color;
 
-					const YAML::Node& texture_node = spriteRenderer_component["Texture"];
+					Component::SpriteRenderer::Primitive primitive = (Component::SpriteRenderer::Primitive)spriteRenderer_component["SpritePrimitive"].as<int32_t>();
+					sprite.primitive = primitive;
+
+					Component::SpriteRenderer::PolygonProperties polygon_properties;
+					Component::SpriteRenderer::CircleProperties circle_properties;
+
+					if (primitive == Component::SpriteRenderer::Primitive::Polygon)
+						sprite.polygon_properties.segment_count = spriteRenderer_component["PolygonProperties"]["Segments"].as<uint32_t>();
+
+					else if (primitive == Component::SpriteRenderer::Primitive::Circle)
+					{
+						sprite.circle_properties.thickness = spriteRenderer_component["CircleProperties"]["Thickness"].as<float>();
+						sprite.circle_properties.innerfade = spriteRenderer_component["CircleProperties"]["InnerFade"].as<float>();
+						sprite.circle_properties.outerfade = spriteRenderer_component["CircleProperties"]["OuterFade"].as<float>();
+					}
 
 					Ref<Texture2D> texture = nullptr;
 
-					if (texture_node["TextureFileRelPath"].as<std::string>() != "null")
+					if (spriteRenderer_component["Texture"]["TextureFileRelPath"].as<std::string>() != "null")
 					{
-						texture = Texture2D::CreateTexture2D(texture_node["TextureFileRelPath"].as<std::string>(), true);
+						texture = Texture2D::CreateTexture2D(spriteRenderer_component["Texture"]["TextureFileRelPath"].as<std::string>(), true);
 						texture->LoadTexture();
-
-						//XEN_ENGINE_LOG_WARN("Texture deserialization not yet implemented");
-						//XEN_ENGINE_LOG_WARN(texture_node["TextureFileRelPath"].as<std::string>());
 					}
-
-					float texture_tile_factor = texture_node["TextureTilingFactor"].as<float>();
-
-					auto& sprite = entt.AddComponent<Component::SpriteRenderer>(color, primitive, 5);
 					sprite.texture = texture;
-				}
-
-				// CircleRenderer Component-------------------------------------------------
-				const YAML::Node& circleRenderer_component = entity["CircleRenderer"];
-				if (circleRenderer_component)
-				{
-					Color color = Color(
-						circleRenderer_component["Color"][0].as<float>(),
-						circleRenderer_component["Color"][1].as<float>(),
-						circleRenderer_component["Color"][2].as<float>(),
-						circleRenderer_component["Color"][3].as<float>()
-					);
-
-					float thickness = circleRenderer_component["Thickness"].as<float>();
-					float innerfade = circleRenderer_component["InnerFade"].as<float>();
-					float outerfade = circleRenderer_component["OuterFade"].as<float>();
-
-					entt.AddComponent<Component::CircleRenderer>(color, thickness, innerfade, outerfade);
+					sprite.texture_tile_factor = spriteRenderer_component["Texture"]["TextureTilingFactor"].as<float>();
 				}
 
 				// PointLight Component-------------------------------------------------

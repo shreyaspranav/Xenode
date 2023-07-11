@@ -55,8 +55,7 @@ namespace Xen {
 
 			Primitive primitive;
 			CircleProperties circle_properties;
-
-			uint32_t polygon_segment_count = 5;
+			PolygonProperties polygon_properties;
 
 			Ref<Texture2D> texture;
 
@@ -65,29 +64,14 @@ namespace Xen {
 			SpriteRenderer() = default;
 			SpriteRenderer(const SpriteRenderer& transform) = default;
 
-			SpriteRenderer(const Color& color, Primitive primitive = Primitive::Quad, uint32_t polygon_segments = 4) 
+			SpriteRenderer(const Color& color, Primitive primitive = Primitive::Quad) 
 				: color(color), 
 				texture(nullptr), 
 				texture_tile_factor(1.0f),
-				polygon_segment_count(polygon_segments),
 				primitive(primitive) {}
 
 			SpriteRenderer(const Color& color, Ref<Texture2D> texture, float tile_factor = 1.0f) 
 				: color(color), texture(texture), texture_tile_factor(tile_factor), primitive(Primitive::Quad) {}
-		};
-
-		struct CircleRenderer
-		{
-			Color color = Color(1.0f);
-			float thickness = 1.0f;
-			float inner_fade = 0.0f;
-			float outer_fade = 0.0f;
-
-			CircleRenderer() = default;
-			CircleRenderer(const CircleRenderer& renderer) = default;
-
-			CircleRenderer(const Color& color, float thickness, float innerfade, float outerfade) 
-				: color(color), thickness(thickness), inner_fade(innerfade), outer_fade(outerfade) {}
 		};
 
 		struct TextRenderer
