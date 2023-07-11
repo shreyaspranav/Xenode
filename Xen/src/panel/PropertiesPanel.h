@@ -896,7 +896,12 @@ private:
 	inline static float b = 0.0f;
 
 	int sprite_renderer_item_index = 1; // Sprite Renderer Item Index
-	const char* sprite_renderer_primitives[4] = { "Triangle", "Quad", "Polygon", "Circle"};
+	const char* sprite_renderer_primitives[4] = { 
+		Xen::StringValues::DROPDOWN_SPRITETYPE_TRIANGLE.c_str(), 
+		Xen::StringValues::DROPDOWN_SPRITETYPE_QUAD.c_str(),
+		Xen::StringValues::DROPDOWN_SPRITETYPE_POLYGON.c_str(),
+		Xen::StringValues::DROPDOWN_SPRITETYPE_CIRCLE.c_str() 
+	};
 
 	int rigid_body_type_index = 0;
 	const char* rigid_body_types[3] = { "Static", "Dynamic", "Kinematic" };
