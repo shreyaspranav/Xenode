@@ -420,7 +420,7 @@ public:
 					ImGui::NextColumn();
 
 					ImGui::PushItemWidth(-0.1f);
-					ImGuiColorEditFlags color_edit_flags = ImGuiColorEditFlags_NoInputs;
+					ImGuiColorEditFlags color_edit_flags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaPreview;
 
 					if (ImGui::ColorEdit4("##Sprite color", color, color_edit_flags))
 					{
@@ -611,7 +611,7 @@ public:
 
 					ImGui::PushItemWidth(-0.1f);
 
-					ImGuiColorEditFlags color_edit_flags = ImGuiColorEditFlags_NoInputs;
+					ImGuiColorEditFlags color_edit_flags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha;
 					if (ImGui::ColorEdit4("##LightColor", light_color, color_edit_flags))
 					{
 						ambient_light.color.r = light_color[0];
