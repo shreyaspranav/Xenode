@@ -19,6 +19,7 @@ public:
 
 	void OnImGuiRender()
 	{
+#if 0
 		ImGui::Begin(m_PanelTitle.c_str());
 
 		ImGui::Columns(2, "##SceneSettings", false);
@@ -37,6 +38,7 @@ public:
 		ImGui::Columns(1);
 
 		ImGui::End();
+#endif
 	}
 
 private:
