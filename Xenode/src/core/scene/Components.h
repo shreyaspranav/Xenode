@@ -154,6 +154,8 @@ namespace Xen {
 			float fallofA = 1.0f;
 			float fallofB = 1.0f;
 
+			bool castShadow = true;
+
 			Color lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 			PointLight() = default;

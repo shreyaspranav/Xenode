@@ -527,7 +527,7 @@ public:
 
 					ImGui::PushItemWidth(-0.1f);
 
-					ImGuiColorEditFlags color_edit_flags = ImGuiColorEditFlags_NoInputs;
+					ImGuiColorEditFlags color_edit_flags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha;
 					if (ImGui::ColorEdit4("##LightColor", light_color, color_edit_flags))
 					{
 						point_light.lightColor.r = light_color[0];
@@ -536,6 +536,11 @@ public:
 						point_light.lightColor.a = light_color[3];
 					}
 					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Cast Shadows", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::Checkbox("##CastShadows", &point_light.castShadow);
 					ImGui::NextColumn();
 
 					PaddedText("Radius", 0.0f, 3.0f);
@@ -592,7 +597,7 @@ public:
 						{
 							m_SelectedEntity.DeleteComponent<Xen::Component::AmbientLight>();
 							ImGui::EndPopup();
-							goto backPL;
+							goto backAL;
 						}
 						ImGui::EndPopup();
 					}
