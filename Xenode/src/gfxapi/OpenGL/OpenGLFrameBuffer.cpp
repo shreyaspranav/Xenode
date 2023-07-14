@@ -144,7 +144,7 @@ namespace Xen {
 			case FrameBufferTextureFormat::RGB8:
 				SetupTexture(m_ColorAttachments[color_att_index],
 					m_Spec.width, m_Spec.height,
-					GL_RGB8,
+					GL_RGBA8,
 					GL_RGBA,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);
@@ -152,7 +152,7 @@ namespace Xen {
 			case FrameBufferTextureFormat::RGB16F:
 				SetupTexture(m_ColorAttachments[color_att_index],
 					m_Spec.width, m_Spec.height,
-					GL_RGB16F,
+					GL_RGBA16F,
 					GL_RGBA,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);
@@ -160,7 +160,7 @@ namespace Xen {
 			case FrameBufferTextureFormat::RGB32F:
 				SetupTexture(m_ColorAttachments[color_att_index],
 					m_Spec.width, m_Spec.height,
-					GL_RGB32F,
+					GL_RGBA32F,
 					GL_RGBA,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);

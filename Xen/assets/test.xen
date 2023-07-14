@@ -1,17 +1,16 @@
 Scene: Untitled
 Entities:
-  - Entity: [Unnamed, 11551743252643768797]
+  - Entity: [Unnamed, 16897419264023366910]
     Transform:
-      Position: [0.527777672, -0.354166746, -0.430000007]
+      Position: [-0.177298576, 1.78591692, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
-    SpriteRenderer:
-      SpritePrimitive: 3
-      Color: [1, 0, 0, 1]
-      Texture:
-        TextureFileRelPath: "null"
-        TextureTilingFactor: 1
-  - Entity: [Unnamed, 17975040064900089549]
+    PointLight:
+      Color: [1, 1, 1, 1]
+      Radius: 1
+      FallofA: 1
+      FallofB: 1
+  - Entity: [Unnamed, 9729639253819321785]
     Transform:
       Position: [0, 0, 0]
       Rotation: [0, 0, 0]

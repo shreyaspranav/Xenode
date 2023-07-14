@@ -11,7 +11,7 @@ uniform sampler2D u_LightMapTexture;
 
 void main()
 {
-	finalOutput = texture(u_UnlitSceneTexture, textureCoords) * texture(u_LightMapTexture, textureCoords);
+	finalOutput = vec4(texture(u_UnlitSceneTexture, textureCoords).xyz * texture(u_LightMapTexture, textureCoords).xyz, 1.0);
 }
 
 #shadertype: vertex

@@ -24,12 +24,17 @@ namespace Xen {
 	}
 	void OpenGLRendererAPI::SetAdditiveBlendMode(bool b)
 	{
-		if(b)
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		else 
+		if (b) {
+			//glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+			//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+			glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
+		}
+		else {
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
+		}
 
-		glBlendEquation(GL_FUNC_ADD);
 	}
 	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices)
 	{

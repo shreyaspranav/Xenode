@@ -96,7 +96,6 @@ namespace Xen {
 
 	Renderer2D::Renderer2DStatistics stats;
 
-
 	BufferLayout bufferLayout;
 	BufferLayout lineBufferLayout;
 
@@ -278,7 +277,7 @@ namespace Xen {
 		AddTextureSlot(3, true);
 	}
 
-	void Renderer2D::DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4], int32_t id)
+	void Renderer2D::DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[3], int32_t id)
 	{
 		XEN_PROFILE_FN();
 
@@ -317,7 +316,7 @@ namespace Xen {
 		AddTextureSlot(4, true);
 	}
 
-	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[3], int32_t id)
+	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4], int32_t id)
 	{
 		XEN_PROFILE_FN();
 
@@ -467,19 +466,24 @@ namespace Xen {
 
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x + 50.0f * radius;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y + 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
 
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x - 50.0f * radius;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y + 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
 
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x - 50.0f * radius;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y - 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
+
 
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x + 50.0f * radius;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y - 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
 
 		batch_storage[batch_index]->light_vertex_index -= 4;
 
@@ -506,13 +510,149 @@ namespace Xen {
 
 			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 9 ] = fallofA;
 			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 10] = fallofB;
-			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 11] = intensity;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 11] = intensity;
+
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 14] = static_cast<float>(Primitive::POINT_LIGHT);
 		}
+		// For Shadows:
+		std::vector<Vec3> shadow_src_lines;
 
-		//batch_storage[batch_index]->light_vertex_index -= 4;
+		for (int i = 0; i < batch_storage.size(); i++)
+		{
+			for (int j = 0; j < batch_storage[i]->vertex_index; j++)
+			{
+				if (batch_storage[batch_index]->verts[(j * stride_count) + 14] == static_cast<float>(Primitive::QUAD))
+				{
+					float point_distances[4] = {};
+					Vec2 vertices[4] = {};
 
+					for (int k = 0; k < 4; k++)
+					{
+						Vec2 vertex = {
+							batch_storage[batch_index]->verts[((j + k) * stride_count) + 0],
+							batch_storage[batch_index]->verts[((j + k) * stride_count) + 1]
+						};
+						vertices[k] = vertex;
+						point_distances[k] = sqrtf(powf(vertex.x - position.x, 2) + powf(vertex.y - position.y, 2));
+					}
+					// Check whether point light lies inside a quad:
+					{
+						Vec2 AB = vertices[0] - vertices[1];
+						Vec2 AD = vertices[2] - vertices[1];
+						Vec2 AP = Vec2(position.x, position.y) - vertices[1];
 
-		//----------------
+						if ((glm::dot(AP.GetVec(), AB.GetVec()) > 0.0f &&	
+							glm::dot(AP.GetVec(), AB.GetVec()) < glm::dot(AB.GetVec(), AB.GetVec())) &&
+							(glm::dot(AP.GetVec(), AD.GetVec()) > 0.0f &&
+								glm::dot(AP.GetVec(), AD.GetVec()) < glm::dot(AD.GetVec(), AD.GetVec())))
+						{
+							// No need to render shadow if the light is inside the quad:
+							j += 3;
+							continue;
+						}
+					}
+
+					float min_dist = point_distances[0];
+					uint32_t min_dist_index = 0;
+
+					for (int k = 0; k < 4; k++)
+					{
+						if (point_distances[k] < min_dist)
+						{
+							min_dist = point_distances[k];
+							min_dist_index = k;
+						}
+					}
+
+					uint32_t shadow_indices[3];
+					if (min_dist_index == 0 || min_dist_index == 3)
+					{
+						if (min_dist_index == 0)
+						{
+							shadow_indices[0] = 3;
+							shadow_indices[1] = 0;
+							shadow_indices[2] = 1;
+						}
+						if (min_dist_index == 3)
+						{
+							shadow_indices[0] = 2;
+							shadow_indices[1] = 3;
+							shadow_indices[2] = 0;
+						}
+					}
+
+					else {
+						for (int k = 0; k < 3; k++)
+							shadow_indices[k] = min_dist_index + (k - 1);
+					}
+
+					// The Shadow lines are :vertices[shadow_indices[0]] and vertices[shadow_indices[1]]
+					//                       vertices[shadow_indices[1]] and vertices[shadow_indices[2]]
+
+					for (int l = 0; l < 2; l++)
+					{
+						for (int k = 0; k < 6; k++)
+							batch_storage[batch_index]->light_indices[batch_storage[batch_index]->light_index_count + k] = batch_storage[batch_index]->light_vertex_index + default_quad_indices[k] + (4 * l);
+						batch_storage[batch_index]->light_index_count += 6;
+					}
+
+					for (int k = 0; k < 2; k++)
+					{
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = vertices[shadow_indices[k]].x;
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = vertices[shadow_indices[k]].y;
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
+
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = vertices[shadow_indices[k + 1]].x;
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = vertices[shadow_indices[k + 1]].y;
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
+
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = vertices[shadow_indices[k + 1]].x + 2 * (vertices[shadow_indices[k + 1]].x - position.x);
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = vertices[shadow_indices[k + 1]].y + 2 * (vertices[shadow_indices[k + 1]].y - position.y);
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 0.0f;
+
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = vertices[shadow_indices[k]].x + 2 * (vertices[shadow_indices[k]].x - position.x);
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = vertices[shadow_indices[k]].y + 2 * (vertices[shadow_indices[k]].y - position.y);
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 0.0f;
+					}
+
+					batch_storage[batch_index]->light_vertex_index -= 8;
+
+					for(int k = 0; k < 8; k++)
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 14] = (float)Primitive::SHADOW_QUAD;
+
+					
+#if 0
+					for (int i = 0; i < 3; i++)
+						XEN_ENGINE_LOG_INFO("Vertices for shadow: ({0}, {1}), ({2}, {3}), ({4}, {5}),", 
+							vertices[shadow_indices[0]].x, vertices[shadow_indices[0]].y,
+							vertices[shadow_indices[1]].x, vertices[shadow_indices[1]].y,
+							vertices[shadow_indices[2]].x, vertices[shadow_indices[2]].y);
+#endif
+					// Adding 3 so that the loop increased one more time to make up to 4
+					j += 3;
+					continue;
+				}
+
+				else if (batch_storage[batch_index]->verts[(j * stride_count) + 14] == static_cast<float>(Primitive::TRIANGLE))
+				{ 
+					// Adding 2 so that the loop increased one more time to make up to 3
+					j += 2;
+					continue;
+				}
+
+				else if (batch_storage[batch_index]->verts[(j * stride_count) + 14] == static_cast<float>(Primitive::POLYGON))
+					continue;
+				else if (batch_storage[batch_index]->verts[(j * stride_count) + 14] == static_cast<float>(Primitive::CIRCLE))
+				{
+					j += 3;
+					continue;
+				}
+			}
+		}
 	}
 
 	void Renderer2D::DrawQuadOutline(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)
@@ -768,9 +908,6 @@ namespace Xen {
 
 			JumpDeltaVertexIndex(-4);
 
-
-			//----------------
-
 		}
 
 		else {
@@ -795,6 +932,7 @@ namespace Xen {
 			}
 			JumpDeltaVertexIndex(-4);
 		}
+
 		stats.quad_count++;
 	}
 

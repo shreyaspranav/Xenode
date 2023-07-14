@@ -16,6 +16,9 @@ namespace Xen {
 			QUAD =		1 << 2,
 			POLYGON =	1 << 3,
 			CIRCLE =	1 << 4,
+
+			POINT_LIGHT = 1 << 5,
+			SHADOW_QUAD = 1 << 6
 		};
 
 	public:
