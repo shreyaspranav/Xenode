@@ -77,6 +77,15 @@ namespace Xen {
 		XEN_ENGINE_LOG_INFO("OpenGL: {0}", glGetString(GL_VERSION));
 		XEN_ENGINE_LOG_INFO("GLSL: {0}", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
+		if (GLAD_VERSION_MAJOR(version) < 4 && GLAD_VERSION_MINOR(version) < 5)
+		{
+			XEN_ENGINE_LOG_ERROR_SEVERE("OpenGL Version Not Supported");
+			TRIGGER_BREAKPOINT;
+		}
+
+		m_OpenGLVersion = OpenGLVersion::XEN_OPENGL_API_4_5;
+
+#if 0
 		if (GLAD_VERSION_MAJOR(version) == 2)
 			m_OpenGLVersion = OpenGLVersion::XEN_OPENGL_API_2_0;
 		else if (GLAD_VERSION_MAJOR(version) == 3)
@@ -100,24 +109,22 @@ namespace Xen {
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		}
+#endif
 
 		#ifdef XEN_DEBUG
 		{
-			if (m_OpenGLVersion >= OpenGLVersion::XEN_OPENGL_API_4_3)
+			int flags;
+			glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+
+			if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
 			{
-				int flags;
-				glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+				XEN_ENGINE_LOG_WARN("Debug OpengGL Context Initialised!");
 
-				if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-				{
-					XEN_ENGINE_LOG_WARN("Debug OpengGL Context Initialised!");
+				glEnable(GL_DEBUG_OUTPUT);
+				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+				glDebugMessageCallback(&DebugOutput, nullptr);
 
-					glEnable(GL_DEBUG_OUTPUT);
-					glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-					glDebugMessageCallback(&DebugOutput, nullptr);
-
-					glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-				}
+				glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 			}
 		}
 		#endif // XEN_DEBUG

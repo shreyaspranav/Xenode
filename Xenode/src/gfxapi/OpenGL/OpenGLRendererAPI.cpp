@@ -27,7 +27,7 @@ namespace Xen {
 		if (b) {
 			//glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
 			//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-			glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
+			glBlendFunc(GL_DST_ALPHA, GL_ONE);
 			glBlendEquation(GL_FUNC_ADD);
 		}
 		else {

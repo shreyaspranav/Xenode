@@ -163,8 +163,8 @@ namespace Xen {
 			TRIGGER_BREAKPOINT;
 		}
 
-		for (BufferElement element : layout.GetBufferElements())
-			glBindAttribLocation(m_ShaderID, element.shader_location, element.name.c_str());
+		//for (BufferElement element : layout.GetBufferElements())
+		//	glBindAttribLocation(m_ShaderID, element.shader_location, element.name.c_str());
 
 		glAttachShader(m_ShaderID, vertexShader);
 		glAttachShader(m_ShaderID, fragmentShader);

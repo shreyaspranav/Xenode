@@ -36,15 +36,15 @@ void main()
 #shadertype: vertex
 #version 450 core
 
-in vec3 aPosition;
-in vec4 aColor;
-in vec2 aTextureWorldCoords;
+layout(location = 0)in vec3 aPosition;
+layout(location = 1)in vec4 aColor;
+layout(location = 2)in vec2 aTextureWorldCoords;
 
-in float aP1;
-in float aP2;
-in float aP3;
-in float aP4;
-in float aPrimitiveType;
+layout(location = 3)in float aP1;
+layout(location = 4)in float aP2;
+layout(location = 5)in float aP3;
+layout(location = 6)in float aP4;
+layout(location = 8)in float aPrimitiveType;
 
 out vec4 color;
 out vec2 worldCoords;

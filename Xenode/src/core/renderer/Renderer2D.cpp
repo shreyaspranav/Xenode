@@ -103,18 +103,18 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
-		bufferLayout.AddBufferElement(BufferElement("aPosition", 1, 3, 0, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aColor", 2, 4, 3, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aTextureWorldCoords", 3, 2, 7, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aP1", 4, 1, 9, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aP2", 5, 1, 10, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aP3", 6, 1, 11, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aP4", 7, 1, 12, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aP5", 8, 1, 13, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aPrimitiveType", 9, 1, 14, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aPosition", 0, 3, 0, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aColor", 1, 4, 3, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aTextureWorldCoords", 2, 2, 7, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aP1", 3, 1, 9, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aP2", 4, 1, 10, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aP3", 5, 1, 11, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aP4", 6, 1, 12, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aP5", 7, 1, 13, BufferDataType::Float, false));
+		bufferLayout.AddBufferElement(BufferElement("aPrimitiveType", 8, 1, 14, BufferDataType::Float, false));
 
-		lineBufferLayout.AddBufferElement(BufferElement("aLinePosition", 5, 3, 0, BufferDataType::Float, false));
-		lineBufferLayout.AddBufferElement(BufferElement("aLineColor", 10, 4, 3, BufferDataType::Float, false));
+		lineBufferLayout.AddBufferElement(BufferElement("aLinePosition", 0, 3, 0, BufferDataType::Float, false));
+		lineBufferLayout.AddBufferElement(BufferElement("aLineColor", 1, 4, 3, BufferDataType::Float, false));
 
 		white_texture =  Texture2D::CreateTexture2D(1, 1, &white_texture_data, sizeof(uint32_t));
 
