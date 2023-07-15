@@ -394,7 +394,10 @@ namespace Xen {
 
 		Renderer2D::EndScene();
 
-		RenderCommand::SetAdditiveBlendMode(false);
+		RenderCommand::SetBlendMode(
+			{ BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha, BlendOperation::Add },
+			{ BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha, BlendOperation::Add }
+		);
 		Renderer2D::RenderFrame();
 
 		m_UnlitSceneFB->Unbind();
@@ -403,19 +406,18 @@ namespace Xen {
 		RenderCommand::Clear();
 		m_LightMaskFB->ClearAttachments();
 
-		//RenderCommand::SetAdditiveBlendMode(true);
 		RenderLights();
-		//Renderer2D::RenderLights();
-		m_LightMaskFB->Unbind();
 
-		//Ref<Texture2D> unlitSceneTexture = Texture2D::CreateTexture2D(m_UnlitSceneFB->GetColorAttachmentRendererID(0));
-		//Ref<Texture2D> lightMapTexture = Texture2D::CreateTexture2D(m_LightMaskFB->GetColorAttachmentRendererID(0));
+		m_LightMaskFB->Unbind();
 
 		m_FinalSceneFB->Bind();
 		RenderCommand::Clear();
 		m_FinalSceneFB->ClearAttachments();
 
-		RenderCommand::SetAdditiveBlendMode(false);
+		RenderCommand::SetBlendMode(
+			{ BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha, BlendOperation::Add },
+			{ BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha, BlendOperation::Add }
+		);
 		//ScreenRenderer2D::RenderTextureToScreen(nullptr);
 		ScreenRenderer2D::RenderFinalSceneToScreen(m_UnlitSceneFB->GetColorAttachmentRendererID(0), m_UnlitSceneFB->GetColorAttachmentRendererID(1), m_LightMaskFB->GetColorAttachmentRendererID(0));
 		m_FinalSceneFB->Unbind();

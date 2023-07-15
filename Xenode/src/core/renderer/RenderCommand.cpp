@@ -4,6 +4,7 @@
 #include "core/app/DesktopApplication.h"
 
 #include "gfxapi/OpenGL/OpenGLRendererAPI.h"
+#include "RendererAPI.h"
 
 namespace Xen {
 
@@ -33,9 +34,9 @@ namespace Xen {
 		s_Api->OnWindowResize(width, height);
 	}
 
-	void RenderCommand::SetAdditiveBlendMode(bool b)
+	void RenderCommand::SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode)
 	{
-		s_Api->SetAdditiveBlendMode(b);
+		s_Api->SetBlendMode(colorBlendMode, alphaBlendMode);
 	}
 
 	void RenderCommand::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices)

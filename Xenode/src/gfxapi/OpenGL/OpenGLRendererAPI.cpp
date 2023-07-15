@@ -5,8 +5,37 @@
 #include <core/app/Log.h>
 
 #include <core/app/Profiler.h>
+#include <core/renderer/RenderCommand.h>
 
 namespace Xen {
+
+	static int ToGLBlendFactor(BlendFactor factor)
+	{
+		switch (factor)
+		{
+			case BlendFactor::Zero:					return GL_ZERO;
+			case BlendFactor::One:					return GL_ONE;
+			case BlendFactor::DstColor:				return GL_DST_COLOR;
+			case BlendFactor::OneMinusDstColor:		return GL_ONE_MINUS_DST_COLOR;
+			case BlendFactor::DstAlpha:				return GL_DST_ALPHA;
+			case BlendFactor::OneMinusDstAlpha:		return GL_ONE_MINUS_DST_ALPHA;
+			case BlendFactor::SrcColor:				return GL_SRC_COLOR;
+			case BlendFactor::OneMinusSrcColor:		return GL_ONE_MINUS_SRC_COLOR;
+			case BlendFactor::SrcAlpha:				return GL_SRC_ALPHA;
+			case BlendFactor::OneMinusSrcAlpha:		return GL_ONE_MINUS_SRC_ALPHA;
+		}
+	}
+
+	static int ToGLBlendOperation(BlendOperation operation)
+	{
+		switch (operation)
+		{
+		case Xen::Add:				return GL_FUNC_ADD;
+		case Xen::Subtract:			return GL_FUNC_SUBTRACT;
+		case Xen::ReverseSubtract:	return GL_FUNC_REVERSE_SUBTRACT;
+		}
+	}
+
 	void OpenGLRendererAPI::Clear()
 	{
 		XEN_PROFILE_FN();
@@ -22,19 +51,19 @@ namespace Xen {
 	{
 		glViewport(0, 0, width, height);
 	}
-	void OpenGLRendererAPI::SetAdditiveBlendMode(bool b)
+	void OpenGLRendererAPI::SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode)
 	{
-		if (b) {
-			//glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
-			//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-			glBlendFunc(GL_DST_ALPHA, GL_ONE);
-			glBlendEquation(GL_FUNC_ADD);
-		}
-		else {
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glBlendEquation(GL_FUNC_ADD);
-		}
+		glBlendFuncSeparate(
+			ToGLBlendFactor(colorBlendMode.srcFactor),
+			ToGLBlendFactor(colorBlendMode.dstFactor),
+			ToGLBlendFactor(alphaBlendMode.srcFactor),
+			ToGLBlendFactor(alphaBlendMode.dstFactor)
+		);
 
+		glBlendEquationSeparate(
+			ToGLBlendOperation(colorBlendMode.blendOperation),
+			ToGLBlendOperation(alphaBlendMode.blendOperation)
+		);
 	}
 	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices)
 	{

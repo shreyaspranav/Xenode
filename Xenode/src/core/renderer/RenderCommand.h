@@ -4,6 +4,7 @@
 #include "RendererAPI.h"
 
 namespace Xen {
+
 	class XEN_API RenderCommand
 	{
 	public:
@@ -11,7 +12,7 @@ namespace Xen {
 		static void SetClearColor(const Color& color);
 		static void OnWindowResize(uint32_t width, uint32_t height);
 
-		static void SetAdditiveBlendMode(bool b);
+		static void SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode);
 
 		// Draw Commands:
 		static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices = 0);

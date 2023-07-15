@@ -6,7 +6,6 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "core/app/Profiler.h"
-#include "glad/gl.h"
 
 namespace Xen {
 
@@ -603,8 +602,13 @@ namespace Xen {
 		}
 		
 		//RenderCommand::SetAdditiveBlendMode(false);
-		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ZERO, GL_ZERO);
-		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		//glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ZERO, GL_ZERO);
+		//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+
+		RenderCommand::SetBlendMode(
+			{ BlendFactor::Zero, BlendFactor::One, BlendOperation::Add },
+			{ BlendFactor::Zero, BlendFactor::Zero, BlendOperation::Add }
+		);
 
 		for (int i = 0; i <= batch_index; i++)
 		{
@@ -682,8 +686,14 @@ namespace Xen {
 
 		//RenderCommand::SetAdditiveBlendMode(true);
 
-		glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
-		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		//glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+		//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		
+		RenderCommand::SetBlendMode(
+			{ BlendFactor::DstAlpha, BlendFactor::One, BlendOperation::Add },
+			{ BlendFactor::One, BlendFactor::Zero, BlendOperation::Add }
+		);
+
 		for (int i = 0; i <= batch_index; i++)
 		{
 			s_Data.vertexArray->Bind();
