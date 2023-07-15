@@ -6,6 +6,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "core/app/Profiler.h"
+#include "glad/gl.h"
 
 namespace Xen {
 
@@ -457,65 +458,10 @@ namespace Xen {
 			}
 		}
 
-		for (int i = 0; i < 6; i++)
-			batch_storage[batch_index]->light_indices[batch_storage[batch_index]->light_index_count + i] = batch_storage[batch_index]->light_vertex_index + default_quad_indices[i];
+#if 1
+		batch_storage[0]->light_vertex_index = 0;
+		batch_storage[0]->light_index_count = 0;
 
-		batch_storage[batch_index]->light_index_count += 6;
-
-
-
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x + 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y + 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
-
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x - 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y + 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
-
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x - 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y - 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
-
-
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x + 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y - 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
-
-		batch_storage[batch_index]->light_vertex_index -= 4;
-
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = 1.0f;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = 1.0f;
-
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = -1.0f;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = 1.0f;
-
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = -1.0f;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = -1.0f;
-
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = 1.0f;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = -1.0f;
-
-		batch_storage[batch_index]->light_vertex_index -= 4;
-
-		for (int i = 0; i < 4; i++)
-		{
-			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 3] = color.r;
-			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 4] = color.g;
-			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 5] = color.b;
-			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 6] = color.a;
-
-			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 9 ] = fallofA;
-			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 10] = fallofB;
-			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 11] = intensity;
-
-			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 14] = static_cast<float>(Primitive::POINT_LIGHT);
-		}
-
-#if 0
 		// For Shadows:
 		std::vector<Vec3> shadow_src_lines;
 
@@ -655,7 +601,100 @@ namespace Xen {
 				}
 			}
 		}
+		
+		//RenderCommand::SetAdditiveBlendMode(false);
+		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ZERO, GL_ZERO);
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+
+		for (int i = 0; i <= batch_index; i++)
+		{
+			s_Data.vertexArray->Bind();
+			s_Data.lightShader->Bind();
+
+			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count);
+			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count);
+
+			s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->light_index_count);
+		}
 #endif
+
+		batch_storage[0]->light_vertex_index = 0;
+		batch_storage[0]->light_index_count = 0;
+
+		for (int i = 0; i < 6; i++)
+			batch_storage[batch_index]->light_indices[batch_storage[batch_index]->light_index_count + i] = batch_storage[batch_index]->light_vertex_index + default_quad_indices[i];
+
+		batch_storage[batch_index]->light_index_count += 6;
+
+
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 0] = position.x + 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 1] = position.y + 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 0] = position.x - 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 1] = position.y + 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 0] = position.x - 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 1] = position.y - 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
+
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 0] = position.x + 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 1] = position.y - 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
+
+		batch_storage[batch_index]->light_vertex_index -= 4;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = 1.0f;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 7] = -1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = 1.0f;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 7] = -1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = -1.0f;
+
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = -1.0f;
+
+		batch_storage[batch_index]->light_vertex_index -= 4;
+
+		for (int i = 0; i < 4; i++)
+		{
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 3] = color.r;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 4] = color.g;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 5] = color.b;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 6] = color.a;
+
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 9] = fallofA;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 10] = fallofB;
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 11] = intensity;
+
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 14] = static_cast<float>(Primitive::POINT_LIGHT);
+		}
+
+		//RenderCommand::SetAdditiveBlendMode(true);
+
+		glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		for (int i = 0; i <= batch_index; i++)
+		{
+			s_Data.vertexArray->Bind();
+			s_Data.lightShader->Bind();
+
+			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count);
+			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count);
+
+			s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->light_index_count);
+		}
 	}
 
 	void Renderer2D::DrawQuadOutline(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)

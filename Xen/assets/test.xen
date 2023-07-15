@@ -1,16 +1,27 @@
 Scene: Untitled
 Entities:
-  - Entity: [Unnamed, 16897419264023366910]
+  - Entity: [Unnamed, 4702862772663891039]
     Transform:
-      Position: [-0.177298576, 1.78591692, 0]
+      Position: [-5.88279772, -3.83768511, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     PointLight:
       Color: [1, 1, 1, 1]
-      Radius: 1
+      Radius: 7.5999999
       FallofA: 1
       FallofB: 1
-  - Entity: [Unnamed, 9729639253819321785]
+  - Entity: [Unnamed, 14033182345234203965]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [54.7400017, 31.6900005, 1]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [1, 0.904761732, 0, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+  - Entity: [Unnamed, 10328761122801992512]
     Transform:
       Position: [0, 0, 0]
       Rotation: [0, 0, 0]
@@ -21,4 +32,14 @@ Entities:
       Texture:
         TextureFileRelPath: "null"
         TextureTilingFactor: 1
-Entity Count: 2
+  - Entity: [Unnamed, 2912680571265969025]
+    Transform:
+      Position: [7.13884592, -2.66382718, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    PointLight:
+      Color: [1, 1, 1, 1]
+      Radius: 7.5999999
+      FallofA: 1
+      FallofB: 1
+Entity Count: 4

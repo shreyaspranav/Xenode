@@ -374,7 +374,7 @@ namespace Xen {
 		UpdateCameras();
 
 		RenderSprites();
-		RenderLights();
+		//RenderLights();
 	}
 
 	void Scene::OnUpdate(double timestep, const Ref<Camera>& camera)
@@ -384,7 +384,7 @@ namespace Xen {
 		Renderer2D::BeginScene(camera);
 
 		RenderSprites();
-		RenderLights();
+		//RenderLights();
 	}
 
 	void Scene::OnRender()
@@ -403,8 +403,9 @@ namespace Xen {
 		RenderCommand::Clear();
 		m_LightMaskFB->ClearAttachments();
 
-		RenderCommand::SetAdditiveBlendMode(true);
-		Renderer2D::RenderLights();
+		//RenderCommand::SetAdditiveBlendMode(true);
+		RenderLights();
+		//Renderer2D::RenderLights();
 		m_LightMaskFB->Unbind();
 
 		//Ref<Texture2D> unlitSceneTexture = Texture2D::CreateTexture2D(m_UnlitSceneFB->GetColorAttachmentRendererID(0));
