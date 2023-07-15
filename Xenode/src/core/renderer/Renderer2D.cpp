@@ -555,13 +555,13 @@ namespace Xen {
 						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
 						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
 
-						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = vertices[shadow_indices[k + 1]].x + 2 * (vertices[shadow_indices[k + 1]].x - position.x);
-						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = vertices[shadow_indices[k + 1]].y + 2 * (vertices[shadow_indices[k + 1]].y - position.y);
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = vertices[shadow_indices[k + 1]].x + 100 * (vertices[shadow_indices[k + 1]].x - position.x);
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = vertices[shadow_indices[k + 1]].y + 100 * (vertices[shadow_indices[k + 1]].y - position.y);
 						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
 						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 0.0f;
 
-						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = vertices[shadow_indices[k]].x + 2 * (vertices[shadow_indices[k]].x - position.x);
-						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = vertices[shadow_indices[k]].y + 2 * (vertices[shadow_indices[k]].y - position.y);
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = vertices[shadow_indices[k]].x + 100 * (vertices[shadow_indices[k]].x - position.x);
+						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = vertices[shadow_indices[k]].y + 100 * (vertices[shadow_indices[k]].y - position.y);
 						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
 						batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 0.0f;
 					}
