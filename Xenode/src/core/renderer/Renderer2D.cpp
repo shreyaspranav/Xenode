@@ -514,6 +514,8 @@ namespace Xen {
 
 			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 14] = static_cast<float>(Primitive::POINT_LIGHT);
 		}
+
+#if 0
 		// For Shadows:
 		std::vector<Vec3> shadow_src_lines;
 
@@ -653,6 +655,7 @@ namespace Xen {
 				}
 			}
 		}
+#endif
 	}
 
 	void Renderer2D::DrawQuadOutline(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)
