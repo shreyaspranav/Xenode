@@ -504,7 +504,7 @@ namespace Xen {
 
 					for (int k = 0; k < 4; k++)
 					{
-						if (point_distances[k] < min_dist)
+						if (point_distances[k] > min_dist)
 						{
 							min_dist = point_distances[k];
 							min_dist_index = k;
@@ -512,6 +512,16 @@ namespace Xen {
 					}
 
 					uint32_t shadow_indices[3];
+					//{
+					//	for (int k = 0; k < 4; k++)
+					//	{
+					//		if(min_dist_index + k < 4)
+					//			shadow_indices[k] = min_dist_index + k;
+					//		else
+					//			shadow_indices[k] = min_dist_index + (k - 4);
+					//	}
+					//}
+
 					if (min_dist_index == 0 || min_dist_index == 3)
 					{
 						if (min_dist_index == 0)
