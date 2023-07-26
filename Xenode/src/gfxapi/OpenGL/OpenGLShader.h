@@ -11,7 +11,7 @@ namespace Xen {
 
 		virtual ~OpenGLShader();
 
-		void LoadShader(const BufferLayout& layout) override;
+		void LoadShader(const VertexBufferLayout& layout) override;
 
 		inline uint32_t GetShaderID() override { return m_ShaderID; }
 

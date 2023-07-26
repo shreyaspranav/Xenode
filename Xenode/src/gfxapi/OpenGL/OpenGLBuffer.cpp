@@ -8,50 +8,167 @@
 
 namespace Xen {
 
-	//-------OpenGLFloatBuffer---------------------------------------------------------------------------------
-	//---------------------------------------------------------------------------------------------------------
-	OpenGLFloatBuffer::OpenGLFloatBuffer(uint32_t count) : m_Count(count), m_Size(count * sizeof(float))
+	static uint8_t CalculateCount(const VertexBufferDataType& elementDataType)
 	{
-		glGenBuffers(1, &m_BufferID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
-		glBufferData(GL_ARRAY_BUFFER, m_Size, nullptr, GL_DYNAMIC_DRAW);
+		switch (elementDataType)
+		{
+		case VertexBufferDataType::Float:  return 1;
+		case VertexBufferDataType::Float2: return 2;
+		case VertexBufferDataType::Float3: return 3;
+		case VertexBufferDataType::Float4: return 4;
+
+		case VertexBufferDataType::Int:  return 1;
+		case VertexBufferDataType::Int2: return 2;
+		case VertexBufferDataType::Int3: return 3;
+		case VertexBufferDataType::Int4: return 4;
+
+		case VertexBufferDataType::UnsignedInt:  return 1;
+		case VertexBufferDataType::UnsignedInt2: return 2;
+		case VertexBufferDataType::UnsignedInt3: return 3;
+		case VertexBufferDataType::UnsignedInt4: return 4;
+
+		case VertexBufferDataType::Mat3: return 3 * 3;
+		case VertexBufferDataType::Mat4: return 4 * 4;
+		}
 	}
-	OpenGLFloatBuffer::~OpenGLFloatBuffer()
+
+	static Size CalculateSize(const VertexBufferDataType& elementDataType)
 	{
-		glDeleteBuffers(1, &m_BufferID);
+		Size sizeOfFloat = sizeof(float);
+		Size sizeOfInt = sizeof(int);
+
+		switch (elementDataType)
+		{
+		case VertexBufferDataType::Float:  return 1 * sizeOfFloat;
+		case VertexBufferDataType::Float2: return 2 * sizeOfFloat;
+		case VertexBufferDataType::Float3: return 3 * sizeOfFloat;
+		case VertexBufferDataType::Float4: return 4 * sizeOfFloat;
+
+		case VertexBufferDataType::Int:  return 1 * sizeOfInt;
+		case VertexBufferDataType::Int2: return 2 * sizeOfInt;
+		case VertexBufferDataType::Int3: return 3 * sizeOfInt;
+		case VertexBufferDataType::Int4: return 4 * sizeOfInt;
+
+		case VertexBufferDataType::UnsignedInt:  return 1 * sizeOfInt;
+		case VertexBufferDataType::UnsignedInt2: return 2 * sizeOfInt;
+		case VertexBufferDataType::UnsignedInt3: return 3 * sizeOfInt;
+		case VertexBufferDataType::UnsignedInt4: return 4 * sizeOfInt;
+
+		case VertexBufferDataType::Mat3: return 3 * 3 * sizeOfFloat;
+		case VertexBufferDataType::Mat4: return 4 * 4 * sizeOfFloat;
+		}
 	}
-	void OpenGLFloatBuffer::Put(float* data, uint32_t count)
+
+	//-------OpenGLVertexBuffer---------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------
+	OpenGLVertexBuffer::OpenGLVertexBuffer(Size size, const VertexBufferLayout& layout) 
+		: m_Size(size), m_BufferLayout(layout), m_HasElementBuffer(false)
 	{
-		OpenGLFloatBuffer::Put(0, data, count);
+		glCreateBuffers(1, &m_VertexBufferID);
+		glNamedBufferStorage(m_VertexBufferID, m_Size, nullptr, GL_DYNAMIC_STORAGE_BIT);
+
+		glCreateVertexArrays(1, &m_VertexArrayID);
+
+		Size stride = 0;
+		for (auto it = layout.StartIterator(); it != layout.EndIterator(); it++)
+			stride += CalculateSize((*it).type);
+
+		// m_Count -> No of vertices.
+		m_Count = size / stride;
+
+		glVertexArrayVertexBuffer(m_VertexArrayID, 0, m_VertexBufferID, 0, stride);
+
+		uint8_t iterationCount = 0;
+		Size offset = 0;
+		for (auto it = layout.StartIterator(); it != layout.EndIterator(); it++)
+		{
+			glEnableVertexArrayAttrib(m_VertexArrayID, (*it).shader_location);
+
+			switch ((*it).type)
+			{
+			case VertexBufferDataType::Float: 
+			case VertexBufferDataType::Float2:
+			case VertexBufferDataType::Float3:
+			case VertexBufferDataType::Float4:
+				glVertexArrayAttribFormat(m_VertexArrayID, iterationCount, 
+					CalculateCount((*it).type), GL_FLOAT, GL_FALSE, offset);
+				offset += CalculateCount((*it).type) * sizeof(float);
+				break;
+
+			case VertexBufferDataType::Int:
+			case VertexBufferDataType::Int2:
+			case VertexBufferDataType::Int3:
+			case VertexBufferDataType::Int4:
+				glVertexArrayAttribFormat(m_VertexArrayID, iterationCount, 
+					CalculateCount((*it).type), GL_INT, GL_FALSE, offset);
+				offset += CalculateCount((*it).type) * sizeof(int);
+				break;
+
+			case VertexBufferDataType::UnsignedInt:
+			case VertexBufferDataType::UnsignedInt2:
+			case VertexBufferDataType::UnsignedInt3:
+			case VertexBufferDataType::UnsignedInt4:
+				glVertexArrayAttribFormat(m_VertexArrayID, iterationCount, 
+					CalculateCount((*it).type), GL_UNSIGNED_INT, GL_FALSE, offset);
+				offset += CalculateCount((*it).type) * sizeof(int);
+				break;
+			}
+
+			glVertexArrayAttribBinding(m_VertexArrayID, iterationCount, 0);
+
+			iterationCount++;
+		}
 	}
-	void OpenGLFloatBuffer::Put(uint32_t offsetCount, float* data, uint32_t count)
+	OpenGLVertexBuffer::~OpenGLVertexBuffer()
+	{
+		glDeleteBuffers(1, &m_VertexBufferID);
+	}
+	void OpenGLVertexBuffer::Put(const void* data, Size size)
+	{
+		OpenGLVertexBuffer::Put(0, data, size);
+	}
+	void OpenGLVertexBuffer::Put(Size offsetSize, const void* data, Size size)
 	{
 		XEN_PROFILE_FN();
 
-		uint32_t available_count = m_Count - offsetCount;
+		//uint32_t available_count = m_VertexBufferID - offsetCount;
+		//
+		//if(available_count < count)
+		//{
+		//	XEN_ENGINE_LOG_ERROR("The specified array of data is larger than specified!");
+		//	TRIGGER_BREAKPOINT;
+		//}
 
-		if(available_count < count)
-		{
-			XEN_ENGINE_LOG_ERROR("The specified array of data is larger than specified!");
-			TRIGGER_BREAKPOINT;
-		}
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
-		glBufferSubData(GL_ARRAY_BUFFER, offsetCount * sizeof(float), count * sizeof(float), data);
+		glNamedBufferSubData(m_VertexBufferID, offsetSize, size, data);
 	}
-	inline void OpenGLFloatBuffer::Bind() const				{ XEN_PROFILE_FN(); glBindBuffer(GL_ARRAY_BUFFER, m_BufferID); }
-	inline void OpenGLFloatBuffer::Unbind()	const			{ glBindBuffer(GL_ARRAY_BUFFER, 0); }
-	inline uint32_t OpenGLFloatBuffer::GetCount() const		{ return m_Count; }
-	inline uint32_t OpenGLFloatBuffer::GetSize() const		{ return m_Size; }
+
+	void OpenGLVertexBuffer::SetElementBuffer(const Ref<ElementBuffer>& elementBuffer)
+	{
+		Ref<OpenGLElementBuffer> openglElementBuffer = std::dynamic_pointer_cast<OpenGLElementBuffer>(elementBuffer);
+		glVertexArrayElementBuffer(m_VertexArrayID, openglElementBuffer->m_BufferID);
+
+		m_HasElementBuffer = true;
+	}
+	inline bool OpenGLVertexBuffer::HasElementBuffer() const
+	{
+		return m_HasElementBuffer;
+	}
+
+	inline void OpenGLVertexBuffer::Bind() const				{ XEN_PROFILE_FN(); glBindVertexArray(m_VertexArrayID); }
+	inline void OpenGLVertexBuffer::Unbind() const				{ glBindVertexArray(0); }
+	inline uint32_t OpenGLVertexBuffer::GetCount() const		{ return m_Count; }
+	inline uint32_t OpenGLVertexBuffer::GetSize() const			{ return m_Size; }
 
 	//-------OpenGLElementBuffer---------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------
 
-	OpenGLElementBuffer::OpenGLElementBuffer(uint32_t count) : m_Count(count), m_Size(count * sizeof(float))
+	OpenGLElementBuffer::OpenGLElementBuffer(Size size, ElementBufferDataType type) 
+		: m_Size(size), m_ElementDataType(type)
 	{
-		glGenBuffers(1, &m_BufferID);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Size, nullptr, GL_DYNAMIC_DRAW);
+		glCreateBuffers(1, &m_BufferID);
+		glNamedBufferStorage(m_BufferID, m_Size, nullptr, GL_DYNAMIC_STORAGE_BIT);
+
+		m_Count = size / (type == ElementBufferDataType::Unsigned32Bit ? sizeof(int) : sizeof(short));
 
 		m_ActiveCount = 0;
 	}
@@ -59,28 +176,36 @@ namespace Xen {
 	{
 		glDeleteBuffers(1, &m_BufferID);
 	}
-	void OpenGLElementBuffer::Put(uint32_t* data, uint32_t count)
+	void OpenGLElementBuffer::Put(const void* data, Size size)
 	{
-		OpenGLElementBuffer::Put(0, data, count);
-		m_ActiveCount += count;
+		OpenGLElementBuffer::Put(0, data, size);
+		//m_ActiveCount += size;
 	}
-	void OpenGLElementBuffer::Put(uint32_t offsetCount, uint32_t* data, uint32_t count)
+	void OpenGLElementBuffer::Put(Size offsetSize, const void* data, Size size)
 	{
 		XEN_PROFILE_FN();
 
-		uint32_t available_count = m_Count - offsetCount;
+		//uint32_t available_count = m_Count - offsetCount;
+		//
+		//if (available_count < count)
+		//{
+		//	XEN_ENGINE_LOG_ERROR("The specified array of data is larger than specified!");
+		//	TRIGGER_BREAKPOINT;
+		//}
 
-		if (available_count < count)
-		{
-			XEN_ENGINE_LOG_ERROR("The specified array of data is larger than specified!");
-			TRIGGER_BREAKPOINT;
-		}
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
+		//glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offsetCount * sizeof(uint32_t), count * sizeof(uint32_t), data);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
-		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offsetCount * sizeof(uint32_t), count * sizeof(uint32_t), data);
+		//m_ActiveCount += count;
 
-		m_ActiveCount += count;
+		glNamedBufferSubData(m_BufferID, offsetSize, size, data);
 	}
+
+	inline ElementBufferDataType OpenGLElementBuffer::GetElementBufferDataType() const
+	{
+		return m_ElementDataType;
+	}
+
 	inline void OpenGLElementBuffer::Bind() const					{ XEN_PROFILE_FN();  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID); }
 	inline void OpenGLElementBuffer::Unbind() const					{ glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
 	inline uint32_t OpenGLElementBuffer::GetCount() const			{ return m_Count; }

@@ -96,50 +96,68 @@ namespace Xen {
 
 	Renderer2D::Renderer2DStatistics stats;
 
-	BufferLayout bufferLayout;
-	BufferLayout lineBufferLayout;
+	VertexBufferLayout bufferLayout;
+	VertexBufferLayout lineBufferLayout;
 
 	void Renderer2D::Init()
 	{
 		XEN_PROFILE_FN();
 
-		bufferLayout.AddBufferElement(BufferElement("aPosition", 0, 3, 0, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aColor", 1, 4, 3, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aTextureWorldCoords", 2, 2, 7, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aP1", 3, 1, 9, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aP2", 4, 1, 10, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aP3", 5, 1, 11, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aP4", 6, 1, 12, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aP5", 7, 1, 13, BufferDataType::Float, false));
-		bufferLayout.AddBufferElement(BufferElement("aPrimitiveType", 8, 1, 14, BufferDataType::Float, false));
+		bufferLayout = VertexBufferLayout{
+			{ "aPosition", VertexBufferDataType::Float3, 0 },
+			{ "aColor", VertexBufferDataType::Float4, 1 },
+			{ "aTextureWorldCoords", VertexBufferDataType::Float2, 2 },
+			{ "aP1", VertexBufferDataType::Float, 3 },
+			{ "aP2", VertexBufferDataType::Float, 4 },
+			{ "aP3", VertexBufferDataType::Float, 5 },
+			{ "aP4", VertexBufferDataType::Float, 6 },
+			{ "aP5", VertexBufferDataType::Float, 7 },
+			{ "aPrimitiveType", VertexBufferDataType::Float, 8 }
+		};
 
-		lineBufferLayout.AddBufferElement(BufferElement("aLinePosition", 0, 3, 0, BufferDataType::Float, false));
-		lineBufferLayout.AddBufferElement(BufferElement("aLineColor", 1, 4, 3, BufferDataType::Float, false));
+		lineBufferLayout = {
+			{ "aLinePosition", VertexBufferDataType::Float3, 0 },
+			{ "aLineColor", VertexBufferDataType::Float4, 1 }
+		};
+
+		//bufferLayout.AddBufferElement(VertexBufferElement("aPosition", 0, 3, 0, BufferDataType::Float, false));
+		//bufferLayout.AddBufferElement(VertexBufferElement("aColor", 1, 4, 3, BufferDataType::Float, false));
+		//bufferLayout.AddBufferElement(VertexBufferElement("aTextureWorldCoords", 2, 2, 7, BufferDataType::Float, false));
+		//bufferLayout.AddBufferElement(VertexBufferElement("aP1", 3, 1, 9, BufferDataType::Float, false));
+		//bufferLayout.AddBufferElement(VertexBufferElement("aP2", 4, 1, 10, BufferDataType::Float, false));
+		//bufferLayout.AddBufferElement(VertexBufferElement("aP3", 5, 1, 11, BufferDataType::Float, false));
+		//bufferLayout.AddBufferElement(VertexBufferElement("aP4", 6, 1, 12, BufferDataType::Float, false));
+		//bufferLayout.AddBufferElement(VertexBufferElement("aP5", 7, 1, 13, BufferDataType::Float, false));
+		//bufferLayout.AddBufferElement(VertexBufferElement("aPrimitiveType", 8, 1, 14, BufferDataType::Float, false));
+
+		//lineBufferLayout.AddBufferElement(VertexBufferElement("aLinePosition", 0, 3, 0, BufferDataType::Float, false));
+		//lineBufferLayout.AddBufferElement(VertexBufferElement("aLineColor", 1, 4, 3, BufferDataType::Float, false));
 
 		white_texture =  Texture2D::CreateTexture2D(1, 1, &white_texture_data, sizeof(uint32_t));
 
-		s_Data.vertexArray = VertexArray::CreateVertexArray();
-		s_Data.vertexArray->Bind();
+		//s_Data.vertexArray = VertexArray::CreateVertexArray();
+		//s_Data.vertexArray->Bind();
 
-		s_Data.vertexBuffer = Xen::FloatBuffer::CreateFloatBuffer(max_vertices_per_batch * stride_count);
-		s_Data.vertexBuffer->SetBufferLayout(bufferLayout);
-		s_Data.indexBuffer = Xen::ElementBuffer::CreateElementBuffer(max_quads_per_batch * 6);
+		s_Data.vertexBuffer = Xen::VertexBuffer::CreateVertexBuffer(max_vertices_per_batch * stride_count * sizeof(float), bufferLayout);
+		//s_Data.vertexBuffer->SetBufferLayout(bufferLayout);
+		s_Data.indexBuffer = Xen::ElementBuffer::CreateElementBuffer(max_quads_per_batch * 6 * sizeof(int), ElementBufferDataType::Unsigned32Bit);
+		s_Data.vertexBuffer->SetElementBuffer(s_Data.indexBuffer);
 
-		s_Data.vertexArray->SetVertexBuffer(s_Data.vertexBuffer);
-		s_Data.vertexArray->SetElementBuffer(s_Data.indexBuffer);
+		//s_Data.vertexArray->SetVertexBuffer(s_Data.vertexBuffer);
+		//s_Data.vertexArray->SetElementBuffer(s_Data.indexBuffer);
 
-		s_Data.vertexArray->Load(true);
+		//s_Data.vertexArray->Load(true);
 
 		// Line--------------------------------------------------------------------------------------
-		s_Data.lineVertexArray = VertexArray::CreateVertexArray();
-		s_Data.lineVertexArray->Bind();
+		//s_Data.lineVertexArray = VertexArray::CreateVertexArray();
+		//s_Data.lineVertexArray->Bind();
 
-		s_Data.lineVertexBuffer = FloatBuffer::CreateFloatBuffer(1000);
-		s_Data.lineVertexBuffer->SetBufferLayout(lineBufferLayout);
+		s_Data.lineVertexBuffer = VertexBuffer::CreateVertexBuffer(1000 * sizeof(float), lineBufferLayout);
+		//s_Data.lineVertexBuffer->SetBufferLayout(lineBufferLayout);
 
-		s_Data.lineVertexArray->SetVertexBuffer(s_Data.lineVertexBuffer);
+		//s_Data.lineVertexArray->SetVertexBuffer(s_Data.lineVertexBuffer);
 
-		s_Data.lineVertexArray->Load(false);
+		//s_Data.lineVertexArray->Load(false);
 		//-------------------------------------------------------------------------------------------
 
 		s_Data.lineShader = Shader::CreateShader("assets/shaders/line_shader.shader");
@@ -222,24 +240,26 @@ namespace Xen {
 			for (int j = 0; j < batch_storage[i]->textures.size(); j++)
 				batch_storage[i]->textures[j]->Bind(j);
 			
-			s_Data.lineVertexArray->Bind();
+			//s_Data.lineVertexArray->Bind();
+			s_Data.lineVertexBuffer->Bind();
 			s_Data.lineShader->Bind();
 			
-			s_Data.lineVertexBuffer->Put(batch_storage[i]->line_verts, batch_storage[i]->line_index * 14);
+			s_Data.lineVertexBuffer->Put(batch_storage[i]->line_verts, batch_storage[i]->line_index * 14 * sizeof(float));
 			s_Data.lineShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
 			
-			RenderCommand::DrawLines(s_Data.lineVertexArray, batch_storage[i]->line_index * 14);
+			RenderCommand::DrawLines(s_Data.lineVertexBuffer, batch_storage[i]->line_index * 14);
 
-			s_Data.vertexArray->Bind();
+			//s_Data.vertexArray->Bind();
+			s_Data.vertexBuffer->Bind();
 			s_Data.shader->Bind();
 			
-			s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * stride_count);
+			s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * stride_count * sizeof(float));
 			
-			s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->index_count);
+			s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->index_count * sizeof(int));
 			s_Data.shader->SetIntArray("tex", texture_slots, max_texture_slots);
 			
 			s_Data.shader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-			RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->index_count);
+			RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->index_count);
 		}
 	}
 
@@ -247,14 +267,15 @@ namespace Xen {
 	{
 		for (int i = 0; i <= batch_index; i++)
 		{
-			s_Data.vertexArray->Bind();
+			//s_Data.vertexArray->Bind();
+			s_Data.vertexBuffer->Bind();
 			s_Data.lightShader->Bind();
 		
-			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count);
-			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count);
+			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count * sizeof(float));
+			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count * sizeof(int));
 		
 			s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-			RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->light_index_count);
+			RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->light_index_count);
 		}
 	}
 
@@ -622,14 +643,14 @@ namespace Xen {
 
 		for (int i = 0; i <= batch_index; i++)
 		{
-			s_Data.vertexArray->Bind();
+			s_Data.vertexBuffer->Bind();
 			s_Data.lightShader->Bind();
 
-			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count);
-			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count);
+			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count * sizeof(float));
+			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count * sizeof(int));
 
 			s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-			RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->light_index_count);
+			RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->light_index_count);
 		}
 #endif
 
@@ -643,39 +664,39 @@ namespace Xen {
 
 
 
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 0] = position.x + 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 1] = position.y + 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x + 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y + 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
 
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 0] = position.x - 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 1] = position.y + 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x - 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y + 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
 
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 0] = position.x - 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 1] = position.y - 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x - 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y - 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
 
 
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 0] = position.x + 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 1] = position.y - 50.0f * radius;
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 0] = position.x + 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 1] = position.y - 50.0f * radius;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 2] = position.z;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 12] = 1.0f;
 
 		batch_storage[batch_index]->light_vertex_index -= 4;
 
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = 1.0f;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = 1.0f;
 
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 7] = -1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = -1.0f;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = 1.0f;
 
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 7] = -1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = -1.0f;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = -1.0f;
 
-		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 7] = 1.0f;
+		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index  ) * stride_count + 7] = 1.0f;
 		batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 8] = -1.0f;
 
 		batch_storage[batch_index]->light_vertex_index -= 4;
@@ -706,14 +727,14 @@ namespace Xen {
 
 		for (int i = 0; i <= batch_index; i++)
 		{
-			s_Data.vertexArray->Bind();
+			s_Data.vertexBuffer->Bind();
 			s_Data.lightShader->Bind();
 
-			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count);
-			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count);
+			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count * sizeof(float));
+			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count * sizeof(int));
 
 			s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-			RenderCommand::DrawIndexed(s_Data.vertexArray, batch_storage[i]->light_index_count);
+			RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->light_index_count);
 		}
 	}
 

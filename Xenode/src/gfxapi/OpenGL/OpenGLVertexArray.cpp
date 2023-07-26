@@ -17,7 +17,7 @@ namespace Xen {
 	{
 		glDeleteVertexArrays(1, &m_VertexArrayID);
 	}
-	void OpenGLVertexArray::SetVertexBuffer(const Ref<FloatBuffer>& vertexBuffer)
+	void OpenGLVertexArray::SetVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
 		m_VertexBuffer = vertexBuffer;
 	}
@@ -29,17 +29,18 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
-		BufferLayout layout = m_VertexBuffer->GetBufferLayout();
-		std::vector<BufferElement> buffer_elements = layout.GetBufferElements();
+		/*
+		VertexBufferLayout layout = m_VertexBuffer->GetBufferLayout();
+		std::vector<VertexBufferElement> buffer_elements = layout.GetBufferElements();
 
-		for (const BufferElement& element : buffer_elements)
+		for (const VertexBufferElement& element : buffer_elements)
 			m_StrideCount += element.count_per_vertex;
 
 		m_VertexBuffer->Bind();
 		if(hasIndexBuffer)
 			m_ElementBuffer->Bind();
 
-		for (const BufferElement& element : buffer_elements)
+		for (const VertexBufferElement& element : buffer_elements)
 		{
 			switch (element.type)
 			{
@@ -69,6 +70,7 @@ namespace Xen {
 			}
 			glEnableVertexAttribArray(element.shader_location);
 		}
+		*/
 	}
 	inline void OpenGLVertexArray::Bind() const
 	{

@@ -12,7 +12,7 @@ namespace Xen {
 
 	void ScreenRenderer2D::Init()
 	{
-		BufferLayout l;
+		VertexBufferLayout l;
 		screenShader = Shader::CreateShader("assets/shaders/screen_shader.shader");
 		screenShader->LoadShader(l);
 	}

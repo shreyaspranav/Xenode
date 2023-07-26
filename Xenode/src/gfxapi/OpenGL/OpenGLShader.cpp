@@ -124,7 +124,7 @@ namespace Xen {
 	{
 		glDeleteProgram(m_ShaderID);
 	}
-	void OpenGLShader::LoadShader(const BufferLayout& layout)
+	void OpenGLShader::LoadShader(const VertexBufferLayout& layout)
 	{
 		XEN_PROFILE_FN();
 

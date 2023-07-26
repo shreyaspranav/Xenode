@@ -25,6 +25,8 @@
 	#define TRIGGER_BREAKPOINT __android_log_assert("Triggered Breakpoint! ", "XENODE: ", NULL)
 #endif
 
+typedef size_t Size;
+
 namespace Xen {
 	template<typename T>
 	using Scope = std::unique_ptr<T>;

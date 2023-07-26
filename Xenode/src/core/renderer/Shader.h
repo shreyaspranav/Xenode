@@ -13,7 +13,7 @@ namespace Xen {
 	class XEN_API Shader
 	{
 	public:
-		virtual void LoadShader(const BufferLayout& layout) = 0;
+		virtual void LoadShader(const VertexBufferLayout& layout) = 0;
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;

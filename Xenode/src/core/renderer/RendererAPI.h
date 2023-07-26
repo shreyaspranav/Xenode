@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Structs.h"
-#include "VertexArray.h"
+#include "Buffer.h"
 
 namespace Xen {
 	enum BlendFactor
@@ -35,9 +35,9 @@ namespace Xen {
 		virtual void SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode) = 0;
 
 		//Draw Commands
-		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices) = 0;
-		virtual void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t indices) = 0;
-		virtual void DrawTriangles(const Ref<VertexArray>& vertexArray, uint32_t indices) = 0;
+		virtual void DrawIndexed(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices) = 0;
+		virtual void DrawLines(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices) = 0;
+		virtual void DrawTriangles(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices) = 0;
 
 		virtual void SetLineWidth(float width) = 0;
 	};

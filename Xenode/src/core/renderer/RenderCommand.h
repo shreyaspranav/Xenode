@@ -15,10 +15,9 @@ namespace Xen {
 		static void SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode);
 
 		// Draw Commands:
-		static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices = 0);
-		static void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t indices = 0);
-		static void DrawTriangles(const Ref<VertexArray>& vertexArray, uint32_t indices = 0);
-
+		static void DrawIndexed(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices = 0);
+		static void DrawLines(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices = 0);
+		static void DrawTriangles(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices = 0);
 
 		static void SetLineWidth(float width);
 

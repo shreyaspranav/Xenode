@@ -65,18 +65,18 @@ namespace Xen {
 			ToGLBlendOperation(alphaBlendMode.blendOperation)
 		);
 	}
-	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices)
+	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices)
 	{
 		XEN_PROFILE_FN();
 		glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, 0);
 	}
 	
-	void OpenGLRendererAPI::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t indices)
+	void OpenGLRendererAPI::DrawLines(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices)
 	{
 		XEN_PROFILE_FN();
 		glDrawArrays(GL_LINES, 0, indices);
 	}
-	void OpenGLRendererAPI::DrawTriangles(const Ref<VertexArray>& vertexArray, uint32_t indices)
+	void OpenGLRendererAPI::DrawTriangles(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices)
 	{
 		XEN_PROFILE_FN();
 		glDrawArrays(GL_TRIANGLES, 0, indices);

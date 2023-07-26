@@ -16,10 +16,10 @@ namespace Xen {
 		void SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode) override;
 
 		//Draw Commands
-		void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices) override;
-		void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t indices) override;
+		void DrawIndexed(const Ref<VertexBuffer>& vertexArray, uint32_t indices) override;
+		void DrawLines(const Ref<VertexBuffer>& vertexArray, uint32_t indices) override;
 
-		void DrawTriangles(const Ref<VertexArray>& vertexArray, uint32_t indices) override;
+		void DrawTriangles(const Ref<VertexBuffer>& vertexArray, uint32_t indices) override;
 
 		void SetLineWidth(float width) override;
 	};

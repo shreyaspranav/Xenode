@@ -6,22 +6,22 @@
 #include "gfxapi/OpenGL/OpenGLBuffer.h"
 
 namespace Xen {
-	Ref<FloatBuffer> FloatBuffer::CreateFloatBuffer(uint32_t count)
+	Ref<VertexBuffer> VertexBuffer::CreateVertexBuffer(Size size, const VertexBufferLayout& layout)
 	{
 		switch (DesktopApplication::GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
-			return std::make_shared<OpenGLFloatBuffer>(count);
+			return std::make_shared<OpenGLVertexBuffer>(size, layout);
 		}
 		return nullptr;
 	}
 
-	Ref<ElementBuffer> ElementBuffer::CreateElementBuffer(uint32_t count)
+	Ref<ElementBuffer> ElementBuffer::CreateElementBuffer(Size size, ElementBufferDataType dataType)
 	{
 		switch (DesktopApplication::GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
-			return std::make_shared<OpenGLElementBuffer>(count);
+			return std::make_shared<OpenGLElementBuffer>(size, dataType);
 		}
 		return nullptr;
 	}

@@ -39,19 +39,19 @@ namespace Xen {
 		s_Api->SetBlendMode(colorBlendMode, alphaBlendMode);
 	}
 
-	void RenderCommand::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indices)
+	void RenderCommand::DrawIndexed(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices)
 	{
-		s_Api->DrawIndexed(vertexArray, indices);
+		s_Api->DrawIndexed(vertexBuffer, indices);
 	}
 
-	void RenderCommand::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t indices)
+	void RenderCommand::DrawLines(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices)
 	{
-		s_Api->DrawLines(vertexArray, indices);
+		s_Api->DrawLines(vertexBuffer, indices);
 	}
 
-	void RenderCommand::DrawTriangles(const Ref<VertexArray>& vertexArray, uint32_t indices)
+	void RenderCommand::DrawTriangles(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices)
 	{
-		s_Api->DrawTriangles(vertexArray, indices);
+		s_Api->DrawTriangles(vertexBuffer, indices);
 	}
 
 	void RenderCommand::SetLineWidth(float width)
