@@ -3,7 +3,6 @@
 #include <Core.h>
 #include "RenderCommand.h"
 
-#include "VertexArray.h"
 #include "Buffer.h"
 #include "Camera.h"
 #include "Shader.h"

@@ -131,13 +131,11 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
-		//uint32_t available_count = m_VertexBufferID - offsetCount;
-		//
-		//if(available_count < count)
-		//{
-		//	XEN_ENGINE_LOG_ERROR("The specified array of data is larger than specified!");
-		//	TRIGGER_BREAKPOINT;
-		//}
+		if (size > m_Size - offsetSize)
+		{
+			XEN_ENGINE_LOG_ERROR("VertexBuffer overflow!");
+			TRIGGER_BREAKPOINT;
+		}
 
 		glNamedBufferSubData(m_VertexBufferID, offsetSize, size, data);
 	}
@@ -185,18 +183,11 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
-		//uint32_t available_count = m_Count - offsetCount;
-		//
-		//if (available_count < count)
-		//{
-		//	XEN_ENGINE_LOG_ERROR("The specified array of data is larger than specified!");
-		//	TRIGGER_BREAKPOINT;
-		//}
-
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
-		//glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offsetCount * sizeof(uint32_t), count * sizeof(uint32_t), data);
-
-		//m_ActiveCount += count;
+		if (size > m_Size - offsetSize)
+		{
+			XEN_ENGINE_LOG_ERROR("VertexBuffer overflow!");
+			TRIGGER_BREAKPOINT;
+		}
 
 		glNamedBufferSubData(m_BufferID, offsetSize, size, data);
 	}

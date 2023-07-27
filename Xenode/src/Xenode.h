@@ -21,7 +21,6 @@
 #include <core/app/Input.h>
 
 #include <core/renderer/Buffer.h>
-#include <core/renderer/VertexArray.h>
 #include <core/renderer/Shader.h>
 #include <core/renderer/Renderer2D.h>
 #include <core/renderer/Camera.h>
