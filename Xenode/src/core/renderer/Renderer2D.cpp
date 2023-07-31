@@ -63,12 +63,16 @@ namespace Xen {
 	2. Remove all the legacy opengl code and make the renderer multithreaded
 	3. Implement SPIR-V shaders
 	4. Add other renderer features:
-		a. Particle system
+		a. Particle system + particle physics
 		b. Soft shadows
 		c. Normal and roughness maps
 		d. Text rendering
-		e. Overlays rendering
-	
+		e. Overlay rendering(debug/UI)
+		f. Compute Shader implementation
+		g. Post processing effects:
+			1. Bloom
+			2. Blur
+			3. Color grading
 	*/
 
 	struct Renderer2DStorage
