@@ -42,6 +42,35 @@ namespace Xen {
 		glm::vec4(0.5f, -0.5f, 0.0f, 1.0f),
 	};
 
+	/*
+	
+	TODO: Renderer Plan:
+
+	1. Make a struct a like this:
+	struct Vertex
+	{
+		Vec3 position;
+		Color color;
+		Vec2 textureWorldCoords;
+		
+		float P1, P2, P3, P4, P5;
+		uint32_t primitiveType;
+
+		// Editor purpose only:
+		int32_t _vertexID;
+	};
+
+	2. Remove all the legacy opengl code and make the renderer multithreaded
+	3. Implement SPIR-V shaders
+	4. Add other renderer features:
+		a. Particle system
+		b. Soft shadows
+		c. Normal and roughness maps
+		d. Text rendering
+		e. Overlays rendering
+	
+	*/
+
 	struct Renderer2DStorage
 	{
 		float* verts;
