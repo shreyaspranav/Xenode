@@ -153,54 +153,28 @@ namespace Xen {
 			{ "aLineColor", VertexBufferDataType::Float4, 1 }
 		};
 
-		//bufferLayout.AddBufferElement(VertexBufferElement("aPosition", 0, 3, 0, BufferDataType::Float, false));
-		//bufferLayout.AddBufferElement(VertexBufferElement("aColor", 1, 4, 3, BufferDataType::Float, false));
-		//bufferLayout.AddBufferElement(VertexBufferElement("aTextureWorldCoords", 2, 2, 7, BufferDataType::Float, false));
-		//bufferLayout.AddBufferElement(VertexBufferElement("aP1", 3, 1, 9, BufferDataType::Float, false));
-		//bufferLayout.AddBufferElement(VertexBufferElement("aP2", 4, 1, 10, BufferDataType::Float, false));
-		//bufferLayout.AddBufferElement(VertexBufferElement("aP3", 5, 1, 11, BufferDataType::Float, false));
-		//bufferLayout.AddBufferElement(VertexBufferElement("aP4", 6, 1, 12, BufferDataType::Float, false));
-		//bufferLayout.AddBufferElement(VertexBufferElement("aP5", 7, 1, 13, BufferDataType::Float, false));
-		//bufferLayout.AddBufferElement(VertexBufferElement("aPrimitiveType", 8, 1, 14, BufferDataType::Float, false));
-
-		//lineBufferLayout.AddBufferElement(VertexBufferElement("aLinePosition", 0, 3, 0, BufferDataType::Float, false));
-		//lineBufferLayout.AddBufferElement(VertexBufferElement("aLineColor", 1, 4, 3, BufferDataType::Float, false));
-
 		white_texture =  Texture2D::CreateTexture2D(1, 1, &white_texture_data, sizeof(uint32_t));
 
-		//s_Data.vertexArray = VertexArray::CreateVertexArray();
-		//s_Data.vertexArray->Bind();
-
+		// Main Vertex Buffer, Element buffer and shader:---------------------------------------
 		s_Data.vertexBuffer = Xen::VertexBuffer::CreateVertexBuffer(max_vertices_per_batch * stride_count * sizeof(float), bufferLayout);
-		//s_Data.vertexBuffer->SetBufferLayout(bufferLayout);
 		s_Data.indexBuffer = Xen::ElementBuffer::CreateElementBuffer(max_quads_per_batch * 6 * sizeof(int), ElementBufferDataType::Unsigned32Bit);
 		s_Data.vertexBuffer->SetElementBuffer(s_Data.indexBuffer);
 
-		//s_Data.vertexArray->SetVertexBuffer(s_Data.vertexBuffer);
-		//s_Data.vertexArray->SetElementBuffer(s_Data.indexBuffer);
+		s_Data.shader = Shader::CreateShader("assets/shaders/main_shader.shader");
+		s_Data.shader->LoadShader(bufferLayout);
+		// -------------------------------------------------------------------------------------
 
-		//s_Data.vertexArray->Load(true);
-
-		// Line--------------------------------------------------------------------------------------
-		//s_Data.lineVertexArray = VertexArray::CreateVertexArray();
-		//s_Data.lineVertexArray->Bind();
-
+		// Line Shader and Vertex Buffer: -------------------------------------------------------------------------
 		s_Data.lineVertexBuffer = VertexBuffer::CreateVertexBuffer(1000 * sizeof(float), lineBufferLayout);
-		//s_Data.lineVertexBuffer->SetBufferLayout(lineBufferLayout);
-
-		//s_Data.lineVertexArray->SetVertexBuffer(s_Data.lineVertexBuffer);
-
-		//s_Data.lineVertexArray->Load(false);
-		//-------------------------------------------------------------------------------------------
 
 		s_Data.lineShader = Shader::CreateShader("assets/shaders/line_shader.shader");
 		s_Data.lineShader->LoadShader(lineBufferLayout);
+		// ---------------------------------------------------------------------------------------------------------
 
-		s_Data.shader = Shader::CreateShader("assets/shaders/main_shader.shader");
-		s_Data.shader->LoadShader(bufferLayout);
-
+		// Light shader(The Main Vertex and Element Buffer is reused)-----------------------------------------------
 		s_Data.lightShader = Shader::CreateShader("assets/shaders/light_shader.shader");
 		s_Data.lightShader->LoadShader(bufferLayout);
+		// ---------------------------------------------------------------------------------------------------------
 
 		ShaderLib::AddShader("LineShader", s_Data.lineShader);
 		ShaderLib::AddShader("MainShader", s_Data.shader);
@@ -273,7 +247,6 @@ namespace Xen {
 			for (int j = 0; j < batch_storage[i]->textures.size(); j++)
 				batch_storage[i]->textures[j]->Bind(j);
 			
-			//s_Data.lineVertexArray->Bind();
 			s_Data.lineVertexBuffer->Bind();
 			s_Data.lineShader->Bind();
 			
