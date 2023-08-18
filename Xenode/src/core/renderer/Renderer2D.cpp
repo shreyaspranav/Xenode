@@ -42,23 +42,33 @@ namespace Xen {
 		glm::vec4(0.5f, -0.5f, 0.0f, 1.0f),
 	};
 
-	/*
-	
-	TODO: Renderer Plan:
-
-	1. Make a struct a like this:
 	struct Vertex
 	{
 		Vec3 position;
 		Color color;
 		Vec2 textureWorldCoords;
-		
+
+		/*
+		* 
+		* P1 ---> Texture Slot
+		* P2 --->
+		* P3 --->
+		* P4 --->
+		* P5 ---> Vertex ID
+		*/ 
 		float P1, P2, P3, P4, P5;
-		uint32_t primitiveType;
+		float primitiveType;
 
 		// Editor purpose only:
-		int32_t _vertexID;
+		//int32_t _vertexID;
 	};
+
+	Vertex v;
+	/*
+	
+	TODO: Renderer Plan:
+
+	1. Make a struct a like this:
 
 	2. Remove all the legacy opengl code and make the renderer multithreaded
 	3. Implement SPIR-V shaders
@@ -77,7 +87,7 @@ namespace Xen {
 
 	struct Renderer2DStorage
 	{
-		float* verts;
+		Vertex* verts;
 		uint32_t* indices;
 		uint32_t vertex_index;
 		uint32_t index_count;
@@ -98,7 +108,9 @@ namespace Xen {
 			line_verts = new float[max_lines_per_batch * 7];
 			line_index = 0;
 
-			verts = new float[max_vertices_per_batch * stride_count];
+			verts = (Vertex*)malloc(max_vertices_per_batch * sizeof(Vertex));
+			memset(verts, 0, max_vertices_per_batch * sizeof(Vertex));
+
 			indices = new uint32_t[max_quads_per_batch * 6];
 			vertex_index = 0;
 			index_count = 0;
@@ -363,7 +375,7 @@ namespace Xen {
 	}
 
 
-	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor, float tiling_factor, const float texture_coords[4], int32_t id)
+	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor, float tiling_factor, const Vec2 texture_coords[4], int32_t id)
 	{
 		XEN_PROFILE_FN();
 
@@ -378,8 +390,11 @@ namespace Xen {
 
 			for (int i = 0; i < 4; i++)
 			{
+#if 0
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = texture_coords[i] * tiling_factor;
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = texture_coords[i] * tiling_factor;
+#endif
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = texture_coords[i];
 			}
 		}
 
@@ -392,7 +407,7 @@ namespace Xen {
 		AddTextureSlot(4, false, texture);
 	}
 
-	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor, const float texture_coords[4], int32_t id)
+	void Renderer2D::DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor, const Vec2 texture_coords[4], int32_t id)
 	{
 		XEN_PROFILE_FN();
 
@@ -405,8 +420,11 @@ namespace Xen {
 		else {
 			for (int i = 0; i < 4; i++)
 			{
+#if 0
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = texture_coords[i] * tiling_factor;
 				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = texture_coords[i] * tiling_factor;
+#endif 
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = texture_coords[i];
 			}
 		}
 
@@ -447,6 +465,7 @@ namespace Xen {
 
 		for (int i = 0; i < 4; i++)
 		{
+#if 0
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color.r;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color.g;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color.b;
@@ -460,7 +479,12 @@ namespace Xen {
 
 			// Outer Fade
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 11] = outerfade;
-
+#endif
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].color = color;
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P1 = thickness;
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P2 = innerfade;
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P3 = outerfade;
+			
 		}
 	}
 
@@ -495,7 +519,7 @@ namespace Xen {
 		{
 			for (int j = 0; j < batch_storage[i]->vertex_index; j++)
 			{
-				if (batch_storage[batch_index]->verts[(j * stride_count) + 14] == static_cast<float>(Primitive::QUAD))
+				if (batch_storage[batch_index]->verts[j].primitiveType == static_cast<uint32_t>(Primitive::QUAD))
 				{
 					float point_distances[4] = {};
 					Vec2 vertices[4] = {};
@@ -503,8 +527,8 @@ namespace Xen {
 					for (int k = 0; k < 4; k++)
 					{
 						Vec2 vertex = {
-							batch_storage[batch_index]->verts[((j + k) * stride_count) + 0],
-							batch_storage[batch_index]->verts[((j + k) * stride_count) + 1]
+							batch_storage[batch_index]->verts[j + k].position.x,
+							batch_storage[batch_index]->verts[j + k].position.y
 						};
 						vertices[k] = vertex;
 						point_distances[k] = sqrtf(powf(vertex.x - position.x, 2) + powf(vertex.y - position.y, 2));
@@ -621,16 +645,16 @@ namespace Xen {
 					continue;
 				}
 
-				else if (batch_storage[batch_index]->verts[(j * stride_count) + 14] == static_cast<float>(Primitive::TRIANGLE))
+				else if (batch_storage[batch_index]->verts[j].primitiveType == static_cast<uint32_t>(Primitive::TRIANGLE))
 				{ 
 					// Adding 2 so that the loop increased one more time to make up to 3
 					j += 2;
 					continue;
 				}
 
-				else if (batch_storage[batch_index]->verts[(j * stride_count) + 14] == static_cast<float>(Primitive::POLYGON))
+				else if (batch_storage[batch_index]->verts[j].primitiveType == static_cast<uint32_t>(Primitive::POLYGON))
 					continue;
-				else if (batch_storage[batch_index]->verts[(j * stride_count) + 14] == static_cast<float>(Primitive::CIRCLE))
+				else if (batch_storage[batch_index]->verts[j].primitiveType == static_cast<uint32_t>(Primitive::CIRCLE))
 				{
 					j += 3;
 					continue;
@@ -718,7 +742,7 @@ namespace Xen {
 			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 10] = fallofB;
 			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index) * stride_count + 11] = intensity;
 
-			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 14] = static_cast<float>(Primitive::POINT_LIGHT);
+			batch_storage[batch_index]->light_verts[(batch_storage[batch_index]->light_vertex_index++) * stride_count + 14] = static_cast<uint32_t>(Primitive::POINT_LIGHT);
 		}
 
 		//RenderCommand::SetAdditiveBlendMode(true);
@@ -854,6 +878,7 @@ namespace Xen {
 		switch (primitive_type)
 		{
 		case Xen::Renderer2D::Primitive::TRIANGLE:
+#if 0
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.5f * tiling_factor;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
 
@@ -862,9 +887,14 @@ namespace Xen {
 
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+#endif
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 0.5f * tiling_factor, 1.0f * tiling_factor };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 0.0f, 0.0f };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 1.0f * tiling_factor, 0.0f };
 
 			break;
 		case Xen::Renderer2D::Primitive::QUAD:
+#if 0
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
 
@@ -876,6 +906,11 @@ namespace Xen {
 
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
+#endif
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 1.0f * tiling_factor, 1.0f * tiling_factor };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 0.0f, 1.0f * tiling_factor};
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 0.0f, 0.0f };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 1.0f * tiling_factor, 0.0f };
 
 			break;
 		case Xen::Renderer2D::Primitive::POLYGON:
@@ -888,23 +923,13 @@ namespace Xen {
 	void Renderer2D::AddColorStatic(uint8_t vertex_count, const Color& color)
 	{
 		for (int i = 0; i < vertex_count; i++)
-		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color.r;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color.g;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color.b;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = color.a;
-		}
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].color = color;
 	}
 
 	void Renderer2D::AddColorArray(uint8_t vertex_count, const Color* color)
 	{
 		for (int i = 0; i < vertex_count; i++)
-		{
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color[i].r;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color[i].g;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color[i].b;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 6] = color[i].a;
-		}
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].color = color[i];
 	}
 
 	void Renderer2D::AddTextureSlot(uint8_t vertex_count, bool is_clear_color, const Ref<Texture2D>& texture)
@@ -920,26 +945,26 @@ namespace Xen {
 				//stats.texture_count++;
 
 				for (int i = 0; i < vertex_count; i++)
-					batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = batch_storage[batch_index]->textures.size() - 1;
+					batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].P1 = static_cast<float>(batch_storage[batch_index]->textures.size() - 1);
 			}
 
 			else
 			{
 				for (int i = 0; i < vertex_count; i++)
-					batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = (float)std::distance(batch_storage[batch_index]->textures.begin(), itr);
+					batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].P1 = static_cast<float>(std::distance(batch_storage[batch_index]->textures.begin(), itr));
 			}
 		}
 
 		else {
 			for (int i = 0; i < vertex_count; i++)
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 9] = 0.0f;
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].P1 = 0.0f;
 		}
 	}
 
 	void Renderer2D::AddID(uint8_t vertex_count, int32_t id)
 	{
 		for (int i = 0; i < vertex_count; i++)
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 13] = (float)id;
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].P5 = (float)id;
 	}
 
 	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id)
@@ -970,29 +995,17 @@ namespace Xen {
 
 		if (rotation.x == 0.0f && rotation.y == 0.0f && rotation.z == 0.0f)
 		{
-			// New Code------
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x + (0.5f * scale.x), position.y + (0.5f * scale.y), position.z };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x - (0.5f * scale.x), position.y + (0.5f * scale.y), position.z };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x - (0.5f * scale.x), position.y - (0.5f * scale.y), position.z };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x + (0.5f * scale.x), position.y - (0.5f * scale.y), position.z };
 
 			JumpDeltaVertexIndex(-4);
 
 			for (int i = 0; i < 4; i++)
 			{
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 14] = (float)Primitive::QUAD;
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 13] = (float)id;
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].primitiveType = static_cast<float>(Primitive::QUAD);
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].P5 = static_cast<float>(id);
 			}
 
 			JumpDeltaVertexIndex(-4);
@@ -1008,15 +1021,9 @@ namespace Xen {
 
 			for (int i = 0; i < 4; i++)
 			{
-				// New code------
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 13] = (float)id;
-
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = (transform * temp_vert[i]).x;
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = (transform * temp_vert[i]).y;
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 2] = (transform * temp_vert[i]).z;
-
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::QUAD;
-				// --------------
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P5 = static_cast<float>(id);
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].position = { (transform * temp_vert[i]).x, (transform * temp_vert[i]).y, (transform * temp_vert[i]).z };
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<float>(Primitive::QUAD);
 
 			}
 			JumpDeltaVertexIndex(-4);
@@ -1047,30 +1054,18 @@ namespace Xen {
 
 		batch_storage[batch_index]->index_count += 6;
 
-		// New Code------
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + (0.5f * scale.y);
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x - (0.5f * scale.x);
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + (0.5f * scale.x);
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y - (0.5f * scale.y);
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x + (0.5f * scale.x), position.y + (0.5f * scale.y), position.z };
+		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x - (0.5f * scale.x), position.y + (0.5f * scale.y), position.z };
+		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x - (0.5f * scale.x), position.y - (0.5f * scale.y), position.z };
+		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x + (0.5f * scale.x), position.y - (0.5f * scale.y), position.z };
 
 		JumpDeltaVertexIndex(-4);
 
 		for (int i = 0; i < 4; i++)
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::CIRCLE;
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<float>(Primitive::CIRCLE);
 
 		JumpDeltaVertexIndex(-4);
-
+#if 0
 		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
 		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
 
@@ -1082,7 +1077,12 @@ namespace Xen {
 
 		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
 		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = -1.0f;
+#endif
 
+		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = {  1.0f,  1.0f };
+		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { -1.0f,  1.0f };
+		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { -1.0f, -1.0f };
+		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = {  1.0f, -1.0f };
 		JumpDeltaVertexIndex(-4);
 
 		Renderer2D::AddID(4, id);
@@ -1115,18 +1115,22 @@ namespace Xen {
 
 		batch_storage[batch_index]->index_count += 3;
 
-		std::vector<int32_t> angles;
-		angles.push_back(90);
-		angles.push_back(-150);
-		angles.push_back(-30);
+		std::vector<int32_t> angles = {90, -150, -30};
 
 		float one_over_root_two = sqrt(2.0) / 2.0;
 
 		for (int32_t angle : angles)
 		{
+#if 0
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + cos(glm::radians(angle + rotation.z)) * one_over_root_two;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + sin(glm::radians(angle + rotation.z)) * one_over_root_two;
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+#endif
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position =
+			{	position.x + cos(glm::radians(angle + rotation.z)) * one_over_root_two,
+				position.y + sin(glm::radians(angle + rotation.z)) * one_over_root_two,
+				position.z
+			};
 		}
 
 		JumpDeltaVertexIndex(-3);
@@ -1141,21 +1145,18 @@ namespace Xen {
 		for (int i = 0; i < 3; i++)
 		{
 			vertex = glm::vec4(
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 0],
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 1],
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 2],
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].position.GetVec(),
 				1.0f
 			);
 
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = (view_mat * vertex).x;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = (view_mat * vertex).y;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = (view_mat * vertex).z;
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++] = 
+			{ (view_mat * vertex).x, (view_mat * vertex).y, (view_mat * vertex).z };
 		}
 
 		JumpDeltaVertexIndex(-3);
 
 		for (int i = 0; i < 3; i++)
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::TRIANGLE;
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<float>(Primitive::TRIANGLE);
 
 		JumpDeltaVertexIndex(-3);
 
@@ -1202,22 +1203,35 @@ namespace Xen {
 		for (int i = 1; i <= segments; i++)
 			angles.push_back((360.0f / segments) * i);
 
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
+		// First center vertex:
+		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = position;
 
 		for (float angle : angles)
 		{
+#if 0
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 0] = position.x + (cos(glm::radians(angle + rotation.z)) * one_over_root_two);
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 1] = position.y + (sin(glm::radians(angle + rotation.z)) * one_over_root_two);
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 2] = position.z;
+#endif
 
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].position =
+			{	position.x + cos(glm::radians(angle + rotation.z)) * one_over_root_two,
+				position.y + sin(glm::radians(angle + rotation.z)) * one_over_root_two,
+				position.z
+			};
 
 			// Temp Tex Coords:
+#if 0
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = position.x + (cos(glm::radians(angle + rotation.z)) * scale.x + 1.0f);
 			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 8] = position.y + (sin(glm::radians(angle + rotation.z)) * scale.y + 1.0f);
+#endif
 
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 14] = (float)Primitive::POLYGON;
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].textureWorldCoords =
+			{ 
+				position.x + (cos(glm::radians(angle + rotation.z)) * scale.x + 1.0f),
+				position.y + (sin(glm::radians(angle + rotation.z)) * scale.y + 1.0f)
+			};
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<int32_t>(Primitive::POLYGON);
 		}
 
 		JumpDeltaVertexIndex(-(segments + 1));

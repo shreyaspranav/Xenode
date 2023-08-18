@@ -58,8 +58,8 @@ namespace Xen {
 		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color(), int32_t id = -1);
 		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4], int32_t id = -1);
 		
-		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f, const float tex_coords[4] = nullptr, int32_t id = -1);
-		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor = 1.0f, const float tex_coords[4] = nullptr, int32_t id = -1);
+		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f, const Vec2 tex_coords[4] = nullptr, int32_t id = -1);
+		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor = 1.0f, const Vec2 tex_coords[4] = nullptr, int32_t id = -1);
 
 		static void DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const Color& color = Color(), int32_t id = -1);
 		static void DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const std::vector<Color>& color, int32_t id = -1);

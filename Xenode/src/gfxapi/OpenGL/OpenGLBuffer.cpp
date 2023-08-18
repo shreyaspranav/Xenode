@@ -99,8 +99,9 @@ namespace Xen {
 			case VertexBufferDataType::Int2:
 			case VertexBufferDataType::Int3:
 			case VertexBufferDataType::Int4:
-				glVertexArrayAttribFormat(m_VertexArrayID, iterationCount, 
-					CalculateCount((*it).type), GL_INT, GL_FALSE, offset);
+				// For Integer formats should use a different funtion. Facepalm! wasted 1 hour on this:
+				glVertexArrayAttribIFormat(m_VertexArrayID, iterationCount, 
+					CalculateCount((*it).type), GL_INT, offset);
 				offset += CalculateCount((*it).type) * sizeof(int);
 				break;
 
@@ -108,8 +109,8 @@ namespace Xen {
 			case VertexBufferDataType::UnsignedInt2:
 			case VertexBufferDataType::UnsignedInt3:
 			case VertexBufferDataType::UnsignedInt4:
-				glVertexArrayAttribFormat(m_VertexArrayID, iterationCount, 
-					CalculateCount((*it).type), GL_UNSIGNED_INT, GL_FALSE, offset);
+				glVertexArrayAttribIFormat(m_VertexArrayID, iterationCount, 
+					CalculateCount((*it).type), GL_UNSIGNED_INT, offset);
 				offset += CalculateCount((*it).type) * sizeof(int);
 				break;
 			}

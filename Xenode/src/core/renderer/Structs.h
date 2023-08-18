@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 
 namespace Xen {
+
+	// Just a Vec4 but with a different name.
 	struct Color
 	{
 		float r, g, b, a;
