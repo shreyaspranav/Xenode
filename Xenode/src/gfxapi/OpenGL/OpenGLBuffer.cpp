@@ -8,7 +8,7 @@
 
 namespace Xen {
 
-	static uint8_t CalculateCount(const VertexBufferDataType& elementDataType)
+	static int8_t CalculateCount(const VertexBufferDataType& elementDataType)
 	{
 		switch (elementDataType)
 		{
@@ -92,7 +92,7 @@ namespace Xen {
 			case VertexBufferDataType::Float4:
 				glVertexArrayAttribFormat(m_VertexArrayID, iterationCount, 
 					CalculateCount((*it).type), GL_FLOAT, GL_FALSE, offset);
-				offset += CalculateCount((*it).type) * sizeof(float);
+				offset += CalculateSize((*it).type);
 				break;
 
 			case VertexBufferDataType::Int:
@@ -102,7 +102,7 @@ namespace Xen {
 				// For Integer formats should use a different funtion. Facepalm! wasted 1 hour on this:
 				glVertexArrayAttribIFormat(m_VertexArrayID, iterationCount, 
 					CalculateCount((*it).type), GL_INT, offset);
-				offset += CalculateCount((*it).type) * sizeof(int);
+				offset += CalculateSize((*it).type);
 				break;
 
 			case VertexBufferDataType::UnsignedInt:
@@ -111,7 +111,7 @@ namespace Xen {
 			case VertexBufferDataType::UnsignedInt4:
 				glVertexArrayAttribIFormat(m_VertexArrayID, iterationCount, 
 					CalculateCount((*it).type), GL_UNSIGNED_INT, offset);
-				offset += CalculateCount((*it).type) * sizeof(int);
+				offset += CalculateSize((*it).type);
 				break;
 			}
 

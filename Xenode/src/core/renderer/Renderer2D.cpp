@@ -57,7 +57,7 @@ namespace Xen {
 		* P5 ---> Vertex ID
 		*/ 
 		float P1, P2, P3, P4, P5;
-		float primitiveType;
+		unsigned int primitiveType;
 
 		// Editor purpose only:
 		//int32_t _vertexID;
@@ -108,9 +108,7 @@ namespace Xen {
 			line_verts = new float[max_lines_per_batch * 7];
 			line_index = 0;
 
-			verts = (Vertex*)malloc(max_vertices_per_batch * sizeof(Vertex));
-			memset(verts, 0, max_vertices_per_batch * sizeof(Vertex));
-
+			verts = new Vertex[max_vertices_per_batch];
 			indices = new uint32_t[max_quads_per_batch * 6];
 			vertex_index = 0;
 			index_count = 0;
@@ -157,7 +155,7 @@ namespace Xen {
 			{ "aP3", VertexBufferDataType::Float, 5 },
 			{ "aP4", VertexBufferDataType::Float, 6 },
 			{ "aP5", VertexBufferDataType::Float, 7 },
-			{ "aPrimitiveType", VertexBufferDataType::Float, 8 }
+			{ "aPrimitiveType", VertexBufferDataType::UnsignedInt, 8 }
 		};
 
 		lineBufferLayout = {
@@ -389,13 +387,7 @@ namespace Xen {
 		else {
 
 			for (int i = 0; i < 4; i++)
-			{
-#if 0
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = texture_coords[i] * tiling_factor;
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = texture_coords[i] * tiling_factor;
-#endif
 				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = texture_coords[i];
-			}
 		}
 
 		JumpDeltaVertexIndex(-4);
@@ -419,13 +411,7 @@ namespace Xen {
 
 		else {
 			for (int i = 0; i < 4; i++)
-			{
-#if 0
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = texture_coords[i] * tiling_factor;
-				batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = texture_coords[i] * tiling_factor;
-#endif 
 				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = texture_coords[i];
-			}
 		}
 
 		JumpDeltaVertexIndex(-4);
@@ -465,26 +451,10 @@ namespace Xen {
 
 		for (int i = 0; i < 4; i++)
 		{
-#if 0
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 3] = color.r;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 4] = color.g;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 5] = color.b;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 6] = color.a;
-
-			// Thickness
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 9 ] = thickness;
-
-			// Inner Fade
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 10] = innerfade;
-
-			// Outer Fade
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 11] = outerfade;
-#endif
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].color = color;
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P1 = thickness;
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P2 = innerfade;
-			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P3 = outerfade;
-			
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P3 = outerfade;	
 		}
 	}
 
@@ -878,35 +848,12 @@ namespace Xen {
 		switch (primitive_type)
 		{
 		case Xen::Renderer2D::Primitive::TRIANGLE:
-#if 0
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.5f * tiling_factor;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
-#endif
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 0.5f * tiling_factor, 1.0f * tiling_factor };
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 0.0f, 0.0f };
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 1.0f * tiling_factor, 0.0f };
 
 			break;
 		case Xen::Renderer2D::Primitive::QUAD:
-#if 0
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f * tiling_factor;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 0.0f;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
-
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f * tiling_factor;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 0.0f;
-#endif
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 1.0f * tiling_factor, 1.0f * tiling_factor };
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 0.0f, 1.0f * tiling_factor};
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 0.0f, 0.0f };
@@ -1004,7 +951,7 @@ namespace Xen {
 
 			for (int i = 0; i < 4; i++)
 			{
-				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].primitiveType = static_cast<float>(Primitive::QUAD);
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].primitiveType = (uint32_t)Primitive::QUAD;
 				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].P5 = static_cast<float>(id);
 			}
 
@@ -1023,7 +970,7 @@ namespace Xen {
 			{
 				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P5 = static_cast<float>(id);
 				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].position = { (transform * temp_vert[i]).x, (transform * temp_vert[i]).y, (transform * temp_vert[i]).z };
-				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<float>(Primitive::QUAD);
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<unsigned int>(Primitive::QUAD);
 
 			}
 			JumpDeltaVertexIndex(-4);
@@ -1065,19 +1012,6 @@ namespace Xen {
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<float>(Primitive::CIRCLE);
 
 		JumpDeltaVertexIndex(-4);
-#if 0
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = -1.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = 1.0f;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = -1.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = -1.0f;
-
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = 1.0f;
-		batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 8] = -1.0f;
-#endif
 
 		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = {  1.0f,  1.0f };
 		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { -1.0f,  1.0f };
@@ -1120,18 +1054,11 @@ namespace Xen {
 		float one_over_root_two = sqrt(2.0) / 2.0;
 
 		for (int32_t angle : angles)
-		{
-#if 0
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 0] = position.x + cos(glm::radians(angle + rotation.z)) * one_over_root_two;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 1] = position.y + sin(glm::radians(angle + rotation.z)) * one_over_root_two;
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index++) * stride_count + 2] = position.z;
-#endif
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position =
 			{	position.x + cos(glm::radians(angle + rotation.z)) * one_over_root_two,
 				position.y + sin(glm::radians(angle + rotation.z)) * one_over_root_two,
 				position.z
 			};
-		}
 
 		JumpDeltaVertexIndex(-3);
 
@@ -1208,12 +1135,6 @@ namespace Xen {
 
 		for (float angle : angles)
 		{
-#if 0
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 0] = position.x + (cos(glm::radians(angle + rotation.z)) * one_over_root_two);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 1] = position.y + (sin(glm::radians(angle + rotation.z)) * one_over_root_two);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index) * stride_count + 2] = position.z;
-#endif
-
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].position =
 			{	position.x + cos(glm::radians(angle + rotation.z)) * one_over_root_two,
 				position.y + sin(glm::radians(angle + rotation.z)) * one_over_root_two,
@@ -1221,11 +1142,6 @@ namespace Xen {
 			};
 
 			// Temp Tex Coords:
-#if 0
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 7] = position.x + (cos(glm::radians(angle + rotation.z)) * scale.x + 1.0f);
-			batch_storage[batch_index]->verts[(batch_storage[batch_index]->vertex_index  ) * stride_count + 8] = position.y + (sin(glm::radians(angle + rotation.z)) * scale.y + 1.0f);
-#endif
-
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].textureWorldCoords =
 			{ 
 				position.x + (cos(glm::radians(angle + rotation.z)) * scale.x + 1.0f),
