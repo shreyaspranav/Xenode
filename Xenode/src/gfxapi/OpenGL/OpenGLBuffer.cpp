@@ -90,7 +90,7 @@ namespace Xen {
 			case VertexBufferDataType::Float2:
 			case VertexBufferDataType::Float3:
 			case VertexBufferDataType::Float4:
-				glVertexArrayAttribFormat(m_VertexArrayID, iterationCount, 
+				glVertexArrayAttribFormat(m_VertexArrayID, (*it).shader_location,
 					CalculateCount((*it).type), GL_FLOAT, GL_FALSE, offset);
 				offset += CalculateSize((*it).type);
 				break;
@@ -100,7 +100,7 @@ namespace Xen {
 			case VertexBufferDataType::Int3:
 			case VertexBufferDataType::Int4:
 				// For Integer formats should use a different funtion. Facepalm! wasted 1 hour on this:
-				glVertexArrayAttribIFormat(m_VertexArrayID, iterationCount, 
+				glVertexArrayAttribIFormat(m_VertexArrayID, (*it).shader_location,
 					CalculateCount((*it).type), GL_INT, offset);
 				offset += CalculateSize((*it).type);
 				break;
@@ -109,13 +109,13 @@ namespace Xen {
 			case VertexBufferDataType::UnsignedInt2:
 			case VertexBufferDataType::UnsignedInt3:
 			case VertexBufferDataType::UnsignedInt4:
-				glVertexArrayAttribIFormat(m_VertexArrayID, iterationCount, 
+				glVertexArrayAttribIFormat(m_VertexArrayID, (*it).shader_location,
 					CalculateCount((*it).type), GL_UNSIGNED_INT, offset);
 				offset += CalculateSize((*it).type);
 				break;
 			}
 
-			glVertexArrayAttribBinding(m_VertexArrayID, iterationCount, 0);
+			glVertexArrayAttribBinding(m_VertexArrayID, (*it).shader_location, 0);
 
 			iterationCount++;
 		}

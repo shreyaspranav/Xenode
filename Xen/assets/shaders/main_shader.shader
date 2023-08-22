@@ -4,12 +4,12 @@
 in vec4 color;
 in vec2 TextureWorldCoords;
 
+flat in float PrimitiveType;
 flat in float P1;
 flat in float P2;
 flat in float P3;
 flat in float P4;
 flat in float P5;
-in flat uint PrimitiveType;
 
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec4 maskColor;
@@ -19,21 +19,22 @@ uniform sampler2D tex[8];
 
 void main()
 {
-	uint LINE			= 1 << 0;
-	uint TRIANGLE		= 1 << 1;
-	uint QUAD			= 1 << 2;
-	uint POLYGON		= 1 << 3;
-	uint CIRCLE		= 1 << 4;
+	const int LINE				= 1;
+	const int TRIANGLE			= 2;
+	const int QUAD				= 4;
+	const int POLYGON			= 8;
+	const int CIRCLE			= 16;
 
-	vec4 output_color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	vec4 output_color = vec4(1.0f, 0.0f, 1.0f, 1.0f);
+	int primitiveType = int(PrimitiveType);
 
-	if (PrimitiveType == QUAD || PrimitiveType == TRIANGLE || PrimitiveType == POLYGON)
+	if (primitiveType == QUAD || primitiveType == TRIANGLE || primitiveType == POLYGON)
 	{
 		int tex_slot = int(P1);
 		output_color = texture(tex[tex_slot], TextureWorldCoords) * color;
 	}
 
-	if (PrimitiveType == CIRCLE)
+	if (primitiveType == CIRCLE)
 	{
 		float circleThickness = P1;
 		float circleInnerFade = P2;
@@ -70,12 +71,12 @@ layout(location = 0)in vec3 aPosition;
 layout(location = 1)in vec4 aColor;
 layout(location = 2)in vec2 aTextureWorldCoords;
 
-layout(location = 3)in float aP1;
-layout(location = 4)in float aP2;
-layout(location = 5)in float aP3;
-layout(location = 6)in float aP4;
-layout(location = 7)in float aP5;
-layout(location = 8)in uint aPrimitiveType;
+layout(location = 3)in float aPrimitiveType;
+layout(location = 4)in float aP1;
+layout(location = 5)in float aP2;
+layout(location = 6)in float aP3;
+layout(location = 7)in float aP4;
+layout(location = 8)in float aP5;
 
 out vec4 color;
 out vec2 TextureWorldCoords;
@@ -85,7 +86,7 @@ flat out float P2;
 flat out float P3;
 flat out float P4;
 flat out float P5;
-out flat uint PrimitiveType;
+flat out float PrimitiveType;
 
 uniform mat4 u_ViewProjectionMatrix;
 

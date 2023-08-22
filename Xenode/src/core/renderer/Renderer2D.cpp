@@ -56,14 +56,14 @@ namespace Xen {
 		* P4 --->
 		* P5 ---> Vertex ID
 		*/ 
+		float primitiveType;
 		float P1, P2, P3, P4, P5;
-		unsigned int primitiveType;
 
 		// Editor purpose only:
 		//int32_t _vertexID;
 	};
 
-	Vertex v;
+
 	/*
 	
 	TODO: Renderer Plan:
@@ -150,12 +150,12 @@ namespace Xen {
 			{ "aPosition", VertexBufferDataType::Float3, 0 },
 			{ "aColor", VertexBufferDataType::Float4, 1 },
 			{ "aTextureWorldCoords", VertexBufferDataType::Float2, 2 },
-			{ "aP1", VertexBufferDataType::Float, 3 },
-			{ "aP2", VertexBufferDataType::Float, 4 },
-			{ "aP3", VertexBufferDataType::Float, 5 },
-			{ "aP4", VertexBufferDataType::Float, 6 },
-			{ "aP5", VertexBufferDataType::Float, 7 },
-			{ "aPrimitiveType", VertexBufferDataType::UnsignedInt, 8 }
+			{ "aPrimitiveType", VertexBufferDataType::Float, 3 },
+			{ "aP1", VertexBufferDataType::Float, 4 },
+			{ "aP2", VertexBufferDataType::Float, 5 },
+			{ "aP3", VertexBufferDataType::Float, 6 },
+			{ "aP4", VertexBufferDataType::Float, 7 },
+			{ "aP5", VertexBufferDataType::Float, 8 }
 		};
 
 		lineBufferLayout = {
@@ -951,7 +951,7 @@ namespace Xen {
 
 			for (int i = 0; i < 4; i++)
 			{
-				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].primitiveType = (uint32_t)Primitive::QUAD;
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].primitiveType = (int)Primitive::QUAD;
 				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].P5 = static_cast<float>(id);
 			}
 
@@ -970,7 +970,7 @@ namespace Xen {
 			{
 				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P5 = static_cast<float>(id);
 				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].position = { (transform * temp_vert[i]).x, (transform * temp_vert[i]).y, (transform * temp_vert[i]).z };
-				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<unsigned int>(Primitive::QUAD);
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<int>(Primitive::QUAD);
 
 			}
 			JumpDeltaVertexIndex(-4);
