@@ -4,12 +4,14 @@
 in vec4 color;
 in vec2 TextureWorldCoords;
 
-flat in float PrimitiveType;
+flat in uint PrimitiveType;
 flat in float P1;
 flat in float P2;
 flat in float P3;
 flat in float P4;
 flat in float P5;
+
+flat in int vertexID;
 
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec4 maskColor;
@@ -26,15 +28,14 @@ void main()
 	const int CIRCLE			= 16;
 
 	vec4 output_color = vec4(1.0f, 0.0f, 1.0f, 1.0f);
-	int primitiveType = int(PrimitiveType);
 
-	if (primitiveType == QUAD || primitiveType == TRIANGLE || primitiveType == POLYGON)
+	if (PrimitiveType == QUAD || PrimitiveType == TRIANGLE || PrimitiveType == POLYGON)
 	{
 		int tex_slot = int(P1);
 		output_color = texture(tex[tex_slot], TextureWorldCoords) * color;
 	}
 
-	if (primitiveType == CIRCLE)
+	if (PrimitiveType == CIRCLE)
 	{
 		float circleThickness = P1;
 		float circleInnerFade = P2;
@@ -61,7 +62,7 @@ void main()
 
 	fragColor = output_color;
 	maskColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	entt_id = int(P5);
+	entt_id = vertexID;
 }
 
 #shadertype: vertex
@@ -71,12 +72,13 @@ layout(location = 0)in vec3 aPosition;
 layout(location = 1)in vec4 aColor;
 layout(location = 2)in vec2 aTextureWorldCoords;
 
-layout(location = 3)in float aPrimitiveType;
+layout(location = 3)in uint aPrimitiveType;
 layout(location = 4)in float aP1;
 layout(location = 5)in float aP2;
 layout(location = 6)in float aP3;
 layout(location = 7)in float aP4;
 layout(location = 8)in float aP5;
+layout(location = 9)in int _vertexID;
 
 out vec4 color;
 out vec2 TextureWorldCoords;
@@ -86,7 +88,8 @@ flat out float P2;
 flat out float P3;
 flat out float P4;
 flat out float P5;
-flat out float PrimitiveType;
+flat out uint PrimitiveType;
+flat out int vertexID;
 
 uniform mat4 u_ViewProjectionMatrix;
 
@@ -103,4 +106,5 @@ void main()
 	P4 = aP4;
 	P5 = aP5;
 	PrimitiveType = aPrimitiveType;
+	vertexID = _vertexID;
 }

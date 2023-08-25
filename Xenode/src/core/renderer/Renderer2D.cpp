@@ -56,11 +56,11 @@ namespace Xen {
 		* P4 --->
 		* P5 ---> Vertex ID
 		*/ 
-		float primitiveType;
+		uint32_t primitiveType;
 		float P1, P2, P3, P4, P5;
 
 		// Editor purpose only:
-		//int32_t _vertexID;
+		int32_t _vertexID;
 	};
 
 
@@ -150,12 +150,13 @@ namespace Xen {
 			{ "aPosition", VertexBufferDataType::Float3, 0 },
 			{ "aColor", VertexBufferDataType::Float4, 1 },
 			{ "aTextureWorldCoords", VertexBufferDataType::Float2, 2 },
-			{ "aPrimitiveType", VertexBufferDataType::Float, 3 },
+			{ "aPrimitiveType", VertexBufferDataType::UnsignedInt, 3 },
 			{ "aP1", VertexBufferDataType::Float, 4 },
 			{ "aP2", VertexBufferDataType::Float, 5 },
 			{ "aP3", VertexBufferDataType::Float, 6 },
 			{ "aP4", VertexBufferDataType::Float, 7 },
-			{ "aP5", VertexBufferDataType::Float, 8 }
+			{ "aP5", VertexBufferDataType::Float, 8 },
+			{ "_vertexID", VertexBufferDataType::Int, 9 }
 		};
 
 		lineBufferLayout = {
@@ -269,7 +270,7 @@ namespace Xen {
 			s_Data.vertexBuffer->Bind();
 			s_Data.shader->Bind();
 			
-			s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * stride_count * sizeof(float));
+			s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * sizeof(Vertex));
 			
 			s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->index_count * sizeof(int));
 			s_Data.shader->SetIntArray("tex", texture_slots, max_texture_slots);
@@ -454,7 +455,7 @@ namespace Xen {
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].color = color;
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P1 = thickness;
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P2 = innerfade;
-			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P3 = outerfade;	
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].P3 = outerfade;	
 		}
 	}
 
@@ -911,7 +912,7 @@ namespace Xen {
 	void Renderer2D::AddID(uint8_t vertex_count, int32_t id)
 	{
 		for (int i = 0; i < vertex_count; i++)
-			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].P5 = (float)id;
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++]._vertexID = id;
 	}
 
 	void Renderer2D::AddQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id)
@@ -946,17 +947,6 @@ namespace Xen {
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x - (0.5f * scale.x), position.y + (0.5f * scale.y), position.z };
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x - (0.5f * scale.x), position.y - (0.5f * scale.y), position.z };
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x + (0.5f * scale.x), position.y - (0.5f * scale.y), position.z };
-
-			JumpDeltaVertexIndex(-4);
-
-			for (int i = 0; i < 4; i++)
-			{
-				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].primitiveType = (int)Primitive::QUAD;
-				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].P5 = static_cast<float>(id);
-			}
-
-			JumpDeltaVertexIndex(-4);
-
 		}
 
 		else {
@@ -967,15 +957,20 @@ namespace Xen {
 				* glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f));
 
 			for (int i = 0; i < 4; i++)
-			{
-				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].P5 = static_cast<float>(id);
-				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].position = { (transform * temp_vert[i]).x, (transform * temp_vert[i]).y, (transform * temp_vert[i]).z };
-				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<int>(Primitive::QUAD);
-
-			}
-			JumpDeltaVertexIndex(-4);
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = 
+			{ (transform * temp_vert[i]).x, (transform * temp_vert[i]).y, (transform * temp_vert[i]).z };
 		}
 
+		JumpDeltaVertexIndex(-4);
+
+		for (int i = 0; i < 4; i++)
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<uint32_t>(Primitive::QUAD);
+
+		JumpDeltaVertexIndex(-4);
+
+		Renderer2D::AddID(4, id);
+
+		JumpDeltaVertexIndex(-4);
 		stats.quad_count++;
 	}
 
@@ -1009,7 +1004,7 @@ namespace Xen {
 		JumpDeltaVertexIndex(-4);
 
 		for (int i = 0; i < 4; i++)
-			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<float>(Primitive::CIRCLE);
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<uint32_t>(Primitive::CIRCLE);
 
 		JumpDeltaVertexIndex(-4);
 
@@ -1076,14 +1071,14 @@ namespace Xen {
 				1.0f
 			);
 
-			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++] = 
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = 
 			{ (view_mat * vertex).x, (view_mat * vertex).y, (view_mat * vertex).z };
 		}
 
 		JumpDeltaVertexIndex(-3);
 
 		for (int i = 0; i < 3; i++)
-			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<float>(Primitive::TRIANGLE);
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<uint32_t>(Primitive::TRIANGLE);
 
 		JumpDeltaVertexIndex(-3);
 
@@ -1147,7 +1142,7 @@ namespace Xen {
 				position.x + (cos(glm::radians(angle + rotation.z)) * scale.x + 1.0f),
 				position.y + (sin(glm::radians(angle + rotation.z)) * scale.y + 1.0f)
 			};
-			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<int32_t>(Primitive::POLYGON);
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<uint32_t>(Primitive::POLYGON);
 		}
 
 		JumpDeltaVertexIndex(-(segments + 1));
