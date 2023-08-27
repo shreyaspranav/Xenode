@@ -25,4 +25,14 @@ namespace Xen {
 		}
 		return nullptr;
 	}
+	Ref<UniformBuffer> UniformBuffer::CreateUniformBuffer(Size size, const VertexBufferLayout& layout, uint8_t bindingIndex)
+	{
+
+		switch (DesktopApplication::GetGraphicsAPI())
+		{
+		case GraphicsAPI::XEN_OPENGL_API:
+			return std::make_shared<OpenGLUniformBuffer>(size, layout, bindingIndex);
+		}
+		return nullptr;
+	}
 }

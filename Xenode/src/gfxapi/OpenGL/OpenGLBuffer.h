@@ -56,4 +56,18 @@ namespace Xen {
 		uint32_t m_BufferID, m_Size, m_Count, m_ActiveCount;
 		ElementBufferDataType m_ElementDataType;
 	};
+
+	class OpenGLUniformBuffer : public UniformBuffer
+	{
+	public:
+		OpenGLUniformBuffer(Size size, const VertexBufferLayout& layout, uint8_t bindingIndex);
+		virtual ~OpenGLUniformBuffer();
+
+		void Put(Size offset, const void* data, Size size) override;
+	private:
+		uint32_t m_BufferID;
+
+		Size m_Size;
+		VertexBufferLayout m_Layout;
+	};
 }

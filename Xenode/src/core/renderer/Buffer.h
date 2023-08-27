@@ -19,10 +19,11 @@ namespace Xen {
 		Mat3, Mat4
 	};
 
-	enum class ElementBufferDataType
-	{
-		Unsigned16Bit, Unsigned32Bit
-	};
+	enum class ElementBufferDataType { Unsigned16Bit, Unsigned32Bit };
+
+
+	// TODO: Make a better API for uniform buffers
+	enum class UniformBufferBlockLayout { STD140, STD430 };
 
 	struct VertexBufferElement
 	{
@@ -96,6 +97,14 @@ namespace Xen {
 		virtual inline bool HasElementBuffer() const = 0;
 
 		static Ref<VertexBuffer> CreateVertexBuffer(Size size, const VertexBufferLayout& layout);
+	};
+
+	class XEN_API UniformBuffer
+	{
+	public:
+		virtual void Put(Size offset, const void* data, Size size) = 0;
+
+		static Ref<UniformBuffer> CreateUniformBuffer(Size size, const VertexBufferLayout& layout, uint8_t bindingIndex);
 	};
 }
 

@@ -91,11 +91,16 @@ flat out float P5;
 flat out uint PrimitiveType;
 flat out int vertexID;
 
-uniform mat4 u_ViewProjectionMatrix;
+//uniform mat4 u_ViewProjectionMatrix;
+
+layout(std140, binding = 1)uniform CameraData
+{
+	mat4 ViewProjectionMatrix;
+};
 
 void main()
 {
-	gl_Position = u_ViewProjectionMatrix * vec4(aPosition, 1.0f);
+	gl_Position = ViewProjectionMatrix * vec4(aPosition, 1.0f);
 
 	color = aColor;
 	TextureWorldCoords = aTextureWorldCoords;

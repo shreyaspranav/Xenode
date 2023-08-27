@@ -209,4 +209,24 @@ namespace Xen {
 	inline uint32_t OpenGLElementBuffer::GetActiveCount() const		{ return m_ActiveCount; }
 
 	inline uint32_t OpenGLElementBuffer::GetSize() const	{ return m_Size; }
+
+	//-------OpenGLUniformBuffer---------------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------------
+
+	OpenGLUniformBuffer::OpenGLUniformBuffer(Size size, const VertexBufferLayout& layout, uint8_t bindingIndex)
+		:m_Size(size), m_Layout(layout)
+	{
+		glCreateBuffers(1, &m_BufferID);
+		glNamedBufferStorage(m_BufferID, size, nullptr, GL_DYNAMIC_STORAGE_BIT);
+		glBindBufferBase(GL_UNIFORM_BUFFER, static_cast<uint32_t>(bindingIndex), m_BufferID);
+	}
+
+	OpenGLUniformBuffer::~OpenGLUniformBuffer()
+	{
+		glDeleteBuffers(1, &m_BufferID);
+	}
+	void OpenGLUniformBuffer::Put(Size offset, const void* data, Size size)
+	{
+		glNamedBufferSubData(m_BufferID, offset, size, data);
+	}
 }

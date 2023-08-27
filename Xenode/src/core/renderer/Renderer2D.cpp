@@ -6,6 +6,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "core/app/Profiler.h"
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Xen {
 
@@ -142,6 +143,8 @@ namespace Xen {
 	VertexBufferLayout bufferLayout;
 	VertexBufferLayout lineBufferLayout;
 
+	struct CameraData { glm::mat4 viewProjection; };
+
 	void Renderer2D::Init()
 	{
 		XEN_PROFILE_FN();
@@ -196,6 +199,8 @@ namespace Xen {
 
 		for (int i = 0; i < max_texture_slots; i++)
 			texture_slots[i] = i;
+
+		s_Data.cameraUniformBuffer = UniformBuffer::CreateUniformBuffer(sizeof(CameraData), bufferLayout, 1);
 	}
 
 	void Renderer2D::ShutDown()
@@ -232,6 +237,8 @@ namespace Xen {
 
 		for (const Ref<Renderer2DStorage>& storage : batch_storage)
 			stats.texture_count += storage->texture_slot_index;
+
+		s_Data.cameraUniformBuffer->Put(0, glm::value_ptr(camera->GetViewProjectionMatrix()), sizeof(glm::mat4));
 	}
 
 	void Renderer2D::EndScene()
@@ -275,7 +282,7 @@ namespace Xen {
 			s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->index_count * sizeof(int));
 			s_Data.shader->SetIntArray("tex", texture_slots, max_texture_slots);
 			
-			s_Data.shader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			//s_Data.shader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
 			RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->index_count);
 		}
 	}

@@ -24,6 +24,8 @@ namespace Xen {
 		Ref<Shader> lightShader;
 		Ref<Shader> screenShader;
 
+		Ref<UniformBuffer> cameraUniformBuffer;
+
 		SceneData()
 		{}
 	};
