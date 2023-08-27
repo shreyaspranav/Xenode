@@ -67,8 +67,6 @@ namespace Xen {
 		glCreateBuffers(1, &m_VertexBufferID);
 		glNamedBufferStorage(m_VertexBufferID, m_Size, nullptr, GL_DYNAMIC_STORAGE_BIT);
 
-		// Even though we are using DSA functions, A bug in intel drivers will cause the shader to not read integer attributes for some reason.
-		// Binding to the VAO fixed it.
 		glCreateVertexArrays(1, &m_VertexArrayID);
 
 		Size stride = 0;
@@ -78,7 +76,9 @@ namespace Xen {
 		// m_Count -> No of vertices.
 		m_Count = size / stride;
 
-		glBindVertexArray(m_VertexArrayID);
+		// Even though we are using DSA functions, A bug in intel drivers will cause the shader to not read integer attributes for some reason.
+		// Binding to the VAO fixed it.
+		// glBindVertexArray(m_VertexArrayID);
 
 		glVertexArrayVertexBuffer(m_VertexArrayID, 0, m_VertexBufferID, 0, stride);
 
