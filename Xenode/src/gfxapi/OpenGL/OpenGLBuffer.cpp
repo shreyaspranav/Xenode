@@ -78,7 +78,7 @@ namespace Xen {
 
 		// Even though we are using DSA functions, A bug in intel drivers will cause the shader to not read integer attributes for some reason.
 		// Binding to the VAO fixed it.
-		// glBindVertexArray(m_VertexArrayID);
+		glBindVertexArray(m_VertexArrayID);
 
 		glVertexArrayVertexBuffer(m_VertexArrayID, 0, m_VertexBufferID, 0, stride);
 
