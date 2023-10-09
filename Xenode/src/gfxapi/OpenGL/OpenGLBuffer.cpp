@@ -30,6 +30,11 @@ namespace Xen {
 		case VertexBufferDataType::Mat3: return 3 * 3;
 		case VertexBufferDataType::Mat4: return 4 * 4;
 		}
+
+		XEN_ENGINE_LOG_ERROR("Invalid VertexBufferDataType!");
+		TRIGGER_BREAKPOINT;
+
+		return 0;
 	}
 
 	static Size CalculateSize(const VertexBufferDataType& elementDataType)
@@ -57,6 +62,11 @@ namespace Xen {
 		case VertexBufferDataType::Mat3: return 3 * 3 * sizeOfFloat;
 		case VertexBufferDataType::Mat4: return 4 * 4 * sizeOfFloat;
 		}
+
+		XEN_ENGINE_LOG_ERROR("Invalid VertexBufferDataType!");
+		TRIGGER_BREAKPOINT;
+
+		return 0;
 	}
 
 	//-------OpenGLVertexBuffer---------------------------------------------------------------------------------

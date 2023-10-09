@@ -24,6 +24,11 @@ namespace Xen {
 			case BlendFactor::SrcAlpha:				return GL_SRC_ALPHA;
 			case BlendFactor::OneMinusSrcAlpha:		return GL_ONE_MINUS_SRC_ALPHA;
 		}
+
+		XEN_ENGINE_LOG_ERROR("Invalid BlendFactor!");
+		TRIGGER_BREAKPOINT;
+
+		return -1;
 	}
 
 	static int ToGLBlendOperation(BlendOperation operation)
@@ -34,6 +39,11 @@ namespace Xen {
 		case Xen::Subtract:			return GL_FUNC_SUBTRACT;
 		case Xen::ReverseSubtract:	return GL_FUNC_REVERSE_SUBTRACT;
 		}
+
+		XEN_ENGINE_LOG_ERROR("Invalid BlendOperation!");
+		TRIGGER_BREAKPOINT;
+
+		return -1;
 	}
 
 	void OpenGLRendererAPI::Clear()

@@ -37,10 +37,10 @@ namespace Xen {
 	uint32_t default_quad_indices[6] = { 0, 1, 2, 0, 2, 3 };
 	glm::vec4 temp_vert[4] =
 	{
-		glm::vec4(0.5f,  0.5f, 0.0f, 1.0f),
+		glm::vec4( 0.5f,  0.5f, 0.0f, 1.0f),
 		glm::vec4(-0.5f,  0.5f, 0.0f, 1.0f),
 		glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f),
-		glm::vec4(0.5f, -0.5f, 0.0f, 1.0f),
+		glm::vec4( 0.5f, -0.5f, 0.0f, 1.0f),
 	};
 
 	struct Vertex

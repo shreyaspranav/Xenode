@@ -16,10 +16,6 @@ constexpr auto DEGTORAD = 0.0174532925199432957f;
 constexpr auto RADTODEG = 57.295779513082320876f;
 
 namespace Xen {
-	void DoSomething(int a)
-	{
-	}
-
 	template<typename Comp>
 	static void CopyComponentAllEntities(entt::registry& srcSceneRegistry, entt::registry& dstSceneRegistry, const std::unordered_map<UUID, Entity>& uuidMap)
 	{
@@ -625,6 +621,8 @@ namespace Xen {
 	}
 	void Scene::RenderLights()
 	{
+		m_LightMaskFB->SetClearColor(0, { 1.0f, 1.0f, 1.0f, 1.0f });
+
 		auto point_light_view = m_Registry.view<Component::PointLight>();
 		auto ambient_light_view = m_Registry.view<Component::AmbientLight>();
 
@@ -633,7 +631,8 @@ namespace Xen {
 			Entity entt = Entity(e, this);
 			Component::AmbientLight& light = entt.GetComponent<Component::AmbientLight>();
 			
-			m_LightMaskFB->SetClearColor(0, light.color * light.intensity);
+			// Disable Lights for now. Will revisit later.
+			//m_LightMaskFB->SetClearColor(0, light.color * light.intensity);
 		}
 
 		for (const entt::entity& e : point_light_view)
@@ -642,7 +641,8 @@ namespace Xen {
 			Component::Transform& transform = entt.GetComponent<Component::Transform>();
 			Component::PointLight& light = entt.GetComponent<Component::PointLight>();
 			
-			Renderer2D::PointLight(transform.position, light.lightColor, light.radius, light.intensity, light.fallofA, light.fallofB);
+			// Disable Lights for now. Will revisit later.
+			//Renderer2D::PointLight(transform.position, light.lightColor, light.radius, light.intensity, light.fallofA, light.fallofB);
 		}
 	}
 }
