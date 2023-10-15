@@ -58,6 +58,7 @@ project "Xenode"
 		"%{IncludeDir.Box2D}",
 		"%{IncludeDir.Optick}",
 		"%{IncludeDir.Lua}",
+		"%{IncludeDir.VulkanSDK}",
 	}
 
 	defines {"_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS", "_CRT_SECURE_NO_WARNINGS"}
@@ -135,3 +136,11 @@ project "Xenode"
 	filter "action:gmake*"
 		buildoptions { "-std=c++2b", "-Wa,-mbig-obj" }
 
+	filter { "system:windows", "configurations:Debug" }
+		links {
+			"%{Library.ShaderC_Debug}"
+		}
+	filter { "system:windows", "configurations:Release_Debug" }
+		links {
+			"%{Library.ShaderC_Release}"
+		}

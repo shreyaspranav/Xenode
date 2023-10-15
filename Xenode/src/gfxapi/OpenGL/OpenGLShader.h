@@ -3,6 +3,9 @@
 #include "core/renderer/Shader.h" 
 
 namespace Xen {
+
+	typedef unsigned int GLenum;
+
 	class OpenGLShader : public Shader
 	{
 	public:
@@ -29,14 +32,22 @@ namespace Xen {
 
 		void SetMat4(const std::string& name, const glm::mat4& value) override;
 
-		inline void Bind() const override;
 		inline void Unbind() const override;
+
+	private:
+		inline std::unordered_map<GLenum, std::string> PreprocessShaders(const std::vector<std::string>& shaderCode);
 
 	private:
 		uint32_t m_ShaderID;
 
 		std::string vertexShaderSrc;
+		inline void Bind() const override;
 		std::string fragmentShaderSrc;
+
+		// GL_VERTEX_SHADER: *shader source code*
+		// GL_FRAGMENT_SHADER: *shader source code*
+		// GL_GEOMETRY_SHADER: *shader source code*
+		std::unordered_map<GLenum, std::string> m_ShaderSrc;
 
 		std::unordered_map<std::string, uint32_t> m_Uniforms;
 	};

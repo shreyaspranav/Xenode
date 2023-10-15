@@ -8,6 +8,8 @@ workspace "Xenode"
 
 	--toolset "clang"
 
+VULKAN_SDK_PATH = os.getenv("VULKAN_SDK")
+
 -- dependencies:
 
 group "Dependencies"
@@ -32,6 +34,13 @@ IncludeDir["ImGuizmo"] 		= "%{wks.location}/deps/ImGuizmo"
 IncludeDir["Optick"] 		= "%{wks.location}/deps/optick/include"
 IncludeDir["Box2D"] 		= "%{wks.location}/deps/box2d/include"
 IncludeDir["Lua"] 			= "%{wks.location}/deps/lua/include"
+IncludeDir["VulkanSDK"] 	= "%{VULKAN_SDK_PATH}/Include"
+
+Library = {}
+
+-- Windows only for now.
+Library["ShaderC_Debug"] 	= "%{VULKAN_SDK_PATH}/Lib/shaderc_combinedd.lib"
+Library["ShaderC_Release"] 	= "%{VULKAN_SDK_PATH}/Lib/shaderc_shared.lib"
 
 newoption {
 	trigger = "enable-profiling", 
@@ -39,9 +48,12 @@ newoption {
 }
 
 -- Main projects:
-
-include "Xenode/"
-include "Xen/"
-include "SandboxApp/"
+group "Core"
+	include "Xenode/"
+	include "Xen/"
+group ""
+group "Sandbox"
+	include "SandboxApp/"
+group ""
 
 --include "SandboxAppAndroid/SandboxAndroidBuild.lua"

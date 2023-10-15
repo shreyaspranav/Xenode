@@ -8,6 +8,8 @@
 
 #include "core/app/Profiler.h"
 
+#include "shaderc/shaderc.hpp"
+
 namespace Xen {
 
 	// Might not be that efficient!
@@ -20,73 +22,18 @@ namespace Xen {
 		std::ifstream stream;
 		stream.open(filePath);
 
-		std::stringstream vs, fs;
-		bool read_vs = 0;
-		bool read_fs = 0;
-
-		while (!stream.eof())
+		std::vector<std::string> shaderCode;
+		std::string s;
+		while (!stream.eof()) 
 		{
-			std::string s;
 			std::getline(stream, s);
-			
-
-			while (s.contains("#shadertype: "))
-			{
-				if (s.contains("#shadertype: vertex"))
-				{
-					readvs:
-					while (!read_vs)
-					{
-						std::string s1;
-						std::getline(stream, s1);
-
-						//XEN_ENGINE_LOG_INFO(s1);
-
-						if (s1.contains("#shadertype: ") || stream.eof())
-						{
-							read_vs = 1;
-							if (s1.contains("#shadertype: fragment"))
-								goto readfs;
-						}
-
-						vs << s1 << "\n";
-
-					}
-					if (read_vs && read_fs)
-					{
-						s = "";
-					}
-				}
-				if (s.contains("#shadertype: fragment"))
-				{
-					readfs:
-					while (!read_fs)
-					{
-						std::string s1;
-						std::getline(stream, s1);
-
-						//XEN_ENGINE_LOG_INFO(s1);
-
-						if (s1.contains("#shadertype: ") || stream.eof())
-						{
-							read_fs = 1;
-							if (s1.contains("#shadertype: vertex"))
-								goto readvs;
-						}
-
-						fs << s1 << "\n";
-
-					}
-					if (read_vs && read_fs)
-					{
-						s = "";
-					}
-				}
-			}
+			shaderCode.push_back(s);
 		}
+		
+		m_ShaderSrc = PreprocessShaders(shaderCode);
 
-		vertexShaderSrc = vs.str();
-		fragmentShaderSrc = fs.str();
+		vertexShaderSrc = m_ShaderSrc.at(GL_VERTEX_SHADER);
+		fragmentShaderSrc = m_ShaderSrc.at(GL_FRAGMENT_SHADER);
 
 		m_ShaderID = glCreateProgram();
 	}
@@ -120,6 +67,48 @@ namespace Xen {
 
 		m_ShaderID = glCreateProgram();
 	}
+
+	std::unordered_map<GLenum, std::string> Xen::OpenGLShader::PreprocessShaders(const std::vector<std::string>& shaderCode)
+	{
+		GLenum shaderType = 0;
+		std::stringstream shaderCodeEach;
+		bool shaderCodeEachEmpty = true;
+
+		std::unordered_map<GLenum, std::string> shaders;
+
+		for (auto& stringToken : shaderCode) 
+		{
+			if (stringToken.contains("#shadertype")) 
+			{
+				if (!shaderCodeEach.str().empty()) {
+					shaders.insert({ shaderType, shaderCodeEach.str() });
+					shaderCodeEach.str(std::string());
+					shaderCodeEachEmpty = true;
+				}
+
+				if (stringToken.contains("vertex"))
+					shaderType = GL_VERTEX_SHADER;
+				else if (stringToken.contains("fragment"))
+					shaderType = GL_FRAGMENT_SHADER;
+				else if (stringToken.contains("geometry"))
+					shaderType = GL_GEOMETRY_SHADER;
+
+
+				continue;
+			}
+			XEN_ENGINE_LOG_INFO(stringToken);
+			shaderCodeEach << stringToken << "\n";
+		}
+
+		if (!shaderCodeEach.str().empty()) {
+			shaders.insert({ shaderType, shaderCodeEach.str() });
+			shaderCodeEach.str(std::string());
+			shaderCodeEachEmpty = true;
+		}
+
+		return shaders;
+	}
+
 	OpenGLShader::~OpenGLShader()
 	{
 		glDeleteProgram(m_ShaderID);
