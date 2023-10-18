@@ -166,22 +166,6 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
-		const char* vs = m_ShaderSrc[GL_VERTEX_SHADER].c_str();
-		const char* fs = m_ShaderSrc[GL_FRAGMENT_SHADER].c_str();
-
-#if 0
-		shaderc::Compiler compiler;
-		shaderc::CompileOptions compileOptions;
-
-		compileOptions.AddMacroDefinition("OPENGL");
-		compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
-
-		shaderc::SpvCompilationResult vsResult = compiler.CompileGlslToSpv(vs, shaderc_vertex_shader, "filenamevs.glsl", compileOptions);
-		shaderc::SpvCompilationResult fsResult = compiler.CompileGlslToSpv(fs, shaderc_fragment_shader, "filenamefs.glsl", compileOptions);
-
-		std::vector<uint32_t> vsSpvBinary = std::vector<uint32_t>(vsResult.begin(), vsResult.end());
-		std::vector<uint32_t> fsSpvBinary = std::vector<uint32_t>(fsResult.begin(), fsResult.end());
-#endif
 		shaderc::Compiler compiler;
 		shaderc::CompileOptions compileOptions;
 
