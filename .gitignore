@@ -11,6 +11,8 @@ Makefile
 *.user
 *.filters
 
+Xen/assets/.cache/
+
 # Prerequisites
 *.d
 

@@ -44,8 +44,8 @@ void main()
 
 		float outerFadeLayer = 0.0;
 		float thicknessLayer = 1.0;
-		float innerFadeLayer = 0.0;
-
+        float innerFadeLayer = 0.0;
+		
 		if (dist < 0.0)
 			dist = 0.0;
 
