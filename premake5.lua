@@ -34,12 +34,15 @@ IncludeDir["ImGuizmo"] 		= "%{wks.location}/deps/ImGuizmo"
 IncludeDir["Optick"] 		= "%{wks.location}/deps/optick/include"
 IncludeDir["Box2D"] 		= "%{wks.location}/deps/box2d/include"
 IncludeDir["Lua"] 			= "%{wks.location}/deps/lua/include"
+IncludeDir["SHA256"] 		= "%{wks.location}/deps/SHA256/include"
+
+
 IncludeDir["VulkanSDK"] 	= "%{VULKAN_SDK_PATH}/Include"
 
 Library = {}
 
 -- Windows only for now.
-Library["ShaderC_Debug"] 	= "%{VULKAN_SDK_PATH}/Lib/shaderc_combinedd.lib"
+Library["ShaderC_Debug"] 	= "%{VULKAN_SDK_PATH}/Lib/shaderc_sharedd.lib"
 Library["ShaderC_Release"] 	= "%{VULKAN_SDK_PATH}/Lib/shaderc_shared.lib"
 
 newoption {

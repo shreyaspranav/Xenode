@@ -9,35 +9,65 @@
 #include "core/app/Profiler.h"
 
 #include "shaderc/shaderc.hpp"
+#include "SHA256.h"
 
 namespace Xen {
 
-	// Might not be that efficient!
-	// make sure that you insert a extra newline at the end of file!
+	static shaderc_shader_kind GLShaderToShaderC(GLenum shaderKind)
+	{
+		switch (shaderKind)
+		{
+			case GL_VERTEX_SHADER:		return shaderc_vertex_shader;
+			case GL_FRAGMENT_SHADER:	return shaderc_fragment_shader;
+			case GL_GEOMETRY_SHADER:	return shaderc_geometry_shader;
+		}
+		XEN_ENGINE_LOG_ERROR("Unknown Shader Type! ");
+		TRIGGER_BREAKPOINT;
+	
+		return (shaderc_shader_kind)0;
+	}
+
+	static const char* GLShaderToString(GLenum shaderKind)
+	{
+		switch (shaderKind)
+		{
+		case GL_VERTEX_SHADER:		return "GL_VERTEX_SHADER";
+		case GL_FRAGMENT_SHADER:	return "GL_FRAGMENT_SHADER";
+		case GL_GEOMETRY_SHADER:	return "GL_GEOMETRY_SHADER";
+		}
+		XEN_ENGINE_LOG_ERROR("Unknown Shader Type! ");
+		TRIGGER_BREAKPOINT;
+
+		return "";
+	}
 
 	OpenGLShader::OpenGLShader(const std::string& filePath)
 	{
 		XEN_PROFILE_FN();
 
+		std::filesystem::path shaderFilePath(filePath);
+		m_FileName = shaderFilePath.filename().string();
+
 		std::ifstream stream;
 		stream.open(filePath);
 
 		std::vector<std::string> shaderCode;
+		std::stringstream shaderCodeStream;
 		std::string s;
 		while (!stream.eof()) 
 		{
 			std::getline(stream, s);
 			shaderCode.push_back(s);
+			shaderCodeStream << s << "\n";
 		}
+		stream.close();
 		
 		m_ShaderSrc = PreprocessShaders(shaderCode);
+		m_ShaderSrcSHADigest = HashShaderCode(m_ShaderSrc);
 
-		vertexShaderSrc = m_ShaderSrc.at(GL_VERTEX_SHADER);
-		fragmentShaderSrc = m_ShaderSrc.at(GL_FRAGMENT_SHADER);
-
-		m_ShaderID = glCreateProgram();
+		m_ShaderProgramID = glCreateProgram();
 	}
-	OpenGLShader::OpenGLShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath, ShaderType type)
+	OpenGLShader::OpenGLShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath)
 	{
 		std::ifstream stream;
 		stream.open(vertexShaderFilePath);
@@ -47,10 +77,10 @@ namespace Xen {
 		{
 			std::string s;
 			std::getline(stream, s);
-			ss << s << "\n";
+			ss << s << SHADER_LINE_ENDING;
 		}
 
-		vertexShaderSrc = ss.str();
+		m_ShaderSrc.insert({ GL_VERTEX_SHADER, ss.str() });
 		stream.close();
 
 		stream.open(fragmentShaderFilePath);
@@ -60,12 +90,21 @@ namespace Xen {
 		{
 			std::string s;
 			std::getline(stream, s);
-			ss << s << "\n";
+			ss << s << SHADER_LINE_ENDING;
 		}
 
-		fragmentShaderSrc = ss.str();
+		m_ShaderSrc.insert({ GL_FRAGMENT_SHADER, ss.str() });
+		m_ShaderSrcSHADigest = HashShaderCode(m_ShaderSrc);
 
-		m_ShaderID = glCreateProgram();
+		m_ShaderProgramID = glCreateProgram();
+	}
+
+	OpenGLShader::~OpenGLShader()
+	{
+		glDeleteProgram(m_ShaderProgramID);
+
+		for (auto& [shaderType, hash] : m_ShaderSrcSHADigest)
+			delete[] hash;
 	}
 
 	std::unordered_map<GLenum, std::string> Xen::OpenGLShader::PreprocessShaders(const std::vector<std::string>& shaderCode)
@@ -92,12 +131,9 @@ namespace Xen {
 					shaderType = GL_FRAGMENT_SHADER;
 				else if (stringToken.contains("geometry"))
 					shaderType = GL_GEOMETRY_SHADER;
-
-
 				continue;
 			}
-			XEN_ENGINE_LOG_INFO(stringToken);
-			shaderCodeEach << stringToken << "\n";
+			shaderCodeEach << stringToken << SHADER_LINE_ENDING;
 		}
 
 		if (!shaderCodeEach.str().empty()) {
@@ -109,71 +145,96 @@ namespace Xen {
 		return shaders;
 	}
 
-	OpenGLShader::~OpenGLShader()
+	inline std::unordered_map<GLenum, uint8_t*> OpenGLShader::HashShaderCode(const std::unordered_map<GLenum, std::string>& shaderCode)
 	{
-		glDeleteProgram(m_ShaderID);
+		std::unordered_map<GLenum, uint8_t*> hashes;
+
+		for (auto&& [shaderType, shaderString] : shaderCode)
+		{
+			SHA256 shaEngine;
+			shaEngine.update(shaderString);
+			
+			// Generate SHA256 Digest:
+			uint8_t* digest = shaEngine.digest();
+			hashes.insert({ shaderType, digest });
+		}
+
+		return hashes;
 	}
+
 	void OpenGLShader::LoadShader(const VertexBufferLayout& layout)
 	{
 		XEN_PROFILE_FN();
 
-		uint32_t vertexShader, fragmentShader;
+		const char* vs = m_ShaderSrc[GL_VERTEX_SHADER].c_str();
+		const char* fs = m_ShaderSrc[GL_FRAGMENT_SHADER].c_str();
 
-		const char* vs = vertexShaderSrc.c_str();
-		const char* fs = fragmentShaderSrc.c_str();
+#if 0
+		shaderc::Compiler compiler;
+		shaderc::CompileOptions compileOptions;
 
-		vertexShader = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertexShader, 1, &vs, NULL);
-		glCompileShader(vertexShader);
+		compileOptions.AddMacroDefinition("OPENGL");
+		compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
 
-		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragmentShader, 1, &fs, NULL);
-		glCompileShader(fragmentShader);
+		shaderc::SpvCompilationResult vsResult = compiler.CompileGlslToSpv(vs, shaderc_vertex_shader, "filenamevs.glsl", compileOptions);
+		shaderc::SpvCompilationResult fsResult = compiler.CompileGlslToSpv(fs, shaderc_fragment_shader, "filenamefs.glsl", compileOptions);
+
+		std::vector<uint32_t> vsSpvBinary = std::vector<uint32_t>(vsResult.begin(), vsResult.end());
+		std::vector<uint32_t> fsSpvBinary = std::vector<uint32_t>(fsResult.begin(), fsResult.end());
+#endif
+		shaderc::Compiler compiler;
+		shaderc::CompileOptions compileOptions;
+
+		compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
+
+		// Maybe we need zero level optimisation for debug purposes? : FIND OUT
+		compileOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+		for (auto& [shaderType, shaderSrc] : m_ShaderSrc)
+		{
+			shaderc::SpvCompilationResult shaderCompilationResult = 
+				compiler.CompileGlslToSpv(shaderSrc, GLShaderToShaderC(shaderType), GLShaderToString(shaderType), compileOptions);
+
+			if (shaderCompilationResult.GetNumErrors() > 0)
+			{
+				XEN_ENGINE_LOG_ERROR("In File {0}, {1}: Compilation failed: {2} Error(s)", 
+					m_FileName, GLShaderToString(shaderType), shaderCompilationResult.GetNumErrors());
+
+				XEN_ENGINE_LOG_ERROR(shaderCompilationResult.GetErrorMessage());
+
+				// Do Better error handling than to just crash the whole program:
+				TRIGGER_BREAKPOINT;
+			}
+			else {
+				XEN_ENGINE_LOG_INFO("{0}: {1} Successfully compiled: {2} Warning(s)", 
+					m_FileName, GLShaderToString(shaderType), shaderCompilationResult.GetNumWarnings());
+
+				std::vector<uint32_t> shaderBinary = { shaderCompilationResult.begin(), shaderCompilationResult.end() };
+
+				uint32_t shaderID = glCreateShader(shaderType);
+				glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderBinary.data(), shaderBinary.size() * sizeof(uint32_t));
+				glSpecializeShader(shaderID, "main", 0, nullptr, nullptr);
+
+				glAttachShader(m_ShaderProgramID, shaderID);
+			}
+		}
 
 		int success;
 		char infoLog[512];
-		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+		glLinkProgram(m_ShaderProgramID);
+		glGetProgramiv(m_ShaderProgramID, GL_LINK_STATUS, &success);
 
 		if (success == GL_FALSE)
 		{
-			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-			XEN_ENGINE_LOG_ERROR("Failed to compile Vertex Shader!");
-			XEN_ENGINE_LOG_ERROR(infoLog);
-			TRIGGER_BREAKPOINT;
-		}
-
-		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-
-		if (success == GL_FALSE)
-		{
-			glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-			XEN_ENGINE_LOG_ERROR("Failed to compile Fragment Shader!");
-			XEN_ENGINE_LOG_ERROR(infoLog);
-			TRIGGER_BREAKPOINT;
-		}
-
-		//for (BufferElement element : layout.GetBufferElements())
-		//	glBindAttribLocation(m_ShaderID, element.shader_location, element.name.c_str());
-
-		glAttachShader(m_ShaderID, vertexShader);
-		glAttachShader(m_ShaderID, fragmentShader);
-		glLinkProgram(m_ShaderID);
-
-		glGetProgramiv(m_ShaderID, GL_LINK_STATUS, &success);
-
-		if (success == GL_FALSE)
-		{
-			glGetProgramInfoLog(m_ShaderID, 512, NULL, infoLog);
+			glGetProgramInfoLog(m_ShaderProgramID, 512, NULL, infoLog);
 			XEN_ENGINE_LOG_ERROR("Failed to Link Shader Program!");
 			XEN_ENGINE_LOG_ERROR(infoLog);
 			TRIGGER_BREAKPOINT;
 		}
-
-		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
 	}
 
-	inline void OpenGLShader::Bind() const		{ XEN_PROFILE_FN(); glUseProgram(m_ShaderID); }
+	inline void OpenGLShader::Bind() const		{ XEN_PROFILE_FN(); glUseProgram(m_ShaderProgramID); }
 	inline void OpenGLShader::Unbind() const	{ glUseProgram(0); }
 
 	void OpenGLShader::SetFloat(const std::string& name, float value)
@@ -184,7 +245,7 @@ namespace Xen {
 			return;
 		}
 
-		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		int location = glGetUniformLocation(m_ShaderProgramID, name.c_str());
 		if (location == -1)
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
@@ -199,7 +260,7 @@ namespace Xen {
 			return;
 		}
 
-		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		int location = glGetUniformLocation(m_ShaderProgramID, name.c_str());
 		if (location == -1)
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
@@ -214,7 +275,7 @@ namespace Xen {
 			return;
 		}
 
-		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		int location = glGetUniformLocation(m_ShaderProgramID, name.c_str());
 		if (location == -1)
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
@@ -229,7 +290,7 @@ namespace Xen {
 			return;
 		}
 
-		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		int location = glGetUniformLocation(m_ShaderProgramID, name.c_str());
 		if (location == -1)
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
@@ -245,7 +306,7 @@ namespace Xen {
 			return;
 		}
 
-		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		int location = glGetUniformLocation(m_ShaderProgramID, name.c_str());
 		if (location == -1)
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
@@ -261,7 +322,7 @@ namespace Xen {
 			return;
 		}
 
-		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		int location = glGetUniformLocation(m_ShaderProgramID, name.c_str());
 		if (location == -1)
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
@@ -276,7 +337,7 @@ namespace Xen {
 			return;
 		}
 
-		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		int location = glGetUniformLocation(m_ShaderProgramID, name.c_str());
 		if (location == -1)
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
@@ -291,7 +352,7 @@ namespace Xen {
 			return;
 		}
 
-		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		int location = glGetUniformLocation(m_ShaderProgramID, name.c_str());
 		if (location == -1)
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
@@ -306,7 +367,7 @@ namespace Xen {
 			return;
 		}
 
-		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		int location = glGetUniformLocation(m_ShaderProgramID, name.c_str());
 		if (location == -1)
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 
@@ -322,7 +383,7 @@ namespace Xen {
 			return;
 		}
 
-		int location = glGetUniformLocation(m_ShaderID, name.c_str());
+		int location = glGetUniformLocation(m_ShaderProgramID, name.c_str());
 		if (location == -1)
 			XEN_ENGINE_LOG_ERROR("'{0}' is not a valid uniform", name);
 

@@ -8,7 +8,7 @@ namespace Xen {
 	#ifdef XEN_DEVICE_DESKTOP
 	public:
 		Timer() { m_StartTime = std::chrono::high_resolution_clock::now(); }
-		~Timer() {}
+		~Timer() { Stop(); }
 
 		void Reset() { m_StartTime = std::chrono::high_resolution_clock::now(); }
 

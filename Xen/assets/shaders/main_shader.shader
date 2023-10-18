@@ -1,17 +1,16 @@
 #shadertype: fragment
 #version 450 core
 
-in vec4 color;
-in vec2 TextureWorldCoords;
+layout(location = 0) in vec4 color;
+layout(location = 1) in vec2 TextureWorldCoords;
+layout(location = 2) flat in float P1;
+layout(location = 3) flat in float P2;
+layout(location = 4) flat in float P3;
+layout(location = 5) flat in float P4;
+layout(location = 6) flat in float P5;
+layout(location = 7) flat in uint PrimitiveType;
+layout(location = 8) flat in int vertexID;
 
-flat in uint PrimitiveType;
-flat in float P1;
-flat in float P2;
-flat in float P3;
-flat in float P4;
-flat in float P5;
-
-flat in int vertexID;
 
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec4 maskColor;
@@ -71,7 +70,6 @@ void main()
 layout(location = 0)in vec3 aPosition;
 layout(location = 1)in vec4 aColor;
 layout(location = 2)in vec2 aTextureWorldCoords;
-
 layout(location = 3)in uint aPrimitiveType;
 layout(location = 4)in float aP1;
 layout(location = 5)in float aP2;
@@ -80,16 +78,16 @@ layout(location = 7)in float aP4;
 layout(location = 8)in float aP5;
 layout(location = 9)in int _vertexID;
 
-out vec4 color;
-out vec2 TextureWorldCoords;
+layout(location = 0) out vec4 color;
+layout(location = 1) out vec2 TextureWorldCoords;
+layout(location = 2) flat out float P1;
+layout(location = 3) flat out float P2;
+layout(location = 4) flat out float P3;
+layout(location = 5) flat out float P4;
+layout(location = 6) flat out float P5;
+layout(location = 7) flat out uint PrimitiveType;
+layout(location = 8) flat out int vertexID;
 
-flat out float P1;
-flat out float P2;
-flat out float P3;
-flat out float P4;
-flat out float P5;
-flat out uint PrimitiveType;
-flat out int vertexID;
 
 //uniform mat4 u_ViewProjectionMatrix;
 

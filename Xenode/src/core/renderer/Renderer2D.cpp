@@ -184,11 +184,14 @@ namespace Xen {
 		s_Data.lineShader = Shader::CreateShader("assets/shaders/line_shader.shader");
 		s_Data.lineShader->LoadShader(lineBufferLayout);
 		// ---------------------------------------------------------------------------------------------------------
-
+		
+		// Will be revisiting the light stuff later.
+#if 0
 		// Light shader(The Main Vertex and Element Buffer is reused)-----------------------------------------------
 		s_Data.lightShader = Shader::CreateShader("assets/shaders/light_shader.shader");
 		s_Data.lightShader->LoadShader(bufferLayout);
 		// ---------------------------------------------------------------------------------------------------------
+#endif
 
 		ShaderLib::AddShader("LineShader", s_Data.lineShader);
 		ShaderLib::AddShader("MainShader", s_Data.shader);
@@ -269,11 +272,9 @@ namespace Xen {
 			s_Data.lineShader->Bind();
 			
 			s_Data.lineVertexBuffer->Put(batch_storage[i]->line_verts, batch_storage[i]->line_index * 14 * sizeof(float));
-			s_Data.lineShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
 			
 			RenderCommand::DrawLines(s_Data.lineVertexBuffer, batch_storage[i]->line_index * 14);
 
-			//s_Data.vertexArray->Bind();
 			s_Data.vertexBuffer->Bind();
 			s_Data.shader->Bind();
 			
@@ -282,16 +283,17 @@ namespace Xen {
 			s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->index_count * sizeof(int));
 			s_Data.shader->SetIntArray("tex", texture_slots, max_texture_slots);
 			
-			//s_Data.shader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
 			RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->index_count);
 		}
 	}
 
 	void Renderer2D::RenderLights()
 	{
+
+		// Will be revisiting the light stuff later.
+#if 0
 		for (int i = 0; i <= batch_index; i++)
 		{
-			//s_Data.vertexArray->Bind();
 			s_Data.vertexBuffer->Bind();
 			s_Data.lightShader->Bind();
 		
@@ -301,6 +303,7 @@ namespace Xen {
 			s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
 			RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->light_index_count);
 		}
+#endif
 	}
 
 	void Renderer2D::DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, int32_t id)

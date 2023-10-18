@@ -10,13 +10,13 @@ namespace Xen {
 	{
 	public:
 		OpenGLShader(const std::string& filePath);
-		OpenGLShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath, ShaderType type);
+		OpenGLShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);
 
 		virtual ~OpenGLShader();
 
 		void LoadShader(const VertexBufferLayout& layout) override;
 
-		inline uint32_t GetShaderID() override { return m_ShaderID; }
+		inline uint32_t GetShaderID() override { return m_ShaderProgramID; }
 
 		void SetFloat(const std::string& name, float value) override;
 		void SetFloat2(const std::string& name, const Vec2& value) override;
@@ -32,24 +32,22 @@ namespace Xen {
 
 		void SetMat4(const std::string& name, const glm::mat4& value) override;
 
+		inline void Bind() const override;
 		inline void Unbind() const override;
 
 	private:
 		inline std::unordered_map<GLenum, std::string> PreprocessShaders(const std::vector<std::string>& shaderCode);
+		inline std::unordered_map<GLenum, uint8_t*> HashShaderCode(const std::unordered_map<GLenum, std::string>& shaderCode);
 
 	private:
-		uint32_t m_ShaderID;
-
-		std::string vertexShaderSrc;
-		inline void Bind() const override;
-		std::string fragmentShaderSrc;
-
-		// GL_VERTEX_SHADER: *shader source code*
-		// GL_FRAGMENT_SHADER: *shader source code*
-		// GL_GEOMETRY_SHADER: *shader source code*
+		uint32_t m_ShaderProgramID;
 		std::unordered_map<GLenum, std::string> m_ShaderSrc;
+		std::unordered_map<GLenum, uint8_t*> m_ShaderSrcSHADigest;
 
 		std::unordered_map<std::string, uint32_t> m_Uniforms;
+		std::string m_FileName;
+
+		const std::string SHADER_LINE_ENDING = "\r\n";
 	};
 }
 

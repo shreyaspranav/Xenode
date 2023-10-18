@@ -113,7 +113,7 @@ namespace Xen {
 		m_LightMaskFB = FrameBuffer::CreateFrameBuffer(lightmask_specs);
 		m_FinalSceneFB = FrameBuffer::CreateFrameBuffer(final_scene_specs);
 
-		ScreenRenderer2D::Init();
+		//ScreenRenderer2D::Init();
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -398,18 +398,21 @@ namespace Xen {
 
 		m_UnlitSceneFB->Unbind();
 
+		// Disabling all the light related stuff until I fix the shader situation.
+
+#if 0
 		m_LightMaskFB->Bind();
 		RenderCommand::Clear();
 		m_LightMaskFB->ClearAttachments();
-
+		
 		RenderLights();
-
+		
 		m_LightMaskFB->Unbind();
-
+		
 		m_FinalSceneFB->Bind();
 		RenderCommand::Clear();
 		m_FinalSceneFB->ClearAttachments();
-
+		
 		RenderCommand::SetBlendMode(
 			{ BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha, BlendOperation::Add },
 			{ BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha, BlendOperation::Add }
@@ -417,6 +420,7 @@ namespace Xen {
 		//ScreenRenderer2D::RenderTextureToScreen(nullptr);
 		ScreenRenderer2D::RenderFinalSceneToScreen(m_UnlitSceneFB->GetColorAttachmentRendererID(0), m_UnlitSceneFB->GetColorAttachmentRendererID(1), m_LightMaskFB->GetColorAttachmentRendererID(0));
 		m_FinalSceneFB->Unbind();
+#endif
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)

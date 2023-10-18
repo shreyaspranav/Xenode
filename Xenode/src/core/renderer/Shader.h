@@ -7,9 +7,6 @@
 #include "Buffer.h"
 
 namespace Xen {
-
-	enum class ShaderType { Source, SpirVBinary };
-
 	class XEN_API Shader
 	{
 	public:
@@ -35,7 +32,7 @@ namespace Xen {
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) = 0;
 
 		static Ref<Shader> CreateShader(const std::string& filePath);
-		static Ref<Shader> CreateShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath, ShaderType type);
+		static Ref<Shader> CreateShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);
 	};
 
 	// Class Static For now.. Just to simplify things

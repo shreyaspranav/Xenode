@@ -1,9 +1,9 @@
 #shadertype: fragment
-#version 140
+#version 450 core
 
-in vec4 color;
+layout(location = 0)in vec4 color;
 
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 void main()
 {
@@ -11,17 +11,22 @@ void main()
 }
 
 #shadertype: vertex
-#version 140
+#version 450 core
 
-in vec3 aLinePosition;
-in vec4 aLineColor;
+layout(location = 0)in vec3 aLinePosition;
+layout(location = 1)in vec4 aLineColor;
 
-out vec4 color;
+layout(location = 0)out vec4 color;
 
-uniform mat4 u_ViewProjectionMatrix;
+// uniform mat4 u_ViewProjectionMatrix;
+
+layout(std140, binding = 1) uniform CameraData
+{
+	mat4 ViewProjectionMatrix;
+};
 
 void main()
 {
-	gl_Position = u_ViewProjectionMatrix * vec4(aLinePosition, 1.0);
+    gl_Position = ViewProjectionMatrix * vec4(aLinePosition, 1.0);
 	color = aLineColor;
 }

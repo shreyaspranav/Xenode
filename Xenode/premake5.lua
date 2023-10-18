@@ -28,6 +28,10 @@ project "Xenode"
 		--ImGuizmo source files
 		"../deps/ImGuizmo/*.cpp",
 		"../deps/ImGuizmo/*.h",
+
+		--SHA256 source files
+		"../deps/SHA256/**.cpp",
+		"../deps/SHA256/**.h",
 	}
 
 	links { 
@@ -58,6 +62,7 @@ project "Xenode"
 		"%{IncludeDir.Box2D}",
 		"%{IncludeDir.Optick}",
 		"%{IncludeDir.Lua}",
+		"%{IncludeDir.SHA256}",
 		"%{IncludeDir.VulkanSDK}",
 	}
 
@@ -78,6 +83,8 @@ project "Xenode"
 	filter "files:../deps/ImGuizmo/**.cpp"
 		flags { "NoPCH" }
 	filter "files:../deps/optick/**.cpp"
+		flags { "NoPCH" }
+	filter "files:../deps/SHA256/**.cpp"
 		flags { "NoPCH" }
 
 	filter "system:windows"
