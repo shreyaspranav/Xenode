@@ -302,8 +302,6 @@ namespace Xen {
 			XEN_PROFILER_TAG("Timestep", (float)timestep);
 
 			DesktopApplication::OnUpdate(timestep / 1000.0);
-			timer.Stop();
-			timestep = timer.GetElapedTime(); // timestep is in nanoseconds !
 
 			lag += timestep;
 
@@ -318,6 +316,9 @@ namespace Xen {
 
 			m_Context->SwapBuffers();
 			window->Update();
+
+			timer.Stop();
+			timestep = timer.GetElapedTime(); // timestep is in microseconds !
 		}
 
 		for (int i = stack->GetCount(); i >= 1; i--)

@@ -364,7 +364,7 @@ namespace Xen {
 			// Lua/C# Scripts:
 			UpdateScripts(timestep);
 
-			SimulatePhysics(1.0 / 60.0);
+			SimulatePhysics(timestep / 1000.0);
 		}
 
 		UpdateCameras();
@@ -520,7 +520,10 @@ namespace Xen {
 		const int32_t velocityIterations = 6;
 		const int32_t positionIterations = 2;
 
-		m_PhysicsWorld->Step(fixedTimeStep, velocityIterations, positionIterations);
+		int physicsStepIterations = 2;
+
+		for(int i = 0; i < physicsStepIterations; i++)
+			m_PhysicsWorld->Step(fixedTimeStep, velocityIterations, positionIterations);
 
 		auto rigid_body_view = m_Registry.view<Component::RigidBody2D>();
 

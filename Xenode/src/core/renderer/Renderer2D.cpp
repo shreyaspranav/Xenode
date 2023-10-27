@@ -98,7 +98,6 @@ namespace Xen {
 	struct Renderer2DStorage
 	{
 		Vertex* verts;
-		uint32_t* indices;
 		uint32_t vertex_index;
 		uint32_t index_count;
 
@@ -114,7 +113,6 @@ namespace Xen {
 			line_index = 0;
 
 			verts = new Vertex[max_vertices_per_batch];
-			indices = new uint32_t[max_quads_per_batch * 6];
 			vertex_index = 0;
 			index_count = 0;
 
@@ -126,7 +124,6 @@ namespace Xen {
 			delete[] line_verts;
 
 			delete[] verts;
-			delete[] indices;
 		}
 	};
 

@@ -147,13 +147,13 @@ void EditorLayer::OnUpdate(double timestep)
 
 	// Line Rendering Test
 
-	Xen::RenderCommand::SetLineWidth(1.0f);
-	
-	for (int i = -5; i < 6; i++)
-	{
-		Xen::Renderer2D::DrawLine(Xen::Vec3(-5.0f, i, 0.0f), Xen::Vec3(5.0f, i, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
-		Xen::Renderer2D::DrawLine(Xen::Vec3(i, -5.0f, 0.0f), Xen::Vec3(i, 5.0f, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
-	}
+	// Xen::RenderCommand::SetLineWidth(1.0f);
+	// 
+	// for (int i = -5; i < 6; i++)
+	// {
+	// 	Xen::Renderer2D::DrawLine(Xen::Vec3(-5.0f, i, 0.0f), Xen::Vec3(5.0f, i, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
+	// 	Xen::Renderer2D::DrawLine(Xen::Vec3(i, -5.0f, 0.0f), Xen::Vec3(i, 5.0f, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
+	// }
 
 	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport && m_IsMousePickingWorking)
 	{
