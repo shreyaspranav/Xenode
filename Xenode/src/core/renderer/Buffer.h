@@ -21,10 +21,6 @@ namespace Xen {
 
 	enum class ElementBufferDataType { Unsigned16Bit, Unsigned32Bit };
 
-
-	// TODO: Make a better API for uniform buffers
-	enum class UniformBufferBlockLayout { STD140, STD430 };
-
 	struct VertexBufferElement
 	{
 		std::string name;
@@ -99,12 +95,25 @@ namespace Xen {
 		static Ref<VertexBuffer> CreateVertexBuffer(Size size, const VertexBufferLayout& layout);
 	};
 
+
+	// In both of these buffers, the VertexBufferLayout is just not used.
+	// That is just for future.
+
+	// IMPORTANT!: For Uniform Buffers use std140 layout and for the storage buffers use std430 layout.
 	class XEN_API UniformBuffer
 	{
 	public:
 		virtual void Put(Size offset, const void* data, Size size) = 0;
 
 		static Ref<UniformBuffer> CreateUniformBuffer(Size size, const VertexBufferLayout& layout, uint8_t bindingIndex);
+	};
+
+	class XEN_API StorageBuffer
+	{
+	public:
+		virtual void Put(Size offset, const void* data, Size size) = 0;
+
+		static Ref<StorageBuffer> CreateStorageBuffer(Size size, const VertexBufferLayout& layout, uint8_t bindingIndex);
 	};
 }
 

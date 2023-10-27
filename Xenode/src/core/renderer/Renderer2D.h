@@ -97,6 +97,8 @@ namespace Xen {
 		static void AddTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id);
 		static void AddPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, int32_t id);
 
+		static void AddPrimitive(Primitive primitive, const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id);
+
 		static void JumpDeltaVertexIndex(uint32_t index_delta);
 	};
 

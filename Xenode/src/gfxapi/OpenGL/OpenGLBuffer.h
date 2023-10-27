@@ -70,4 +70,18 @@ namespace Xen {
 		Size m_Size;
 		VertexBufferLayout m_Layout;
 	};
+
+	class OpenGLStorageBuffer : public StorageBuffer
+	{
+	public:
+		OpenGLStorageBuffer(Size size, const VertexBufferLayout& layout, uint8_t bindingIndex);
+		virtual ~OpenGLStorageBuffer();
+
+		void Put(Size offset, const void* data, Size size) override;
+	private:
+		uint32_t m_BufferID;
+
+		Size m_Size;
+		VertexBufferLayout m_Layout;
+	};
 }

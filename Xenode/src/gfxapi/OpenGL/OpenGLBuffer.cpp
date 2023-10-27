@@ -239,4 +239,24 @@ namespace Xen {
 	{
 		glNamedBufferSubData(m_BufferID, offset, size, data);
 	}
+
+	//-------OpenGLStorageBuffer---------------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------------
+
+	OpenGLStorageBuffer::OpenGLStorageBuffer(Size size, const VertexBufferLayout& layout, uint8_t bindingIndex)
+		:m_Size(size), m_Layout(layout)
+	{
+		glCreateBuffers(1, &m_BufferID);
+		glNamedBufferStorage(m_BufferID, size, nullptr, GL_DYNAMIC_STORAGE_BIT);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, static_cast<uint32_t>(bindingIndex), m_BufferID);
+	}
+
+	OpenGLStorageBuffer::~OpenGLStorageBuffer()
+	{
+		glDeleteBuffers(1, &m_BufferID);
+	}
+	void OpenGLStorageBuffer::Put(Size offset, const void* data, Size size)
+	{
+		glNamedBufferSubData(m_BufferID, offset, size, data);
+	}
 }

@@ -461,7 +461,7 @@ namespace Xen {
 				if (transform_one.position.z == transform_another.position.z)
 					transform_one.position.z += 0.001f;
 
-				return transform_one.position.z > transform_another.position.z;
+				return transform_one.position.z < transform_another.position.z;
 			});
 
 		std::sort(m_ZCoordinates.rbegin(), m_ZCoordinates.rend());
@@ -619,7 +619,7 @@ namespace Xen {
 			
 					return lhsTransform.position.z > rhsTransform.position.z;
 				});
-			SortRenderableEntities();
+			//SortRenderableEntities();
 		}
 		m_IsDirty = false;
 	}

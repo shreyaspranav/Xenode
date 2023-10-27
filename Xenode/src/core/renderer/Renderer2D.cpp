@@ -49,6 +49,7 @@ namespace Xen {
 		Color color;
 		Vec2 textureWorldCoords;
 
+		uint32_t primitiveType;
 		/*
 		* 
 		* P1 ---> Texture Slot
@@ -57,7 +58,6 @@ namespace Xen {
 		* P4 --->
 		* P5 ---> Vertex ID
 		*/ 
-		uint32_t primitiveType;
 		float P1, P2, P3, P4, P5;
 
 		// Editor purpose only:
@@ -179,9 +179,9 @@ namespace Xen {
 		white_texture =  Texture2D::CreateTexture2D(1, 1, &white_texture_data, sizeof(uint32_t));
 
 		// Main Vertex Buffer, Element buffer and shader:---------------------------------------
-		s_Data.vertexBuffer = Xen::VertexBuffer::CreateVertexBuffer(max_vertices_per_batch * stride_count * sizeof(float), bufferLayout);
-		s_Data.indexBuffer = Xen::ElementBuffer::CreateElementBuffer(max_quads_per_batch * 6 * sizeof(int), ElementBufferDataType::Unsigned32Bit);
-		s_Data.vertexBuffer->SetElementBuffer(s_Data.indexBuffer);
+		// s_Data.vertexBuffer = Xen::VertexBuffer::CreateVertexBuffer(max_vertices_per_batch * stride_count * sizeof(float), bufferLayout);
+		// s_Data.indexBuffer = Xen::ElementBuffer::CreateElementBuffer(max_quads_per_batch * 6 * sizeof(int), ElementBufferDataType::Unsigned32Bit);
+		// s_Data.vertexBuffer->SetElementBuffer(s_Data.indexBuffer);
 
 		s_Data.shader = Shader::CreateShader("assets/shaders/main_shader.shader");
 		s_Data.shader->LoadShader(bufferLayout);
@@ -213,6 +213,7 @@ namespace Xen {
 			texture_slots[i] = i;
 
 		s_Data.cameraUniformBuffer = UniformBuffer::CreateUniformBuffer(sizeof(CameraData), bufferLayout, 1);
+		s_Data.vertexStorageBuffer = StorageBuffer::CreateStorageBuffer(max_vertices_per_batch * sizeof(Vertex), bufferLayout, 1);
 	}
 
 	void Renderer2D::ShutDown()
@@ -284,15 +285,12 @@ namespace Xen {
 			
 			RenderCommand::DrawLines(s_Data.lineVertexBuffer, batch_storage[i]->line_index * 14);
 
-			s_Data.vertexBuffer->Bind();
 			s_Data.shader->Bind();
-			
-			s_Data.vertexBuffer->Put(batch_storage[i]->verts, batch_storage[i]->vertex_index * sizeof(Vertex));
-			
-			s_Data.indexBuffer->Put(batch_storage[i]->indices, batch_storage[i]->index_count * sizeof(int));
 			s_Data.shader->SetIntArray("tex", texture_slots, max_texture_slots);
+
+			s_Data.vertexStorageBuffer->Put(0, batch_storage[batch_index]->verts, batch_storage[batch_index]->vertex_index * sizeof(Vertex));
 			
-			RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->index_count);
+			RenderCommand::DrawTriangles(nullptr, batch_storage[i]->index_count);
 		}
 	}
 
@@ -319,38 +317,41 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddTriangle(position, rotation, scale, id);
+		// Deal with Vertices and Indices:
+		Renderer2D::AddPrimitive(Primitive::TRIANGLE, position, rotation, scale, id);
 
 		// Texture Coords
-		AddDefaultTextureCoords(Primitive::TRIANGLE);
+		AddDefaultTextureCoords(Primitive::QUAD);
 
-		JumpDeltaVertexIndex(-3);
+		JumpDeltaVertexIndex(-4);
 
-		//Color
-		AddColorStatic(3, color);
-		JumpDeltaVertexIndex(-3);
+		AddColorStatic(4, color);
+		JumpDeltaVertexIndex(-4);
 
 		// Texture ID:
-		AddTextureSlot(3, true);
+		AddTextureSlot(4, true);
 	}
 
 	void Renderer2D::DrawClearTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[3], int32_t id)
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddTriangle(position, rotation, scale, id);
+		// Deal with Vertices and Indices:
+		Renderer2D::AddPrimitive(Primitive::TRIANGLE, position, rotation, scale, id);
 
 		// Texture Coords
-		AddDefaultTextureCoords(Primitive::TRIANGLE);
+		AddDefaultTextureCoords(Primitive::QUAD);
 
-		JumpDeltaVertexIndex(-3);
+		JumpDeltaVertexIndex(-4);
 
-		//Color
-		AddColorArray(3, color);
-		JumpDeltaVertexIndex(-3);
+		// Color
+		// Might Segfault, because color is just an array of 3 colors, whereas this method accesses the fourth element of the array.
+		// Sinch this method is never used, just didn't bother to fix it.
+		AddColorArray(4, color);
+		JumpDeltaVertexIndex(-4);
 
 		// Texture ID:
-		AddTextureSlot(3, true);
+		AddTextureSlot(4, true);
 	}
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, int32_t id)
@@ -358,17 +359,17 @@ namespace Xen {
 		XEN_PROFILE_FN();
 
 		// Deal with Vertices and Indices:
-		Renderer2D::AddQuad(position, rotation, scale, id);
-
+		Renderer2D::AddPrimitive(Primitive::QUAD, position, rotation, scale, id);
+		
 		// Texture Coords
 		AddDefaultTextureCoords(Primitive::QUAD);
-
+		
 		JumpDeltaVertexIndex(-4);
-
+		
 		//Color
 		AddColorStatic(4, color);
 		JumpDeltaVertexIndex(-4);
-
+		
 		// Texture ID:
 		AddTextureSlot(4, true);
 	}
@@ -377,7 +378,7 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddQuad(position, rotation, scale, id);
+		Renderer2D::AddPrimitive(Primitive::QUAD, position, rotation, scale, id);
 
 		// Texture Coords
 		AddDefaultTextureCoords(Primitive::QUAD);
@@ -398,7 +399,7 @@ namespace Xen {
 		XEN_PROFILE_FN();
 
 		// Deal with Vertices and Indices:
-		Renderer2D::AddQuad(position, rotation, scale, id);
+		Renderer2D::AddPrimitive(Primitive::QUAD, position, rotation, scale, id);
 
 		// Texture Coords
 		if (texture_coords == nullptr)
@@ -423,7 +424,7 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddQuad(position, rotation, scale, id);
+		Renderer2D::AddPrimitive(Primitive::QUAD, position, rotation, scale, id);
 
 		// Texture Coords
 		if(texture_coords == nullptr)
@@ -447,27 +448,32 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddPolygon(position, rotation, scale, segments, id);
-
-		AddColorStatic(segments + 1, color);
-		JumpDeltaVertexIndex(-(segments + 1));
-
-		AddTextureSlot(segments + 1, true);
+		// Renderer2D::AddPolygon(position, rotation, scale, segments, id);
+		// 
+		// AddColorStatic(segments + 1, color);
+		// JumpDeltaVertexIndex(-(segments + 1));
+		// 
+		// AddTextureSlot(segments + 1, true);
 	}
 	void Renderer2D::DrawPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, const std::vector<Color>& color, int32_t id)
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddPolygon(position, rotation, scale, segments, id);
-
-		AddTextureSlot(segments + 1, true);
+		// Renderer2D::AddPolygon(position, rotation, scale, segments, id);
+		// 
+		// AddTextureSlot(segments + 1, true);
 	}
 
 	void Renderer2D::DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, float thickness, float innerfade, float outerfade, int32_t id)
 	{
 		XEN_PROFILE_FN();
 
-		Renderer2D::AddCircleQuad(position, rotation, scale, id);
+		Renderer2D::AddPrimitive(Primitive::CIRCLE, position, rotation, scale, id);
+		//Renderer2D::AddCircleQuad(position, rotation, scale, id);
+
+		// These texture coordinates is actually the world coordinates for the circle.
+		AddDefaultTextureCoords(Primitive::CIRCLE, 1.0f);
+		JumpDeltaVertexIndex(-4);
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -498,7 +504,7 @@ namespace Xen {
 			}
 		}
 
-#if 1
+#if 0
 		batch_storage[0]->light_vertex_index = 0;
 		batch_storage[0]->light_index_count = 0;
 
@@ -663,14 +669,14 @@ namespace Xen {
 
 		for (int i = 0; i <= batch_index; i++)
 		{
-			s_Data.vertexBuffer->Bind();
-			s_Data.lightShader->Bind();
-
-			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count * sizeof(float));
-			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count * sizeof(int));
-
-			s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-			RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->light_index_count);
+			 // s_Data.vertexBuffer->Bind();
+			 // s_Data.lightShader->Bind();
+			 // 
+			 // s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count * sizeof(float));
+			 // s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count * sizeof(int));
+			 // 
+			 // s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			 // RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->light_index_count);
 		}
 #endif
 
@@ -747,14 +753,14 @@ namespace Xen {
 
 		for (int i = 0; i <= batch_index; i++)
 		{
-			s_Data.vertexBuffer->Bind();
-			s_Data.lightShader->Bind();
-
-			s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count * sizeof(float));
-			s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count * sizeof(int));
-
-			s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
-			RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->light_index_count);
+			// s_Data.vertexBuffer->Bind();
+			// s_Data.lightShader->Bind();
+			// 
+			// s_Data.vertexBuffer->Put(batch_storage[i]->light_verts, batch_storage[i]->light_vertex_index * stride_count * sizeof(float));
+			// s_Data.indexBuffer->Put(batch_storage[i]->light_indices, batch_storage[i]->light_index_count * sizeof(int));
+			// 
+			// s_Data.lightShader->SetMat4("u_ViewProjectionMatrix", s_Data.camera->GetViewProjectionMatrix());
+			// RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->light_index_count);
 		}
 	}
 
@@ -880,6 +886,15 @@ namespace Xen {
 			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { 1.0f * tiling_factor, 0.0f };
 
 			break;
+		case Xen::Renderer2D::Primitive::CIRCLE:
+			// Here tiling factor is different: just reduces the size of the circle with the increase in value of tiling_factor.
+
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = {  1.0f * tiling_factor,  1.0f * tiling_factor };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { -1.0f * tiling_factor,  1.0f * tiling_factor };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { -1.0f * tiling_factor, -1.0f * tiling_factor };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = {  1.0f * tiling_factor, -1.0f * tiling_factor };
+
+			break;
 		case Xen::Renderer2D::Primitive::POLYGON:
 			break;
 		default:
@@ -993,120 +1008,6 @@ namespace Xen {
 		stats.quad_count++;
 	}
 
-	void Renderer2D::AddCircleQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id)
-	{
-		XEN_PROFILE_FN();
-
-		if (batch_storage[batch_index]->vertex_index > max_vertices_per_batch - 4)
-		{
-			batch_index++;
-
-			// Increase the size of the vector if needed
-			if (batch_index >= batches_allocated)
-			{
-				batch_storage.push_back(std::make_shared<Renderer2DStorage>());
-				batch_storage[batch_index]->textures.push_back(white_texture);
-				batches_allocated = batch_index + 1;
-			}
-		}
-
-		for (int i = 0; i < 6; i++)
-			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + i] = batch_storage[batch_index]->vertex_index + default_quad_indices[i];
-
-		batch_storage[batch_index]->index_count += 6;
-
-		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x + (0.5f * scale.x), position.y + (0.5f * scale.y), position.z };
-		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x - (0.5f * scale.x), position.y + (0.5f * scale.y), position.z };
-		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x - (0.5f * scale.x), position.y - (0.5f * scale.y), position.z };
-		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x + (0.5f * scale.x), position.y - (0.5f * scale.y), position.z };
-
-		JumpDeltaVertexIndex(-4);
-
-		for (int i = 0; i < 4; i++)
-			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<uint32_t>(Primitive::CIRCLE);
-
-		JumpDeltaVertexIndex(-4);
-
-		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = {  1.0f,  1.0f };
-		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { -1.0f,  1.0f };
-		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = { -1.0f, -1.0f };
-		batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].textureWorldCoords = {  1.0f, -1.0f };
-		JumpDeltaVertexIndex(-4);
-
-		Renderer2D::AddID(4, id);
-
-		JumpDeltaVertexIndex(-4);
-		// -------------------------------------------------------------
-
-		stats.circle_count++;
-	}
-
-	void Renderer2D::AddTriangle(const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id)
-	{
-		XEN_PROFILE_FN();
-
-		if (batch_storage[batch_index]->vertex_index > max_vertices_per_batch - 3)
-		{
-			batch_index++;
-
-			// Increase the size of the vector if needed
-			if (batch_index >= batches_allocated)
-			{
-				batch_storage.push_back(std::make_shared<Renderer2DStorage>());
-				batch_storage[batch_index]->textures.push_back(white_texture);
-				batches_allocated = batch_index + 1;
-			}
-		}
-
-		for (int i = 0; i < 3; i++)
-			batch_storage[batch_index]->indices[batch_storage[batch_index]->index_count + i] = batch_storage[batch_index]->vertex_index + i;
-
-		batch_storage[batch_index]->index_count += 3;
-
-		std::vector<int32_t> angles = {90, -150, -30};
-
-		float one_over_root_two = sqrt(2.0) / 2.0;
-
-		for (int32_t angle : angles)
-			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position =
-			{	position.x + cos(glm::radians(angle + rotation.z)) * one_over_root_two,
-				position.y + sin(glm::radians(angle + rotation.z)) * one_over_root_two,
-				position.z
-			};
-
-		JumpDeltaVertexIndex(-3);
-
-		glm::mat4 view_mat = glm::mat4(1.0f) *
-			glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0)) *
-			glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
-			glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f));
-
-		glm::vec4 vertex;
-
-		for (int i = 0; i < 3; i++)
-		{
-			vertex = glm::vec4(
-				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index].position.GetVec(),
-				1.0f
-			);
-
-			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = 
-			{ (view_mat * vertex).x, (view_mat * vertex).y, (view_mat * vertex).z };
-		}
-
-		JumpDeltaVertexIndex(-3);
-
-		for (int i = 0; i < 3; i++)
-			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<uint32_t>(Primitive::TRIANGLE);
-
-		JumpDeltaVertexIndex(-3);
-
-		Renderer2D::AddID(3, id);
-
-		JumpDeltaVertexIndex(-3);
-
-	}
-
 	void Renderer2D::AddPolygon(const Vec3& position, const Vec3& rotation, const Vec2& scale, uint32_t segments, int32_t id)
 	{
 		if (batch_storage[batch_index]->vertex_index > max_vertices_per_batch - segments)
@@ -1169,6 +1070,60 @@ namespace Xen {
 		Renderer2D::AddID(segments + 1, id);
 
 		JumpDeltaVertexIndex(-(segments + 1));
+	}
+
+	void Renderer2D::AddPrimitive(Primitive primitive, const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id)
+	{
+		XEN_PROFILE_FN();
+
+		if (batch_storage[batch_index]->texture_slot_index >= max_texture_slots || batch_storage[batch_index]->vertex_index > max_vertices_per_batch - 4)
+		{
+			batch_index++;
+
+			// Increase the size of the vector if needed
+			if (batch_index >= batches_allocated)
+			{
+				batch_storage.push_back(std::make_shared<Renderer2DStorage>());
+				batch_storage[batch_index]->textures.push_back(white_texture);
+				batches_allocated = batch_index + 1;
+			}
+		}
+
+		batch_storage[batch_index]->index_count += 6;
+
+		// Vertices
+
+		if (rotation.x == 0.0f && rotation.y == 0.0f && rotation.z == 0.0f)
+		{
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x + (0.5f * scale.x), position.y + (0.5f * scale.y), position.z };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x - (0.5f * scale.x), position.y + (0.5f * scale.y), position.z };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x - (0.5f * scale.x), position.y - (0.5f * scale.y), position.z };
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position = { position.x + (0.5f * scale.x), position.y - (0.5f * scale.y), position.z };
+		}
+
+		else {
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), position.GetVec())
+				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0))
+				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0))
+				* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1))
+				* glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f));
+
+			for (int i = 0; i < 4; i++)
+				batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].position =
+			{ (transform * temp_vert[i]).x, (transform * temp_vert[i]).y, (transform * temp_vert[i]).z };
+		}
+
+		JumpDeltaVertexIndex(-4);
+
+		for (int i = 0; i < 4; i++)
+			batch_storage[batch_index]->verts[batch_storage[batch_index]->vertex_index++].primitiveType = static_cast<uint32_t>(primitive);
+
+		JumpDeltaVertexIndex(-4);
+
+		Renderer2D::AddID(4, id);
+
+		JumpDeltaVertexIndex(-4);
+		stats.quad_count++;
 	}
 
 	void Renderer2D::JumpDeltaVertexIndex(uint32_t index_delta) { batch_storage[batch_index]->vertex_index += index_delta; }

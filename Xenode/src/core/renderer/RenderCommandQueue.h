@@ -17,14 +17,15 @@ namespace Xen {
 		Ref<VertexBuffer> lineVertexBuffer;
 		Ref<Shader> lineShader;
 
-		Ref<VertexBuffer> vertexBuffer;
-		Ref<ElementBuffer> indexBuffer;
+		// Ref<VertexBuffer> vertexBuffer;
+		// Ref<ElementBuffer> indexBuffer;
 		Ref<Shader> shader;
 
 		Ref<Shader> lightShader;
 		Ref<Shader> screenShader;
 
 		Ref<UniformBuffer> cameraUniformBuffer;
+		Ref<StorageBuffer> vertexStorageBuffer;
 
 		SceneData()
 		{}

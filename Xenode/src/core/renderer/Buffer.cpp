@@ -35,4 +35,13 @@ namespace Xen {
 		}
 		return nullptr;
 	}
+	Ref<StorageBuffer> StorageBuffer::CreateStorageBuffer(Size size, const VertexBufferLayout& layout, uint8_t bindingIndex)
+	{
+		switch (DesktopApplication::GetGraphicsAPI())
+		{
+		case GraphicsAPI::XEN_OPENGL_API:
+			return std::make_shared<OpenGLStorageBuffer>(size, layout, bindingIndex);
+		}
+		return nullptr;
+	}
 }
