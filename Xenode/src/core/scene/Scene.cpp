@@ -561,11 +561,11 @@ namespace Xen {
 				switch (spriteRenderer.primitive)
 				{
 				case Component::SpriteRenderer::Primitive::Triangle:
-					Renderer2D::DrawClearTriangle(transform.position,
-						transform.rotation,
-						{ transform.scale.x, transform.scale.y },
-						spriteRenderer.color,
-						(uint32_t)entity);
+					//Renderer2D::DrawClearTriangle(transform.position,
+					//	transform.rotation,
+					//	{ transform.scale.x, transform.scale.y },
+					//	spriteRenderer.color,
+					//	(uint32_t)entity);
 					break;
 				case Component::SpriteRenderer::Primitive::Quad:
 					Renderer2D::DrawClearQuad(transform.position,
@@ -575,12 +575,12 @@ namespace Xen {
 						(uint32_t)entity);
 					break;
 				case Component::SpriteRenderer::Primitive::Polygon:
-					Renderer2D::DrawPolygon(transform.position,
-						transform.rotation,
-						{ transform.scale.x, transform.scale.y },
-						spriteRenderer.polygon_properties.segment_count,
-						spriteRenderer.color,
-						(uint32_t)entity);
+					//Renderer2D::DrawPolygon(transform.position,
+					//	transform.rotation,
+					//	{ transform.scale.x, transform.scale.y },
+					//	spriteRenderer.polygon_properties.segment_count,
+					//	spriteRenderer.color,
+					//	(uint32_t)entity);
 					break;
 				case Component::SpriteRenderer::Primitive::Circle:
 					Renderer2D::DrawClearCircle(transform.position,
