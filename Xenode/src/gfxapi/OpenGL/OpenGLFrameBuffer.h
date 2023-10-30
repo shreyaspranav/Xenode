@@ -12,7 +12,6 @@ namespace Xen {
 
 		void Invalidate();
 
-		void CreateTextures();
 
 		void Resize(uint32_t width, uint32_t height) override;
 
@@ -26,6 +25,9 @@ namespace Xen {
 		void SetClearColor(uint32_t index, const Color& color) override;
 
 		const FrameBufferSpec& GetFrameBufferSpecification() const override { return m_Spec; }
+
+	private:
+		void CreateTextures();
 
 	private:
 		uint32_t m_FrameBufferID;

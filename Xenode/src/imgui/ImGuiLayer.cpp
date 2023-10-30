@@ -131,11 +131,10 @@ namespace Xen {
 	}
 	void ImGuiLayer::OnWindowFocusEvent(WindowFocusEvent& event)
 	{
-		//ImGui_ImplGlfw_WindowFocusCallback((GLFWwindow*)m_Window->GetNativeWindow(), event.IsFocused());
+		ImGui_ImplGlfw_WindowFocusCallback((GLFWwindow*)m_Window->GetNativeWindow(), event.IsFocused());
 	}
 	void ImGuiLayer::OnWindowMinimizeEvent(WindowMinimizeEvent& event)
 	{
-
 	}
 	void ImGuiLayer::OnWindowMaximizeEvent(WindowMaximizeEvent& event)
 	{
@@ -158,7 +157,7 @@ namespace Xen {
 	}
 	void ImGuiLayer::OnMouseMoveEvent(MouseMoveEvent& event)
 	{
-		//ImGui_ImplGlfw_CursorPosCallback((GLFWwindow*)m_Window->GetNativeWindow(), event.GetX(), event.GetY());
+		ImGui_ImplGlfw_CursorPosCallback((GLFWwindow*)m_Window->GetNativeWindow(), event.GetX(), event.GetY());
 	}
 	void ImGuiLayer::OnMouseButtonPressEvent(MouseButtonPressEvent& event)
 	{

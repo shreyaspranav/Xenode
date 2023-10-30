@@ -28,15 +28,19 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
-		OpenGLFrameBuffer::CreateTextures();
-
 		if (!m_FrameBufferCreated) {
 			glCreateFramebuffers(1, &m_FrameBufferID);
 			m_FrameBufferCreated = true;
 		}
 		else {
-			// Delete Textures? But seems to work fine without it.
+			// Delete Textures? But seems to work fine without it, BUT the CPU RAM usage was heavily increased when the textures were not deleted.
+
+			glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
+
+			if (m_DepthAttachmentT)
+				glDeleteTextures(1, &m_DepthAttachmentT);
 		}
+		OpenGLFrameBuffer::CreateTextures();
 
 		for (int i = 0; i < m_ColorAttachments.size(); i++)
 			glNamedFramebufferTexture(m_FrameBufferID, GL_COLOR_ATTACHMENT0 + i, m_ColorAttachments[i], 0);
@@ -111,7 +115,8 @@ namespace Xen {
 		// Check to See if the textures are multisampled from the Framebuffer Specification
 		m_Multisampled = m_Spec.samples > 1;
 		
-		m_ColorAttachments.resize(color_attachment_count);
+		if (m_ColorAttachments.size() < color_attachment_count)
+			m_ColorAttachments.resize(color_attachment_count);
 
 		// Create the textures:
 		glCreateTextures(m_Multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, 

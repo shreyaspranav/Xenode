@@ -442,8 +442,8 @@ namespace Xen {
 		}
 
 		m_UnlitSceneFB->Resize(width, height);
-		m_LightMaskFB->Resize(width, height);
-		m_FinalSceneFB->Resize(width, height);
+		//m_LightMaskFB->Resize(width, height);
+		//m_FinalSceneFB->Resize(width, height);
 	}
 
 	void Scene::SortRenderableEntities()

@@ -875,7 +875,7 @@ private:
 		PaddedText(label.c_str(), 0.0f, 3.0f);
 		ImGui::NextColumn();
 
-		ImGui::PushMultiItemsWidths(3, ImGui::GetContentRegionAvailWidth() - 60.0f);
+		ImGui::PushMultiItemsWidths(3, ImGui::GetContentRegionAvail().x - 60.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
@@ -934,7 +934,7 @@ private:
 		PaddedText(label.c_str(), 0.0f, 3.0f);
 		ImGui::NextColumn();
 
-		ImGui::PushMultiItemsWidths(2, ImGui::GetContentRegionAvailWidth() - 40.0f);
+		ImGui::PushMultiItemsWidths(2, ImGui::GetContentRegionAvail().x - 40.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;

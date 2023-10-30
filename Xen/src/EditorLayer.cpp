@@ -534,7 +534,7 @@ void EditorLayer::OnImGuiUpdate()
 
 	ImGui::SameLine();
 
-	ImGui::PushDisabled(m_EditMode);
+	ImGui::BeginDisabled(m_EditMode);
 
 	if (ImGui::ImageButton((ImTextureID)m_StopTexture->GetNativeTextureID(), { 25.0f, 25.0f })) 
 	{
@@ -547,13 +547,13 @@ void EditorLayer::OnImGuiUpdate()
 
 	ImGui::SameLine();
 
-	ImGui::PushDisabled(m_EditorState != EditorState::Pause);
+	ImGui::BeginDisabled(m_EditorState != EditorState::Pause);
 	if (ImGui::ImageButton((ImTextureID)m_StepTexture->GetNativeTextureID(), { 25.0f, 25.0f }))
 	{
 		m_SceneStepped = true;
 	}
-	ImGui::PopDisabled();
-	ImGui::PopDisabled();
+	ImGui::EndDisabled();
+	ImGui::EndDisabled();
 
 	ImGui::PopStyleColor();
 

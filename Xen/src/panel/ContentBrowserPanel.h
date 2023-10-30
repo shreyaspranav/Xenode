@@ -40,10 +40,10 @@ public:
 		if (m_CurrentPath != m_AssetsPath)
 			up_button_disabled = true;
 
-		ImGui::PushDisabled(!up_button_disabled);
+		ImGui::BeginDisabled(!up_button_disabled);
 		if(ImGui::Button(m_BackIcon.c_str()))
 			m_CurrentPath = m_CurrentPath.parent_path();
-		ImGui::PopDisabled();
+		ImGui::EndDisabled();
 
 		ImGui::SameLine();
 
