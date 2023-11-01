@@ -35,6 +35,16 @@ namespace Xen {
 		static Ref<Shader> CreateShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);
 	};
 
+	class XEN_API ComputeShader
+	{
+	public:
+
+		virtual void LoadShader() = 0;
+		virtual void DispatchCompute(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ) = 0;
+
+		static Ref<ComputeShader> CreateComputeShader(const std::string& filePath);
+	};
+
 	// Class Static For now.. Just to simplify things
 	class XEN_API ShaderLib
 	{

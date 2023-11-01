@@ -122,36 +122,36 @@ public:
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
-				for (const std::string& component : m_AvailableComponents)
+				for (int i = 0; i < m_AvailableComponents.size(); i++)
 				{
-					if (ImGui::Selectable(component.c_str()))
+					if (ImGui::Selectable(m_AvailableComponents[i].c_str()))
 					{
 
-						if (component.contains("Sprite Renderer"))
+						if (m_AvailableComponents[i].contains("Sprite Renderer"))
 							m_SelectedEntity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f), nullptr, 1.0f);
 
-						else if (component.contains("Camera"))
+						else if (m_AvailableComponents[i].contains("Camera"))
 							m_SelectedEntity.AddComponent<Xen::Component::CameraComp>(std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, 22, 22));
 
-						else if (component.contains("Point Light"))
+						else if (m_AvailableComponents[i].contains("Point Light"))
 							m_SelectedEntity.AddComponent<Xen::Component::PointLight>();
 
-						else if (component.contains("Ambient Light"))
+						else if (m_AvailableComponents[i].contains("Ambient Light"))
 							m_SelectedEntity.AddComponent<Xen::Component::AmbientLight>();
 
-						else if (component.contains("Native Script"))
+						else if (m_AvailableComponents[i].contains("Native Script"))
 							m_SelectedEntity.AddComponent<Xen::Component::NativeScript>();
 
-						else if (component.contains(" Script"))
+						else if (m_AvailableComponents[i].contains(" Script"))
 							m_SelectedEntity.AddComponent<Xen::Component::ScriptComp>();
 
-						else if (component.contains("Rigid Body 2D"))
+						else if (m_AvailableComponents[i].contains("Rigid Body 2D"))
 							m_SelectedEntity.AddComponent<Xen::Component::RigidBody2D>();
 
-						else if (component.contains("Box Collider 2D"))
+						else if (m_AvailableComponents[i].contains("Box Collider 2D"))
 							m_SelectedEntity.AddComponent<Xen::Component::BoxCollider2D>();
 
-						std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), component);
+						std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), m_AvailableComponents[i]);
 						m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 					}
 					

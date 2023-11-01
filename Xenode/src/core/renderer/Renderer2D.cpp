@@ -160,7 +160,12 @@ namespace Xen {
 			{ "aLineColor", VertexBufferDataType::Float4, 1 }
 		};
 
-		white_texture =  Texture2D::CreateTexture2D(1, 1, &white_texture_data, sizeof(uint32_t));
+		TextureProperties whiteTextureProperties;
+		whiteTextureProperties.width = 1;
+		whiteTextureProperties.height = 1;
+		whiteTextureProperties.format = TextureFormat::RGBA8;
+
+		white_texture =  Texture2D::CreateTexture2D(whiteTextureProperties, &white_texture_data, sizeof(uint32_t));
 
 		// Main Vertex Buffer, Element buffer and shader:---------------------------------------
 		// s_Data.vertexBuffer = Xen::VertexBuffer::CreateVertexBuffer(max_vertices_per_batch * stride_count * sizeof(float), bufferLayout);

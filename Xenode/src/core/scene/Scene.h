@@ -9,6 +9,9 @@
 #include <scripting/ScriptEngine.h>
 #include <core/renderer/FrameBuffer.h>
 
+#include <core/renderer/Shader.h>
+#include <core/renderer/Texture.h>
+
 class SceneHierarchyPanel;
 class b2World;
 

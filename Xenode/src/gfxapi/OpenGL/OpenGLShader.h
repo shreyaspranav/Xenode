@@ -8,6 +8,8 @@ namespace Xen {
 	class OpenGLShader : public Shader
 	{
 	public:
+		friend class OpenGLComputeShader;
+
 		OpenGLShader(const std::string& filePath);
 		OpenGLShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);
 
@@ -55,6 +57,25 @@ namespace Xen {
 		std::unordered_map<std::string, uint32_t> m_Uniforms;
 		std::string m_FileName;
 
+		const std::string SHADER_LINE_ENDING = "\r\n";
+
+		// Combine this with the asset pipline or the project system
+		std::string cacheDirectory = "assets/.cache/";
+	};
+
+	class OpenGLComputeShader : public ComputeShader
+	{
+	public:
+		OpenGLComputeShader(const std::string& filePath);
+		virtual ~OpenGLComputeShader();
+
+		void LoadShader() override;
+
+		void DispatchCompute(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ) override;
+	private:
+		uint32_t m_ShaderProgramID;
+
+		std::string m_ShaderSrc;
 		const std::string SHADER_LINE_ENDING = "\r\n";
 
 		// Combine this with the asset pipline or the project system

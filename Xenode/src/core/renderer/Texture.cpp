@@ -16,12 +16,12 @@ namespace Xen {
 		return nullptr;
 	}
 
-	Ref<Texture2D> Texture2D::CreateTexture2D(uint32_t width, uint32_t height, void* data, uint32_t size)
+	Ref<Texture2D> Texture2D::CreateTexture2D(TextureProperties properties, void* data, uint32_t size)
 	{
 		switch (DesktopApplication::GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
-			return std::make_shared<OpenGLTexture>(width, height, data, size);
+			return std::make_shared<OpenGLTexture>(properties, data, size);
 		}
 		return nullptr;
 	}
@@ -31,6 +31,14 @@ namespace Xen {
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			OpenGLTexture::BindTextureExtID(id, slot);
+		}
+	}
+	void Texture2D::BindToImageUnit(const Ref<Texture2D>& texture, uint8_t slot)
+	{
+		switch (DesktopApplication::GetGraphicsAPI())
+		{
+		case GraphicsAPI::XEN_OPENGL_API:
+			OpenGLTexture::BindExtTextureToImageUnit(texture, slot);
 		}
 	}
 }

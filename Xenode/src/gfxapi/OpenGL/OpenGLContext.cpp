@@ -65,7 +65,7 @@ namespace Xen {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLAD_VERSION_MINOR(version));
 
 		// Anti Aliasing?
-		glfwWindowHint(GLFW_SAMPLES, 8);
+		//glfwWindowHint(GLFW_SAMPLES, 8);
 
 		
 		if (!version) { XEN_ENGINE_LOG_ERROR("glad failed to load!"); TRIGGER_BREAKPOINT; }

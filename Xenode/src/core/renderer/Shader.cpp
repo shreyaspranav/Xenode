@@ -25,4 +25,14 @@ namespace Xen {
 		}
 		return nullptr;
 	}
+
+	Ref<ComputeShader> ComputeShader::CreateComputeShader(const std::string& filePath)
+	{
+		switch (DesktopApplication::GetGraphicsAPI())
+		{
+		case GraphicsAPI::XEN_OPENGL_API:
+			return std::make_shared<OpenGLComputeShader>(filePath);
+		}
+		return nullptr;
+	}
 }

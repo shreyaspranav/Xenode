@@ -515,4 +515,82 @@ namespace Xen {
 		m_Uniforms[name] = location;
 		glUniformMatrix4fv(m_Uniforms[name], 1, GL_FALSE, glm::value_ptr(value));
 	}
+
+	// OpenGLComputeShader -----------------------------------------------------------------------------------------------
+
+	OpenGLComputeShader::OpenGLComputeShader(const std::string& filePath)
+	{
+		m_ShaderProgramID = glCreateProgram();
+
+		std::stringstream ss;
+		std::ifstream fileStream;
+		fileStream.open(filePath);
+
+		while (!fileStream.eof())
+		{
+			std::string s;
+			std::getline(fileStream, s);
+			ss << s << SHADER_LINE_ENDING;
+		}
+
+		m_ShaderSrc = ss.str();
+	}
+
+	OpenGLComputeShader::~OpenGLComputeShader()
+	{
+		glDeleteProgram(m_ShaderProgramID);
+	}
+
+	void OpenGLComputeShader::LoadShader()
+	{
+		uint32_t shaderID = glCreateShader(GL_COMPUTE_SHADER);
+
+		// Create Cache directory if needed, if it doesn't exist, compile shaders:
+		//if (!std::filesystem::exists(std::filesystem::path(cacheDirectory)))
+		{
+			//std::filesystem::create_directories(std::filesystem::path(cacheDirectory));
+
+			shaderc::Compiler compiler;
+			shaderc::CompileOptions compileOptions;
+
+			compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
+			compileOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+			shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(m_ShaderSrc, shaderc_compute_shader, "GL_COMPUTE_SHADER", compileOptions);
+
+			if (result.GetNumErrors() > 0)
+			{
+				XEN_ENGINE_LOG_ERROR("Shader Compilation Failed: {0} errors", result.GetNumErrors());
+				TRIGGER_BREAKPOINT;
+			}
+
+			std::vector<uint32_t> shaderBinary = { result.begin(), result.end() };
+
+			glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderBinary.data(), shaderBinary.size() * sizeof(uint32_t));
+			glSpecializeShader(shaderID, "main", 0, nullptr, nullptr);
+
+			glAttachShader(m_ShaderProgramID, shaderID);
+			glLinkProgram(m_ShaderProgramID);
+
+			int success;
+			char infoLog[512];
+
+			glLinkProgram(m_ShaderProgramID);
+			glGetProgramiv(m_ShaderProgramID, GL_LINK_STATUS, &success);
+
+			if (success == GL_FALSE)
+			{
+				glGetProgramInfoLog(m_ShaderProgramID, 512, NULL, infoLog);
+				XEN_ENGINE_LOG_ERROR("Failed to Link Shader Program!");
+				XEN_ENGINE_LOG_ERROR(infoLog);
+				TRIGGER_BREAKPOINT;
+			}
+		}
+	}
+
+	void OpenGLComputeShader::DispatchCompute(uint32_t sizeX, uint32_t sizeY, uint32_t sizeZ)
+	{
+		glUseProgram(m_ShaderProgramID);
+		glDispatchCompute(sizeX, sizeY, sizeZ);
+	}
 }
