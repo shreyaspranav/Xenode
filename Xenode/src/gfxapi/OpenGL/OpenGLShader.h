@@ -8,8 +8,6 @@ namespace Xen {
 	class OpenGLShader : public Shader
 	{
 	public:
-		friend class OpenGLComputeShader;
-
 		OpenGLShader(const std::string& filePath);
 		OpenGLShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);
 
@@ -38,16 +36,6 @@ namespace Xen {
 
 	private:
 		std::unordered_map<GLenum, std::string> PreprocessShaders(const std::vector<std::string>& shaderCode);
-		std::unordered_map<GLenum, uint8_t*> HashShaderCode(const std::unordered_map<GLenum, std::string>& shaderCode);
-
-		inline void LinkShaders(GLenum shaderType, const std::vector<uint32_t>& shaderBinary);
-		inline void CompileAndLinkShaders(GLenum shaderType, const std::string& shaderSource);
-
-		void CacheShaderBinary(const std::string& fileName, GLenum shaderType, const std::vector<uint32_t>& shaderBinary);
-		inline bool DoesShaderBinaryFileExist(const std::string& fileName, GLenum shaderType);
-		inline std::vector<uint32_t> ReadShaderBinary(const std::string& fileName, GLenum shaderType);
-
-		std::string ReadShaderHashCacheFromFile(const std::string& fileName, GLenum shaderType);
 
 	private:
 		uint32_t m_ShaderProgramID;
@@ -58,9 +46,6 @@ namespace Xen {
 		std::string m_FileName;
 
 		const std::string SHADER_LINE_ENDING = "\r\n";
-
-		// Combine this with the asset pipline or the project system
-		std::string cacheDirectory = "assets/.cache/";
 	};
 
 	class OpenGLComputeShader : public ComputeShader
@@ -76,6 +61,8 @@ namespace Xen {
 		uint32_t m_ShaderProgramID;
 
 		std::string m_ShaderSrc;
+		std::string m_FileName;
+		uint8_t* m_ShaderHash;
 		const std::string SHADER_LINE_ENDING = "\r\n";
 
 		// Combine this with the asset pipline or the project system

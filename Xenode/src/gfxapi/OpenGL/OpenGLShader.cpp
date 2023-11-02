@@ -14,6 +14,9 @@
 
 namespace Xen {
 
+	// Combine this with the asset pipline or the project system
+	const std::string cacheDirectory = "assets/.cache/";
+
 	static shaderc_shader_kind GLShaderToShaderC(GLenum shaderKind)
 	{
 		switch (shaderKind)
@@ -21,6 +24,7 @@ namespace Xen {
 			case GL_VERTEX_SHADER:		return shaderc_vertex_shader;
 			case GL_FRAGMENT_SHADER:	return shaderc_fragment_shader;
 			case GL_GEOMETRY_SHADER:	return shaderc_geometry_shader;
+			case GL_COMPUTE_SHADER:		return shaderc_compute_shader;
 		}
 		XEN_ENGINE_LOG_ERROR("Unknown Shader Type! ");
 		TRIGGER_BREAKPOINT;
@@ -35,11 +39,172 @@ namespace Xen {
 		case GL_VERTEX_SHADER:		return "GL_VERTEX_SHADER";
 		case GL_FRAGMENT_SHADER:	return "GL_FRAGMENT_SHADER";
 		case GL_GEOMETRY_SHADER:	return "GL_GEOMETRY_SHADER";
+		case GL_COMPUTE_SHADER:		return "GL_COMPUTE_SHADER";
 		}
 		XEN_ENGINE_LOG_ERROR("Unknown Shader Type! ");
 		TRIGGER_BREAKPOINT;
 
 		return "";
+	}
+
+	inline static uint8_t* HashShaderCode(const std::string& shaderCode)
+	{
+		SHA256 shaEngine;
+		shaEngine.update(shaderCode);
+
+		// Generate SHA256 Digest:
+		uint8_t* digest = shaEngine.digest();
+		return digest;
+	}
+
+	static void CacheShaderBinary(const std::string& fileName, GLenum shaderType, uint8_t* hash, const std::vector<uint32_t>& shaderBinary)
+	{
+		std::string binaryFileExtension;
+		std::string shaDigestFileExtension;
+
+		switch (shaderType)
+		{
+		case GL_VERTEX_SHADER:		binaryFileExtension = ".cached_vs.bin";	shaDigestFileExtension = ".vs.sha256"; break;
+		case GL_FRAGMENT_SHADER:	binaryFileExtension = ".cached_fs.bin";	shaDigestFileExtension = ".fs.sha256"; break;
+		case GL_GEOMETRY_SHADER:	binaryFileExtension = ".cached_gs.bin";	shaDigestFileExtension = ".gs.sha256"; break;
+		case GL_COMPUTE_SHADER:		binaryFileExtension = ".cached_cs.bin";	shaDigestFileExtension = ".cs.sha256"; break;
+		}
+
+		if (binaryFileExtension.empty() || shaDigestFileExtension.empty()) {
+			XEN_ENGINE_LOG_ERROR("Unknown Shader Type!");
+			TRIGGER_BREAKPOINT;
+		}
+
+		std::string finalBinaryFileName = cacheDirectory + fileName + binaryFileExtension;
+		std::string finalSHAFileName = cacheDirectory + fileName + shaDigestFileExtension;
+		std::string sha256Digest = SHA256::toString(hash);
+
+		std::ofstream outputStreamBinary(finalBinaryFileName, std::ios::out | std::ios::binary | std::ios::trunc);
+		std::ofstream outputStreamText(finalSHAFileName, std::ios::out | std::ios::trunc);
+
+		outputStreamBinary.write(reinterpret_cast<const char*>(shaderBinary.data()), shaderBinary.size() * sizeof(uint32_t));
+		outputStreamText.write(sha256Digest.c_str(), sha256Digest.size() * sizeof(char));
+
+		outputStreamBinary.close();
+		outputStreamText.close();
+	}
+
+	inline static void LinkShaders(uint32_t shaderProgramID, GLenum shaderType, const std::vector<uint32_t>& shaderBinary)
+	{
+		uint32_t shaderID = glCreateShader(shaderType);
+		glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderBinary.data(), shaderBinary.size() * sizeof(uint32_t));
+		glSpecializeShader(shaderID, "main", 0, nullptr, nullptr);
+
+		glAttachShader(shaderProgramID, shaderID);
+	}
+
+
+	inline static void CompileAndLinkShaders(const std::string& fileName, uint32_t shaderProgramID, GLenum shaderType,
+		const std::string& shaderSource, uint8_t* hash)
+	{
+		shaderc::Compiler compiler;
+		shaderc::CompileOptions compileOptions;
+
+		compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
+
+		// Maybe we need zero level optimisation for debug purposes? : FIND OUT
+		compileOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+		shaderc::SpvCompilationResult shaderCompilationResult =
+			compiler.CompileGlslToSpv(shaderSource, GLShaderToShaderC(shaderType), GLShaderToString(shaderType), compileOptions);
+
+		if (shaderCompilationResult.GetNumErrors() > 0)
+		{
+			XEN_ENGINE_LOG_ERROR("In File {0}, {1}: Compilation failed: {2} Error(s)",
+				fileName, GLShaderToString(shaderType), shaderCompilationResult.GetNumErrors());
+
+			XEN_ENGINE_LOG_ERROR(shaderCompilationResult.GetErrorMessage());
+
+			// Do Better error handling than to just crash the whole program:
+			TRIGGER_BREAKPOINT;
+		}
+		else {
+			XEN_ENGINE_LOG_INFO("{0}: {1} Successfully compiled: {2} Warning(s)",
+				fileName, GLShaderToString(shaderType), shaderCompilationResult.GetNumWarnings());
+
+			std::vector<uint32_t> shaderBinary = { shaderCompilationResult.begin(), shaderCompilationResult.end() };
+
+			LinkShaders(shaderProgramID, shaderType, shaderBinary);
+
+			// Maybe do this in a seperate thread
+			CacheShaderBinary(fileName, shaderType, hash, shaderBinary);
+		}
+	}
+
+	inline static bool DoesShaderBinaryFileExist(const std::string& fileName, GLenum shaderType)
+	{
+		std::string binaryFileExtension;
+
+		switch (shaderType)
+		{
+		case GL_VERTEX_SHADER:		binaryFileExtension = ".cached_vs.bin";	break;
+		case GL_FRAGMENT_SHADER:	binaryFileExtension = ".cached_fs.bin";	break;
+		case GL_GEOMETRY_SHADER:	binaryFileExtension = ".cached_gs.bin";	break;
+		case GL_COMPUTE_SHADER:		binaryFileExtension = ".cached_cs.bin";	break;
+		}
+
+		if (!std::filesystem::exists(std::filesystem::path(cacheDirectory) / (fileName + binaryFileExtension)))
+			return false;
+
+		return true;
+	}
+
+	static std::string ReadShaderHashCacheFromFile(const std::string& fileName, GLenum shaderType)
+	{
+		std::string shaDigestFileExtension;
+
+		switch (shaderType)
+		{
+		case GL_VERTEX_SHADER:		shaDigestFileExtension = ".vs.sha256"; break;
+		case GL_FRAGMENT_SHADER:	shaDigestFileExtension = ".fs.sha256"; break;
+		case GL_GEOMETRY_SHADER:	shaDigestFileExtension = ".gs.sha256"; break;
+		case GL_COMPUTE_SHADER:		shaDigestFileExtension = ".cs.sha256"; break;
+		}
+
+		if (!std::filesystem::exists(std::filesystem::path(cacheDirectory) / (fileName + shaDigestFileExtension)))
+			return "";
+
+		std::string fullFileName = cacheDirectory + fileName + shaDigestFileExtension;
+		std::ifstream inputFileStream(fullFileName, std::ios::in);
+
+		// Since the SHA256 Digest file contains only one line:
+		std::string to_return;
+		std::getline(inputFileStream, to_return);
+		return to_return;
+	}
+
+	inline static std::vector<uint32_t> ReadShaderBinary(const std::string& fileName, GLenum shaderType)
+	{
+		std::string binaryFileExtension;
+
+		switch (shaderType)
+		{
+		case GL_VERTEX_SHADER:		binaryFileExtension = ".cached_vs.bin";	break;
+		case GL_FRAGMENT_SHADER:	binaryFileExtension = ".cached_fs.bin";	break;
+		case GL_GEOMETRY_SHADER:	binaryFileExtension = ".cached_gs.bin";	break;
+		case GL_COMPUTE_SHADER:		binaryFileExtension = ".cached_cs.bin";	break;
+		}
+
+		if (!std::filesystem::exists(std::filesystem::path(cacheDirectory) / (fileName + binaryFileExtension)))
+			return std::vector<uint32_t>();
+
+		std::string fullFileName = cacheDirectory + fileName + binaryFileExtension;
+		std::ifstream inputFileStream(fullFileName, std::ios::in | std::ios::binary);
+
+		// Get the size of the binary file
+		uint64_t size = std::filesystem::file_size(std::filesystem::path(fullFileName));
+
+		std::vector<uint32_t> to_return;
+		to_return.resize(size / sizeof(uint32_t));
+
+		inputFileStream.read((char*)to_return.data(), size);
+
+		return to_return;
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& filePath)
@@ -64,7 +229,9 @@ namespace Xen {
 		stream.close();
 		
 		m_ShaderSrc = PreprocessShaders(shaderCode);
-		m_ShaderSrcSHADigest = HashShaderCode(m_ShaderSrc);
+
+		for (auto&& [shaderType, shaderCode] : m_ShaderSrc)
+			m_ShaderSrcSHADigest.insert({ shaderType, HashShaderCode(shaderCode) });
 
 		m_ShaderProgramID = glCreateProgram();
 	}
@@ -95,7 +262,9 @@ namespace Xen {
 		}
 
 		m_ShaderSrc.insert({ GL_FRAGMENT_SHADER, ss.str() });
-		m_ShaderSrcSHADigest = HashShaderCode(m_ShaderSrc);
+
+		for(auto&& [shaderType, shaderCode] : m_ShaderSrc)
+			m_ShaderSrcSHADigest.insert({ shaderType, HashShaderCode(shaderCode) });
 
 		m_ShaderProgramID = glCreateProgram();
 	}
@@ -146,168 +315,6 @@ namespace Xen {
 		return shaders;
 	}
 
-	inline std::unordered_map<GLenum, uint8_t*> OpenGLShader::HashShaderCode(const std::unordered_map<GLenum, std::string>& shaderCode)
-	{
-		std::unordered_map<GLenum, uint8_t*> hashes;
-
-		for (auto&& [shaderType, shaderString] : shaderCode)
-		{
-			SHA256 shaEngine;
-			shaEngine.update(shaderString);
-			
-			// Generate SHA256 Digest:
-			uint8_t* digest = shaEngine.digest();
-			hashes.insert({ shaderType, digest });
-		}
-
-		return hashes;
-	}
-
-	inline void OpenGLShader::LinkShaders(GLenum shaderType, const std::vector<uint32_t>& shaderBinary)
-	{
-		uint32_t shaderID = glCreateShader(shaderType);
-		glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderBinary.data(), shaderBinary.size() * sizeof(uint32_t));
-		glSpecializeShader(shaderID, "main", 0, nullptr, nullptr);
-
-		glAttachShader(m_ShaderProgramID, shaderID);
-	}
-
-	inline void OpenGLShader::CompileAndLinkShaders(GLenum shaderType,
-		const std::string& shaderSource)
-	{
-		shaderc::Compiler compiler;
-		shaderc::CompileOptions compileOptions;
-
-		compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
-
-		// Maybe we need zero level optimisation for debug purposes? : FIND OUT
-		compileOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
-
-		shaderc::SpvCompilationResult shaderCompilationResult =
-			compiler.CompileGlslToSpv(shaderSource, GLShaderToShaderC(shaderType), GLShaderToString(shaderType), compileOptions);
-
-		if (shaderCompilationResult.GetNumErrors() > 0)
-		{
-			XEN_ENGINE_LOG_ERROR("In File {0}, {1}: Compilation failed: {2} Error(s)",
-				m_FileName, GLShaderToString(shaderType), shaderCompilationResult.GetNumErrors());
-
-			XEN_ENGINE_LOG_ERROR(shaderCompilationResult.GetErrorMessage());
-
-			// Do Better error handling than to just crash the whole program:
-			TRIGGER_BREAKPOINT;
-		}
-		else {
-			XEN_ENGINE_LOG_INFO("{0}: {1} Successfully compiled: {2} Warning(s)",
-				m_FileName, GLShaderToString(shaderType), shaderCompilationResult.GetNumWarnings());
-
-			std::vector<uint32_t> shaderBinary = { shaderCompilationResult.begin(), shaderCompilationResult.end() };
-
-			LinkShaders(shaderType, shaderBinary);
-
-			// Maybe do this in a seperate thread
-			CacheShaderBinary(m_FileName, shaderType, shaderBinary);
-		}
-	}
-
-	void OpenGLShader::CacheShaderBinary(const std::string& fileName, GLenum shaderType, const std::vector<uint32_t>& shaderBinary)
-	{
-		std::string binaryFileExtension;
-		std::string shaDigestFileExtension;
-
-		switch (shaderType)
-		{
-		case GL_VERTEX_SHADER:		binaryFileExtension = ".cached_vs.bin";	shaDigestFileExtension = ".vs.sha256"; break;
-		case GL_FRAGMENT_SHADER:	binaryFileExtension = ".cached_fs.bin";	shaDigestFileExtension = ".fs.sha256"; break;
-		case GL_GEOMETRY_SHADER:	binaryFileExtension = ".cached_gs.bin";	shaDigestFileExtension = ".gs.sha256"; break;
-		}
-
-		if (binaryFileExtension.empty() || shaDigestFileExtension.empty()) {
-			XEN_ENGINE_LOG_ERROR("Unknown Shader Type!");
-			TRIGGER_BREAKPOINT;
-		}
-
-		std::string finalBinaryFileName = cacheDirectory + fileName + binaryFileExtension;
-		std::string finalSHAFileName = cacheDirectory + fileName + shaDigestFileExtension;
-		std::string sha256Digest = SHA256::toString(m_ShaderSrcSHADigest[shaderType]);
-		
-		std::ofstream outputStreamBinary(finalBinaryFileName, std::ios::out | std::ios::binary | std::ios::trunc);
-		std::ofstream outputStreamText(finalSHAFileName, std::ios::out | std::ios::trunc);
-
-		outputStreamBinary.write(reinterpret_cast<const char*>(shaderBinary.data()), shaderBinary.size() * sizeof(uint32_t));
-		outputStreamText.write(sha256Digest.c_str(), sha256Digest.size() * sizeof(char));
-
-		outputStreamBinary.close();
-		outputStreamText.close();
-	}
-
-	inline bool OpenGLShader::DoesShaderBinaryFileExist(const std::string& fileName, GLenum shaderType)
-	{
-		std::string binaryFileExtension;
-
-		switch (shaderType)
-		{
-		case GL_VERTEX_SHADER:		binaryFileExtension = ".cached_vs.bin";	break;
-		case GL_FRAGMENT_SHADER:	binaryFileExtension = ".cached_fs.bin";	break;
-		case GL_GEOMETRY_SHADER:	binaryFileExtension = ".cached_gs.bin";	break;
-		}
-
-		if (!std::filesystem::exists(std::filesystem::path(cacheDirectory) / (fileName + binaryFileExtension)))
-			return false;
-
-		return true;
-	}
-
-	std::string OpenGLShader::ReadShaderHashCacheFromFile(const std::string& fileName, GLenum shaderType)
-	{
-		std::string shaDigestFileExtension;
-
-		switch (shaderType)
-		{
-		case GL_VERTEX_SHADER:		shaDigestFileExtension = ".vs.sha256"; break;
-		case GL_FRAGMENT_SHADER:	shaDigestFileExtension = ".fs.sha256"; break;
-		case GL_GEOMETRY_SHADER:	shaDigestFileExtension = ".gs.sha256"; break;
-		}
-
-		if (!std::filesystem::exists(std::filesystem::path(cacheDirectory) / (fileName + shaDigestFileExtension)))
-			return "";
-
-		std::string fullFileName = cacheDirectory + fileName + shaDigestFileExtension;
-		std::ifstream inputFileStream(fullFileName, std::ios::in);
-
-		// Since the SHA256 Digest file contains only one line:
-		std::string to_return;
-		std::getline(inputFileStream, to_return);
-		return to_return;
-	}
-
-	inline std::vector<uint32_t> OpenGLShader::ReadShaderBinary(const std::string& fileName, GLenum shaderType)
-	{
-		std::string binaryFileExtension;
-
-		switch (shaderType)
-		{
-		case GL_VERTEX_SHADER:		binaryFileExtension = ".cached_vs.bin";	break;
-		case GL_FRAGMENT_SHADER:	binaryFileExtension = ".cached_fs.bin";	break;
-		case GL_GEOMETRY_SHADER:	binaryFileExtension = ".cached_gs.bin";	break;
-		}
-
-		if (!std::filesystem::exists(std::filesystem::path(cacheDirectory) / (fileName + binaryFileExtension)))
-			return std::vector<uint32_t>();
-
-		std::string fullFileName = cacheDirectory + fileName + binaryFileExtension;
-		std::ifstream inputFileStream(fullFileName, std::ios::in | std::ios::binary);
-
-		// Get the size of the binary file
-		uint64_t size = std::filesystem::file_size(std::filesystem::path(fullFileName));
-
-		std::vector<uint32_t> to_return;
-		to_return.resize(size / sizeof(uint32_t));
-
-		inputFileStream.read((char*)to_return.data(), size);
-
-		return to_return;
-	}
-
 	void OpenGLShader::LoadShader(const VertexBufferLayout& layout)
 	{
 		XEN_PROFILE_FN();
@@ -320,7 +327,7 @@ namespace Xen {
 			std::filesystem::create_directories(std::filesystem::path(cacheDirectory));
 
 			for (auto& [shaderType, shaderSrc] : m_ShaderSrc)
-				CompileAndLinkShaders(shaderType, shaderSrc);
+				CompileAndLinkShaders(m_FileName, m_ShaderProgramID, shaderType, shaderSrc, m_ShaderSrcSHADigest[shaderType]);
 		}
 
 		else {
@@ -333,11 +340,11 @@ namespace Xen {
 
 				if (isSHA256DigestEqual && doesBinaryFileExist) {
 					std::vector<uint32_t> shaderBinary = ReadShaderBinary(m_FileName, shaderType);		
-					LinkShaders(shaderType, shaderBinary);
+					LinkShaders(m_ShaderProgramID, shaderType, shaderBinary);
 				}
 
 				else
-					CompileAndLinkShaders(shaderType, shaderSrc);
+					CompileAndLinkShaders(m_FileName, m_ShaderProgramID, shaderType, shaderSrc, m_ShaderSrcSHADigest[shaderType]);
 			}
 		}
 
@@ -534,6 +541,7 @@ namespace Xen {
 		}
 
 		m_ShaderSrc = ss.str();
+		m_ShaderHash = HashShaderCode(m_ShaderSrc);
 	}
 
 	OpenGLComputeShader::~OpenGLComputeShader()
@@ -546,45 +554,40 @@ namespace Xen {
 		uint32_t shaderID = glCreateShader(GL_COMPUTE_SHADER);
 
 		// Create Cache directory if needed, if it doesn't exist, compile shaders:
-		//if (!std::filesystem::exists(std::filesystem::path(cacheDirectory)))
+		if (!std::filesystem::exists(std::filesystem::path(cacheDirectory)))
 		{
-			//std::filesystem::create_directories(std::filesystem::path(cacheDirectory));
+			std::filesystem::create_directories(std::filesystem::path(cacheDirectory));
 
-			shaderc::Compiler compiler;
-			shaderc::CompileOptions compileOptions;
+			CompileAndLinkShaders(m_FileName, m_ShaderProgramID, GL_COMPUTE_SHADER, m_ShaderSrc, m_ShaderHash);
+		}
 
-			compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
-			compileOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
+		else {
+			// Or else find the sha256 digest of each and compare it with the existing one, recompile only the nessessary shaders
 
-			shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(m_ShaderSrc, shaderc_compute_shader, "GL_COMPUTE_SHADER", compileOptions);
+			bool isSHA256DigestEqual = ReadShaderHashCacheFromFile(m_FileName, GL_COMPUTE_SHADER) == SHA256::toString(m_ShaderHash);
+			bool doesBinaryFileExist = DoesShaderBinaryFileExist(m_FileName, GL_COMPUTE_SHADER);
 
-			if (result.GetNumErrors() > 0)
-			{
-				XEN_ENGINE_LOG_ERROR("Shader Compilation Failed: {0} errors", result.GetNumErrors());
-				TRIGGER_BREAKPOINT;
+			if (isSHA256DigestEqual && doesBinaryFileExist) {
+				std::vector<uint32_t> shaderBinary = ReadShaderBinary(m_FileName, GL_COMPUTE_SHADER);
+				LinkShaders(m_ShaderProgramID, GL_COMPUTE_SHADER, shaderBinary);
 			}
 
-			std::vector<uint32_t> shaderBinary = { result.begin(), result.end() };
+			else
+				CompileAndLinkShaders(m_FileName, m_ShaderProgramID, GL_COMPUTE_SHADER, m_ShaderSrc, m_ShaderHash);
+		}
 
-			glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderBinary.data(), shaderBinary.size() * sizeof(uint32_t));
-			glSpecializeShader(shaderID, "main", 0, nullptr, nullptr);
+		int success;
+		char infoLog[512];
 
-			glAttachShader(m_ShaderProgramID, shaderID);
-			glLinkProgram(m_ShaderProgramID);
+		glLinkProgram(m_ShaderProgramID);
+		glGetProgramiv(m_ShaderProgramID, GL_LINK_STATUS, &success);
 
-			int success;
-			char infoLog[512];
-
-			glLinkProgram(m_ShaderProgramID);
-			glGetProgramiv(m_ShaderProgramID, GL_LINK_STATUS, &success);
-
-			if (success == GL_FALSE)
-			{
-				glGetProgramInfoLog(m_ShaderProgramID, 512, NULL, infoLog);
-				XEN_ENGINE_LOG_ERROR("Failed to Link Shader Program!");
-				XEN_ENGINE_LOG_ERROR(infoLog);
-				TRIGGER_BREAKPOINT;
-			}
+		if (success == GL_FALSE)
+		{
+			glGetProgramInfoLog(m_ShaderProgramID, 512, NULL, infoLog);
+			XEN_ENGINE_LOG_ERROR("Failed to Link Shader Program!");
+			XEN_ENGINE_LOG_ERROR(infoLog);
+			TRIGGER_BREAKPOINT;
 		}
 	}
 
