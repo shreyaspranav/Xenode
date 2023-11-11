@@ -3,6 +3,8 @@
 #include <Core.h>
 #include "Structs.h"
 
+#include "Texture.h"
+
 namespace Xen {
 
 	enum class FrameBufferTextureFormat
@@ -10,12 +12,13 @@ namespace Xen {
 		None = 0,
 
 		// Color Attachments:
-		RI		= 1,
-		RGB8	= 2,
-		RGB16F	= 3,
-		RGB32F	= 4,
+		RI			= 1,
+		RGB8		= 2,
+		RGB16F		= 3,
+		RGB32F		= 4,
+		R11G11B10F  = 5,
 
-		ColorAttachment_Last = RGB32F,
+		ColorAttachment_Last = R11G11B10F,
 
 		// Depth Attachements:
 		Depth24_Stencil8   = 7,
@@ -36,6 +39,7 @@ namespace Xen {
 		FrameBufferFiltering filtering = FrameBufferFiltering::Linear;
 		Color clearColor;
 
+		uint8_t mipmaps = 0;
 		bool resizable = false;
 	};
 
@@ -62,7 +66,7 @@ namespace Xen {
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 
 		virtual int32_t ReadIntPixel(uint32_t index, int32_t x, int32_t y) = 0;
-		virtual uint32_t GetColorAttachmentRendererID(uint32_t index) const = 0;
+		virtual uint32_t GetColorAttachmentRendererID(uint8_t index) const = 0;
 
 		virtual void SetClearColor(uint32_t index, const Color& color) = 0;
 

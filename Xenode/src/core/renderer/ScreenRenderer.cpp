@@ -22,11 +22,6 @@ namespace Xen {
 		screenShader->Bind();
 
 		Texture2D::BindTexture(unlitSceneTextureID, 0);
-		Texture2D::BindTexture(lightMapTextureID, 1);
-		//Texture2D::BindTexture(sceneMaskTextureID, 2);
-
-		screenShader->SetInt("u_UnlitSceneTexture", 0);
-		screenShader->SetInt("u_LightMapTexture", 1);
 
 		RenderCommand::DrawTriangles(nullptr, 6);
 	}

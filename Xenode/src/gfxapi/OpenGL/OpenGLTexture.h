@@ -8,7 +8,7 @@ namespace Xen {
 	public:
 		OpenGLTexture(const std::string& textureFilePath, bool flip_on_load);
 		OpenGLTexture(TextureProperties properties, void* data, uint32_t size);
-		OpenGLTexture(uint32_t rendererID);
+		OpenGLTexture(uint32_t rendererID, TextureProperties properties);
 
 		virtual ~OpenGLTexture();
 
@@ -28,7 +28,8 @@ namespace Xen {
 		void Bind(uint8_t slot) const override;
 
 		static void BindTextureExtID(uint32_t id, uint8_t slot);
-		static void BindExtTextureToImageUnit(const Ref<Texture2D> texture, uint8_t slot);
+		static void BindExtTextureToImageUnit(const Ref<Texture2D> texture, uint8_t slot, uint8_t mipLevel);
+		static void BindExtTextureToImageUnit(uint32_t textureID, TextureFormat format, uint8_t slot, uint8_t mipLevel);
 
 		bool operator==(const Ref<Texture2D> texture) const override { return texture->GetNativeTextureID() == m_TextureID ? true : false; }
 

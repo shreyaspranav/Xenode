@@ -12,6 +12,8 @@
 #include <core/renderer/Shader.h>
 #include <core/renderer/Texture.h>
 
+#include "core/renderer/PostProcessPipeline.h"
+
 class SceneHierarchyPanel;
 class b2World;
 
@@ -52,6 +54,8 @@ namespace Xen {
 
 		void NewScene();
 
+		void Test();
+
 		static Ref<Scene> Copy(Ref<Scene> srcScene);
 	private:
 		void SortRenderableEntities();
@@ -77,6 +81,10 @@ namespace Xen {
 		b2World* m_PhysicsWorld = nullptr;
 
 		Ref<ScriptEngine> m_ScriptEngine;
+
+		BloomProperties m_BloomProperties;
+
+		Ref<Texture2D> m_UnlitFBTexture;
 
 		// FrameBuffers:
 		Ref<FrameBuffer> m_UnlitSceneFB;

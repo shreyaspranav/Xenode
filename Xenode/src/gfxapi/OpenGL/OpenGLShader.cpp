@@ -542,6 +542,9 @@ namespace Xen {
 
 		m_ShaderSrc = ss.str();
 		m_ShaderHash = HashShaderCode(m_ShaderSrc);
+
+		std::filesystem::path shaderFilePath(filePath);
+		m_FileName = shaderFilePath.filename().string();
 	}
 
 	OpenGLComputeShader::~OpenGLComputeShader()
@@ -595,5 +598,6 @@ namespace Xen {
 	{
 		glUseProgram(m_ShaderProgramID);
 		glDispatchCompute(sizeX, sizeY, sizeZ);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 }

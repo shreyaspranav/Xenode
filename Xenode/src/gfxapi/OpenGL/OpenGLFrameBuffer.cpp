@@ -68,19 +68,26 @@ namespace Xen {
 		}
 	}
 
-	void SetupTexture(uint32_t texture_id, uint32_t width, uint32_t height, GLenum internal_format, GLenum format, FrameBufferFiltering filtering, uint32_t samples)
+	void SetupTexture(uint32_t texture_id, uint8_t mipLevels, uint32_t width, uint32_t height, GLenum internal_format, GLenum format, FrameBufferFiltering filtering, uint32_t samples)
 	{
 		if (samples > 1)
 			glTextureStorage2DMultisample(texture_id, samples, internal_format, width, height, GL_FALSE);
 		else
 		{
-			glTextureStorage2D(texture_id, 1, internal_format, width, height);
+			glTextureStorage2D(texture_id, mipLevels == 0 ? 1 : mipLevels, internal_format, width, height);
 
 			glTextureParameteri(texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTextureParameteri(texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-			glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, filtering == FrameBufferFiltering::Linear ? GL_LINEAR : GL_NEAREST);
-			glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, filtering == FrameBufferFiltering::Linear ? GL_LINEAR : GL_NEAREST);
+			if (mipLevels == 0 || mipLevels == 1)
+			{
+				glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, filtering == FrameBufferFiltering::Linear ? GL_LINEAR : GL_NEAREST);
+				glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, filtering == FrameBufferFiltering::Linear ? GL_LINEAR : GL_NEAREST);
+			}
+			else {
+				glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			}
 		}
 	}
 
@@ -102,7 +109,7 @@ namespace Xen {
 		// Make sure that the depth buffer count is either 1 or 0
 		if (depth_attachment_count > 1) 
 		{
-			XEN_ENGINE_LOG_ERROR("Multiple depth attachements not supported by OpenGL!");
+			XEN_ENGINE_LOG_ERROR("Multiple depth attachments not supported by OpenGL!");
 			TRIGGER_BREAKPOINT;
 		}
 
@@ -139,7 +146,7 @@ namespace Xen {
 				TRIGGER_BREAKPOINT;
 				break;
 			case FrameBufferTextureFormat::RI:
-				SetupTexture(m_ColorAttachments[color_att_index],
+				SetupTexture(m_ColorAttachments[color_att_index], m_Spec.attachments[i].mipmaps,
 					m_Spec.width, m_Spec.height,
 					GL_R32I,
 					GL_RED_INTEGER,
@@ -147,26 +154,33 @@ namespace Xen {
 					m_Spec.samples);
 				break;
 			case FrameBufferTextureFormat::RGB8:
-				SetupTexture(m_ColorAttachments[color_att_index],
+				SetupTexture(m_ColorAttachments[color_att_index], m_Spec.attachments[i].mipmaps,
 					m_Spec.width, m_Spec.height,
-					GL_RGBA8,
-					GL_RGBA,
+					GL_RGB8,
+					GL_RGB,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);
 				break;
 			case FrameBufferTextureFormat::RGB16F:
-				SetupTexture(m_ColorAttachments[color_att_index],
+				SetupTexture(m_ColorAttachments[color_att_index], m_Spec.attachments[i].mipmaps,
 					m_Spec.width, m_Spec.height,
-					GL_RGBA16F,
-					GL_RGBA,
+					GL_RGB16F,
+					GL_RGB,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);
 				break;
 			case FrameBufferTextureFormat::RGB32F:
-				SetupTexture(m_ColorAttachments[color_att_index],
+				SetupTexture(m_ColorAttachments[color_att_index], m_Spec.attachments[i].mipmaps,
 					m_Spec.width, m_Spec.height,
-					GL_RGBA32F,
-					GL_RGBA,
+					GL_RGB32F,
+					GL_RGB,
+					m_Spec.attachments[i].filtering,
+					m_Spec.samples);
+			case FrameBufferTextureFormat::R11G11B10F:
+				SetupTexture(m_ColorAttachments[color_att_index], m_Spec.attachments[i].mipmaps,
+					m_Spec.width, m_Spec.height,
+					GL_R11F_G11F_B10F,
+					GL_RGB,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);
 				break;
@@ -180,7 +194,7 @@ namespace Xen {
 			switch (m_Spec.attachments[depth_att_index].format)
 			{
 			case FrameBufferTextureFormat::Depth24_Stencil8:
-				SetupTexture(m_DepthAttachmentT,
+				SetupTexture(m_DepthAttachmentT, 1,
 					m_Spec.width, m_Spec.height,
 					GL_DEPTH24_STENCIL8,
 					GL_DEPTH24_STENCIL8,
@@ -188,7 +202,7 @@ namespace Xen {
 					m_Spec.samples);
 				break;
 			case FrameBufferTextureFormat::Depth32F_Stencil8:
-				SetupTexture(m_DepthAttachmentT,
+				SetupTexture(m_DepthAttachmentT, 1, 
 					m_Spec.width, m_Spec.height,
 					GL_DEPTH32F_STENCIL8,
 					GL_DEPTH32F_STENCIL8,
@@ -245,13 +259,13 @@ namespace Xen {
 				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RED_INTEGER, GL_INT, &r_color);
 				break;
 			case FrameBufferTextureFormat::RGB8:
-				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGBA, GL_FLOAT, clearColor);
+				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGB, GL_FLOAT, clearColor);
 				break;
 			case FrameBufferTextureFormat::RGB16F:
-				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGBA, GL_FLOAT, clearColor);
+				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGB, GL_FLOAT, clearColor);
 				break;
 			case FrameBufferTextureFormat::RGB32F:
-				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGBA, GL_FLOAT, clearColor);
+				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGB, GL_FLOAT, clearColor);
 				break;
 			default:
 				break;
@@ -260,7 +274,7 @@ namespace Xen {
 		}
 	}
 
-	uint32_t OpenGLFrameBuffer::GetColorAttachmentRendererID(uint32_t index) const
+	uint32_t OpenGLFrameBuffer::GetColorAttachmentRendererID(uint8_t index) const
 	{
 		if (index > m_ColorAttachments.size() - 1)
 		{

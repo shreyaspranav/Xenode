@@ -49,6 +49,7 @@ namespace Xen {
 		case TextureFormat::RGB16:			return GL_RGB16;
 		case TextureFormat::RGB16F:			return GL_RGB16F;
 		case TextureFormat::RGB32F:			return GL_RGB32F;
+		case TextureFormat::R11G11B10F:		return GL_R11F_G11F_B10F;
 		case TextureFormat::RGBA8:			return GL_RGBA8;
 		case TextureFormat::RGBA16:			return GL_RGBA16;
 		case TextureFormat::RGBA16F:		return GL_RGBA16F;
@@ -77,6 +78,7 @@ namespace Xen {
 		case TextureFormat::RGB16:
 		case TextureFormat::RGB16F:
 		case TextureFormat::RGB32F:
+		case TextureFormat::R11G11B10F:
 			return GL_RGB;
 		case TextureFormat::RGBA8:	
 		case TextureFormat::RGBA16:	
@@ -128,9 +130,12 @@ namespace Xen {
 		return (GLenum)0;
 	}
 
-	static void SetTexFilterMode(uint32_t textureID, GLenum mode)
+	static void SetTexFilterMode(uint32_t textureID, GLenum mode, bool hasMipmaps)
 	{
-		glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, mode);
+		if (hasMipmaps)
+			glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		else
+			glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, mode);
 		glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, mode);
 	}
 
@@ -186,7 +191,8 @@ namespace Xen {
 			break;
 		}
 
-		glTextureStorage2D(m_TextureID, 1, ToGLInternalTextureFormat(m_TextureProperties.format), m_TextureProperties.width, m_TextureProperties.height);
+		glTextureStorage2D(m_TextureID, m_TextureProperties.mipLevels == 0 ? 1 : m_TextureProperties.mipLevels, 
+			ToGLInternalTextureFormat(m_TextureProperties.format), m_TextureProperties.width, m_TextureProperties.height);
 
 	}
 
@@ -195,9 +201,9 @@ namespace Xen {
 		m_TextureProperties = properties;
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
-		glTextureStorage2D(m_TextureID, 1, ToGLInternalTextureFormat(m_TextureProperties.format), m_TextureProperties.width, m_TextureProperties.height);
+		glTextureStorage2D(m_TextureID, m_TextureProperties.mipLevels == 0 ? 1 : m_TextureProperties.mipLevels, ToGLInternalTextureFormat(m_TextureProperties.format), m_TextureProperties.width, m_TextureProperties.height);
 
-		SetTexFilterMode(m_TextureID, ToGLFilterMode(m_T_FilterMode));
+		SetTexFilterMode(m_TextureID, ToGLFilterMode(m_T_FilterMode), m_TextureProperties.mipLevels > 0);
 		SetTexWrapMode(m_TextureID, ToGLWrapMode(m_T_WrapMode));
 
 		if(data != nullptr)
@@ -205,12 +211,13 @@ namespace Xen {
 				ToGLTextureFormat(m_TextureProperties.format), 
 				ToGLTextureType(m_TextureProperties.format), data);
 
+		//if (m_TextureProperties.mipLevels > 0)
+		//	glGenerateTextureMipmap(m_TextureID);
 	}
 
-	OpenGLTexture::OpenGLTexture(uint32_t rendererID)
-	{
-		m_TextureID = rendererID;
-	}
+	OpenGLTexture::OpenGLTexture(uint32_t rendererID, TextureProperties proprties)
+		:m_TextureID(rendererID), m_TextureProperties(proprties)
+	{}
 
 	OpenGLTexture::~OpenGLTexture()
 	{
@@ -218,7 +225,7 @@ namespace Xen {
 	}
 	void OpenGLTexture::LoadTexture()
 	{
-		SetTexFilterMode(m_TextureID, ToGLFilterMode(m_T_FilterMode));
+		SetTexFilterMode(m_TextureID, ToGLFilterMode(m_T_FilterMode), m_TextureProperties.mipLevels > 0);
 		SetTexWrapMode(m_TextureID, ToGLWrapMode(m_T_WrapMode));
 
 		void* textureData;
@@ -239,6 +246,9 @@ namespace Xen {
 			ToGLTextureFormat(m_TextureProperties.format),
 			ToGLTextureType(m_TextureProperties.format), textureData);
 
+		if (m_TextureProperties.mipLevels > 0)
+			glGenerateTextureMipmap(m_TextureID);
+
 		stbi_image_free(textureData);
 	}
 	void OpenGLTexture::SetTextureWrapMode(TextureWrapMode mode)
@@ -249,7 +259,7 @@ namespace Xen {
 	void OpenGLTexture::SetTextureFilterMode(TextureFilterMode mode)
 	{ 
 		m_T_FilterMode = mode; 
-		SetTexFilterMode(m_TextureID, ToGLFilterMode(mode));
+		SetTexFilterMode(m_TextureID, ToGLFilterMode(mode), m_TextureProperties.mipLevels > 0);
 	}
 
 	void OpenGLTexture::Bind(uint8_t slot) const
@@ -260,9 +270,14 @@ namespace Xen {
 	{
 		glBindTextureUnit(slot, id);
 	}
-	void OpenGLTexture::BindExtTextureToImageUnit(const Ref<Texture2D> texture, uint8_t slot)
+	void OpenGLTexture::BindExtTextureToImageUnit(const Ref<Texture2D> texture, uint8_t slot, uint8_t mipLevel)
 	{
-		glBindImageTexture(0, texture->GetNativeTextureID(), 0, GL_FALSE, 0, 
+		glBindImageTexture(slot, texture->GetNativeTextureID(), mipLevel, GL_FALSE, 0, 
 			GL_READ_WRITE, ToGLInternalTextureFormat(texture->GetTextureProperties().format));
+	}
+	void OpenGLTexture::BindExtTextureToImageUnit(uint32_t textureID, TextureFormat format, uint8_t slot, uint8_t mipLevel)
+	{
+		glBindImageTexture(slot, textureID, mipLevel, GL_FALSE, 0,
+			GL_READ_WRITE, ToGLInternalTextureFormat(format));
 	}
 }

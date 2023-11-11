@@ -8,6 +8,10 @@
 #include "core/app/Log.h"
 #include "core/renderer/ScreenRenderer.h"
 
+#include <glad/gl.h>
+
+#include "core/app/Timer.h"
+
 // Physics:
 #include <box2d/box2d.h>
 #include "SceneSerializer.h"
@@ -58,52 +62,57 @@ namespace Xen {
 	{
 		m_ScriptEngine = ScriptEngine::InitScriptEngine();
 
-		Xen::FrameBufferSpec unlit_fb_specs;
-		unlit_fb_specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
-		unlit_fb_specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
+		FrameBufferSpec unlit_fb_specs;
+		unlit_fb_specs.width = DesktopApplication::GetWindow()->GetWidth();
+		unlit_fb_specs.height = DesktopApplication::GetWindow()->GetHeight();
+
 
 		// TODO FIX: When samples is more than 1, some weird texture atlas shows up instead of the scene
 		unlit_fb_specs.samples = 1;
 
 		// Unlit Scene FrameBuffer configuration:
-		Xen::FrameBufferAttachmentSpec main_layer;
-		main_layer.format = Xen::FrameBufferTextureFormat::RGB16F;
-		main_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
+		FrameBufferAttachmentSpec main_layer;
+		main_layer.format = FrameBufferTextureFormat::R11G11B10F;
+		main_layer.clearColor = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		main_layer.filtering = FrameBufferFiltering::Linear;
+		main_layer.mipmaps = 8;
 
-		Xen::FrameBufferAttachmentSpec mask_layer;
-		mask_layer.format = Xen::FrameBufferTextureFormat::RGB8;
-		mask_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
+		FrameBufferAttachmentSpec mask_layer;
+		mask_layer.format = FrameBufferTextureFormat::RGB8;
+		mask_layer.clearColor = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		mask_layer.filtering = FrameBufferFiltering::Linear;
 
-		Xen::FrameBufferAttachmentSpec mouse_picking_layer;
-		mouse_picking_layer.format = Xen::FrameBufferTextureFormat::RI;
-		mouse_picking_layer.clearColor = Xen::Color(-1.0f, 0.0f, 0.0f, 1.0f);
+		FrameBufferAttachmentSpec mouse_picking_layer;
+		mouse_picking_layer.format = FrameBufferTextureFormat::RI;
+		mouse_picking_layer.clearColor = Color(-1.0f, 0.0f, 0.0f, 1.0f);
 
 		// LightMask FrameBuffer configuration:
-		Xen::FrameBufferSpec lightmask_specs;
-		lightmask_specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
-		lightmask_specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
+		FrameBufferSpec lightmask_specs;
+		lightmask_specs.width = DesktopApplication::GetWindow()->GetWidth();
+		lightmask_specs.height = DesktopApplication::GetWindow()->GetHeight();
 
 		lightmask_specs.samples = 1;
 
-		Xen::FrameBufferAttachmentSpec light_layer;
-		light_layer.format = Xen::FrameBufferTextureFormat::RGB16F;
+		FrameBufferAttachmentSpec light_layer;
+		light_layer.format = FrameBufferTextureFormat::R11G11B10F;
 		//light_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
-		light_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
+		light_layer.clearColor = Color(0.0f, 0.0f, 0.0f, 1.0f);
 
 		// Final Scene FrameBuffer configuration:
-		Xen::FrameBufferSpec final_scene_specs;
-		final_scene_specs.width = Xen::DesktopApplication::GetWindow()->GetWidth();
-		final_scene_specs.height = Xen::DesktopApplication::GetWindow()->GetHeight();
+		FrameBufferSpec final_scene_specs;
+		final_scene_specs.width = DesktopApplication::GetWindow()->GetWidth();
+		final_scene_specs.height = DesktopApplication::GetWindow()->GetHeight();
 
 		final_scene_specs.samples = 1;
 
-		Xen::FrameBufferAttachmentSpec final_layer;
-		final_layer.format = Xen::FrameBufferTextureFormat::RGB16F;
+		FrameBufferAttachmentSpec final_layer;
+		final_layer.format = FrameBufferTextureFormat::R11G11B10F;
 		//light_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
-		final_layer.clearColor = Xen::Color(0.0f, 0.0f, 0.0f, 1.0f);
+		final_layer.clearColor = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		final_layer.filtering = FrameBufferFiltering::Linear;
 
 		unlit_fb_specs.attachments = { main_layer, mask_layer, mouse_picking_layer,
-			Xen::FrameBufferTextureFormat::Depth24_Stencil8 };
+			FrameBufferTextureFormat::Depth24_Stencil8 };
 
 		lightmask_specs.attachments = { light_layer };
 
@@ -113,7 +122,14 @@ namespace Xen {
 		m_LightMaskFB = FrameBuffer::CreateFrameBuffer(lightmask_specs);
 		m_FinalSceneFB = FrameBuffer::CreateFrameBuffer(final_scene_specs);
 
-		//ScreenRenderer2D::Init();
+		ScreenRenderer2D::Init();
+
+		m_BloomProperties.intensity = 1.0f;
+		m_BloomProperties.threshold = 1.0f;
+		
+		Ref<BloomEffect> bloomEffect = std::make_shared<BloomEffect>(&m_BloomProperties);
+		
+		PostProcessPipeline::AddPostEffects({ bloomEffect });
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -305,6 +321,23 @@ namespace Xen {
 		m_IsDirty = true;
 	}
 
+	void Scene::Test()
+	{
+		//m_BloomShader = ComputeShader::CreateComputeShader("assets/shaders/bloom.shader");
+		//m_BloomShader->LoadShader();
+		//
+		//m_TestInputTexture = Texture2D::CreateTexture2D("assets/textures/opengl.png", true);
+		//m_TestInputTexture->LoadTexture();
+		//
+		//TextureProperties p = m_TestInputTexture->GetTextureProperties();
+		//
+		//m_TestOutputTexture = Texture2D::CreateTexture2D({ m_FramebufferWidth / 2, m_FramebufferHeight / 2, TextureFormat::RGBA16F, 0 }, nullptr, 0);
+		//m_TestOutputTexture2 = Texture2D::CreateTexture2D({ m_FramebufferWidth / 4, m_FramebufferWidth / 4, TextureFormat::RGBA16F, 0 }, nullptr, 0);
+		//m_TestOutputTexture3 = Texture2D::CreateTexture2D({ p.width / 8, p.height / 8, TextureFormat::RGBA8, 0 }, nullptr, 0);
+		//m_TestOutputTexture4 = Texture2D::CreateTexture2D({ p.width / 16, p.height / 16, TextureFormat::RGBA8, 0 }, nullptr, 0);
+		//m_TestOutputTexture5 = Texture2D::CreateTexture2D({p.width / 32, p.height / 32, TextureFormat::RGBA8, 0}, nullptr, 0);
+	}
+
 	Ref<Scene> Scene::Copy(Ref<Scene> srcScene)
 	{
 		Ref<Scene> newScene = std::make_shared<Scene>();
@@ -398,6 +431,16 @@ namespace Xen {
 
 		m_UnlitSceneFB->Unbind();
 
+		PostProcessPipeline::ProcessPostEffects(m_UnlitSceneFB, m_LightMaskFB, { true });
+
+
+		m_FinalSceneFB->Bind();
+		RenderCommand::Clear();
+		m_FinalSceneFB->ClearAttachments();
+		ScreenRenderer2D::RenderFinalSceneToScreen(m_UnlitSceneFB->GetColorAttachmentRendererID(0), m_UnlitSceneFB->GetColorAttachmentRendererID(1), m_LightMaskFB->GetColorAttachmentRendererID(0));
+		m_FinalSceneFB->Unbind();
+
+
 		// Disabling all the light related stuff until I fix the shader situation.
 
 #if 0
@@ -442,8 +485,10 @@ namespace Xen {
 		}
 
 		m_UnlitSceneFB->Resize(width, height);
-		//m_LightMaskFB->Resize(width, height);
-		//m_FinalSceneFB->Resize(width, height);
+		m_LightMaskFB->Resize(width, height);
+		m_FinalSceneFB->Resize(width, height);
+
+		PostProcessPipeline::OnFrameBufferResize(width, height);
 	}
 
 	void Scene::SortRenderableEntities()

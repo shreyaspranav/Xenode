@@ -1,0 +1,125 @@
+#version 450 core
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout(binding = 0)                     uniform sampler2D inputImage;
+layout(r11f_g11f_b10f, binding = 1)     uniform image2D outputImage;
+
+layout(std140, binding = 7) uniform BloomSettings 
+{
+	//float threshold, intensity;
+	bool filterImage;
+    int currentMipLevel;
+    //vec2 texelSize;
+
+};
+
+vec3 PowVec3(vec3 v, float p)
+{
+    return vec3(pow(v.x, p), pow(v.y, p), pow(v.z, p));
+}
+
+const float invGamma = 1.0 / 2.2;
+vec3 ToSRGB(vec3 v)
+{
+    return PowVec3(v, invGamma);
+}
+
+float RGBToLuminance(vec3 col)
+{
+    return dot(col, vec3(0.2126f, 0.7152f, 0.0722f));
+}
+
+float KarisAverage(vec4 col)
+{
+    // Formula is 1 / (1 + luma)
+    float luma = RGBToLuminance(ToSRGB(col.xyz)) * 0.25f;
+    return 1.0f / (1.0f + luma);
+}
+
+vec2 vectorDivide(ivec2 v1, ivec2 v2)
+{
+    return vec2(float(v1.x) / float(v2.x), float(v1.y) / float(v2.y));
+}
+
+void main()
+{
+    ivec2 texelCoordInputTexture = ivec2(gl_GlobalInvocationID.xy);
+    vec2 texelSize = 1.0 / (vec2(gl_NumWorkGroups.xy) - vec2(0.0));
+
+	vec4 colorAverages[13];
+	
+    //for (int s = 0; s < 1; s++)
+    {
+    
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                ivec2 texelCoords = ivec2(texelCoordInputTexture.x + (2 * j), texelCoordInputTexture.y - (2 * i));
+                vec2 tC = texelSize * vec2(texelCoords.x + 0.5, texelCoords.y + 0.5);
+                
+                vec4 color = textureLod(inputImage, tC, currentMipLevel);
+			
+                int x = i + 1;
+                int y = j + 1;
+			
+                colorAverages[(3 * x) + y] = color;
+            }
+        }
+	
+        for (int i = -1; i <= 1; i += 2)
+        {
+            for (int j = -1; j <= 1; j += 2)
+            {
+                ivec2 texelCoords = ivec2(texelCoordInputTexture.x + j, texelCoordInputTexture.y - i);
+                vec2 tC = texelSize * vec2(texelCoords.x + 0.5, texelCoords.y + 0.5);
+                
+                vec4 color = textureLod(inputImage, tC, currentMipLevel);
+                
+                int x = (i + 1) / 2;
+                int y = (j + 1) / 2;
+			
+                colorAverages[9 + (2 * x) + y] = color;
+            }
+        }
+	
+        vec4 finalColor = vec4(0.0);
+	
+        if (bool(filterImage))
+        {
+        
+            vec4 groups[5];
+            groups[0] = (colorAverages[0] + colorAverages[1] + colorAverages[3] + colorAverages[4]) / (4.0f);
+            groups[1] = (colorAverages[1] + colorAverages[2] + colorAverages[4] + colorAverages[5]) / (4.0f);
+            groups[2] = (colorAverages[3] + colorAverages[4] + colorAverages[6] + colorAverages[7]) / (4.0f);
+            groups[3] = (colorAverages[4] + colorAverages[5] + colorAverages[7] + colorAverages[8]) / (4.0f);
+            groups[4] = (colorAverages[9] + colorAverages[10] + colorAverages[11] + colorAverages[12]) / (4.0f);
+            float kw0 = KarisAverage(groups[0]);
+            float kw1 = KarisAverage(groups[1]);
+            float kw2 = KarisAverage(groups[2]);
+            float kw3 = KarisAverage(groups[3]);
+            float kw4 = KarisAverage(groups[4]);
+            vec4 downsample = (kw0 * groups[0] + kw1 * groups[1] + kw2 * groups[2] + kw3 * groups[3] + kw4 * groups[4]) / (kw1 + kw2 + kw3 + kw4 + kw0);
+	
+            finalColor = downsample;
+        }
+        else
+        {
+            finalColor += colorAverages[4] * 0.125;
+            finalColor += (colorAverages[0] + colorAverages[2] + colorAverages[6] + colorAverages[8]) * 0.03125;
+            finalColor += (colorAverages[1] + colorAverages[3] + colorAverages[5] + colorAverages[7]) * 0.0625;
+            finalColor += (colorAverages[9] + colorAverages[10] + colorAverages[11] + colorAverages[12]) * 0.125;
+        }
+   
+        //imageStore(outputImage, ivec2(gl_GlobalInvocationID.xy / 2), s, finalColor);
+        float x = (float(gl_GlobalInvocationID.x) / 2.0);
+        float y = (float(gl_GlobalInvocationID.y) / 2.0);
+        
+        //vec2 tC = texelSize * vec2(texelCoordInputTexture.x + 0.5, texelCoordInputTexture.y + 0.5);
+        
+        imageStore(outputImage, ivec2(x, y), finalColor);
+        //imageStore(outputImage, ivec2(x, y), vec4(tC, 0.0, 1.0));
+        
+    }
+}

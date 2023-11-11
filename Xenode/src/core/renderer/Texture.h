@@ -18,7 +18,7 @@ namespace Xen {
 		GA8, GA16,
 
 		// RGB(Red Green Blue) Images(F is for floating point textures)
-		RGB8, RGB16, RGB16F, RGB32F,
+		RGB8, RGB16, RGB16F, RGB32F, R11G11B10F,
 
 		// RGBA(Red Green Blue, Alpha) Images(F is for floating point textures)
 		RGBA8, RGBA16, RGBA16F, RGBA32F
@@ -28,6 +28,7 @@ namespace Xen {
 	{
 		uint32_t width, height;
 		TextureFormat format;
+		uint8_t mipLevels = 0;
 	};
 
 	class Texture 
@@ -43,6 +44,7 @@ namespace Xen {
 	class Texture2D : public Texture
 	{
 	public:
+		friend class OpenGLFrameBuffer;
 		virtual void LoadTexture() = 0;
 
 		virtual void SetTextureWrapMode(TextureWrapMode mode) = 0;
@@ -54,9 +56,13 @@ namespace Xen {
 		static Ref<Texture2D> CreateTexture2D(const std::string& filepath, bool flip_on_load);
 		static Ref<Texture2D> CreateTexture2D(TextureProperties properties, void* data, uint32_t size);
 
-		static void BindTexture(uint32_t id, uint8_t slot);
-		static void BindToImageUnit(const Ref<Texture2D>& texture, uint8_t slot);
+		static void BindTexture(uint32_t textureID, uint8_t slot);
+		static void BindToImageUnit(const Ref<Texture2D>& texture, uint8_t slot, uint8_t mipLevel = 0);
+		static void BindToImageUnit(uint32_t textureID, TextureFormat format, uint8_t slot, uint8_t mipLevel = 0);
 
 		virtual bool operator==(const Ref<Texture2D> texture) const = 0;
+
+	//private:
+		static Ref<Texture2D> CreateTexture2D(uint32_t rendererID, TextureProperties properties);
 	};
 }

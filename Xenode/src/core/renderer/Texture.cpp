@@ -33,12 +33,29 @@ namespace Xen {
 			OpenGLTexture::BindTextureExtID(id, slot);
 		}
 	}
-	void Texture2D::BindToImageUnit(const Ref<Texture2D>& texture, uint8_t slot)
+	void Texture2D::BindToImageUnit(const Ref<Texture2D>& texture, uint8_t slot, uint8_t mipLevel)
 	{
 		switch (DesktopApplication::GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
-			OpenGLTexture::BindExtTextureToImageUnit(texture, slot);
+			OpenGLTexture::BindExtTextureToImageUnit(texture, slot, mipLevel);
 		}
+	}
+	void Texture2D::BindToImageUnit(uint32_t textureID, TextureFormat format, uint8_t slot, uint8_t mipLevel)
+	{
+		switch (DesktopApplication::GetGraphicsAPI())
+		{
+		case GraphicsAPI::XEN_OPENGL_API:
+			OpenGLTexture::BindExtTextureToImageUnit(textureID, format, slot, mipLevel);
+		}
+	}
+	Ref<Texture2D> Texture2D::CreateTexture2D(uint32_t rendererID, TextureProperties properties)
+	{
+		switch (DesktopApplication::GetGraphicsAPI())
+		{
+		case GraphicsAPI::XEN_OPENGL_API:
+			return std::make_shared<OpenGLTexture>(rendererID, properties);
+		}
+		return nullptr;
 	}
 }

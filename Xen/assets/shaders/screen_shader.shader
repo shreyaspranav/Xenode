@@ -1,23 +1,22 @@
 #shadertype: fragment
 #version 450 core
 
-in vec2 textureCoords;
+layout(location = 1)in
+vec2 textureCoords;
 
 layout(location = 0) out vec4 finalOutput;
 
-uniform sampler2D u_UnlitSceneTexture;
-//uniform sampler2D u_SceneMaskTexture;
-uniform sampler2D u_LightMapTexture;
+layout(binding = 0) uniform sampler2D u_SceneTexture;
 
 void main()
 {
-	finalOutput = vec4(texture(u_UnlitSceneTexture, textureCoords).xyz * texture(u_LightMapTexture, textureCoords).xyz, 1.0);
+    finalOutput = vec4(texture(u_SceneTexture, textureCoords));
 }
 
 #shadertype: vertex
 #version 450 core
 
-out vec2 textureCoords;
+layout(location = 1)out vec2 textureCoords;
 
 const vec2 quad_verts[] = vec2[6](
 	vec2( 1.0,  1.0),

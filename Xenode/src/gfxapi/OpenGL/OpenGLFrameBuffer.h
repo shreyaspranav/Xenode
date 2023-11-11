@@ -19,7 +19,7 @@ namespace Xen {
 		void Unbind() override;
 		void ClearAttachments() override;
 
-		uint32_t GetColorAttachmentRendererID(uint32_t index) const override;
+		uint32_t GetColorAttachmentRendererID(uint8_t index) const override;
 		int32_t ReadIntPixel(uint32_t index, int32_t x, int32_t y) override;
 
 		void SetClearColor(uint32_t index, const Color& color) override;
