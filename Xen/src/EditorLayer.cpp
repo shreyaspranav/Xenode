@@ -340,8 +340,8 @@ void EditorLayer::OnImGuiUpdate()
 
 	// Xen::Texture2D::BindTexture(m_ActiveScene->GetTestTexture(), 0);
 
-	//ImGui::Image((void*)m_ActiveScene->GetUnlitSceneFrameBuffer()->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
-	ImGui::Image((void*)m_ActiveScene->GetSceneFrameBuffer()->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::Image((void*)m_ActiveScene->GetUnlitSceneFrameBuffer()->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
+	//ImGui::Image((void*)m_ActiveScene->GetSceneFrameBuffer()->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
 
 	if (ImGui::BeginDragDropTarget())
 	{

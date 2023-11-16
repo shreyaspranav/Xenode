@@ -4,7 +4,6 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(binding = 0)                     uniform sampler2D inputImage;
 layout(r11f_g11f_b10f, binding = 1)     uniform image2D outputImage;
-layout(r11f_g11f_b10f, binding = 2)     uniform image2D prevOutputImage;
 
 layout(std140, binding = 7) uniform BloomSettings 
 {
@@ -62,10 +61,8 @@ void main()
     
         finalColor *= 1.0 / 16.0;
     
-        finalColor += imageLoad(prevOutputImage, ivec2(gl_GlobalInvocationID.xy));
-        //finalColor += imageLoad(prevOutputImage, ivec2(gl_GlobalInvocationID.xy), s);
+        finalColor += imageLoad(outputImage, ivec2(gl_GlobalInvocationID.xy));
     
         imageStore(outputImage, ivec2(gl_GlobalInvocationID.xy), finalColor);
-        //imageStore(outputImage, ivec2(gl_GlobalInvocationID.xy), s, finalColor);
     }
 }

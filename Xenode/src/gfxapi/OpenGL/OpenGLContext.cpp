@@ -152,7 +152,7 @@ namespace Xen {
 		glBlendEquation(GL_FUNC_ADD);
 		
 
-		
+
 		//glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LINE_SMOOTH);
 	}

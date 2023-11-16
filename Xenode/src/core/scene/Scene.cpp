@@ -73,9 +73,9 @@ namespace Xen {
 		// Unlit Scene FrameBuffer configuration:
 		FrameBufferAttachmentSpec main_layer;
 		main_layer.format = FrameBufferTextureFormat::R11G11B10F;
-		main_layer.clearColor = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		main_layer.clearColor = Color(0.0f, 0.0f, 0.0f, 0.0f);
 		main_layer.filtering = FrameBufferFiltering::Linear;
-		main_layer.mipmaps = 8;
+		main_layer.mipmaps = 10;
 
 		FrameBufferAttachmentSpec mask_layer;
 		mask_layer.format = FrameBufferTextureFormat::RGB8;
@@ -108,7 +108,7 @@ namespace Xen {
 		FrameBufferAttachmentSpec final_layer;
 		final_layer.format = FrameBufferTextureFormat::R11G11B10F;
 		//light_layer.clearColor = Xen::Color(glm::sqrt(0.2f), glm::sqrt(0.2f), glm::sqrt(0.2f), 1.0f);
-		final_layer.clearColor = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		final_layer.clearColor = Color(0.0f, 0.0f, 0.0f, 0.0f);
 		final_layer.filtering = FrameBufferFiltering::Linear;
 
 		unlit_fb_specs.attachments = { main_layer, mask_layer, mouse_picking_layer,
@@ -431,14 +431,14 @@ namespace Xen {
 
 		m_UnlitSceneFB->Unbind();
 
-		PostProcessPipeline::ProcessPostEffects(m_UnlitSceneFB, m_LightMaskFB, { true });
+		//PostProcessPipeline::ProcessPostEffects(m_UnlitSceneFB, m_LightMaskFB, { true });
 
 
-		m_FinalSceneFB->Bind();
-		RenderCommand::Clear();
-		m_FinalSceneFB->ClearAttachments();
-		ScreenRenderer2D::RenderFinalSceneToScreen(m_UnlitSceneFB->GetColorAttachmentRendererID(0), m_UnlitSceneFB->GetColorAttachmentRendererID(1), m_LightMaskFB->GetColorAttachmentRendererID(0));
-		m_FinalSceneFB->Unbind();
+		//m_FinalSceneFB->Bind();
+		//RenderCommand::Clear();
+		//m_FinalSceneFB->ClearAttachments();
+		//ScreenRenderer2D::RenderFinalSceneToScreen(m_UnlitSceneFB->GetColorAttachmentRendererID(0), m_UnlitSceneFB->GetColorAttachmentRendererID(1), m_LightMaskFB->GetColorAttachmentRendererID(0));
+		//m_FinalSceneFB->Unbind();
 
 
 		// Disabling all the light related stuff until I fix the shader situation.

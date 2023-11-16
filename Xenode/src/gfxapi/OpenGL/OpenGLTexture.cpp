@@ -133,7 +133,7 @@ namespace Xen {
 	static void SetTexFilterMode(uint32_t textureID, GLenum mode, bool hasMipmaps)
 	{
 		if (hasMipmaps)
-			glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 		else
 			glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, mode);
 		glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, mode);

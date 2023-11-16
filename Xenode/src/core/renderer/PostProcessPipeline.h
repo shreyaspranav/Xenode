@@ -66,7 +66,7 @@ namespace Xen {
 			Vec2 texelSize;
 		}bs;
 
-		const uint8_t m_SamplePasses = 8;
+		const uint8_t m_SamplePasses = 10;
 	};
 
 	class PostProcessPipeline

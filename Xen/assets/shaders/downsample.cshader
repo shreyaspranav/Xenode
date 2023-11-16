@@ -27,14 +27,14 @@ vec3 ToSRGB(vec3 v)
 
 float RGBToLuminance(vec3 col)
 {
-    return dot(col, vec3(0.2126f, 0.7152f, 0.0722f));
+    return dot(col, vec3(0.2126, 0.7152, 0.0722));
 }
 
 float KarisAverage(vec4 col)
 {
     // Formula is 1 / (1 + luma)
     float luma = RGBToLuminance(ToSRGB(col.xyz)) * 0.25f;
-    return 1.0f / (1.0f + luma);
+    return 1.0 / (1.0 + luma);
 }
 
 vec2 vectorDivide(ivec2 v1, ivec2 v2)
@@ -45,7 +45,7 @@ vec2 vectorDivide(ivec2 v1, ivec2 v2)
 void main()
 {
     ivec2 texelCoordInputTexture = ivec2(gl_GlobalInvocationID.xy);
-    vec2 texelSize = 1.0 / (vec2(gl_NumWorkGroups.xy) - vec2(0.0));
+    vec2 texelSize = 1.0 / vec2(gl_NumWorkGroups.xy);
 
 	vec4 colorAverages[13];
 	
@@ -86,7 +86,7 @@ void main()
 	
         vec4 finalColor = vec4(0.0);
 	
-        if (bool(filterImage))
+        //if (bool(filterImage))
         {
         
             vec4 groups[5];
@@ -104,13 +104,13 @@ void main()
 	
             finalColor = downsample;
         }
-        else
-        {
-            finalColor += colorAverages[4] * 0.125;
-            finalColor += (colorAverages[0] + colorAverages[2] + colorAverages[6] + colorAverages[8]) * 0.03125;
-            finalColor += (colorAverages[1] + colorAverages[3] + colorAverages[5] + colorAverages[7]) * 0.0625;
-            finalColor += (colorAverages[9] + colorAverages[10] + colorAverages[11] + colorAverages[12]) * 0.125;
-        }
+        //else
+        //{
+        //    finalColor += colorAverages[4] * 0.125;
+        //    finalColor += (colorAverages[0] + colorAverages[2] + colorAverages[6] + colorAverages[8]) * 0.03125;
+        //    finalColor += (colorAverages[1] + colorAverages[3] + colorAverages[5] + colorAverages[7]) * 0.0625;
+        //    finalColor += (colorAverages[9] + colorAverages[10] + colorAverages[11] + colorAverages[12]) * 0.125;
+        //}
    
         //imageStore(outputImage, ivec2(gl_GlobalInvocationID.xy / 2), s, finalColor);
         float x = (float(gl_GlobalInvocationID.x) / 2.0);

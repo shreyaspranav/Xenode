@@ -76,18 +76,18 @@ namespace Xen {
 		{
 			glTextureStorage2D(texture_id, mipLevels == 0 ? 1 : mipLevels, internal_format, width, height);
 
-			glTextureParameteri(texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTextureParameteri(texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
 			if (mipLevels == 0 || mipLevels == 1)
 			{
 				glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, filtering == FrameBufferFiltering::Linear ? GL_LINEAR : GL_NEAREST);
 				glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, filtering == FrameBufferFiltering::Linear ? GL_LINEAR : GL_NEAREST);
 			}
 			else {
-				glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 				glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			}
+
+			glTextureParameteri(texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		}
 	}
 
