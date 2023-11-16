@@ -371,7 +371,7 @@ void EditorLayer::OnImGuiUpdate()
 			if (ImGuizmo::IsOver())
 				m_IsMousePickingWorking = false;
 
-			
+			ImGuizmo::SetGizmoSizeClipSpace(0.07f * m_EditorCamera->GetScale().x);
 			ImGuizmo::SetOrthographic(m_EditorCamera->GetProjectionType() == Xen::CameraType::Orthographic ? true : false);
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + y_offset, viewport_framebuffer_width, viewport_framebuffer_height);
