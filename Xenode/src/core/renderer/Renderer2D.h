@@ -49,6 +49,8 @@ namespace Xen {
 		static void EndScene();
 		
 		static void RenderFrame();
+		static void RenderOverlay();
+
 		static void RenderLights();
 
 		// Draw Functions:
@@ -65,8 +67,8 @@ namespace Xen {
 		static void SetLineWidth(float width);
 
 		// Outline Only(for Debugging)
-		static void DrawQuadOutline(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());
-		static void DrawCircleOutline(const Vec3& position, const Color& color = Color(), float thickness = 0.025f);
+		static void DrawQuadOverlay(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());
+		static void DrawCircleOverlay(const Vec3& position, const Color& color = Color(), float thickness = 0.025f);
 
 		// Stats functions:
 		static Renderer2DStatistics& GetStatistics();

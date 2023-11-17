@@ -71,7 +71,7 @@ void EditorLayer::OnAttach()
 	m_HierarchyPanel = SceneHierarchyPanel(m_ActiveScene);
 	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
 	m_ContentBrowserPanel = ContentBrowserPanel();
-	m_SceneSettingsPanel = SceneSettingsPanel();
+	m_SceneSettingsPanel = SceneSettingsPanel(m_ActiveScene);
 
 	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
 	m_PropertiesPanel.SetScriptLoadDropType(m_ContentBrowserPanel.GetScriptLoadDropType());
@@ -157,6 +157,7 @@ void EditorLayer::OnUpdate(double timestep)
 	// 	Xen::Renderer2D::DrawLine(Xen::Vec3(i, -5.0f, 0.0f), Xen::Vec3(i, 5.0f, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
 	// }
 
+
 	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport && m_IsMousePickingWorking)
 	{
 		// For some reason the red integer attachment is flipped!
@@ -166,6 +167,7 @@ void EditorLayer::OnUpdate(double timestep)
 
 		m_HierarchyPanel.SetSelectedEntity(Xen::Entity((entt::entity)entt_id, m_ActiveScene.get()));
 	}
+	//Xen::Renderer2D::DrawQuadOutline({ 0.0f, 0.0f, 0.1f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
 
 	m_ActiveScene->OnRender();
 } 

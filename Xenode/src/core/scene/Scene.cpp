@@ -75,7 +75,7 @@ namespace Xen {
 		main_layer.format = FrameBufferTextureFormat::R11G11B10F;
 		main_layer.clearColor = Color(0.0f, 0.0f, 0.0f, 0.0f);
 		main_layer.filtering = FrameBufferFiltering::Linear;
-		main_layer.mipmaps = 10;
+		//main_layer.mipmaps = 10;
 
 		FrameBufferAttachmentSpec mask_layer;
 		mask_layer.format = FrameBufferTextureFormat::RGB8;
@@ -127,9 +127,9 @@ namespace Xen {
 		m_BloomProperties.intensity = 1.0f;
 		m_BloomProperties.threshold = 1.0f;
 		
-		Ref<BloomEffect> bloomEffect = std::make_shared<BloomEffect>(&m_BloomProperties);
+		//Ref<BloomEffect> bloomEffect = std::make_shared<BloomEffect>(&m_BloomProperties);
 		
-		PostProcessPipeline::AddPostEffects({ bloomEffect });
+		//PostProcessPipeline::AddPostEffects({ bloomEffect });
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -274,6 +274,11 @@ namespace Xen {
 			{
 				Component::BoxCollider2D& boxCollider = this_entity.GetComponent< Component::BoxCollider2D>();
 
+				Vec3 newPosition = { transform.position.x + boxCollider.bodyOffset.x, transform.position.y + boxCollider.bodyOffset.y, transform.position.z };
+				physicsBody->SetTransform({ newPosition.x, newPosition.y }, transform.rotation.z * DEGTORAD);
+
+				rigidBody2d.runtimeBody = physicsBody;
+
 				b2PolygonShape shape;
 				shape.SetAsBox(
 					boxCollider.size.x * transform.scale.x,
@@ -351,6 +356,9 @@ namespace Xen {
 
 		newScene->m_IsDirty = srcScene->m_IsDirty;
 
+		newScene->m_ShowPhysicsColliders = srcScene->m_ShowPhysicsColliders;
+		newScene->m_ShowPhysicsCollidersRuntime = srcScene->m_ShowPhysicsCollidersRuntime;
+
 		std::unordered_map<UUID, Entity> uuidEntityMap;
 
 		entt::registry& srcSceneRegistry = srcScene->m_Registry;
@@ -403,6 +411,9 @@ namespace Xen {
 		UpdateCameras();
 
 		RenderSprites();
+
+		if (m_ShowPhysicsCollidersRuntime)
+			RenderPhysicsColliders();
 		//RenderLights();
 	}
 
@@ -413,6 +424,9 @@ namespace Xen {
 		Renderer2D::BeginScene(camera);
 
 		RenderSprites();
+
+		if(m_ShowPhysicsColliders)
+			RenderPhysicsColliders();
 		//RenderLights();
 	}
 
@@ -428,6 +442,7 @@ namespace Xen {
 			{ BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha, BlendOperation::Add }
 		);
 		Renderer2D::RenderFrame();
+		Renderer2D::RenderOverlay();
 
 		m_UnlitSceneFB->Unbind();
 
@@ -578,17 +593,18 @@ namespace Xen {
 
 			Component::Transform& transform = this_entity.GetComponent<Component::Transform>();
 			Component::RigidBody2D& rigidBody2d = this_entity.GetComponent<Component::RigidBody2D>();
+			Component::BoxCollider2D& boxCollider2d = this_entity.GetComponent<Component::BoxCollider2D>();
 
 			b2Body* body = (b2Body*)rigidBody2d.runtimeBody;
 
 			const auto& position = body->GetPosition();
 
-			transform.position.x = position.x;
-			transform.position.y = position.y;
+			transform.position.x = position.x - boxCollider2d.bodyOffset.x;
+			transform.position.y = position.y - boxCollider2d.bodyOffset.y;
 
 			transform.rotation.z = (body->GetAngle() * RADTODEG);
 
-			body->SetTransform(body->GetPosition(), body->GetAngle());
+			//body->SetTransform(body->GetPosition(), body->GetAngle());
 		}
 	}
 
@@ -670,6 +686,21 @@ namespace Xen {
 			//SortRenderableEntities();
 		}
 		m_IsDirty = false;
+	}
+	void Scene::RenderPhysicsColliders()
+	{
+		auto boxColliders = m_Registry.view<Component::BoxCollider2D>();
+
+		for (auto& entity : boxColliders)
+		{
+			Component::BoxCollider2D collider = Entity(entity, this).GetComponent<Component::BoxCollider2D>();
+			Component::Transform transform = Entity(entity, this).GetComponent<Component::Transform>();
+
+			Vec3 newPosition = { transform.position.x + collider.bodyOffset.x, transform.position.y + collider.bodyOffset.y, transform.position.z };
+			Vec2 newScale = { transform.scale.x * collider.size.x * 2.0f, transform.scale.y * collider.size.y * 2.0f };
+
+			Renderer2D::DrawQuadOverlay(newPosition, transform.rotation, newScale, m_PhysicsColliderColor);
+		}
 	}
 	void Scene::RenderLights()
 	{

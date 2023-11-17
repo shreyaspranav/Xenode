@@ -37,10 +37,20 @@ namespace Xen {
 
 		void OnViewportResize(uint32_t width, uint32_t height);
 
+		inline void SetPhysicsColliderColor(const Color& color) { m_PhysicsColliderColor = color; }
+
+		inline void ShowPhysicsColliders(bool show = true)			{ m_ShowPhysicsColliders = show; }
+		inline void ShowPhysicsCollidersRuntime(bool show = true)	{ m_ShowPhysicsCollidersRuntime = show; }
+
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(const std::string& name, UUID id);
 		Entity CopyEntity(Entity entity);
 		Entity GetRuntimeEntity(Entity editorEntity, const Ref<Scene>& runtimeScene);
+
+		inline const Color& GetPhysicsColliderColor() { return m_PhysicsColliderColor; }
+
+		inline bool IsPhysicsCollidersShown()				{ return m_ShowPhysicsColliders; }
+		inline bool IsPhysicsCollidersRuntimeShown()		{ return m_ShowPhysicsCollidersRuntime; }
 
 		const Ref<FrameBuffer>& GetSceneFrameBuffer();
 		const Ref<FrameBuffer>& GetUnlitSceneFrameBuffer();
@@ -65,6 +75,7 @@ namespace Xen {
 		void UpdateCameras();
 		void SimulatePhysics(double fixedTimeStep);
 		void RenderSprites();
+		void RenderPhysicsColliders();
 		void RenderLights();
 
 	private:
@@ -79,6 +90,10 @@ namespace Xen {
 		bool m_isRunningOnRuntime = false;
 
 		b2World* m_PhysicsWorld = nullptr;
+
+		bool m_ShowPhysicsColliders = false;
+		bool m_ShowPhysicsCollidersRuntime = false;
+		Color m_PhysicsColliderColor = { 0.0f, 1.0f, 0.0f, 1.0f };
 
 		Ref<ScriptEngine> m_ScriptEngine;
 

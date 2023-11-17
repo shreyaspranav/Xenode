@@ -6,12 +6,14 @@
 #include "core/app/Log.h"
 
 #include "StringValues.h"
-#include "core/renderer/ScreenRenderer.h"
+#include "core/scene/Scene.h"
 
 class SceneSettingsPanel {
 
 public:
 	SceneSettingsPanel() {}
+	SceneSettingsPanel(const Xen::Ref<Xen::Scene>& scene) 
+		:m_Scene(scene){}
 	~SceneSettingsPanel() {}
 
 	inline void SetPanelTitle(const std::string& title) { m_PanelTitle = title; }
@@ -19,26 +21,40 @@ public:
 
 	void OnImGuiRender()
 	{
-#if 0
 		ImGui::Begin(m_PanelTitle.c_str());
 
 		ImGui::Columns(2, "##SceneSettings", false);
-		ImGui::SetColumnWidth(0, 100.0f);
+		//ImGui::SetColumnWidth(1, 100.0f);
+		ImGui::SetColumnWidth(0, 245.0f);
 
-		PaddedText("Ambient Light", 0.0f, 3.0f);
+		PaddedText("Show Physics Colliders", 0.0f, 3.0f);
 		ImGui::NextColumn();
 
-		float ambientLight = Xen::ScreenRenderer2D::GetAmbientLightIntensity();
+		bool enablePhysicsColliders = m_Scene->IsPhysicsCollidersShown();
+		bool enablePhysicsCollidersRuntime = m_Scene->IsPhysicsCollidersRuntimeShown();
 
-		ImGui::PushItemWidth(-0.1f);
-		if (ImGui::SliderFloat("##AmbientLight", &ambientLight, 0.0f, 1.0f))
-			Xen::ScreenRenderer2D::SetAmbientLightIntensity(ambientLight);
+		ImGui::PushItemWidth(-1.0f);
+
+		if (ImGui::Checkbox("##ShowPhysicsColliders", &enablePhysicsColliders))
+			m_Scene->ShowPhysicsColliders(enablePhysicsColliders);
+
+		ImGui::PopItemWidth();
+
+		ImGui::NextColumn();
+
+		PaddedText("Show Physics Colliders(Runtime)", 0.0f, 3.0f);
+		ImGui::NextColumn();
+
+		ImGui::PushItemWidth(-1.0f);
+
+		if (ImGui::Checkbox("##ShowPhysicsCollidersRuntime", &enablePhysicsCollidersRuntime))
+			m_Scene->ShowPhysicsCollidersRuntime(enablePhysicsCollidersRuntime);
+
 		ImGui::PopItemWidth();
 
 		ImGui::Columns(1);
 
 		ImGui::End();
-#endif
 	}
 
 private:
@@ -55,4 +71,6 @@ private:
 
 private:
 	std::string m_PanelTitle = Xen::StringValues::PANEL_TITLE_SCENE_SETTINGS;
+
+	Xen::Ref<Xen::Scene> m_Scene;
 };

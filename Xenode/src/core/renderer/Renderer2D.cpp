@@ -27,7 +27,7 @@ namespace Xen {
 	uint32_t batch_index = 0;
 	uint32_t batches_allocated = 1;
 
-	float line_width = 1.0f;
+	float line_width = 2.0f;
 
 	uint32_t stride_count = 15;
 
@@ -62,6 +62,12 @@ namespace Xen {
 
 		// Editor purpose only:
 		int32_t _vertexID;
+	};
+
+	struct LineVertex
+	{
+		Vec3 position;
+		Color color;
 	};
 
 
@@ -101,16 +107,21 @@ namespace Xen {
 		uint32_t vertex_index;
 		uint32_t index_count;
 
-		float* line_verts;
+		//float* line_verts;
 		uint32_t line_index;
+
+		LineVertex* line_verts;
+		uint32_t line_vertex_index;
 
 		std::vector<Ref<Texture2D>> textures;
 		uint8_t texture_slot_index;
 
 		Renderer2DStorage()
 		{
-			line_verts = new float[max_lines_per_batch * 7];
+			line_verts = new LineVertex[max_lines_per_batch];
 			line_index = 0;
+
+			line_vertex_index = 0;
 
 			verts = new Vertex[max_vertices_per_batch];
 			vertex_index = 0;
@@ -121,7 +132,7 @@ namespace Xen {
 
 		~Renderer2DStorage()
 		{
-			delete[] line_verts;
+			//delete[] line_verts;
 
 			delete[] verts;
 		}
@@ -177,7 +188,7 @@ namespace Xen {
 		// -------------------------------------------------------------------------------------
 
 		// Line Shader and Vertex Buffer: -------------------------------------------------------------------------
-		s_Data.lineVertexBuffer = VertexBuffer::CreateVertexBuffer(1000 * sizeof(float), lineBufferLayout);
+		s_Data.lineVertexBuffer = VertexBuffer::CreateVertexBuffer(max_lines_per_batch * sizeof(LineVertex), lineBufferLayout);
 
 		s_Data.lineShader = Shader::CreateShader("assets/shaders/line_shader.shader");
 		s_Data.lineShader->LoadShader(lineBufferLayout);
@@ -219,6 +230,7 @@ namespace Xen {
 		for (int i = 0; i <= batch_index; i++)
 		{
 			batch_storage[i]->line_index = 0;
+			batch_storage[i]->line_vertex_index = 0;
 			
 			batch_storage[i]->vertex_index = 0;
 
@@ -264,13 +276,6 @@ namespace Xen {
 		{
 			for (int j = 0; j < batch_storage[i]->textures.size(); j++)
 				batch_storage[i]->textures[j]->Bind(j);
-			
-			s_Data.lineVertexBuffer->Bind();
-			s_Data.lineShader->Bind();
-			
-			s_Data.lineVertexBuffer->Put(batch_storage[i]->line_verts, batch_storage[i]->line_index * 14 * sizeof(float));
-			
-			RenderCommand::DrawLines(s_Data.lineVertexBuffer, batch_storage[i]->line_index * 14);
 
 			s_Data.shader->Bind();
 			s_Data.shader->SetIntArray("tex", texture_slots, max_texture_slots);
@@ -281,6 +286,20 @@ namespace Xen {
 		}
 	}
 
+	void Renderer2D::RenderOverlay()
+	{
+		for (int i = 0; i <= batch_index; i++)
+		{
+			RenderCommand::SetLineWidth(2.0f);
+
+			s_Data.lineVertexBuffer->Bind();
+			s_Data.lineShader->Bind();
+
+			s_Data.lineVertexBuffer->Put(batch_storage[i]->line_verts, batch_storage[i]->line_vertex_index * sizeof(LineVertex));
+
+			RenderCommand::DrawLines(s_Data.lineVertexBuffer, batch_storage[i]->line_vertex_index);
+		}
+	}
 	void Renderer2D::RenderLights()
 	{
 
@@ -415,7 +434,7 @@ namespace Xen {
 		line_width = width;
 	}
 
-	void Renderer2D::DrawQuadOutline(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)
+	void Renderer2D::DrawQuadOverlay(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)
 	{
 		Vec3 p1, p2, p3, p4;
 
@@ -465,7 +484,7 @@ namespace Xen {
 		Renderer2D::DrawLine(p4, p1, color);
 	}
 
-	void Renderer2D::DrawCircleOutline(const Vec3& position, const Color& color, float thickness)
+	void Renderer2D::DrawCircleOverlay(const Vec3& position, const Color& color, float thickness)
 	{
 		Renderer2D::DrawClearCircle(position, 0.0f, 1.0f, color, thickness, 0.001f, 0.001f);
 	}
@@ -488,25 +507,37 @@ namespace Xen {
 				batches_allocated = batch_index + 1;
 			}
 		}
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 0] = p1.x;
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 1] = p1.y;
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 2] = p1.z;
 
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 3] = color.r;
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 4] = color.g;
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 5] = color.b;
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 6] = color.a;
+		batch_storage[batch_index]->line_verts[batch_storage[batch_index]->line_vertex_index].position = p1;
+		batch_storage[batch_index]->line_verts[batch_storage[batch_index]->line_vertex_index].color = color;
 
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 7] = p2.x;
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 8] = p2.y;
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 9] = p2.z;
+		batch_storage[batch_index]->line_vertex_index++;
 
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 10] = color.r;
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 11] = color.g;
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 12] = color.b;
-		batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 13] = color.a;
+		batch_storage[batch_index]->line_verts[batch_storage[batch_index]->line_vertex_index].position = p2;
+		batch_storage[batch_index]->line_verts[batch_storage[batch_index]->line_vertex_index].color = color;
 
-		batch_storage[batch_index]->line_index++;
+		batch_storage[batch_index]->line_vertex_index++;
+
+
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 0] = p1.x;
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 1] = p1.y;
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 2] = p1.z;
+		//
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 3] = color.r;
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 4] = color.g;
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 5] = color.b;
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 6] = color.a;
+		//
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 7] = p2.x;
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 8] = p2.y;
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 9] = p2.z;
+		//
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 10] = color.r;
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 11] = color.g;
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 12] = color.b;
+		//batch_storage[batch_index]->line_verts[(batch_storage[batch_index]->line_index * 14) + 13] = color.a;
+		//
+		//batch_storage[batch_index]->line_index++;
 	}
 	
 	// Private methods -----------------------------------------------------------------------------------------------------------------------
