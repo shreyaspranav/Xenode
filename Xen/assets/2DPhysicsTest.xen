@@ -14,13 +14,13 @@ Entities:
     RigidBody2D:
       FixedRotation: false
       BodyType: 0
-    BoxCollider2D:
-      Size: [0.5, 0.5]
-      Offset: [0, 0]
       Density: 1
       Friction: 0.100000001
       Restitution: 0.400000006
       RestitutionThreshold: 0.5
+    BoxCollider2D:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
   - Entity: [Quad 1, 2441446859763917847]
     Transform:
       Position: [0.0860956907, 0.864699066, 0]
@@ -35,13 +35,13 @@ Entities:
     RigidBody2D:
       FixedRotation: false
       BodyType: 1
-    BoxCollider2D:
-      Size: [0.5, 0.5]
-      Offset: [0, 0]
       Density: 0.150000006
       Friction: 0.100000001
       Restitution: 0.75
       RestitutionThreshold: 0.5
+    BoxCollider2D:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
   - Entity: [Quad 2, 17903204952049280946]
     Transform:
       Position: [0, -3.58999991, 0.00100000005]
@@ -56,13 +56,13 @@ Entities:
     RigidBody2D:
       FixedRotation: false
       BodyType: 0
-    BoxCollider2D:
-      Size: [0.5, 0.5]
-      Offset: [0, 0]
       Density: 1
       Friction: 1
       Restitution: 0.400000006
       RestitutionThreshold: 0.5
+    BoxCollider2D:
+      Size: [0.5, 0.5]
+      Offset: [0, 0]
   - Entity: [Camera, 16732049835899134878]
     Transform:
       Position: [0, 0, 0]

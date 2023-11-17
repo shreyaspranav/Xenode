@@ -181,6 +181,11 @@ namespace Xen {
 			BodyType bodyType = BodyType::Static;
 			bool fixedRotation = false;
 
+			float bodyDensity = 1.0f;
+			float bodyFriction = 0.1f;
+			float bodyRestitution = 0.4f;
+			float bodyRestitutionThreshold = 0.5f;
+
 			// Storage for the runtime object
 			void* runtimeBody = nullptr;
 
@@ -196,11 +201,6 @@ namespace Xen {
 		{
 			Vec2 bodyOffset = { 0.0f, 0.0f };
 			Vec2 size		= { 0.5f, 0.5f }; // This is a half-extents
-
-			float bodyDensity = 1.0f;
-			float bodyFriction = 0.1f;
-			float bodyRestitution = 0.4f;
-			float bodyRestitutionThreshold = 0.5f;
 
 			// Storage for the runtime object
 			void* runtimeBody = nullptr;

@@ -286,11 +286,12 @@ namespace Xen {
 				);
 
 				b2FixtureDef fixtureDef;
+
 				fixtureDef.shape = &shape;
-				fixtureDef.density = boxCollider.bodyDensity;
-				fixtureDef.friction = boxCollider.bodyFriction;
-				fixtureDef.restitution = boxCollider.bodyRestitution;
-				fixtureDef.restitutionThreshold = boxCollider.bodyRestitutionThreshold;
+				fixtureDef.density = rigidBody2d.bodyDensity;
+				fixtureDef.friction = rigidBody2d.bodyFriction;
+				fixtureDef.restitution = rigidBody2d.bodyRestitution;
+				fixtureDef.restitutionThreshold = rigidBody2d.bodyRestitutionThreshold;
 
 				physicsBody->CreateFixture(&fixtureDef);
 			}
@@ -593,9 +594,12 @@ namespace Xen {
 
 			Component::Transform& transform = this_entity.GetComponent<Component::Transform>();
 			Component::RigidBody2D& rigidBody2d = this_entity.GetComponent<Component::RigidBody2D>();
-			Component::BoxCollider2D& boxCollider2d = this_entity.GetComponent<Component::BoxCollider2D>();
+			
+			if (!this_entity.HasAnyComponent<Component::BoxCollider2D>())
+				continue;
 
 			b2Body* body = (b2Body*)rigidBody2d.runtimeBody;
+			Component::BoxCollider2D& boxCollider2d = this_entity.GetComponent<Component::BoxCollider2D>();
 
 			const auto& position = body->GetPosition();
 

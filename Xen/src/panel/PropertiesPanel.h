@@ -703,6 +703,36 @@ public:
 					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 
+
+					PaddedText("Density", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::DragFloat("##Density", &rBody.bodyDensity, 0.05f, 0.0f, 10.0f);
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Restitution", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::DragFloat("##Restitution", &rBody.bodyRestitution, 0.05f, 0.0f, 1.0f);
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Friction", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::DragFloat("##Friction", &rBody.bodyFriction, 0.05f, 0.0f, 1.0f);
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Restitution Threshold", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::DragFloat("##RestitutionThreshold", &rBody.bodyRestitutionThreshold, 0.05f, 0.0f, 1.0f);
+					ImGui::PopItemWidth();
+
+					ImGui::NextColumn();
+
 					PaddedText("Fixed Rotation", 0.0f, 3.0f);
 					ImGui::NextColumn();
 					ImGui::Checkbox("##FixedRotation", &rBody.fixedRotation);
@@ -735,39 +765,38 @@ public:
 					DrawVec2Control("Size", bCollider.size, 0.5f, 150.0f);
 					DrawVec2Control("Offset", bCollider.bodyOffset, 0.0f, 150.0f);
 
-					ImGui::Columns(2, "##BoxCollider2D", false);
-					ImGui::SetColumnWidth(0, 150.0f);
-
-
-					PaddedText("Density", 0.0f, 3.0f);
-					ImGui::NextColumn();
-					ImGui::PushItemWidth(-0.1f);
-					ImGui::DragFloat("##Density", &bCollider.bodyDensity, 0.05f, 0.0f, 10.0f);
-					ImGui::PopItemWidth();
-					ImGui::NextColumn();
-
-					PaddedText("Restitution", 0.0f, 3.0f);
-					ImGui::NextColumn();
-					ImGui::PushItemWidth(-0.1f);
-					ImGui::DragFloat("##Restitution", &bCollider.bodyRestitution, 0.05f, 0.0f, 1.0f);
-					ImGui::PopItemWidth();
-					ImGui::NextColumn();
-
-					PaddedText("Friction", 0.0f, 3.0f);
-					ImGui::NextColumn();
-					ImGui::PushItemWidth(-0.1f);
-					ImGui::DragFloat("##Friction", &bCollider.bodyFriction, 0.05f, 0.0f, 1.0f);
-					ImGui::PopItemWidth();
-					ImGui::NextColumn();
-
-					PaddedText("Restitution Threshold", 0.0f, 3.0f);
-					ImGui::NextColumn();
-					ImGui::PushItemWidth(-0.1f);
-					ImGui::DragFloat("##RestitutionThreshold", &bCollider.bodyRestitutionThreshold, 0.05f, 0.0f, 1.0f);
-					ImGui::PopItemWidth();
-					//DrawVec2Control("Offset", bCollider.bodyOffset);
-
-					ImGui::Columns(1);
+					//ImGui::Columns(2, "##BoxCollider2D", false);
+					//ImGui::SetColumnWidth(0, 150.0f);
+					//
+					//
+					//PaddedText("Density", 0.0f, 3.0f);
+					//ImGui::NextColumn();
+					//ImGui::PushItemWidth(-0.1f);
+					//ImGui::DragFloat("##Density", &bCollider.bodyDensity, 0.05f, 0.0f, 10.0f);
+					//ImGui::PopItemWidth();
+					//ImGui::NextColumn();
+					//
+					//PaddedText("Restitution", 0.0f, 3.0f);
+					//ImGui::NextColumn();
+					//ImGui::PushItemWidth(-0.1f);
+					//ImGui::DragFloat("##Restitution", &bCollider.bodyRestitution, 0.05f, 0.0f, 1.0f);
+					//ImGui::PopItemWidth();
+					//ImGui::NextColumn();
+					//
+					//PaddedText("Friction", 0.0f, 3.0f);
+					//ImGui::NextColumn();
+					//ImGui::PushItemWidth(-0.1f);
+					//ImGui::DragFloat("##Friction", &bCollider.bodyFriction, 0.05f, 0.0f, 1.0f);
+					//ImGui::PopItemWidth();
+					//ImGui::NextColumn();
+					//
+					//PaddedText("Restitution Threshold", 0.0f, 3.0f);
+					//ImGui::NextColumn();
+					//ImGui::PushItemWidth(-0.1f);
+					//ImGui::DragFloat("##RestitutionThreshold", &bCollider.bodyRestitutionThreshold, 0.05f, 0.0f, 1.0f);
+					//ImGui::PopItemWidth();
+					//
+					//ImGui::Columns(1);
 				}
 			}
 

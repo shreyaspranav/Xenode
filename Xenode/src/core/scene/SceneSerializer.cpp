@@ -203,6 +203,11 @@ namespace Xen {
 			yamlEmitter << YAML::Key << "FixedRotation" << YAML::Value << rigidBody.fixedRotation;
 			yamlEmitter << YAML::Key << "BodyType" << YAML::Value << (int8_t)rigidBody.bodyType;
 
+			yamlEmitter << YAML::Key << "Density" << YAML::Value << rigidBody.bodyDensity;
+			yamlEmitter << YAML::Key << "Friction" << YAML::Value << rigidBody.bodyFriction;
+			yamlEmitter << YAML::Key << "Restitution" << YAML::Value << rigidBody.bodyRestitution;
+			yamlEmitter << YAML::Key << "RestitutionThreshold" << YAML::Value << rigidBody.bodyRestitutionThreshold;
+
 			yamlEmitter << YAML::EndMap;
 		}
 
@@ -214,11 +219,6 @@ namespace Xen {
 
 			yamlEmitter << YAML::Key << "Size" << YAML::Value << boxCollider.size;
 			yamlEmitter << YAML::Key << "Offset" << YAML::Value << boxCollider.bodyOffset;
-
-			yamlEmitter << YAML::Key << "Density" << YAML::Value << boxCollider.bodyDensity;
-			yamlEmitter << YAML::Key << "Friction" << YAML::Value << boxCollider.bodyFriction;
-			yamlEmitter << YAML::Key << "Restitution" << YAML::Value << boxCollider.bodyRestitution;
-			yamlEmitter << YAML::Key << "RestitutionThreshold" << YAML::Value << boxCollider.bodyRestitutionThreshold;
 
 			yamlEmitter << YAML::EndMap;
 		}
@@ -440,7 +440,13 @@ namespace Xen {
 					Component::RigidBody2D::BodyType bodyType = (Component::RigidBody2D::BodyType)rigidBodyComponent["BodyType"].as<int32_t>();
 					bool fixedRotation = rigidBodyComponent["FixedRotation"].as<bool>();
 
-					entt.AddComponent<Component::RigidBody2D>(bodyType, fixedRotation);
+					Component::RigidBody2D& rBody = entt.AddComponent<Component::RigidBody2D>(bodyType, fixedRotation);
+
+					rBody.bodyDensity = rigidBodyComponent["Density"].as<float>();
+					rBody.bodyFriction = rigidBodyComponent["Friction"].as<float>();
+					rBody.bodyRestitution = rigidBodyComponent["Restitution"].as<float>();
+					rBody.bodyRestitutionThreshold = rigidBodyComponent["RestitutionThreshold"].as<float>();
+
 				}
 
 				// BoxCollider2D:---------------------------------------------------------------------------
@@ -461,10 +467,6 @@ namespace Xen {
 
 					boxColliderComp.size = size;
 					boxColliderComp.bodyOffset = offset;
-					boxColliderComp.bodyDensity = boxColliderComponent["Density"].as<float>();
-					boxColliderComp.bodyFriction = boxColliderComponent["Friction"].as<float>();
-					boxColliderComp.bodyRestitution = boxColliderComponent["Restitution"].as<float>();
-					boxColliderComp.bodyRestitutionThreshold = boxColliderComponent["RestitutionThreshold"].as<float>();
 					
 				}
 			}
