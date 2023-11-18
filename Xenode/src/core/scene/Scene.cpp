@@ -281,13 +281,37 @@ namespace Xen {
 
 				b2PolygonShape shape;
 				shape.SetAsBox(
-					boxCollider.size.x * transform.scale.x,
-					boxCollider.size.y * transform.scale.y
+					boxCollider.sizeScale.x * transform.scale.x * 0.5f,
+					boxCollider.sizeScale.y * transform.scale.y * 0.5f
 				);
 
 				b2FixtureDef fixtureDef;
 
 				fixtureDef.shape = &shape;
+				fixtureDef.density = rigidBody2d.bodyDensity;
+				fixtureDef.friction = rigidBody2d.bodyFriction;
+				fixtureDef.restitution = rigidBody2d.bodyRestitution;
+				fixtureDef.restitutionThreshold = rigidBody2d.bodyRestitutionThreshold;
+
+				physicsBody->CreateFixture(&fixtureDef);
+			}
+
+			if (this_entity.HasAnyComponent<Component::CircleCollider2D>())
+			{
+				Component::CircleCollider2D& circleCollider = this_entity.GetComponent<Component::CircleCollider2D>();
+			
+				Vec3 newPosition = { transform.position.x + circleCollider.bodyOffset.x, transform.position.y + circleCollider.bodyOffset.y, transform.position.z };
+				physicsBody->SetTransform({ newPosition.x, newPosition.y }, transform.rotation.z * DEGTORAD);
+
+				rigidBody2d.runtimeBody = physicsBody;
+
+				b2CircleShape circleShape;
+				circleShape.m_p.SetZero();
+				circleShape.m_radius = circleCollider.radiusScale * transform.scale.x * 0.5f;
+
+				b2FixtureDef fixtureDef;
+
+				fixtureDef.shape = &circleShape;
 				fixtureDef.density = rigidBody2d.bodyDensity;
 				fixtureDef.friction = rigidBody2d.bodyFriction;
 				fixtureDef.restitution = rigidBody2d.bodyRestitution;
@@ -386,6 +410,7 @@ namespace Xen {
 		CopyComponentAllEntities<Component::TextRenderer>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::RigidBody2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::BoxCollider2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::CircleCollider2D>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::NativeScript>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::ScriptComp>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::PointLight>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
@@ -595,16 +620,23 @@ namespace Xen {
 			Component::Transform& transform = this_entity.GetComponent<Component::Transform>();
 			Component::RigidBody2D& rigidBody2d = this_entity.GetComponent<Component::RigidBody2D>();
 			
-			if (!this_entity.HasAnyComponent<Component::BoxCollider2D>())
-				continue;
-
+			Vec2 offset;
+			if (this_entity.HasAnyComponent<Component::BoxCollider2D>())
+			{
+				Component::BoxCollider2D& boxCollider2d = this_entity.GetComponent<Component::BoxCollider2D>();
+				offset = boxCollider2d.bodyOffset;
+			}
+			else if (this_entity.HasAnyComponent<Component::CircleCollider2D>())
+			{
+				Component::CircleCollider2D& circleCollider2D = this_entity.GetComponent<Component::CircleCollider2D>();
+				offset = circleCollider2D.bodyOffset;
+			}
 			b2Body* body = (b2Body*)rigidBody2d.runtimeBody;
-			Component::BoxCollider2D& boxCollider2d = this_entity.GetComponent<Component::BoxCollider2D>();
 
 			const auto& position = body->GetPosition();
 
-			transform.position.x = position.x - boxCollider2d.bodyOffset.x;
-			transform.position.y = position.y - boxCollider2d.bodyOffset.y;
+			transform.position.x = position.x - offset.x;
+			transform.position.y = position.y - offset.y;
 
 			transform.rotation.z = (body->GetAngle() * RADTODEG);
 
@@ -694,6 +726,7 @@ namespace Xen {
 	void Scene::RenderPhysicsColliders()
 	{
 		auto boxColliders = m_Registry.view<Component::BoxCollider2D>();
+		auto circleColliders = m_Registry.view<Component::CircleCollider2D>();
 
 		for (auto& entity : boxColliders)
 		{
@@ -701,9 +734,20 @@ namespace Xen {
 			Component::Transform transform = Entity(entity, this).GetComponent<Component::Transform>();
 
 			Vec3 newPosition = { transform.position.x + collider.bodyOffset.x, transform.position.y + collider.bodyOffset.y, transform.position.z };
-			Vec2 newScale = { transform.scale.x * collider.size.x * 2.0f, transform.scale.y * collider.size.y * 2.0f };
+			Vec2 newScale = { transform.scale.x * collider.sizeScale.x, transform.scale.y * collider.sizeScale.y};
 
 			Renderer2D::DrawQuadOverlay(newPosition, transform.rotation, newScale, m_PhysicsColliderColor);
+		}
+
+		for (auto& entity : circleColliders)
+		{
+			Component::CircleCollider2D collider = Entity(entity, this).GetComponent<Component::CircleCollider2D>();
+			Component::Transform transform = Entity(entity, this).GetComponent<Component::Transform>();
+
+			Vec3 newPosition = { transform.position.x + collider.bodyOffset.x, transform.position.y + collider.bodyOffset.y, transform.position.z };
+			float scale = collider.radiusScale * transform.scale.x;
+
+			Renderer2D::DrawCircleOverlay(newPosition, scale, m_PhysicsColliderColor);
 		}
 	}
 	void Scene::RenderLights()

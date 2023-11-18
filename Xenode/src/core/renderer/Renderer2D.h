@@ -68,7 +68,7 @@ namespace Xen {
 
 		// Outline Only(for Debugging)
 		static void DrawQuadOverlay(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());
-		static void DrawCircleOverlay(const Vec3& position, const Color& color = Color(), float thickness = 0.025f);
+		static void DrawCircleOverlay(const Vec3& position, float radius, const Color& color = Color(), float thickness = 0.025f);
 
 		// Stats functions:
 		static Renderer2DStatistics& GetStatistics();

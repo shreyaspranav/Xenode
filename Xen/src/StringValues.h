@@ -23,6 +23,7 @@ namespace Xen {
 			COMPONENT_POINT_LIGHT			= std::string(ICON_FA_LIGHTBULB)     + std::string(" Point Light"),
 			COMPONENT_AMBIENT_LIGHT			= std::string(ICON_FA_SUN)           + std::string(" Ambient Light"),
 			COMPONENT_BOX_COLLIDER_2D		= std::string(ICON_FA_SQUARE)        + std::string(" Box Collider 2D"),
+			COMPONENT_CIRCLE_COLLIDER_2D	= std::string(ICON_FA_CIRCLE)        + std::string(" Circle Collider 2D"),
 			COMPONENT_RIGID_BODY_2D			= std::string(ICON_FA_CUBES_STACKED) + std::string(" Rigid Body 2D");
 
 		// Drop down options:

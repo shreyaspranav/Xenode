@@ -484,9 +484,9 @@ namespace Xen {
 		Renderer2D::DrawLine(p4, p1, color);
 	}
 
-	void Renderer2D::DrawCircleOverlay(const Vec3& position, const Color& color, float thickness)
+	void Renderer2D::DrawCircleOverlay(const Vec3& position, float scale, const Color& color, float thickness)
 	{
-		Renderer2D::DrawClearCircle(position, 0.0f, 1.0f, color, thickness, 0.001f, 0.001f);
+		Renderer2D::DrawClearCircle(position, 0.0f, Vec2(scale), color, thickness, 0.001f, 0.001f);
 	}
 
 	Renderer2D::Renderer2DStatistics& Renderer2D::GetStatistics() { return stats; }

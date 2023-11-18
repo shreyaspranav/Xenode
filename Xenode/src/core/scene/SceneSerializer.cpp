@@ -217,8 +217,20 @@ namespace Xen {
 
 			yamlEmitter << YAML::Key << "BoxCollider2D" << YAML::BeginMap;
 
-			yamlEmitter << YAML::Key << "Size" << YAML::Value << boxCollider.size;
+			yamlEmitter << YAML::Key << "SizeScale" << YAML::Value << boxCollider.sizeScale;
 			yamlEmitter << YAML::Key << "Offset" << YAML::Value << boxCollider.bodyOffset;
+
+			yamlEmitter << YAML::EndMap;
+		}
+
+		if (entity.HasAnyComponent<Component::CircleCollider2D>())
+		{
+			Component::CircleCollider2D& circleCollider = entity.GetComponent<Component::CircleCollider2D>();
+
+			yamlEmitter << YAML::Key << "CircleCollider2D" << YAML::BeginMap;
+
+			yamlEmitter << YAML::Key << "RadiusScale" << YAML::Value << circleCollider.radiusScale;
+			yamlEmitter << YAML::Key << "Offset" << YAML::Value << circleCollider.bodyOffset;
 
 			yamlEmitter << YAML::EndMap;
 		}
@@ -453,9 +465,9 @@ namespace Xen {
 				const YAML::Node& boxColliderComponent = entity["BoxCollider2D"];
 				if (boxColliderComponent)
 				{
-					Vec2 size = Vec2(
-						boxColliderComponent["Size"][0].as<float>(),
-						boxColliderComponent["Size"][1].as<float>()
+					Vec2 sizeScale = Vec2(
+						boxColliderComponent["SizeScale"][0].as<float>(),
+						boxColliderComponent["SizeScale"][1].as<float>()
 					);
 
 					Vec2 offset = Vec2(
@@ -465,9 +477,27 @@ namespace Xen {
 
 					Component::BoxCollider2D& boxColliderComp = entt.AddComponent<Component::BoxCollider2D>();
 
-					boxColliderComp.size = size;
+					boxColliderComp.sizeScale = sizeScale;
 					boxColliderComp.bodyOffset = offset;
 					
+				}
+
+				// CircleCollider2D:---------------------------------------------------------------------------
+				const YAML::Node& circleColliderComponent = entity["CircleCollider2D"];
+				if (circleColliderComponent)
+				{
+					float radiusScale = circleColliderComponent["RadiusScale"].as<float>();
+
+					Vec2 offset = Vec2(
+						circleColliderComponent["Offset"][0].as<float>(),
+						circleColliderComponent["Offset"][1].as<float>()
+					);
+
+					Component::CircleCollider2D& circleColliderComp = entt.AddComponent<Component::CircleCollider2D>();
+
+					circleColliderComp.radiusScale = radiusScale;
+					circleColliderComp.bodyOffset = offset;
+
 				}
 			}
 		}

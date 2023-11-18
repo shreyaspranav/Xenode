@@ -200,17 +200,26 @@ namespace Xen {
 		struct BoxCollider2D
 		{
 			Vec2 bodyOffset = { 0.0f, 0.0f };
-			Vec2 size		= { 0.5f, 0.5f }; // This is a half-extents
-
-			// Storage for the runtime object
-			void* runtimeBody = nullptr;
+			Vec2 sizeScale	= { 1.0f, 1.0f };
 
 			BoxCollider2D() = default;
-			BoxCollider2D(const BoxCollider2D& rigidBody) = default;
+			BoxCollider2D(const BoxCollider2D& boxCollider) = default;
 
-			BoxCollider2D(const Vec2& bodyOffset, const Vec2& size)
-				:bodyOffset(bodyOffset), size(size) {}
+			BoxCollider2D(const Vec2& bodyOffset, const Vec2& sizeScale)
+				:bodyOffset(bodyOffset), sizeScale(sizeScale) {}
 
+		};
+
+		struct CircleCollider2D
+		{
+			Vec2 bodyOffset = { 0.0f, 0.0f };
+			float radiusScale = 1.0f;
+
+			CircleCollider2D() = default;
+			CircleCollider2D(const CircleCollider2D& circleCollider) = default;
+			
+			CircleCollider2D(const Vec2& bodyOffset, float radiusScale)
+				:bodyOffset(bodyOffset), radiusScale(radiusScale) {}
 		};
 	}
 }

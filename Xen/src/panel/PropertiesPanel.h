@@ -116,6 +116,12 @@ public:
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
+				if (m_SelectedEntity.HasAnyComponent<Xen::Component::CircleCollider2D>())
+				{
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_CIRCLE_COLLIDER_2D);
+					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
+				}
+
 				if (m_SelectedEntity.HasAnyComponent<Xen::Component::RigidBody2D>())
 				{
 					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_RIGID_BODY_2D);
@@ -150,6 +156,9 @@ public:
 
 						else if (m_AvailableComponents[i].contains("Box Collider 2D"))
 							m_SelectedEntity.AddComponent<Xen::Component::BoxCollider2D>();
+
+						else if (m_AvailableComponents[i].contains("Circle Collider 2D"))
+							m_SelectedEntity.AddComponent<Xen::Component::CircleCollider2D>();
 
 						std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), m_AvailableComponents[i]);
 						m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
@@ -762,41 +771,44 @@ public:
 
 					Xen::Component::BoxCollider2D& bCollider = m_SelectedEntity.GetComponent<Xen::Component::BoxCollider2D>();
 
-					DrawVec2Control("Size", bCollider.size, 0.5f, 150.0f);
-					DrawVec2Control("Offset", bCollider.bodyOffset, 0.0f, 150.0f);
+					DrawVec2Control("Size Scale", bCollider.sizeScale, 0.5f, 120.0f);
+					DrawVec2Control("Offset", bCollider.bodyOffset, 0.0f, 120.0f);
+				}
+			}
 
-					//ImGui::Columns(2, "##BoxCollider2D", false);
-					//ImGui::SetColumnWidth(0, 150.0f);
-					//
-					//
-					//PaddedText("Density", 0.0f, 3.0f);
-					//ImGui::NextColumn();
-					//ImGui::PushItemWidth(-0.1f);
-					//ImGui::DragFloat("##Density", &bCollider.bodyDensity, 0.05f, 0.0f, 10.0f);
-					//ImGui::PopItemWidth();
-					//ImGui::NextColumn();
-					//
-					//PaddedText("Restitution", 0.0f, 3.0f);
-					//ImGui::NextColumn();
-					//ImGui::PushItemWidth(-0.1f);
-					//ImGui::DragFloat("##Restitution", &bCollider.bodyRestitution, 0.05f, 0.0f, 1.0f);
-					//ImGui::PopItemWidth();
-					//ImGui::NextColumn();
-					//
-					//PaddedText("Friction", 0.0f, 3.0f);
-					//ImGui::NextColumn();
-					//ImGui::PushItemWidth(-0.1f);
-					//ImGui::DragFloat("##Friction", &bCollider.bodyFriction, 0.05f, 0.0f, 1.0f);
-					//ImGui::PopItemWidth();
-					//ImGui::NextColumn();
-					//
-					//PaddedText("Restitution Threshold", 0.0f, 3.0f);
-					//ImGui::NextColumn();
-					//ImGui::PushItemWidth(-0.1f);
-					//ImGui::DragFloat("##RestitutionThreshold", &bCollider.bodyRestitutionThreshold, 0.05f, 0.0f, 1.0f);
-					//ImGui::PopItemWidth();
-					//
-					//ImGui::Columns(1);
+			backCC:
+			if (m_SelectedEntity.HasAnyComponent<Xen::Component::CircleCollider2D>())
+			{
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_CIRCLE_COLLIDER_2D.c_str(), tree_flags))
+				{
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+						ImGui::OpenPopup("DeleteComponentCircleCollider2D");
+
+					if (ImGui::BeginPopup("DeleteComponentCircleCollider2D"))
+					{
+						if (ImGui::Selectable("Delete Component: Box Collider 2D"))
+						{
+							m_SelectedEntity.DeleteComponent<Xen::Component::BoxCollider2D>();
+							ImGui::EndPopup();
+							goto backCC;
+						}
+						ImGui::EndPopup();
+					}
+
+					Xen::Component::CircleCollider2D& cCollider = m_SelectedEntity.GetComponent<Xen::Component::CircleCollider2D>();
+
+					ImGui::Columns(2, "##RigidBody2D", false);
+					ImGui::SetColumnWidth(0, 120.0f);
+
+					PaddedText("Radius Scale", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::DragFloat("##Radius", &cCollider.radiusScale, 0.05f, 0.001f, 150.0f);
+					ImGui::PopItemWidth();
+
+					ImGui::Columns(1);
+
+					DrawVec2Control("Offset", cCollider.bodyOffset, 0.0f, 120.0f);
 				}
 			}
 
@@ -1030,6 +1042,7 @@ private:
 		Xen::StringValues::COMPONENT_AMBIENT_LIGHT,
 		Xen::StringValues::COMPONENT_RIGID_BODY_2D,
 		Xen::StringValues::COMPONENT_BOX_COLLIDER_2D,
+		Xen::StringValues::COMPONENT_CIRCLE_COLLIDER_2D,
 		
 	};
 
