@@ -231,6 +231,8 @@ namespace Xen {
 			m_ScriptEngine->OnStart(scriptComp.script_instance);
 		}
 
+		//m_ScriptEngine->OnStart(Script::CreateScript("assets/scripts/ScriptOne.lua"));
+
 		m_isRunningOnRuntime = true;
 
 		m_PhysicsWorld = new b2World({ 0.0f, -10.0f });

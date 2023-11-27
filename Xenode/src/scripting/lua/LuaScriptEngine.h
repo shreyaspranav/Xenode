@@ -16,6 +16,9 @@ namespace Xen {
 
 		void OnStart(const Ref<Script>& script) override;
 		void OnUpdate(const Ref<Script>& script, double timestep) override;
+
+	private:
+		void SetupLuaFuntions();
 	private:
 		lua_State* m_LuaVM;
 	};

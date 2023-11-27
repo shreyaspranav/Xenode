@@ -1,8 +1,8 @@
 
 function OnStart()
-	return 6
+	LogWarning("OnStart")
 end
 
 function OnUpdate(timestep)
-	return timestep * 2
+	LogWarning("OnUpdate, timestep: " .. timestep)
 end

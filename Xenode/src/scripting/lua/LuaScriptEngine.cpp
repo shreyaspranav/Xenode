@@ -5,10 +5,14 @@
 
 #include <lua.hpp>
 
+#include "LuaFunctions.h"
+
 namespace Xen {
 	LuaScriptEngine::LuaScriptEngine()
 	{
 		m_LuaVM = luaL_newstate();
+
+		SetupLuaFuntions();
 	}
 	
 	LuaScriptEngine::~LuaScriptEngine()
@@ -35,13 +39,7 @@ namespace Xen {
 		lua_getglobal(m_LuaVM, luaScript->onStartFunction.c_str());
 
 		if(lua_isfunction(m_LuaVM, -1))
-			lua_pcall(m_LuaVM, 0, 1, 0);
-
-		lua_Number n = lua_tonumber(m_LuaVM, -1);
-
-		XEN_ENGINE_LOG_WARN("OnStart Returned from the Lua Script: {0}", (int)n);
-
-		//lua_settop(m_LuaVM, 0);
+			lua_pcall(m_LuaVM, 0, 0, 0);
 	}
 
 	void LuaScriptEngine::OnUpdate(const Ref<Script>& script, double timestep)
@@ -49,22 +47,25 @@ namespace Xen {
 		Ref<LuaScript> luaScript = std::dynamic_pointer_cast<LuaScript>(script);
 
 		int status = luaL_dostring(m_LuaVM, luaScript->GetScriptCode().c_str());
-
+		
 		if (status != LUA_OK)
 			XEN_ENGINE_LOG_ERROR("Error Occured in script: {0}: Error {1}", script->GetFilePath(), status);
 
 		lua_getglobal(m_LuaVM, luaScript->onUpdateFunction.c_str());
 
-		if (lua_isfunction(m_LuaVM, -1))
-		{
+		if (lua_isfunction(m_LuaVM, -1)) {
 			lua_pushnumber(m_LuaVM, timestep);
-			lua_pcall(m_LuaVM, 1, 1, 0);
+			lua_pcall(m_LuaVM, 1, 0, 0);
 		}
+	}
 
-		lua_Number n = lua_tonumber(m_LuaVM, -1);
-
-		XEN_ENGINE_LOG_WARN("OnUpdate Returned from the Lua Script: {0}", (double)n);
-
-		//lua_settop(m_LuaVM, 0);
+	void LuaScriptEngine::SetupLuaFuntions()
+	{
+		// Logging functions: -------------------------------------------------------------------
+		lua_register(m_LuaVM, "LogErrorSevere", LuaFunctions::lua_LogErrorSevere);
+		lua_register(m_LuaVM, "LogError", LuaFunctions::lua_LogError);
+		lua_register(m_LuaVM, "LogWarning", LuaFunctions::lua_LogWarning);
+		lua_register(m_LuaVM, "LogInfo", LuaFunctions::lua_LogInfo);
+		lua_register(m_LuaVM, "LogTrace", LuaFunctions::lua_LogTrace);
 	}
 }
