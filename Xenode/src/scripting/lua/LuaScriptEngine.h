@@ -4,6 +4,7 @@
 #include <scripting/ScriptEngine.h>
 
 #include "LuaScript.h"
+#include "core/scene/Scene.h"
 
 struct lua_State;
 
@@ -14,8 +15,8 @@ namespace Xen {
 		LuaScriptEngine();
 		virtual ~LuaScriptEngine();
 
-		void OnStart(const Ref<Script>& script) override;
-		void OnUpdate(const Ref<Script>& script, double timestep) override;
+		void OnStart(const Ref<Script>& script, const Entity& entity) override;
+		void OnUpdate(const Ref<Script>& script, const Entity& entity, double timestep) override;
 
 	private:
 		void SetupLuaFuntions();

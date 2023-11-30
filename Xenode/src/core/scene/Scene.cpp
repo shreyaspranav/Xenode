@@ -228,10 +228,8 @@ namespace Xen {
 			Entity entt = Entity(e, this);
 
 			Component::ScriptComp& scriptComp = entt.GetComponent<Component::ScriptComp>();
-			m_ScriptEngine->OnStart(scriptComp.script_instance);
+			m_ScriptEngine->OnStart(scriptComp.script_instance, entt);
 		}
-
-		//m_ScriptEngine->OnStart(Script::CreateScript("assets/scripts/ScriptOne.lua"));
 
 		m_isRunningOnRuntime = true;
 
@@ -580,7 +578,7 @@ namespace Xen {
 			Entity entt = Entity(e, this);
 
 			Component::ScriptComp& scriptComp = entt.GetComponent<Component::ScriptComp>();
-			m_ScriptEngine->OnUpdate(scriptComp.script_instance, timestep);
+			m_ScriptEngine->OnUpdate(scriptComp.script_instance, entt, timestep);
 		}
 	}
 	void Scene::UpdateCameras()

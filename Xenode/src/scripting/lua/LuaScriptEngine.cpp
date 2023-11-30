@@ -20,7 +20,7 @@ namespace Xen {
 		lua_close(m_LuaVM);
 	}
 
-	void LuaScriptEngine::OnStart(const Ref<Script>& script)
+	void LuaScriptEngine::OnStart(const Ref<Script>& script, const Entity& entity)
 	{
 		//LUA_OK		= 0;
 		//LUA_YIELD		= 1;
@@ -42,9 +42,11 @@ namespace Xen {
 			lua_pcall(m_LuaVM, 0, 0, 0);
 	}
 
-	void LuaScriptEngine::OnUpdate(const Ref<Script>& script, double timestep)
+	void LuaScriptEngine::OnUpdate(const Ref<Script>& script, const Entity& entity, double timestep)
 	{
 		Ref<LuaScript> luaScript = std::dynamic_pointer_cast<LuaScript>(script);
+
+		LuaFunctions::SetCurrentEntity(entity);
 
 		int status = luaL_dostring(m_LuaVM, luaScript->GetScriptCode().c_str());
 		
@@ -61,6 +63,8 @@ namespace Xen {
 
 	void LuaScriptEngine::SetupLuaFuntions()
 	{
+		lua_register(m_LuaVM, "GetCurrentTransform", LuaFunctions::lua_GetCurrentTransform);
+
 		// Logging functions: -------------------------------------------------------------------
 		lua_register(m_LuaVM, "LogErrorSevere", LuaFunctions::lua_LogErrorSevere);
 		lua_register(m_LuaVM, "LogError", LuaFunctions::lua_LogError);

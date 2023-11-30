@@ -6,13 +6,15 @@
 
 namespace Xen {
 
+	class Entity;
+
 	class XEN_API ScriptEngine
 	{
 	public:
 		static Ref<ScriptEngine> InitScriptEngine();
 
-		virtual void OnStart(const Ref<Script>& script) = 0;
-		virtual void OnUpdate(const Ref<Script>& script, double timestep) = 0;
+		virtual void OnStart(const Ref<Script>& script, const Entity& entity) = 0;
+		virtual void OnUpdate(const Ref<Script>& script, const Entity& entity, double timestep) = 0;
 	};
 }
 
