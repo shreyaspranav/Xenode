@@ -64,6 +64,7 @@ namespace Xen {
 	void LuaScriptEngine::SetupLuaFuntions()
 	{
 		lua_register(m_LuaVM, "GetCurrentTransform", LuaFunctions::lua_GetCurrentTransform);
+		lua_register(m_LuaVM, "SetCurrentTransform", LuaFunctions::lua_SetCurrentTransform);
 
 		// Logging functions: -------------------------------------------------------------------
 		lua_register(m_LuaVM, "LogErrorSevere", LuaFunctions::lua_LogErrorSevere);

@@ -69,6 +69,40 @@ namespace Xen {
 
 		return 1;
 	}
+
+	int LuaFunctions::lua_SetCurrentTransform(lua_State* L)
+	{
+		Component::Transform& transform = currentEntity.GetComponent<Component::Transform>();
+
+		lua_pushstring(L, "Position");
+		lua_gettable(L, -2);
+		
+		// position.x -----------------------
+		lua_pushstring(L, "x");
+		lua_gettable(L, -2);
+
+		transform.position.x = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+
+		// position.y -----------------------
+		lua_pushstring(L, "y");
+		lua_gettable(L, -2);
+
+		transform.position.y = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+
+		// position.z -----------------------
+		lua_pushstring(L, "z");
+		lua_gettable(L, -2);
+
+		transform.position.z = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+
+		XEN_ENGINE_LOG_INFO("Transform: {0}, {1}, {2}", transform.position.x, transform.position.y, transform.position.z);
+
+		return 0;
+	}
+
 	int LuaFunctions::lua_LogErrorSevere(lua_State* L)
 	{
 		std::string s = lua_tostring(L, 1);

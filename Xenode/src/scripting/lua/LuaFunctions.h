@@ -13,8 +13,9 @@ namespace Xen {
 
 		static void SetCurrentEntity(const Entity& entity);
 
-		// Function to get properties of entities:
+		// Function to get and set properties of entities:
 		static int lua_GetCurrentTransform(lua_State* L);
+		static int lua_SetCurrentTransform(lua_State* L);
 
 		// Logging Functions:
 		static int lua_LogErrorSevere(lua_State* L);

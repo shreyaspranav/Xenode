@@ -608,10 +608,22 @@ namespace Xen {
 
 		int physicsStepIterations = 2;
 
+		auto rigid_body_view = m_Registry.view<Component::RigidBody2D>();
+
+		for (auto& entity : rigid_body_view)
+		{
+			Entity entt = Entity(entity, this);
+
+			Component::Transform& transform = entt.GetComponent<Component::Transform>();
+			Component::RigidBody2D& rigidBody2d = entt.GetComponent<Component::RigidBody2D>();
+
+			b2Body* physicsBody = (b2Body*)rigidBody2d.runtimeBody;
+
+			physicsBody->SetTransform({ transform.position.x, transform.position.y }, transform.rotation.z * DEGTORAD);
+		}
+
 		for(int i = 0; i < physicsStepIterations; i++)
 			m_PhysicsWorld->Step(fixedTimeStep, velocityIterations, positionIterations);
-
-		auto rigid_body_view = m_Registry.view<Component::RigidBody2D>();
 
 		for (auto& entity : rigid_body_view)
 		{
