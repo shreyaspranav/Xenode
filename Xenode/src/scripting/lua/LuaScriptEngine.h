@@ -20,6 +20,7 @@ namespace Xen {
 
 	private:
 		void SetupLuaFuntions();
+		void AddLuaPath(const std::string& path);
 	private:
 		lua_State* m_LuaVM;
 	};

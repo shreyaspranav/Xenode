@@ -10,8 +10,11 @@ namespace Xen {
 	class XEN_API LuaFunctions
 	{
 	public:
-
+		static void Init();
 		static void SetCurrentEntity(const Entity& entity);
+
+		// Funtions related to input:
+		static int lua_IsKeyPressed(lua_State* L);
 
 		// Function to get and set properties of entities:
 		static int lua_GetCurrentTransform(lua_State* L);
@@ -23,5 +26,8 @@ namespace Xen {
 		static int lua_LogWarning(lua_State* L);
 		static int lua_LogInfo(lua_State* L);
 		static int lua_LogTrace(lua_State* L);
+
+	private:
+		static bool IsKeyPressed(char key);
 	};
 }

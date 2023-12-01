@@ -13,6 +13,7 @@ namespace Xen {
 		m_LuaVM = luaL_newstate();
 
 		SetupLuaFuntions();
+		LuaFunctions::Init();
 	}
 	
 	LuaScriptEngine::~LuaScriptEngine()
@@ -34,7 +35,13 @@ namespace Xen {
 		int status = luaL_dostring(m_LuaVM, luaScript->GetScriptCode().c_str());
 
 		if (status != LUA_OK)
-			XEN_ENGINE_LOG_ERROR("Error Occured in script: {0}: Error {1}", script->GetFilePath(), status);
+		{
+			XEN_ENGINE_LOG_ERROR("Error Occured in script: {0}: Error {1}", script->GetFilePath(), lua_tostring(m_LuaVM, -1));
+			lua_pop(m_LuaVM, 1);
+		}
+
+		// Make sure to change this when asset system is implemented 
+		// AddLuaPath("assets/scripts/");
 
 		lua_getglobal(m_LuaVM, luaScript->onStartFunction.c_str());
 
@@ -49,9 +56,15 @@ namespace Xen {
 		LuaFunctions::SetCurrentEntity(entity);
 
 		int status = luaL_dostring(m_LuaVM, luaScript->GetScriptCode().c_str());
-		
+
 		if (status != LUA_OK)
-			XEN_ENGINE_LOG_ERROR("Error Occured in script: {0}: Error {1}", script->GetFilePath(), status);
+		{
+			XEN_ENGINE_LOG_ERROR("Error Occured in script: {0}: Error {1}", script->GetFilePath(), lua_tostring(m_LuaVM, -1));
+			lua_pop(m_LuaVM, 1);
+		}
+
+		// Make sure to change this when asset system is implemented 
+		// AddLuaPath("assets/scripts/");
 
 		lua_getglobal(m_LuaVM, luaScript->onUpdateFunction.c_str());
 
@@ -63,6 +76,8 @@ namespace Xen {
 
 	void LuaScriptEngine::SetupLuaFuntions()
 	{
+		lua_register(m_LuaVM, "IsKeyPressed", LuaFunctions::lua_IsKeyPressed);
+
 		lua_register(m_LuaVM, "GetCurrentTransform", LuaFunctions::lua_GetCurrentTransform);
 		lua_register(m_LuaVM, "SetCurrentTransform", LuaFunctions::lua_SetCurrentTransform);
 
@@ -72,5 +87,21 @@ namespace Xen {
 		lua_register(m_LuaVM, "LogWarning", LuaFunctions::lua_LogWarning);
 		lua_register(m_LuaVM, "LogInfo", LuaFunctions::lua_LogInfo);
 		lua_register(m_LuaVM, "LogTrace", LuaFunctions::lua_LogTrace);
+	}
+
+	void LuaScriptEngine::AddLuaPath(const std::string& path)
+	{
+		lua_getglobal(m_LuaVM, "package");
+		lua_getfield(m_LuaVM, -1, "path");
+
+		std::string currentPath = lua_tostring(m_LuaVM, -1);
+		currentPath.append(";");
+		currentPath.append(path);
+
+		lua_pop(m_LuaVM, 1);
+
+		lua_pushstring(m_LuaVM, currentPath.c_str());
+		lua_setfield(m_LuaVM, -2, "path");
+		lua_pop(m_LuaVM, 1);
 	}
 }
