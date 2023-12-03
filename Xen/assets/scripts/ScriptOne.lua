@@ -7,16 +7,16 @@ function OnUpdate(timestep)
 	local transform = GetCurrentTransform()
 
 	if (IsKeyPressed('a')) then
-		transform.Position.x = transform.Position.x - 0.003 * timestep
+		ApplyForceToCentre2D(-20.0, 0.0)
 	end
 	if (IsKeyPressed('d')) then
-		transform.Position.x = transform.Position.x + 0.003 * timestep
+		ApplyForceToCentre2D(20.0, 0.0)
 	end	
 	if (IsKeyPressed('w')) then
-		transform.Position.y = transform.Position.y + 0.003 * timestep
+		ApplyForceToCentre2D(0.0, 20.0)
 	end
 	if (IsKeyPressed('s')) then
-		transform.Position.y = transform.Position.y - 0.003 * timestep
+		ApplyForceToCentre2D(0.0, -20.0)
 	end
 
 	SetCurrentTransform(transform)

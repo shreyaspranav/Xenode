@@ -8,6 +8,8 @@
 
 #include <core/scene/Components.h>
 
+#include <box2d/box2d.h>
+
 namespace Xen {
 
 	Entity currentEntity;
@@ -111,6 +113,25 @@ namespace Xen {
 
 		transform.position.z = lua_tonumber(L, -1);
 		lua_pop(L, 1);
+
+		return 0;
+	}
+
+	int LuaFunctions::lua_ApplyForceToCentre2D(lua_State* L)
+	{
+		if (currentEntity.HasAnyComponent<Component::RigidBody2D>())
+		{
+			//if (currentEntity.HasAnyComponent<Component::BoxCollider2D, Component::CircleCollider2D>())
+			{
+				Component::RigidBody2D& rb = currentEntity.GetComponent<Component::RigidBody2D>();
+				b2Body* physicsBody = (b2Body*)rb.runtimeBody;
+
+				float x = lua_tonumber(L, 1);
+				float y = lua_tonumber(L, 2);
+
+				physicsBody->ApplyForceToCenter({ x, y }, true);
+			}
+		}
 
 		return 0;
 	}

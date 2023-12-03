@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
 
-#include "scripting/Script.h"
+#include "core/scripting/Script.h"
 
 namespace Xen {
 	class XEN_API LuaScript : public Script

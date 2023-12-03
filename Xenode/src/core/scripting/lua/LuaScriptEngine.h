@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core.h>
-#include <scripting/ScriptEngine.h>
+#include <core/scripting/ScriptEngine.h>
 
 #include "LuaScript.h"
 #include "core/scene/Scene.h"

@@ -78,6 +78,8 @@ namespace Xen {
 	{
 		lua_register(m_LuaVM, "IsKeyPressed", LuaFunctions::lua_IsKeyPressed);
 
+		lua_register(m_LuaVM, "ApplyForceToCentre2D", LuaFunctions::lua_ApplyForceToCentre2D);
+
 		lua_register(m_LuaVM, "GetCurrentTransform", LuaFunctions::lua_GetCurrentTransform);
 		lua_register(m_LuaVM, "SetCurrentTransform", LuaFunctions::lua_SetCurrentTransform);
 

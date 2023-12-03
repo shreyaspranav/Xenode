@@ -4,7 +4,7 @@
 #include <core/renderer/Structs.h>
 #include <core/renderer/Texture.h>
 #include <core/renderer/Camera.h>
-#include <scripting/Script.h>
+#include <core/scripting/Script.h>
 #include "ScriptableEntity.h"
 #include <pch/pch>
 

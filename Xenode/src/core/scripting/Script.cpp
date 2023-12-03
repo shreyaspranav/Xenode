@@ -1,7 +1,7 @@
 #include "pch"
 #include "Script.h"
 
-#include "scripting/lua/LuaScript.h"
+#include "core/scripting/lua/LuaScript.h"
 
 #include "core/app/Log.h"
 #include "core/app/DesktopApplication.h"

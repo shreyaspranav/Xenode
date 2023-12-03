@@ -9,7 +9,7 @@
 #include "Window.h"
 #include "core/renderer/GraphicsContext.h"
 #include "imgui/ImGuiLayer.h" 
-#include "scripting/ScriptLang.h"
+#include "core/scripting/ScriptLang.h"
 
 namespace Xen {
 

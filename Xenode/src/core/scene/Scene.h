@@ -6,7 +6,7 @@
 #include <core/renderer/Camera.h>
 #include <core/app/UUID.h>
 
-#include <scripting/ScriptEngine.h>
+#include <core/scripting/ScriptEngine.h>
 #include <core/renderer/FrameBuffer.h>
 
 #include <core/renderer/Shader.h>
