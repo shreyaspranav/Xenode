@@ -16,6 +16,8 @@
 #include <box2d/box2d.h>
 #include "SceneSerializer.h"
 
+#include <core/physics/Physics2D.h>
+
 constexpr auto DEGTORAD = 0.0174532925199432957f;
 constexpr auto RADTODEG = 57.295779513082320876f;
 
@@ -233,6 +235,18 @@ namespace Xen {
 
 		m_isRunningOnRuntime = true;
 
+		//Physics2D::Init({ 0.0f, -9.8f });
+		//auto rigidBodyView = m_Registry.view<Component::RigidBody2D>();
+		//
+		//for (auto& entity : rigidBodyView)
+		//{
+		//	Entity entt = Entity(entity, this);
+		//
+		//	Component::Transform& transform = entt.GetComponent<Component::Transform>();
+		//	Physics2D::
+		//
+		//}
+#if 1
 		m_PhysicsWorld = new b2World({ 0.0f, -10.0f });
 		auto rigid_body_view = m_Registry.view<Component::RigidBody2D>();
 
@@ -320,6 +334,7 @@ namespace Xen {
 				physicsBody->CreateFixture(&fixtureDef);
 			}
 		}
+#endif
 	}
 
 	void Scene::OnRuntimeStop()
