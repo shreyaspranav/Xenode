@@ -675,13 +675,13 @@ public:
 
 					switch (rBody.bodyType)
 					{
-					case Xen::Component::RigidBody2D::BodyType::Static:
+					case Xen::BodyType2D::Static:
 						rigid_body_type_index = 0;
 						break;
-					case Xen::Component::RigidBody2D::BodyType::Dynamic:
+					case Xen::BodyType2D::Dynamic:
 						rigid_body_type_index = 1;
 						break;
-					case Xen::Component::RigidBody2D::BodyType::Kinematic:
+					case Xen::BodyType2D::Kinematic:
 						rigid_body_type_index = 2;
 						break;
 					default:
@@ -697,13 +697,13 @@ public:
 						switch (rigid_body_type_index)
 						{
 						case 0:
-							rBody.bodyType = Xen::Component::RigidBody2D::BodyType::Static;
+							rBody.bodyType = Xen::BodyType2D::Static;
 							break;
 						case 1:
-							rBody.bodyType = Xen::Component::RigidBody2D::BodyType::Dynamic;
+							rBody.bodyType = Xen::BodyType2D::Dynamic;
 							break;
 						case 2:
-							rBody.bodyType = Xen::Component::RigidBody2D::BodyType::Kinematic;
+							rBody.bodyType = Xen::BodyType2D::Kinematic;
 							break;
 						default:
 							break;
@@ -713,38 +713,38 @@ public:
 					ImGui::NextColumn();
 
 
-					PaddedText("Density", 0.0f, 3.0f);
+					PaddedText("Mass", 0.0f, 3.0f);
 					ImGui::NextColumn();
 					ImGui::PushItemWidth(-0.1f);
-					ImGui::DragFloat("##Density", &rBody.bodyDensity, 0.05f, 0.0f, 10.0f);
-					ImGui::PopItemWidth();
-					ImGui::NextColumn();
-
-					PaddedText("Restitution", 0.0f, 3.0f);
-					ImGui::NextColumn();
-					ImGui::PushItemWidth(-0.1f);
-					ImGui::DragFloat("##Restitution", &rBody.bodyRestitution, 0.05f, 0.0f, 1.0f);
+					ImGui::DragFloat("##Mass", &rBody.physicsMaterial.mass, 0.05f, 0.001f, 0.0f);
 					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 
 					PaddedText("Friction", 0.0f, 3.0f);
 					ImGui::NextColumn();
 					ImGui::PushItemWidth(-0.1f);
-					ImGui::DragFloat("##Friction", &rBody.bodyFriction, 0.05f, 0.0f, 1.0f);
+					ImGui::DragFloat("##Friction", &rBody.physicsMaterial.friction, 0.05f, 0.0f, 1.0f);
+					ImGui::PopItemWidth();
+					ImGui::NextColumn();
+
+					PaddedText("Restitution", 0.0f, 3.0f);
+					ImGui::NextColumn();
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::DragFloat("##Restitution", &rBody.physicsMaterial.restitution, 0.05f, 0.0f, 1.0f);
 					ImGui::PopItemWidth();
 					ImGui::NextColumn();
 
 					PaddedText("Restitution Threshold", 0.0f, 3.0f);
 					ImGui::NextColumn();
 					ImGui::PushItemWidth(-0.1f);
-					ImGui::DragFloat("##RestitutionThreshold", &rBody.bodyRestitutionThreshold, 0.05f, 0.0f, 1.0f);
+					ImGui::DragFloat("##RestitutionThreshold", &rBody.physicsMaterial.restitutionThreshold, 0.05f, 0.0f, 10000.0f);
 					ImGui::PopItemWidth();
 
 					ImGui::NextColumn();
 
 					PaddedText("Fixed Rotation", 0.0f, 3.0f);
 					ImGui::NextColumn();
-					ImGui::Checkbox("##FixedRotation", &rBody.fixedRotation);
+					ImGui::Checkbox("##FixedRotation", &rBody.physicsMaterial.fixedRotation);
 
 					ImGui::Columns(1);
 				}

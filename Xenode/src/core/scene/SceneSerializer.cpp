@@ -200,13 +200,13 @@ namespace Xen {
 
 			yamlEmitter << YAML::Key << "RigidBody2D" << YAML::BeginMap;
 
-			yamlEmitter << YAML::Key << "FixedRotation" << YAML::Value << rigidBody.fixedRotation;
+			yamlEmitter << YAML::Key << "FixedRotation" << YAML::Value << rigidBody.physicsMaterial.fixedRotation;
 			yamlEmitter << YAML::Key << "BodyType" << YAML::Value << (int8_t)rigidBody.bodyType;
 
-			yamlEmitter << YAML::Key << "Density" << YAML::Value << rigidBody.bodyDensity;
-			yamlEmitter << YAML::Key << "Friction" << YAML::Value << rigidBody.bodyFriction;
-			yamlEmitter << YAML::Key << "Restitution" << YAML::Value << rigidBody.bodyRestitution;
-			yamlEmitter << YAML::Key << "RestitutionThreshold" << YAML::Value << rigidBody.bodyRestitutionThreshold;
+			yamlEmitter << YAML::Key << "Density" << YAML::Value << rigidBody.physicsMaterial.mass;
+			yamlEmitter << YAML::Key << "Friction" << YAML::Value << rigidBody.physicsMaterial.friction;
+			yamlEmitter << YAML::Key << "Restitution" << YAML::Value << rigidBody.physicsMaterial.restitution;
+			yamlEmitter << YAML::Key << "RestitutionThreshold" << YAML::Value << rigidBody.physicsMaterial.restitutionThreshold;
 
 			yamlEmitter << YAML::EndMap;
 		}
@@ -449,15 +449,15 @@ namespace Xen {
 				const YAML::Node& rigidBodyComponent = entity["RigidBody2D"];
 				if (rigidBodyComponent)
 				{
-					Component::RigidBody2D::BodyType bodyType = (Component::RigidBody2D::BodyType)rigidBodyComponent["BodyType"].as<int32_t>();
+					BodyType2D bodyType = (BodyType2D)rigidBodyComponent["BodyType"].as<int32_t>();
 					bool fixedRotation = rigidBodyComponent["FixedRotation"].as<bool>();
 
 					Component::RigidBody2D& rBody = entt.AddComponent<Component::RigidBody2D>(bodyType, fixedRotation);
 
-					rBody.bodyDensity = rigidBodyComponent["Density"].as<float>();
-					rBody.bodyFriction = rigidBodyComponent["Friction"].as<float>();
-					rBody.bodyRestitution = rigidBodyComponent["Restitution"].as<float>();
-					rBody.bodyRestitutionThreshold = rigidBodyComponent["RestitutionThreshold"].as<float>();
+					rBody.physicsMaterial.mass = rigidBodyComponent["Density"].as<float>();
+					rBody.physicsMaterial.friction = rigidBodyComponent["Friction"].as<float>();
+					rBody.physicsMaterial.restitution = rigidBodyComponent["Restitution"].as<float>();
+					rBody.physicsMaterial.restitutionThreshold = rigidBodyComponent["RestitutionThreshold"].as<float>();
 
 				}
 

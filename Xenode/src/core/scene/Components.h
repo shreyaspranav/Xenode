@@ -5,8 +5,11 @@
 #include <core/renderer/Texture.h>
 #include <core/renderer/Camera.h>
 #include <core/scripting/Script.h>
+
 #include "ScriptableEntity.h"
 #include <pch/pch>
+
+#include <core/physics/Physics2D.h>
 
 namespace Xen {
 
@@ -176,15 +179,19 @@ namespace Xen {
 		// Physics Components:
 		struct RigidBody2D
 		{
-			enum class BodyType : int8_t { Static, Dynamic, Kinematic };
+			//enum class BodyType : int8_t { Static, Dynamic, Kinematic };
 
-			BodyType bodyType = BodyType::Static;
-			bool fixedRotation = false;
+			BodyType2D bodyType = BodyType2D::Static;
+			//bool fixedRotation = false;
+			//
+			//float bodyDensity = 1.0f;
+			//float bodyFriction = 0.1f;
+			//float bodyRestitution = 0.4f;
+			//float bodyRestitutionThreshold = 0.5f;
 
-			float bodyDensity = 1.0f;
-			float bodyFriction = 0.1f;
-			float bodyRestitution = 0.4f;
-			float bodyRestitutionThreshold = 0.5f;
+			PhysicsMaterial2D physicsMaterial;
+
+			PhysicsBody2D* runtimePhysicsBody;
 
 			// Storage for the runtime object
 			void* runtimeBody = nullptr;
@@ -192,8 +199,11 @@ namespace Xen {
 			RigidBody2D() = default;
 			RigidBody2D(const RigidBody2D& rigidBody) = default;
 
-			RigidBody2D(BodyType type, bool fixedRotation = false)
-				:bodyType(type), fixedRotation(fixedRotation) {}
+			RigidBody2D(BodyType2D type, bool fixedRotation = false)
+				:bodyType(type)
+			{
+				physicsMaterial.fixedRotation = fixedRotation;
+			}
 
 		};
 
@@ -201,6 +211,8 @@ namespace Xen {
 		{
 			Vec2 bodyOffset = { 0.0f, 0.0f };
 			Vec2 sizeScale	= { 1.0f, 1.0f };
+
+			PhysicsBody2D* runtimePhysicsBody;
 
 			BoxCollider2D() = default;
 			BoxCollider2D(const BoxCollider2D& boxCollider) = default;
@@ -214,6 +226,8 @@ namespace Xen {
 		{
 			Vec2 bodyOffset = { 0.0f, 0.0f };
 			float radiusScale = 1.0f;
+
+			PhysicsBody2D* runtimePhysicsBody;
 
 			CircleCollider2D() = default;
 			CircleCollider2D(const CircleCollider2D& circleCollider) = default;

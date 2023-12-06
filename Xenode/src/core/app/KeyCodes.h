@@ -122,7 +122,7 @@ namespace Xen {
 		KEYPAD_5 = 325,
 		KEYPAD_6 = 326,
 		KEYPAD_7 = 327,
-		KEYPAD_8 = 328,
+		a = 328,
 		KEYPAD_9 = 329,
 		KEYPAD_DECIMAL = 330,
 		KEYPAD_DIVIDE = 331,

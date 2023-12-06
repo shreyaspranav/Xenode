@@ -12,14 +12,9 @@
 
 #include "core/app/Timer.h"
 
-// Physics:
-#include <box2d/box2d.h>
 #include "SceneSerializer.h"
 
 #include <core/physics/Physics2D.h>
-
-constexpr auto DEGTORAD = 0.0174532925199432957f;
-constexpr auto RADTODEG = 57.295779513082320876f;
 
 namespace Xen {
 	template<typename Comp>
@@ -235,112 +230,106 @@ namespace Xen {
 
 		m_isRunningOnRuntime = true;
 
-		//Physics2D::Init({ 0.0f, -9.8f });
-		//auto rigidBodyView = m_Registry.view<Component::RigidBody2D>();
-		//
-		//for (auto& entity : rigidBodyView)
-		//{
-		//	Entity entt = Entity(entity, this);
-		//
-		//	Component::Transform& transform = entt.GetComponent<Component::Transform>();
-		//	Physics2D::
-		//
-		//}
-#if 1
-		m_PhysicsWorld = new b2World({ 0.0f, -10.0f });
-		auto rigid_body_view = m_Registry.view<Component::RigidBody2D>();
+		Physics2D::Init({ 0.0f, -9.8f });
 
-		for (auto& entity : rigid_body_view)
+		auto rigidBodyView = m_Registry.view<Component::RigidBody2D>();
+
+		auto boxColliderView = m_Registry.view<Component::BoxCollider2D>();
+		auto circleColliderView = m_Registry.view<Component::CircleCollider2D>();
+		
+		for (auto& entity : boxColliderView)
 		{
-			Entity this_entity = Entity(entity, this);
+			Entity entt = Entity(entity, this);
+		
+			Component::Transform& transform = entt.GetComponent<Component::Transform>();
+			Component::BoxCollider2D& boxCollider = entt.GetComponent<Component::BoxCollider2D>();
 
-			Component::Transform& transform = this_entity.GetComponent<Component::Transform>();
-			Component::RigidBody2D& rigidBody2d = this_entity.GetComponent<Component::RigidBody2D>();
+			PhysicsBody2D* body = Physics2D::CreateBoxBody(
+				{ transform.position.x + boxCollider.bodyOffset.x, transform.position.y + boxCollider.bodyOffset.y }, 
+				transform.rotation.z, 
+				{ transform.scale.x * boxCollider.sizeScale.x, transform.scale.y * boxCollider.sizeScale.y },
+				BodyType2D::Static,
+				PhysicsMaterial2D()
+			);
+		
+			boxCollider.runtimePhysicsBody = body;
 
-			b2BodyDef bodyDefinition;
-			switch (rigidBody2d.bodyType)
+			Physics2D::AddCollider(body, { transform.position.x + boxCollider.bodyOffset.x, transform.position.y + boxCollider.bodyOffset.y });
+
+			if (entt.HasAnyComponent<Component::RigidBody2D>())
 			{
-			case Component::RigidBody2D::BodyType::Static:
-				bodyDefinition.type = b2_staticBody;
-				break;
-			case Component::RigidBody2D::BodyType::Dynamic:
-				bodyDefinition.type = b2_dynamicBody;
-				break;
-			case Component::RigidBody2D::BodyType::Kinematic:
-				bodyDefinition.type = b2_kinematicBody;
-				break;
-			default:
-				break;
-			}
-
-			//bodyDefinition.position.Set(transform.position.x, transform.position.y);
-			//bodyDefinition.angle = transform.rotation.z;
-
-			b2Body* physicsBody = m_PhysicsWorld->CreateBody(&bodyDefinition);
-			physicsBody->SetTransform({transform.position.x, transform.position.y}, transform.rotation.z * DEGTORAD);
-
-			physicsBody->SetFixedRotation(rigidBody2d.fixedRotation);
-
-			// Set the runtime body so that it can deleted later:
-			rigidBody2d.runtimeBody = physicsBody;
-
-			if (this_entity.HasAnyComponent<Component::BoxCollider2D>())
-			{
-				Component::BoxCollider2D& boxCollider = this_entity.GetComponent< Component::BoxCollider2D>();
-
-				Vec3 newPosition = { transform.position.x + boxCollider.bodyOffset.x, transform.position.y + boxCollider.bodyOffset.y, transform.position.z };
-				physicsBody->SetTransform({ newPosition.x, newPosition.y }, transform.rotation.z * DEGTORAD);
-
-				rigidBody2d.runtimeBody = physicsBody;
-
-				b2PolygonShape shape;
-				shape.SetAsBox(
-					boxCollider.sizeScale.x * transform.scale.x * 0.5f,
-					boxCollider.sizeScale.y * transform.scale.y * 0.5f
+				Component::RigidBody2D& rigidBody2d = entt.GetComponent<Component::RigidBody2D>();
+				
+				Physics2D::SetBodyType(body, rigidBody2d.bodyType);
+				Physics2D::SetPhysicsMaterial(body, 
+					rigidBody2d.physicsMaterial, 
+					{ transform.scale.x * boxCollider.sizeScale.x, transform.scale.y * boxCollider.sizeScale.y }
 				);
 
-				b2FixtureDef fixtureDef;
-
-				fixtureDef.shape = &shape;
-				fixtureDef.density = rigidBody2d.bodyDensity;
-				fixtureDef.friction = rigidBody2d.bodyFriction;
-				fixtureDef.restitution = rigidBody2d.bodyRestitution;
-				fixtureDef.restitutionThreshold = rigidBody2d.bodyRestitutionThreshold;
-
-				physicsBody->CreateFixture(&fixtureDef);
-			}
-
-			if (this_entity.HasAnyComponent<Component::CircleCollider2D>())
-			{
-				Component::CircleCollider2D& circleCollider = this_entity.GetComponent<Component::CircleCollider2D>();
-			
-				Vec3 newPosition = { transform.position.x + circleCollider.bodyOffset.x, transform.position.y + circleCollider.bodyOffset.y, transform.position.z };
-				physicsBody->SetTransform({ newPosition.x, newPosition.y }, transform.rotation.z * DEGTORAD);
-
-				rigidBody2d.runtimeBody = physicsBody;
-
-				b2CircleShape circleShape;
-				circleShape.m_p.SetZero();
-				circleShape.m_radius = circleCollider.radiusScale * transform.scale.x * 0.5f;
-
-				b2FixtureDef fixtureDef;
-
-				fixtureDef.shape = &circleShape;
-				fixtureDef.density = rigidBody2d.bodyDensity;
-				fixtureDef.friction = rigidBody2d.bodyFriction;
-				fixtureDef.restitution = rigidBody2d.bodyRestitution;
-				fixtureDef.restitutionThreshold = rigidBody2d.bodyRestitutionThreshold;
-
-				physicsBody->CreateFixture(&fixtureDef);
+				rigidBody2d.runtimePhysicsBody = body;
 			}
 		}
-#endif
+
+		for (auto& entity : circleColliderView)
+		{
+			Entity entt = Entity(entity, this);
+
+			Component::Transform& transform = entt.GetComponent<Component::Transform>();
+			Component::CircleCollider2D& circleCollider = entt.GetComponent<Component::CircleCollider2D>();
+
+			PhysicsBody2D* body = Physics2D::CreateCircleBody(
+				{ transform.position.x + circleCollider.bodyOffset.x, transform.position.y + circleCollider.bodyOffset.y },
+				transform.rotation.z,
+				transform.scale.x * circleCollider.radiusScale * 0.5f,
+				BodyType2D::Static,
+				PhysicsMaterial2D()
+			);
+
+			circleCollider.runtimePhysicsBody = body;
+
+			Physics2D::AddCollider(body, { transform.position.x + circleCollider.bodyOffset.x, transform.position.y + circleCollider.bodyOffset.y });
+
+			if (entt.HasAnyComponent<Component::RigidBody2D>())
+			{
+				Component::RigidBody2D& rigidBody2d = entt.GetComponent<Component::RigidBody2D>();
+
+				Physics2D::SetBodyType(body, rigidBody2d.bodyType);
+				Physics2D::SetPhysicsMaterial(body,
+					rigidBody2d.physicsMaterial,
+					{ 0.0f, 0.0f }		// This parameter is not used in case of circle
+				);
+
+				rigidBody2d.runtimePhysicsBody = body;
+			}
+		}
+
+		for (auto& entity : rigidBodyView)
+		{
+			Entity entt = Entity(entity, this);
+			if (!entt.HasAnyComponent<Component::BoxCollider2D, Component::CircleCollider2D>())
+			{
+				Component::Transform& transform = entt.GetComponent<Component::Transform>();
+				Component::RigidBody2D& rigidBody2d = entt.GetComponent<Component::RigidBody2D>();
+
+				PhysicsBody2D* body = Physics2D::CreateBoxBody(
+					{ transform.position.x, transform.position.y },
+					transform.rotation.z,
+					{ transform.scale.x, transform.scale.y },
+					rigidBody2d.bodyType,
+					rigidBody2d.physicsMaterial
+				);
+
+				rigidBody2d.runtimePhysicsBody = body;
+			}
+		}
 	}
 
 	void Scene::OnRuntimeStop()
 	{
-		delete m_PhysicsWorld;
-		m_PhysicsWorld = nullptr;
+		//delete m_PhysicsWorld;
+		//m_PhysicsWorld = nullptr;
+
+		Physics2D::End();
 
 		m_isRunningOnRuntime = false;
 	}
@@ -621,7 +610,7 @@ namespace Xen {
 		const int32_t velocityIterations = 6;
 		const int32_t positionIterations = 2;
 
-		int physicsStepIterations = 2;
+		const int32_t physicsStepIterations = 2;
 
 		auto rigid_body_view = m_Registry.view<Component::RigidBody2D>();
 
@@ -632,13 +621,22 @@ namespace Xen {
 			Component::Transform& transform = entt.GetComponent<Component::Transform>();
 			Component::RigidBody2D& rigidBody2d = entt.GetComponent<Component::RigidBody2D>();
 
-			b2Body* physicsBody = (b2Body*)rigidBody2d.runtimeBody;
+			PhysicsBody2D* body = rigidBody2d.runtimePhysicsBody;
 
-			physicsBody->SetTransform({ transform.position.x, transform.position.y }, transform.rotation.z * DEGTORAD);
+			Vec2 offset;
+			if (entt.HasAnyComponent<Component::BoxCollider2D>()) {
+				Component::BoxCollider2D& boxCollider2d = entt.GetComponent<Component::BoxCollider2D>();
+				offset = boxCollider2d.bodyOffset;
+			}
+			else if (entt.HasAnyComponent<Component::CircleCollider2D>()) {
+				Component::CircleCollider2D& circleCollider2D = entt.GetComponent<Component::CircleCollider2D>();
+				offset = circleCollider2D.bodyOffset;
+			}
+
+			Physics2D::SetBodyTransform(body, { transform.position.x + offset.x, transform.position.y + offset.y }, transform.rotation.z);
 		}
 
-		for(int i = 0; i < physicsStepIterations; i++)
-			m_PhysicsWorld->Step(fixedTimeStep, velocityIterations, positionIterations);
+		Physics2D::Step(fixedTimeStep, physicsStepIterations, velocityIterations, positionIterations);
 
 		for (auto& entity : rigid_body_view)
 		{
@@ -648,26 +646,21 @@ namespace Xen {
 			Component::RigidBody2D& rigidBody2d = this_entity.GetComponent<Component::RigidBody2D>();
 			
 			Vec2 offset;
-			if (this_entity.HasAnyComponent<Component::BoxCollider2D>())
-			{
+			if (this_entity.HasAnyComponent<Component::BoxCollider2D>()) {
 				Component::BoxCollider2D& boxCollider2d = this_entity.GetComponent<Component::BoxCollider2D>();
 				offset = boxCollider2d.bodyOffset;
 			}
-			else if (this_entity.HasAnyComponent<Component::CircleCollider2D>())
-			{
+			else if (this_entity.HasAnyComponent<Component::CircleCollider2D>()) {
 				Component::CircleCollider2D& circleCollider2D = this_entity.GetComponent<Component::CircleCollider2D>();
 				offset = circleCollider2D.bodyOffset;
 			}
-			b2Body* body = (b2Body*)rigidBody2d.runtimeBody;
 
-			const auto& position = body->GetPosition();
+			Vec2 position = rigidBody2d.runtimePhysicsBody->position;
 
 			transform.position.x = position.x - offset.x;
 			transform.position.y = position.y - offset.y;
 
-			transform.rotation.z = (body->GetAngle() * RADTODEG);
-
-			//body->SetTransform(body->GetPosition(), body->GetAngle());
+			transform.rotation.z = rigidBody2d.runtimePhysicsBody->rotation;
 		}
 	}
 

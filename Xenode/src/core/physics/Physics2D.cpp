@@ -26,6 +26,7 @@ namespace Xen {
 			delete body;
 		}
 
+		physicsBodies.clear();
 		delete physicsWorld;
 	}
 	void Physics2D::Step(double timestep, uint32_t physicsStepIterations, uint32_t velocityIterations, uint32_t positionIterations)
@@ -37,8 +38,8 @@ namespace Xen {
 		{
 			b2Body* physicsBody = (b2Body*)body->runtimeBody;
 
-			Vec2 position = { physicsBody->GetPosition().x, physicsBody->GetPosition().y };
-			float rotation = physicsBody->GetAngle() * RADTODEG;
+			body->position = { physicsBody->GetPosition().x, physicsBody->GetPosition().y };
+			body->rotation = physicsBody->GetAngle() * RADTODEG;
 		}
 	}
 	PhysicsBody2D* Physics2D::CreateBoxBody(const Vec2& position, float rotation, const Vec2& scale, BodyType2D type, const PhysicsMaterial2D& physicsMaterial)
@@ -68,8 +69,10 @@ namespace Xen {
 
 		b2Fixture* bodyFixture = physicsBody->CreateFixture(&fixtureDef);
 		
+		body->shape = BodyShape2D::Box;
 		body->runtimeBody = physicsBody;
 		body->runtimeFixtures.push_back(bodyFixture);
+		physicsBodies.push_back(body);
 
 		return body;
 	}
@@ -101,13 +104,77 @@ namespace Xen {
 
 		b2Fixture* bodyFixture = physicsBody->CreateFixture(&fixtureDef);
 
+		body->shape = BodyShape2D::Circle;
 		body->runtimeBody = physicsBody;
 		body->runtimeFixtures.push_back(bodyFixture);
+		physicsBodies.push_back(body);
 
 		return body;
 	}
 
-	void Physics2D::AddBoxCollider(PhysicsBody2D* body, const Vec2& position, const Vec2& scale)
+	void Physics2D::SetPhysicsMaterial(PhysicsBody2D* body, const PhysicsMaterial2D& material, const Vec2& scale)
+	{
+		b2Body* physicsBody = (b2Body*)body->runtimeBody;
+		physicsBody->SetFixedRotation(material.fixedRotation);
+
+		b2Fixture* fixture = (b2Fixture*)body->runtimeFixtures[0];
+
+		switch (body->shape)
+		{
+		case BodyShape2D::Box:
+			fixture->SetDensity(material.mass / (scale.x * scale.y));
+			// This function actually updates mass and therefore density:
+			physicsBody->ResetMassData();
+			break;
+		case BodyShape2D::Circle:
+			fixture->SetDensity(material.mass / (glm::pi<float>() * pow(fixture->GetShape()->m_radius, 2.0)));
+			physicsBody->ResetMassData();
+			break;
+		default:
+			break;
+		}
+
+		fixture->SetFriction(material.friction);
+		fixture->SetRestitution(material.restitution);
+		fixture->SetRestitutionThreshold(material.restitutionThreshold);
+	}
+
+	void Physics2D::SetBodyType(PhysicsBody2D* body, BodyType2D type)
+	{
+		b2Body* physicsBody = (b2Body*)body->runtimeBody;
+
+		switch (type)
+		{
+		case BodyType2D::Static:		physicsBody->SetType(b2_staticBody);		break;
+		case BodyType2D::Dynamic:		physicsBody->SetType(b2_dynamicBody);		break;
+		case BodyType2D::Kinematic:		physicsBody->SetType(b2_kinematicBody);		break;
+		default:
+			XEN_ENGINE_LOG_ERROR("Unknown Body Type!");
+			break;
+		}
+	}
+
+	void Physics2D::SetBodyTransform(PhysicsBody2D* body, const Vec2& position, float rotation)
+	{
+		b2Body* physicsBody = (b2Body*)body->runtimeBody;
+		physicsBody->SetTransform({ position.x, position.y }, rotation * DEGTORAD);
+	}
+
+	void Physics2D::DeleteBody(PhysicsBody2D* body)
+	{
+		physicsWorld->DestroyBody((b2Body*)body->runtimeBody);
+
+		for (auto it = physicsBodies.begin(); it != physicsBodies.end(); ++it) {
+			if (*it == body) {
+				physicsBodies.erase(it);
+				break;
+			}
+		}
+
+		delete body;
+	}
+
+	void Physics2D::AddCollider(PhysicsBody2D* body, const Vec2& position)
 	{
 		// TEMPORARY: 
 		b2Fixture* fixture = (b2Fixture*)body->runtimeFixtures[0];
@@ -119,16 +186,13 @@ namespace Xen {
 		body->position = position;
 	}
 
-	void Physics2D::AddCircleCollider(PhysicsBody2D* body, const Vec2& position, float radius)
+	void Physics2D::ApplyForceToCenter(PhysicsBody2D* body, const Vec2& force)
 	{
-		// TEMPORARY: 
-		b2Fixture* fixture = (b2Fixture*)body->runtimeFixtures[0];
-		fixture->SetFilterData(b2Filter());
-
 		b2Body* physicsBody = (b2Body*)body->runtimeBody;
-		physicsBody->SetTransform({ position.x, position.y }, body->rotation * DEGTORAD);
+		physicsBody->ApplyForceToCenter({ force.x, force.y }, true);
 	}
 
+	// Private Methods: --------------------------------------------------------------------------------------------------------------------------------
 	PhysicsBody2D* Physics2D::AddBody(const Vec2& position, float rotation, BodyType2D type, const PhysicsMaterial2D& physicsMaterial)
 	{
 		PhysicsBody2D* body = new PhysicsBody2D();

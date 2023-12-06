@@ -5,8 +5,8 @@
 
 namespace Xen {
 
-	enum BodyShape2D { Box, Circle };
-	enum BodyType2D  { Static, Dynamic, Kinematic };
+	enum BodyShape2D : int8_t { Box, Circle };
+	enum BodyType2D  : int8_t { Static, Dynamic, Kinematic };
 
 	struct PhysicsBody2D
 	{
@@ -45,7 +45,18 @@ namespace Xen {
 		static PhysicsBody2D* CreateBoxBody(const Vec2& position, float rotation, const Vec2& scale, BodyType2D type, const PhysicsMaterial2D& physicsMaterial);
 		static PhysicsBody2D* CreateCircleBody(const Vec2& position, float rotation, float radius, BodyType2D type, const PhysicsMaterial2D& physicsMaterial);
 
-		static void AddCollider(PhysicsBody2D* body, const Vec2& position, const Vec2& scale);
+		// Set properties of a physics body or a fixture
+		static void SetPhysicsMaterial(PhysicsBody2D* body, const PhysicsMaterial2D& material, const Vec2& scale);
+		static void SetBodyType(PhysicsBody2D* body, BodyType2D type);
+		static void SetBodyTransform(PhysicsBody2D* body, const Vec2& position, float rotation);
+
+		static void DeleteBody(PhysicsBody2D* body);
+
+		static void AddCollider(PhysicsBody2D* body, const Vec2& position);
+
+
+		// Add forces and impluses to the body
+		static void ApplyForceToCenter(PhysicsBody2D* body, const Vec2& force);
 
 	private:
 		static PhysicsBody2D* AddBody(const Vec2& position, float rotation, BodyType2D type, const PhysicsMaterial2D& physicsMaterial);

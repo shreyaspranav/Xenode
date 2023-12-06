@@ -7,8 +7,7 @@
 #include <lua.hpp>
 
 #include <core/scene/Components.h>
-
-#include <box2d/box2d.h>
+#include <core/physics/Physics2D.h>
 
 namespace Xen {
 
@@ -124,12 +123,12 @@ namespace Xen {
 			//if (currentEntity.HasAnyComponent<Component::BoxCollider2D, Component::CircleCollider2D>())
 			{
 				Component::RigidBody2D& rb = currentEntity.GetComponent<Component::RigidBody2D>();
-				b2Body* physicsBody = (b2Body*)rb.runtimeBody;
+				PhysicsBody2D* physicsBody = rb.runtimePhysicsBody;
 
 				float x = lua_tonumber(L, 1);
 				float y = lua_tonumber(L, 2);
 
-				physicsBody->ApplyForceToCenter({ x, y }, true);
+				Physics2D::ApplyForceToCenter(physicsBody, { x, y });
 			}
 		}
 
@@ -220,7 +219,7 @@ namespace Xen {
 
 
 		default:
-			break;
+			return false;
 		}
 	}
 
