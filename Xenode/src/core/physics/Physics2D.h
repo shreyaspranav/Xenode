@@ -52,11 +52,15 @@ namespace Xen {
 
 		static void DeleteBody(PhysicsBody2D* body);
 
+		// Adds a collider object to a Physics Body
 		static void AddCollider(PhysicsBody2D* body, const Vec2& position);
 
-
-		// Add forces and impluses to the body
+		// Add forces, impluses and velocity to the body
+		static void ApplyForce(PhysicsBody2D* body, const Vec2& point, const Vec2& force);
 		static void ApplyForceToCenter(PhysicsBody2D* body, const Vec2& force);
+
+		static void SetLinearVelocity(PhysicsBody2D* body, const Vec2& velocity);
+		static void SetAngularVelocity(PhysicsBody2D* body, float omega);
 
 	private:
 		static PhysicsBody2D* AddBody(const Vec2& position, float rotation, BodyType2D type, const PhysicsMaterial2D& physicsMaterial);

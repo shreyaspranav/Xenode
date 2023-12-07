@@ -34,5 +34,6 @@ namespace Xen {
 
 	private:
 		static bool IsKeyPressed(char key);
+		static bool IsKeyPressed(std::string& key);
 	};
 }

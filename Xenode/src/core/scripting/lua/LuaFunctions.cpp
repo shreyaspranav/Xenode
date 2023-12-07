@@ -20,15 +20,17 @@ namespace Xen {
 	int LuaFunctions::lua_IsKeyPressed(lua_State* L)
 	{
 		std::string key = lua_tostring(L, 1);
-		XEN_ENGINE_LOG_INFO(key);
 
-		lua_pushboolean(L, IsKeyPressed(key.at(0)));
+		if(key.size() == 1)
+			lua_pushboolean(L, IsKeyPressed(key.at(0)));
+		else
+			lua_pushboolean(L, IsKeyPressed(key));
 
 		return 1;
 	}
 
 	int LuaFunctions::lua_GetCurrentTransform(lua_State* L)
-	{
+	{ 
 		Component::Transform& transform = currentEntity.GetComponent<Component::Transform>();
 
 		lua_createtable(L, 0, 3);
@@ -120,16 +122,13 @@ namespace Xen {
 	{
 		if (currentEntity.HasAnyComponent<Component::RigidBody2D>())
 		{
-			//if (currentEntity.HasAnyComponent<Component::BoxCollider2D, Component::CircleCollider2D>())
-			{
-				Component::RigidBody2D& rb = currentEntity.GetComponent<Component::RigidBody2D>();
-				PhysicsBody2D* physicsBody = rb.runtimePhysicsBody;
+			Component::RigidBody2D& rb = currentEntity.GetComponent<Component::RigidBody2D>();
+			PhysicsBody2D* physicsBody = rb.runtimePhysicsBody;
 
-				float x = lua_tonumber(L, 1);
-				float y = lua_tonumber(L, 2);
+			float x = lua_tonumber(L, 1);
+			float y = lua_tonumber(L, 2);
 
-				Physics2D::ApplyForceToCenter(physicsBody, { x, y });
-			}
+			Physics2D::ApplyForceToCenter(physicsBody, { x, y });
 		}
 
 		return 0;
@@ -173,10 +172,9 @@ namespace Xen {
 
 	bool LuaFunctions::IsKeyPressed(char key)
 	{
-		if (key >= 'a' && key <= 'z')
-			key -= 32;
+		char k = toupper(key);
 
-		switch (key)
+		switch (k)
 		{
 		case 'A':	return input->IsKeyPressed(KeyCode::KEY_A);
 		case 'B':	return input->IsKeyPressed(KeyCode::KEY_B);
@@ -221,6 +219,30 @@ namespace Xen {
 		default:
 			return false;
 		}
+	}
+
+	bool LuaFunctions::IsKeyPressed(std::string& key)
+	{
+		char* k = (char*)key.c_str();
+
+		for (int i = 0; i < key.size(); i++)
+			k[i] = std::toupper(key.at(i));
+
+			 if (strcmp(key.c_str(), "TAB")		== 0)		return input->IsKeyPressed(KeyCode::KEY_TAB);
+		else if (strcmp(key.c_str(), "LSHIFT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_LEFT_SHIFT);
+		else if (strcmp(key.c_str(), "LCTRL")	== 0)		return input->IsKeyPressed(KeyCode::KEY_LEFT_CONTROL);
+		else if (strcmp(key.c_str(), "LALT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_LEFT_ALT);
+		else if (strcmp(key.c_str(), "RALT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_RIGHT_ALT);
+		else if (strcmp(key.c_str(), "RCTRL")	== 0)		return input->IsKeyPressed(KeyCode::KEY_RIGHT_CONTROL);
+		else if (strcmp(key.c_str(), "RSHIFT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_RIGHT_SHIFT);
+		else if (strcmp(key.c_str(), "ENTER")	== 0)		return input->IsKeyPressed(KeyCode::KEY_ENTER);
+		else if (strcmp(key.c_str(), "UP")		== 0)		return input->IsKeyPressed(KeyCode::KEY_UP);
+		else if (strcmp(key.c_str(), "DOWN")	== 0)		return input->IsKeyPressed(KeyCode::KEY_DOWN);
+		else if (strcmp(key.c_str(), "LEFT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_LEFT);
+		else if (strcmp(key.c_str(), "RIGHT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_RIGHT);
+		else	XEN_APP_LOG_ERROR("Lua: {0} is not a key!", key);
+
+		return false;
 	}
 
 }

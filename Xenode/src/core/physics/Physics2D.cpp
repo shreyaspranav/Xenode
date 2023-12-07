@@ -61,6 +61,7 @@ namespace Xen {
 		fixtureDef.restitution = physicsMaterial.restitution;
 		fixtureDef.restitutionThreshold = physicsMaterial.restitutionThreshold;
 
+		// Filter data to avoid collisions: Basically no collider
 		b2Filter noCollisionFilter;
 		noCollisionFilter.maskBits = 0x0000;
 		noCollisionFilter.categoryBits = 0x0000;
@@ -186,17 +187,35 @@ namespace Xen {
 		body->position = position;
 	}
 
+	void Physics2D::ApplyForce(PhysicsBody2D* body, const Vec2& point, const Vec2& force)
+	{
+		b2Body* physicsBody = (b2Body*)body->runtimeBody;
+		physicsBody->ApplyForce({force.x, force.y}, {point.x, point.y}, true);
+	}
+
 	void Physics2D::ApplyForceToCenter(PhysicsBody2D* body, const Vec2& force)
 	{
 		b2Body* physicsBody = (b2Body*)body->runtimeBody;
 		physicsBody->ApplyForceToCenter({ force.x, force.y }, true);
 	}
 
+	void Physics2D::SetLinearVelocity(PhysicsBody2D* body, const Vec2& velocity)
+	{
+		b2Body* physicsBody = (b2Body*)body->runtimeBody;
+		physicsBody->SetLinearVelocity({ velocity.x, velocity.y });
+	}
+
+	void Physics2D::SetAngularVelocity(PhysicsBody2D* body, float omega)
+	{
+		b2Body* physicsBody = (b2Body*)body->runtimeBody;
+		physicsBody->SetAngularVelocity(omega);
+
+	}
+
 	// Private Methods: --------------------------------------------------------------------------------------------------------------------------------
 	PhysicsBody2D* Physics2D::AddBody(const Vec2& position, float rotation, BodyType2D type, const PhysicsMaterial2D& physicsMaterial)
 	{
 		PhysicsBody2D* body = new PhysicsBody2D();
-
 		b2BodyDef bodyDef;
 
 		switch (type)

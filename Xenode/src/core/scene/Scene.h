@@ -65,6 +65,10 @@ namespace Xen {
 
 		void Test();
 
+		inline void SetMouseCoordinates(uint32_t x, uint32_t y)		{ m_MouseX = x; m_MouseY = y; }
+		inline uint32_t GetMouseX() { return m_MouseX; }
+		inline uint32_t GetMouseY() { return m_MouseY; }
+
 		static Ref<Scene> Copy(Ref<Scene> srcScene);
 	private:
 		void SortRenderableEntities();
@@ -102,6 +106,8 @@ namespace Xen {
 		Ref<FrameBuffer> m_UnlitSceneFB;
 		Ref<FrameBuffer> m_LightMaskFB;
 		Ref<FrameBuffer> m_FinalSceneFB;
+
+		uint32_t m_MouseX = 0, m_MouseY = 0;
 
 		friend class Entity;
 		friend class ::SceneHierarchyPanel;
@@ -141,6 +147,8 @@ namespace Xen {
 		bool IsValid() { return m_Scene->m_Registry.valid(m_Entity); }
 		bool operator==(const Entity& other) { return other.m_Entity == m_Entity; }
 		bool operator!=(const Entity& other) { return other.m_Entity != m_Entity; }
+
+		inline Scene* GetParentScene() { return m_Scene; }
 
 	private:
 		entt::entity m_Entity = entt::null;

@@ -113,6 +113,8 @@ void EditorLayer::OnUpdate(double timestep)
 
 	if (m_EditorState == EditorState::Edit)
 	{
+		m_ActiveScene->SetMouseCoordinates(viewport_mouse_pos.x, viewport_mouse_pos.y);
+
 		m_EditorCameraController.Update(&active);
 		m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
 
@@ -138,6 +140,8 @@ void EditorLayer::OnUpdate(double timestep)
 	{
 		m_ActiveScene = m_RuntimeScene;
 
+		m_ActiveScene->SetMouseCoordinates(viewport_mouse_pos.x, viewport_mouse_pos.y);
+
 		if (m_SceneStepped) {
 			m_ActiveScene->OnUpdateRuntime(timestep, false);
 			m_SceneStepped = false;
@@ -146,6 +150,8 @@ void EditorLayer::OnUpdate(double timestep)
 			m_ActiveScene->OnUpdateRuntime(timestep, m_ScenePaused);
 
 	}
+	
+	XEN_ENGINE_LOG_INFO("{0}, {1}", viewport_mouse_pos.x, viewport_mouse_pos.y);
 
 	// Line Rendering Test
 
