@@ -51,8 +51,7 @@ namespace Xen {
 
 	Scene::~Scene()
 	{
-		delete m_PhysicsWorld;
-		m_PhysicsWorld = nullptr; 
+		
 	}
 
 	void Scene::OnCreate()
