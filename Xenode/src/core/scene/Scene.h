@@ -15,7 +15,6 @@
 #include "core/renderer/PostProcessPipeline.h"
 
 class SceneHierarchyPanel;
-class b2World;
 
 namespace Xen {
 	class Entity;
@@ -88,8 +87,6 @@ namespace Xen {
 
 		bool m_IsDirty = true;
 		bool m_isRunningOnRuntime = false;
-
-		b2World* m_PhysicsWorld = nullptr;
 
 		bool m_ShowPhysicsColliders = false;
 		bool m_ShowPhysicsCollidersRuntime = false;
