@@ -76,10 +76,14 @@ namespace Xen {
 
 	void LuaScriptEngine::SetupLuaFuntions()
 	{
+		// Funtions related to input: -----------------------------------------------------------
 		lua_register(m_LuaVM, "IsKeyPressed", LuaFunctions::lua_IsKeyPressed);
+		lua_register(m_LuaVM, "GetNormalizedMouseCoords2D", LuaFunctions::lua_GetNormalizedMouseCoords2D);
 
+		// Functions related to physics: --------------------------------------------------------
 		lua_register(m_LuaVM, "ApplyForceToCentre2D", LuaFunctions::lua_ApplyForceToCentre2D);
 
+		// Functions to get and set the transform: ----------------------------------------------
 		lua_register(m_LuaVM, "GetCurrentTransform", LuaFunctions::lua_GetCurrentTransform);
 		lua_register(m_LuaVM, "SetCurrentTransform", LuaFunctions::lua_SetCurrentTransform);
 

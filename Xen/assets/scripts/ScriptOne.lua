@@ -19,5 +19,8 @@ function OnUpdate(timestep)
 		ApplyForceToCentre2D(0.0, -20.0)
 	end
 
+	x, y = GetNormalizedMouseCoords2D()
+	LogWarning("MouseX: " .. x .. ", MouseY: " .. y)
+
 	SetCurrentTransform(transform)
 end

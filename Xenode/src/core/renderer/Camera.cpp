@@ -104,6 +104,9 @@ namespace Xen {
 	{
 		m_AspectRatio = (float)framebuffer_width / (float)framebuffer_height;
 
+		m_FrameBufferWidth = framebuffer_width;
+		m_FrameBufferHeight = framebuffer_height;
+
 		if (m_CameraType == CameraType::Orthographic)
 			m_ProjectionMatrix = glm::ortho(-m_AspectRatio, m_AspectRatio, -1.0f, 1.0f, m_z_Near, m_z_Far);
 		

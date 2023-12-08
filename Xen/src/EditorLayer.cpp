@@ -151,7 +151,7 @@ void EditorLayer::OnUpdate(double timestep)
 
 	}
 	
-	XEN_ENGINE_LOG_INFO("{0}, {1}", viewport_mouse_pos.x, viewport_mouse_pos.y);
+	// XEN_ENGINE_LOG_INFO("{0}, {1}", viewport_mouse_pos.x, viewport_mouse_pos.y);
 
 	// Line Rendering Test
 

@@ -43,6 +43,9 @@ namespace Xen {
 		inline Vec3& GetRotation()								{ return m_Rotation; }
 		inline Vec3& GetScale()									{ return m_CameraScale; }
 
+		inline uint32_t GetFrameBufferWidth()					{ return m_FrameBufferWidth; }
+		inline uint32_t GetFrameBufferHeight()					{ return m_FrameBufferHeight; }
+
 		void Update(bool usedLookAt = 0);
 		void UpdateOnlyPosition();
 		void LookAtPoint(const Vec3& point, const Vec3& up = Vec3(0.0f, 1.0f, 0.0f));
@@ -67,5 +70,7 @@ namespace Xen {
 
 		float m_z_Near, m_z_Far;
 		float m_FovAngle = 60.0f;
+
+		uint32_t m_FrameBufferWidth = 1, m_FrameBufferHeight = 1;
 	};
 }
