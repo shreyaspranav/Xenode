@@ -17,6 +17,7 @@ namespace Xen {
 
 		// Funtions related to input:
 		static int lua_IsKeyPressed(lua_State* L);
+		static int lua_IsMouseButtonPressed(lua_State* L);
 		static int lua_GetNormalizedMouseCoords2D(lua_State* L);
 
 		// Functions to get and set properties of entities:
@@ -24,6 +25,7 @@ namespace Xen {
 		static int lua_SetCurrentTransform(lua_State* L);
 
 		// Functions related to physics:
+		static int lua_ApplyForce2D(lua_State* L);
 		static int lua_ApplyForceToCentre2D(lua_State* L);
 
 		// Logging Functions:

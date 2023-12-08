@@ -29,6 +29,18 @@ namespace Xen {
 		return 1;
 	}
 
+	int LuaFunctions::lua_IsMouseButtonPressed(lua_State* L)
+	{
+		int key = lua_tointeger(L, 1);
+		
+		if (key > 7)
+			return 0;
+
+		lua_pushboolean(L, (int)input->IsMouseButtonPressed((MouseKeyCode)key));
+
+		return 1;
+	}
+
 	int LuaFunctions::lua_GetNormalizedMouseCoords2D(lua_State* L)
 	{
 		Scene* scene = currentEntity.GetParentScene();
@@ -79,7 +91,7 @@ namespace Xen {
 
 		lua_createtable(L, 0, 3);
 		{
-			lua_pushstring(L, "Position");
+			lua_pushstring(L, "position");
 			lua_createtable(L, 0, 3);
 			{
 
@@ -95,7 +107,7 @@ namespace Xen {
 				lua_settable(L, -3);
 			}
 
-			lua_pushstring(L, "Rotation");
+			lua_pushstring(L, "rotation");
 			lua_createtable(L, 0, 3);
 			{
 
@@ -111,7 +123,7 @@ namespace Xen {
 				lua_settable(L, -3);
 			}
 
-			lua_pushstring(L, "Scale");
+			lua_pushstring(L, "scale");
 			lua_createtable(L, 0, 3);
 			{
 
@@ -135,29 +147,50 @@ namespace Xen {
 	{
 		Component::Transform& transform = currentEntity.GetComponent<Component::Transform>();
 
-		lua_pushstring(L, "Position");
+		lua_pushstring(L, "position");
 		lua_gettable(L, -2);
 		
-		// position.x -----------------------
-		lua_pushstring(L, "x");
-		lua_gettable(L, -2);
+		{
+			// position.x -----------------------
+			lua_pushstring(L, "x");
+			lua_gettable(L, -2);
 
-		transform.position.x = lua_tonumber(L, -1);
-		lua_pop(L, 1);
+			transform.position.x = lua_tonumber(L, -1);
+			lua_pop(L, 1);
 
-		// position.y -----------------------
-		lua_pushstring(L, "y");
-		lua_gettable(L, -2);
+			// position.y -----------------------
+			lua_pushstring(L, "y");
+			lua_gettable(L, -2);
 
-		transform.position.y = lua_tonumber(L, -1);
-		lua_pop(L, 1);
+			transform.position.y = lua_tonumber(L, -1);
+			lua_pop(L, 1);
 
-		// position.z -----------------------
-		lua_pushstring(L, "z");
-		lua_gettable(L, -2);
+			// position.z -----------------------
+			lua_pushstring(L, "z");
+			lua_gettable(L, -2);
 
-		transform.position.z = lua_tonumber(L, -1);
-		lua_pop(L, 1);
+			transform.position.z = lua_tonumber(L, -1);
+			lua_pop(L, 1);
+		}
+
+		// TODO: Complete the implemetation for rotation and scale
+		return 0;
+	}
+
+	int LuaFunctions::lua_ApplyForce2D(lua_State* L)
+	{
+		if (currentEntity.HasAnyComponent<Component::RigidBody2D>())
+		{
+			float pointX = lua_tonumber(L, 1);
+			float pointY = lua_tonumber(L, 2);
+			float forceX = lua_tonumber(L, 3);
+			float forceY = lua_tonumber(L, 4);
+
+			Component::RigidBody2D& rb = currentEntity.GetComponent<Component::RigidBody2D>();
+			PhysicsBody2D* physicsBody = rb.runtimePhysicsBody;
+
+			Physics2D::ApplyForce(physicsBody, { pointX, pointY }, { forceX, forceY });
+		}
 
 		return 0;
 	}
