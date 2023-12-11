@@ -29,3 +29,4 @@
 
 #include <core/scene/Scene.h>
 #include <core/scene/Components.h>
+#include <core/scene/SceneSerializer.h>

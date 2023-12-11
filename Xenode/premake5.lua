@@ -151,3 +151,7 @@ project "Xenode"
 		links {
 			"%{Library.ShaderC_Release}"
 		}
+	filter { "system:windows", "configurations:Production" }
+		links {
+			"%{Library.ShaderC_Release}"
+		}

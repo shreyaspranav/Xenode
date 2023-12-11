@@ -1,0 +1,60 @@
+Scene: Untitled
+Entities:
+  - Entity: [Green, 16935957436178857427]
+    Transform:
+      Position: [0.400000006, 0.200000003, -0.0299999993]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 3
+      CircleProperties:
+        Thickness: 1
+        InnerFade: 1
+        OuterFade: 0.0260000005
+      Color: [0, 1, 0, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+  - Entity: [Red, 8021599163232532029]
+    Transform:
+      Position: [-0.400000006, 0.200000003, 0.119999997]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 3
+      CircleProperties:
+        Thickness: 1
+        InnerFade: 1
+        OuterFade: 0.0189999994
+      Color: [1, 0, 0, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+  - Entity: [Camera, 7311479619208647848]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComp:
+      Camera:
+        ProjectionType: Orthographic
+        ZNear: 1
+        ZFar: -1
+      IsPrimary: true
+      IsResizable: true
+  - Entity: [Blue, 9010529117443771411]
+    Transform:
+      Position: [0, -0.349999994, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 3
+      CircleProperties:
+        Thickness: 1
+        InnerFade: 1
+        OuterFade: 0.0299999993
+      Color: [0, 0.0431372561, 1, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+Entity Count: 4

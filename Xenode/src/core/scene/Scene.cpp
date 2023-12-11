@@ -459,10 +459,15 @@ namespace Xen {
 		//RenderLights();
 	}
 
-	void Scene::OnRender()
+	void Scene::OnRender(bool onMainFrameBuffer)
 	{
+		if(!onMainFrameBuffer)
+			m_UnlitSceneFB->Bind();
+
 		RenderCommand::Clear();
-		m_UnlitSceneFB->ClearAttachments();
+
+		if (!onMainFrameBuffer)
+			m_UnlitSceneFB->ClearAttachments();
 
 		Renderer2D::EndScene();
 
@@ -473,7 +478,8 @@ namespace Xen {
 		Renderer2D::RenderFrame();
 		Renderer2D::RenderOverlay();
 
-		m_UnlitSceneFB->Unbind();
+		if (!onMainFrameBuffer)
+			m_UnlitSceneFB->Unbind();
 
 		//PostProcessPipeline::ProcessPostEffects(m_UnlitSceneFB, m_LightMaskFB, { true });
 
@@ -665,7 +671,7 @@ namespace Xen {
 
 	void Scene::RenderSprites()
 	{
-		m_UnlitSceneFB->Bind();
+		//m_UnlitSceneFB->Bind();
 
 		// Render Sprites
 		auto sprite_group_observer = m_Registry.view<Component::SpriteRenderer>();

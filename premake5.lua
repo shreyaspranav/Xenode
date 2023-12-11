@@ -54,6 +54,7 @@ newoption {
 group "Core"
 	include "Xenode/"
 	include "Xen/"
+	include "XenodeRuntime/"
 group ""
 group "Sandbox"
 	include "SandboxApp/"
