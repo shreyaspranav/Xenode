@@ -27,6 +27,8 @@ namespace Xen {
 		// Functions related to physics:
 		static int lua_ApplyForce2D(lua_State* L);
 		static int lua_ApplyForceToCentre2D(lua_State* L);
+		static int lua_SetLinearVelocity2D(lua_State* L);
+		static int lua_SetAngularVelocity2D(lua_State* L);
 
 		// Logging Functions:
 		static int lua_LogErrorSevere(lua_State* L);

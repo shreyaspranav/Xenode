@@ -211,6 +211,36 @@ namespace Xen {
 		return 0;
 	}
 
+	int LuaFunctions::lua_SetLinearVelocity2D(lua_State* L)
+	{
+		if (currentEntity.HasAnyComponent<Component::RigidBody2D>())
+		{
+			Component::RigidBody2D& rb = currentEntity.GetComponent<Component::RigidBody2D>();
+			PhysicsBody2D* physicsBody = rb.runtimePhysicsBody;
+
+			float x = lua_tonumber(L, 1);
+			float y = lua_tonumber(L, 2);
+
+			Physics2D::SetLinearVelocity(physicsBody, { x, y });
+		}
+		return 0;
+	}
+
+	int LuaFunctions::lua_SetAngularVelocity2D(lua_State* L)
+	{
+		if (currentEntity.HasAnyComponent<Component::RigidBody2D>())
+		{
+			Component::RigidBody2D& rb = currentEntity.GetComponent<Component::RigidBody2D>();
+			PhysicsBody2D* physicsBody = rb.runtimePhysicsBody;
+
+			float omega = lua_tonumber(L, 1);
+
+			Physics2D::SetAngularVelocity(physicsBody, omega);
+		}
+
+		return 0;
+	}
+
 	int LuaFunctions::lua_LogErrorSevere(lua_State* L)
 	{
 		std::string s = lua_tostring(L, 1);

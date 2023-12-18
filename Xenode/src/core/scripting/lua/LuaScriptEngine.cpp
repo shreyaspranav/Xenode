@@ -84,6 +84,8 @@ namespace Xen {
 		// Functions related to physics: --------------------------------------------------------
 		lua_register(m_LuaVM, "ApplyForceToCentre2D", LuaFunctions::lua_ApplyForceToCentre2D);
 		lua_register(m_LuaVM, "ApplyForce2D", LuaFunctions::lua_ApplyForce2D);
+		lua_register(m_LuaVM, "SetLinearVelocity2D", LuaFunctions::lua_SetLinearVelocity2D);
+		lua_register(m_LuaVM, "SetAngularVelocity2D", LuaFunctions::lua_SetAngularVelocity2D);
 
 		// Functions to get and set the transform: ----------------------------------------------
 		lua_register(m_LuaVM, "GetCurrentTransform", LuaFunctions::lua_GetCurrentTransform);
