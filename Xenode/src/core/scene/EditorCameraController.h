@@ -26,14 +26,14 @@ namespace Xen {
 		void Orbit(const Vec2& delta)
 		{
 			Vec2 delta_angle = (Vec2&)delta;
-			m_CameraAngleAlongFocalPoint = (m_CameraAngleAlongFocalPoint + delta_angle) * m_OrbitSpeed;
+			m_CameraAngleAlongFocalPoint = m_CameraAngleAlongFocalPoint + (delta_angle * m_OrbitSpeed);
 		}
 
 		void Pan(const Vec2& delta)
 		{
-			m_FocalPoint.x = m_FocalPoint.x + (-delta.x * m_PanSpeed * m_CameraRightPosition.x);
-			m_FocalPoint.y = m_FocalPoint.y + ( delta.y * m_PanSpeed * m_CameraUpPosition.y);
-			m_FocalPoint.z = m_FocalPoint.z + (-delta.x * m_PanSpeed * m_CameraRightPosition.z);
+			m_FocalPoint.x = m_FocalPoint.x + (-delta.x * m_PanSpeed * m_CameraRightPosition.x * m_FocalDistance);
+			m_FocalPoint.y = m_FocalPoint.y + ( delta.y * m_PanSpeed * m_CameraUpPosition.y * m_FocalDistance);
+			m_FocalPoint.z = m_FocalPoint.z + (-delta.x * m_PanSpeed * m_CameraRightPosition.z * m_FocalDistance);
 		}
 
 		void Zoom(float delta)
@@ -44,11 +44,13 @@ namespace Xen {
 				m_FocalDistance = 0.01f;
 		}
 
-		void Update(bool* active)
+		void Update(bool* active, uint32_t frameBufferHeight)
 		{
 			Xen::Vec2 mouse = Xen::Vec2(m_Input->GetMouseX(), m_Input->GetMouseY());
-			m_MouseDelta = ((Vec2&)mouse - m_InitialMouseCoords) * 0.3f;
+			m_MouseDelta = ((Vec2&)mouse - m_InitialMouseCoords) * (1.0f / (2.0f * frameBufferHeight));
 			m_InitialMouseCoords = mouse;
+
+			m_OrbitSpeed = frameBufferHeight / 2.0f;
 
 			if (m_CameraType == EditorCameraType::_3D)
 			{
@@ -115,9 +117,9 @@ namespace Xen {
 
 		float m_FocalDistance = 4.0f;
 		
-		float m_OrbitSpeed = 1.0f;
-		float m_PanSpeed = 0.03f;
-		float m_ZoomSpeed = 0.1f;
+		float m_OrbitSpeed = 100.0f;
+		float m_PanSpeed = 3.7f;
+		float m_ZoomSpeed = 6.0f;
 
 		uint8_t zoom_iterations = 20;
 	};

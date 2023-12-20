@@ -70,7 +70,7 @@ void EditorLayer::OnAttach()
 
 	m_HierarchyPanel = SceneHierarchyPanel(m_ActiveScene);
 	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
-	m_ContentBrowserPanel = ContentBrowserPanel();
+	m_ContentBrowserPanel = ContentBrowserPanel();     
 	m_SceneSettingsPanel = SceneSettingsPanel(m_ActiveScene);
 
 	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
@@ -131,7 +131,7 @@ void EditorLayer::OnUpdate(double timestep)
 	{
 		m_ActiveScene->SetMouseCoordinates(viewport_mouse_pos.x, viewport_mouse_pos.y);
 
-		m_EditorCameraController.Update(&active);
+		m_EditorCameraController.Update(&active, viewport_framebuffer_height);
 		m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
 
 		if (m_EditorCameraType == Xen::EditorCameraType::_2D) 
