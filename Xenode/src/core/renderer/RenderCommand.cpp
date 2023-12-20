@@ -39,6 +39,11 @@ namespace Xen {
 		s_Api->SetBlendMode(colorBlendMode, alphaBlendMode);
 	}
 
+	void RenderCommand::EnableDepthTest(bool enabled)
+	{
+		s_Api->EnableDepthTest(enabled);
+	}
+
 	void RenderCommand::DrawIndexed(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices)
 	{
 		s_Api->DrawIndexed(vertexBuffer, indices);

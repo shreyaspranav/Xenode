@@ -74,6 +74,7 @@ public:
 private:
 	double m_Timestep;
 	GameMode m_GameMode = GameMode::_2D;
+	Xen::EditorCameraType m_EditorCameraType = Xen::EditorCameraType::_2D;
 
 	uint32_t viewport_framebuffer_width = 1, viewport_framebuffer_height = 1;
 
@@ -107,9 +108,12 @@ private:
 	Xen::Ref<Xen::Texture2D> m_PauseTexture;
 	Xen::Ref<Xen::Texture2D> m_StopTexture;
 	Xen::Ref<Xen::Texture2D> m_StepTexture;
+	Xen::Ref<Xen::Texture2D> m_2DTexture;
+	Xen::Ref<Xen::Texture2D> m_3DTexture;
 
 	EditorState m_EditorState = EditorState::Edit;
 
 	Xen::Ref<Xen::Texture2D> m_PlayOrPause;
+	Xen::Ref<Xen::Texture2D> m_2DOr3DView;
 	bool m_EditMode = true;
 };

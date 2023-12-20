@@ -13,6 +13,7 @@ namespace Xen {
 		static void OnWindowResize(uint32_t width, uint32_t height);
 
 		static void SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode);
+		static void EnableDepthTest(bool enabled);
 
 		// Draw Commands:
 		static void DrawIndexed(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices = 0);

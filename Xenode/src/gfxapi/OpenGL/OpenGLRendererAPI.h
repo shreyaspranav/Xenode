@@ -13,6 +13,8 @@ namespace Xen {
 		void SetClearColor(const Color& color) override;
 		void OnWindowResize(uint32_t width, uint32_t height) override;
 
+		void EnableDepthTest(bool enabled) override;
+
 		void SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode) override;
 
 		//Draw Commands

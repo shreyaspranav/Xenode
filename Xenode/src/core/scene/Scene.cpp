@@ -152,7 +152,6 @@ namespace Xen {
 		newEntity.AddComponent<Component::ID>();
 		newEntity.AddComponent<Component::Tag>(entity.GetComponent<Component::Tag>().tag);
 
-		CopyComponent<Component::Transform>(entity, newEntity);
 		CopyComponent<Component::CameraComp>(entity, newEntity);
 		CopyComponent<Component::SpriteRenderer>(entity, newEntity);
 		CopyComponent<Component::TextRenderer>(entity, newEntity);
@@ -201,6 +200,8 @@ namespace Xen {
 	{
 		return m_UnlitSceneFB;
 	}
+
+	// Member Functions ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	void Scene::DestroyEntity(Entity entity)
 	{
@@ -671,7 +672,7 @@ namespace Xen {
 
 	void Scene::RenderSprites()
 	{
-		//m_UnlitSceneFB->Bind();
+		m_UnlitSceneFB->Bind();
 
 		// Render Sprites
 		auto sprite_group_observer = m_Registry.view<Component::SpriteRenderer>();

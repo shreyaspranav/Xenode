@@ -61,6 +61,13 @@ namespace Xen {
 	{
 		glViewport(0, 0, width, height);
 	}
+	void OpenGLRendererAPI::EnableDepthTest(bool enabled)
+	{
+		if (enabled)
+			glEnable(GL_DEPTH_TEST);
+		else
+			glDisable(GL_DEPTH_TEST);
+	}
 	void OpenGLRendererAPI::SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode)
 	{
 		glBlendFuncSeparate(

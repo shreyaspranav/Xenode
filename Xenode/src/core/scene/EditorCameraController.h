@@ -36,7 +36,6 @@ namespace Xen {
 			m_FocalPoint.z = m_FocalPoint.z + (-delta.x * m_PanSpeed * m_CameraRightPosition.z);
 		}
 
-		void SetZoom(float zoom_value)	{ m_FocalDistance = zoom_value; }
 		void Zoom(float delta)
 		{
 			m_FocalDistance += delta * m_ZoomSpeed; 
@@ -96,6 +95,8 @@ namespace Xen {
 		inline float GetFocalDistance()				{ return m_FocalDistance; }
 		inline float GetZoom()						{ return m_FocalDistance; }
 
+		inline void SetZoom(float zoom_value)		{ m_FocalDistance = zoom_value; }
+		inline void SetCameraType(EditorCameraType type)	{ m_CameraType = type; }
 	private:
 		EditorCameraType m_CameraType;
 

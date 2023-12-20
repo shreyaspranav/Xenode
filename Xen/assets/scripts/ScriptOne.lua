@@ -27,7 +27,7 @@ function OnUpdate(timestep)
 	-- 	LogWarning("Left: ")
 	-- end
 
-	SetLinearVelocity2D(10, 10)
+	SetLinearVelocity2D(-10, -10)
 
 	SetCurrentTransform(transform)
 end

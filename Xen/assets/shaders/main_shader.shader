@@ -96,7 +96,7 @@ layout(std140, binding = 1) uniform CameraData				{ mat4 ViewProjectionMatrix; }
 vec3 getPosition(int i) {
 	return vec3(vertices[i].pos[0], 
 		vertices[i].pos[1], 
-		vertices[1].pos[2]);
+		vertices[i].pos[2]);
 }
 
 vec4 getColor(int i) {

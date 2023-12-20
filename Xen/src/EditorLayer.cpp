@@ -35,7 +35,7 @@ void EditorLayer::OnAttach()
 	input->SetWindow(Xen::DesktopApplication::GetWindow());
 
 	m_EditorCamera = std::make_shared<Xen::Camera>(
-		m_GameMode == GameMode::_2D ? Xen::CameraType::Orthographic : Xen::CameraType::Perspective, 
+		m_EditorCameraType == Xen::EditorCameraType::_2D ? Xen::CameraType::Orthographic : Xen::CameraType::Perspective, 
 		viewport_framebuffer_width, 
 		viewport_framebuffer_height
 	);
@@ -76,21 +76,36 @@ void EditorLayer::OnAttach()
 	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
 	m_PropertiesPanel.SetScriptLoadDropType(m_ContentBrowserPanel.GetScriptLoadDropType());
 
-	m_EditorCameraController = Xen::EditorCameraController(input, Xen::EditorCameraType::_2D);
+	m_EditorCameraController = Xen::EditorCameraController(input, m_EditorCameraType);
 
 
 	m_PlayTexture = Xen::Texture2D::CreateTexture2D("assets/textures/play.png", false);
 	m_StopTexture = Xen::Texture2D::CreateTexture2D("assets/textures/stop.png", false);
 	m_PauseTexture = Xen::Texture2D::CreateTexture2D("assets/textures/pause.png", false);
 	m_StepTexture = Xen::Texture2D::CreateTexture2D("assets/textures/step.png", false);
+	m_2DTexture = Xen::Texture2D::CreateTexture2D("assets/textures/2d-quad.png", false);
+	m_3DTexture = Xen::Texture2D::CreateTexture2D("assets/textures/3d-cube.png", false);
 
 	m_PlayTexture->LoadTexture();
 	m_StopTexture->LoadTexture();
 	m_PauseTexture->LoadTexture();
 	m_StepTexture->LoadTexture();
+	m_2DTexture->LoadTexture();
+	m_3DTexture->LoadTexture();
 
 	// Assuming that m_EditorState is m_EditorState::Edit in the beginning
 	m_PlayOrPause = m_PlayTexture;
+
+	// Assuming 2D view is the default:
+	if (m_EditorCameraType == Xen::EditorCameraType::_2D)
+	{
+		m_2DOr3DView = m_2DTexture;
+		Xen::RenderCommand::EnableDepthTest(false);
+	}
+	else {
+		m_2DOr3DView = m_3DTexture;
+		Xen::RenderCommand::EnableDepthTest(true);
+	}
 
 	m_EditorScene->Test();
 }
@@ -101,6 +116,7 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(double timestep)
 {
+	m_EditorCameraController.SetCameraType(m_EditorCameraType);
 
 	Xen::Vec2 mouse = Xen::Vec2(input->GetMouseX(), input->GetMouseY());
 	Xen::Vec2 delta = (mouse - initial_pos) * 0.3f;
@@ -118,13 +134,13 @@ void EditorLayer::OnUpdate(double timestep)
 		m_EditorCameraController.Update(&active);
 		m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
 
-		if (m_GameMode == GameMode::_2D) 
+		if (m_EditorCameraType == Xen::EditorCameraType::_2D) 
 		{
 			m_EditorCamera->SetScale({ m_EditorCameraController.GetFocalDistance(), m_EditorCameraController.GetFocalDistance(), 1.0f });
 			m_EditorCamera->Update(false);
 		}
 
-		else if (m_GameMode == GameMode::_3D)
+		else if (m_EditorCameraType == Xen::EditorCameraType::_3D)
 		{
 			m_EditorCamera->LookAtPoint(m_EditorCameraController.GetFocalPoint());
 			m_EditorCamera->Update(true);
@@ -320,6 +336,8 @@ void EditorLayer::OnImGuiUpdate()
 		m_PropertiesPanel.SetActiveEntity(m_ActiveScene->GetRuntimeEntity(m_HierarchyPanel.GetSelectedEntity(), m_ActiveScene));
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+	// Viewport Panel -------------------------------------------------------------------------------------------------------------------------
 	ImGui::Begin((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str());
 
 	m_IsMouseHoveredOnViewport = ImGui::IsWindowHovered();
@@ -379,7 +397,11 @@ void EditorLayer::OnImGuiUpdate()
 			if (ImGuizmo::IsOver())
 				m_IsMousePickingWorking = false;
 
-			ImGuizmo::SetGizmoSizeClipSpace(0.07f * m_EditorCamera->GetScale().x);
+			if (m_EditorCameraType == Xen::EditorCameraType::_2D)
+				ImGuizmo::SetGizmoSizeClipSpace(0.07f * m_EditorCameraController.GetFocalDistance());
+			else
+				ImGuizmo::SetGizmoSizeClipSpace(0.12f);
+
 			ImGuizmo::SetOrthographic(m_EditorCamera->GetProjectionType() == Xen::CameraType::Orthographic ? true : false);
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + y_offset, viewport_framebuffer_width, viewport_framebuffer_height);
@@ -453,19 +475,14 @@ void EditorLayer::OnImGuiUpdate()
 				auto& transformComp = selectedEntity.GetComponent<Xen::Component::Transform>();
 				if (m_KeyTransformOperation & KeyTransformOperation::TranslateX)
 				{
-					if (m_GameMode == GameMode::_2D)
+					if (m_EditorCameraType == Xen::EditorCameraType::_2D)
 						transformComp.position.x += m_EditorCameraController.GetMouseDelta().x * speed;
 				}
 
 				if (m_KeyTransformOperation & KeyTransformOperation::TranslateY)
 				{
-					if (m_GameMode == GameMode::_2D)
+					if (m_EditorCameraType == Xen::EditorCameraType::_2D)
 						transformComp.position.y -= m_EditorCameraController.GetMouseDelta().y * speed;
-				}
-
-				if (m_KeyTransformOperation & KeyTransformOperation::TranslateY)
-				{
-
 				}
 
 				if (m_KeyTransformOperation & KeyTransformOperation::RotateZ)
@@ -486,6 +503,7 @@ void EditorLayer::OnImGuiUpdate()
 	}
 
 	ImGui::End();
+	// Viewport Panel END -------------------------------------------------------------------------------------------------------------------------
 
 	ImGuiWindowClass window_class;
 	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
@@ -514,6 +532,27 @@ void EditorLayer::OnImGuiUpdate()
 
 	//ImGui::Text("Scene State: %s", scene_state); ImGui::SameLine();
 
+	float avail = ImGui::GetContentRegionAvail().x;
+
+	if (ImGui::ImageButton((ImTextureID)m_2DOr3DView->GetNativeTextureID(), { 25.0f, 25.0f }))
+	{
+		if (m_2DOr3DView == m_2DTexture)
+		{
+			m_2DOr3DView = m_3DTexture;
+			m_EditorCameraType = Xen::EditorCameraType::_3D;
+			m_EditorCamera->SetProjectionType(Xen::CameraType::Perspective);
+			Xen::RenderCommand::EnableDepthTest(true);
+		}
+		else {
+			m_2DOr3DView = m_2DTexture;
+			m_EditorCameraType = Xen::EditorCameraType::_2D;
+			m_EditorCamera->SetProjectionType(Xen::CameraType::Orthographic);
+			Xen::RenderCommand::EnableDepthTest(false);
+		}
+	}
+
+	ImGui::SameLine();
+
 	ImGuiStyle& style = ImGui::GetStyle();
 	float width = 0.0f;
 	width += 25.0f;			// Play/Pause Button
@@ -523,7 +562,6 @@ void EditorLayer::OnImGuiUpdate()
 	width += 25.0f;			// Step Button
 	width += style.ItemSpacing.x;
 
-	float avail = ImGui::GetContentRegionAvail().x;
 	float off = (avail - width) * 0.5f;
 	if (off > 0.0f)
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
@@ -669,7 +707,7 @@ void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 
 		// Setting Up Key transformations here:
 		case Xen::KeyCode::KEY_T:
-			m_KeyTransformOperation = m_GameMode == GameMode::_2D ? KeyTransformOperation::Translate2D : KeyTransformOperation::Translate;
+			m_KeyTransformOperation = KeyTransformOperation::Translate;
 			break;
 		case Xen::KeyCode::KEY_R:
 			m_KeyTransformOperation = m_GameMode == GameMode::_2D ? KeyTransformOperation::Rotate2D : KeyTransformOperation::Rotate;
