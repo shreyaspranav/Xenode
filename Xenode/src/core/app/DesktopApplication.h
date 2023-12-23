@@ -13,16 +13,23 @@
 
 namespace Xen {
 
+	enum GameMode { _2D, _3D };
+
 	class XEN_API DesktopApplication
 	{
 	private:
 		EventDispatcher dispatcher;
 		bool is_Running;
+
 		Scope<LayerStack> stack;
 		inline static Ref<Window> window;
 		GraphicsContext* m_Context;
+
 		inline static GraphicsAPI m_Api = GraphicsAPI::XEN_OPENGL_API;
+
+		// Connect these with the project system.
 		inline static ScriptLang m_ScriptingLanguage = ScriptLang::Lua;
+		inline static GameMode m_GameMode = GameMode::_2D;
 
 		Ref<ImGuiLayer> m_ImGuiLayer;
 
@@ -76,7 +83,10 @@ namespace Xen {
 
 		static inline void SetGraphicsAPI(GraphicsAPI api)		{ m_Api = api; }
 		static inline GraphicsAPI GetGraphicsAPI()				{ return m_Api; }
+		
 		static inline ScriptLang GetScriptingLanguage()			{ return m_ScriptingLanguage; }
+
+		static inline GameMode GetGameMode()					{ return m_GameMode; }
 	};
 
 	XEN_API DesktopApplication* CreateDesktopApplication();

@@ -50,7 +50,7 @@ namespace Xen {
 			m_MouseDelta = ((Vec2&)mouse - m_InitialMouseCoords) * (1.0f / (2.0f * frameBufferHeight));
 			m_InitialMouseCoords = mouse;
 
-			m_OrbitSpeed = frameBufferHeight / 2.0f;
+			m_OrbitSpeed = frameBufferHeight;
 
 			if (m_CameraType == EditorCameraType::_3D)
 			{
@@ -119,7 +119,7 @@ namespace Xen {
 		
 		float m_OrbitSpeed = 100.0f;
 		float m_PanSpeed = 3.7f;
-		float m_ZoomSpeed = 6.0f;
+		float m_ZoomSpeed = 9.0f;
 
 		uint8_t zoom_iterations = 20;
 	};

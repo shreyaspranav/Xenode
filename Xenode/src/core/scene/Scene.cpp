@@ -201,8 +201,6 @@ namespace Xen {
 		return m_UnlitSceneFB;
 	}
 
-	// Member Functions ------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 	void Scene::DestroyEntity(Entity entity)
 	{
 		m_Registry.destroy((entt::entity)entity);

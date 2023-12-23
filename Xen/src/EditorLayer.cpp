@@ -31,6 +31,8 @@ EditorLayer::~EditorLayer()
 
 void EditorLayer::OnAttach()
 {
+	m_GameMode = Xen::DesktopApplication::GetGameMode();
+
 	input = Xen::Input::GetInputInterface();
 	input->SetWindow(Xen::DesktopApplication::GetWindow());
 
@@ -710,10 +712,10 @@ void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 			m_KeyTransformOperation = KeyTransformOperation::Translate;
 			break;
 		case Xen::KeyCode::KEY_R:
-			m_KeyTransformOperation = m_GameMode == GameMode::_2D ? KeyTransformOperation::Rotate2D : KeyTransformOperation::Rotate;
+			m_KeyTransformOperation = m_GameMode == Xen::GameMode::_2D ? KeyTransformOperation::Rotate2D : KeyTransformOperation::Rotate;
 			break;
 		case Xen::KeyCode::KEY_S:
-			m_KeyTransformOperation = m_GameMode == GameMode::_2D ? KeyTransformOperation::Scale2D : KeyTransformOperation::Scale;
+			m_KeyTransformOperation = m_GameMode == Xen::GameMode::_2D ? KeyTransformOperation::Scale2D : KeyTransformOperation::Scale;
 			break;
 
 		case Xen::KeyCode::KEY_X:

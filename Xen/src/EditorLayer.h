@@ -35,8 +35,6 @@ enum KeyTransformOperation : uint16_t
 class EditorLayer : public Xen::Layer
 {
 public:
-	enum class GameMode { _2D, _3D };
-
 	enum class GizmoOperation
 	{
 		Translate,
@@ -73,7 +71,7 @@ public:
 
 private:
 	double m_Timestep;
-	GameMode m_GameMode = GameMode::_2D;
+	Xen::GameMode m_GameMode;
 	Xen::EditorCameraType m_EditorCameraType = Xen::EditorCameraType::_2D;
 
 	uint32_t viewport_framebuffer_width = 1, viewport_framebuffer_height = 1;
