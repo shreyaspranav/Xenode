@@ -1,14 +1,15 @@
 #pragma once
 
-#include "RenderCommandQueue.h"
+#include "Camera.h"
+#include "Texture.h"
+#include "Structs.h"
+#include "ParticleSettings2D.h"
 
 namespace Xen {
 
 	class Renderer2D
 	{
 	private:
-		static SceneData s_Data;
-
 		// Way of identifing each primitive: 
 		enum class Primitive {
 			LINE =		1 << 0,
@@ -53,6 +54,8 @@ namespace Xen {
 
 		static void RenderLights();
 
+		static void AddParticles(const ParticleSettings2D* particleSettings);
+
 		// Draw Functions:
 		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color(), int32_t id = -1);
 		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4], int32_t id = -1);
@@ -69,6 +72,7 @@ namespace Xen {
 		// Outline Only(for Debugging)
 		static void DrawQuadOverlay(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());
 		static void DrawCircleOverlay(const Vec3& position, float radius, const Color& color = Color(), float thickness = 0.025f);
+
 
 		// Stats functions:
 		static Renderer2DStatistics& GetStatistics();

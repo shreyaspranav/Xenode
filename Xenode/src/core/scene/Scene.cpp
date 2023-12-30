@@ -2,19 +2,20 @@
 #include "Scene.h"
 
 #include "Components.h"
-#include "core/app/Log.h"
 
-#include "core/renderer/Renderer2D.h"
-#include "core/app/Log.h"
-#include "core/renderer/ScreenRenderer.h"
+#include <core/app/Log.h>
+#include <core/app/Timer.h>
 
-#include <glad/gl.h>
+#include <core/renderer/Renderer2D.h>
+#include <core/renderer/ScreenRenderer.h>
+#include <core/renderer/RenderCommand.h>
+#include <core/renderer/Buffer.h>
 
-#include "core/app/Timer.h"
+#include <core/physics/Physics2D.h>
 
 #include "SceneSerializer.h"
 
-#include <core/physics/Physics2D.h>
+#include <glad/gl.h>
 
 namespace Xen {
 	template<typename Comp>
@@ -368,6 +369,31 @@ namespace Xen {
 		//m_TestOutputTexture3 = Texture2D::CreateTexture2D({ p.width / 8, p.height / 8, TextureFormat::RGBA8, 0 }, nullptr, 0);
 		//m_TestOutputTexture4 = Texture2D::CreateTexture2D({ p.width / 16, p.height / 16, TextureFormat::RGBA8, 0 }, nullptr, 0);
 		//m_TestOutputTexture5 = Texture2D::CreateTexture2D({p.width / 32, p.height / 32, TextureFormat::RGBA8, 0}, nullptr, 0);
+		
+		
+		//glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+		//
+		//testGeometryShader = Shader::CreateShader("assets/shaders/particle_emitter.shader");
+		//testGeometryShader->LoadShader(nullptr);
+
+		//const std::string& name, VertexBufferDataType type, uint8_t shader_location
+
+		//VertexBufferLayout layout = {
+		//	{"aPosition", VertexBufferDataType::Float3, 0},
+		//	{"aStartColor", VertexBufferDataType::Float4, 1},
+		//	{"aEndColor", VertexBufferDataType::Float4, 2},
+		//	{"aLifetime", VertexBufferDataType::Float, 3},
+		//	{"aParticleCount", VertexBufferDataType::UnsignedInt, 4},
+		//};
+		//
+		//testVertexBuffer = VertexBuffer::CreateVertexBuffer(testData.size() * sizeof(TestVertexData), layout);
+		//testVertexBuffer->Put(testData.data(), testData.size() * sizeof(TestVertexData));
+
+	}
+
+	inline void Scene::CreateParticleSystem(const ParticleSettings2D* particleSettings)
+	{
+		
 	}
 
 	Ref<Scene> Scene::Copy(Ref<Scene> srcScene)
@@ -476,6 +502,12 @@ namespace Xen {
 		);
 		Renderer2D::RenderFrame();
 		Renderer2D::RenderOverlay();
+
+		//testGeometryShader->Bind();
+		//testVertexBuffer->Bind();
+		////glEnable(GL_RASTERIZER_DISCARD);
+		//glDrawArrays(GL_POINTS, 0, 10);
+		////glDisable(GL_RASTERIZER_DISCARD);
 
 		if (!onMainFrameBuffer)
 			m_UnlitSceneFB->Unbind();

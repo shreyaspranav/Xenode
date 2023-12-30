@@ -6,8 +6,8 @@
 #include "panel/ContentBrowserPanel.h"
 #include "panel/SceneSettingsPanel.h"
 
-#include "core/scene/SceneSerializer.h"
-#include "core/scene/EditorCameraController.h"
+#include <core/scene/SceneSerializer.h>
+#include <core/scene/EditorCameraController.h>
 
 enum KeyTransformOperation : uint16_t
 {

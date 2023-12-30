@@ -14,7 +14,7 @@ namespace Xen {
 	{
 		VertexBufferLayout l;
 		screenShader = Shader::CreateShader("assets/shaders/screen_shader.shader");
-		screenShader->LoadShader(l);
+		screenShader->LoadShader(nullptr);
 	}
 
 	void ScreenRenderer2D::RenderFinalSceneToScreen(uint32_t unlitSceneTextureID, uint32_t sceneMaskTextureID, uint32_t lightMapTextureID)

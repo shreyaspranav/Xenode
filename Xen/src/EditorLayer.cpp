@@ -3,12 +3,13 @@
 
 #include <core/app/Timer.h>
 #include <core/app/Utils.h>
+#include <core/renderer/RenderCommand.h>
+#include <math/Math.h>
 
 #include <ImGuizmo.h>
 
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include "math/Math.h"
 #include <glm/gtx/quaternion.hpp>
 
 Xen::Ref<Xen::Input> input;
@@ -168,18 +169,18 @@ void EditorLayer::OnUpdate(double timestep)
 			m_ActiveScene->OnUpdateRuntime(timestep, m_ScenePaused);
 
 	}
-	
-	// XEN_ENGINE_LOG_INFO("{0}, {1}", viewport_mouse_pos.x, viewport_mouse_pos.y);
 
+# if 0
 	// Line Rendering Test
 
-	// Xen::RenderCommand::SetLineWidth(1.0f);
-	// 
-	// for (int i = -5; i < 6; i++)
-	// {
-	// 	Xen::Renderer2D::DrawLine(Xen::Vec3(-5.0f, i, 0.0f), Xen::Vec3(5.0f, i, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
-	// 	Xen::Renderer2D::DrawLine(Xen::Vec3(i, -5.0f, 0.0f), Xen::Vec3(i, 5.0f, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
-	// }
+	Xen::RenderCommand::SetLineWidth(1.0f);
+	
+	for (int i = -5; i < 6; i++)
+	{
+		Xen::Renderer2D::DrawLine(Xen::Vec3(-5.0f, i, 0.0f), Xen::Vec3(5.0f, i, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
+		Xen::Renderer2D::DrawLine(Xen::Vec3(i, -5.0f, 0.0f), Xen::Vec3(i, 5.0f, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
+	}
+#endif
 
 
 	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport && m_IsMousePickingWorking)

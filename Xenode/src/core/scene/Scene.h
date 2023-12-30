@@ -11,8 +11,9 @@
 
 #include <core/renderer/Shader.h>
 #include <core/renderer/Texture.h>
+#include <core/renderer/ParticleSettings2D.h>
 
-#include "core/renderer/PostProcessPipeline.h"
+#include <core/renderer/PostProcessPipeline.h>
 
 class SceneHierarchyPanel;
 
@@ -69,6 +70,8 @@ namespace Xen {
 		inline uint32_t GetMouseX() { return m_MouseX; }
 		inline uint32_t GetMouseY() { return m_MouseY; }
 
+		inline void CreateParticleSystem(const ParticleSettings2D* particleSettings);
+
 		static Ref<Scene> Copy(Ref<Scene> srcScene);
 	private:
 		void SortRenderableEntities();
@@ -112,6 +115,23 @@ namespace Xen {
 		friend class Entity;
 		friend class ::SceneHierarchyPanel;
 		friend class SceneSerializer;
+
+		// Temp:
+		Ref<Shader> testGeometryShader;
+		Ref<VertexBuffer> testVertexBuffer;
+
+		struct TestVertexData {
+			Vec3 position;
+			Color startColor;
+			Color endColor;
+			float life;
+			uint32_t count;
+		};
+
+		std::vector<TestVertexData> testData = {
+			{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}, 1.0f, 22},
+			{{1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}, 1.0f, 69}
+		};
 	};
 
 	class XEN_API Entity

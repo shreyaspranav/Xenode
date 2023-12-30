@@ -111,8 +111,7 @@ vec2 getTextureWorldCoord(int i) {
 		vertices[i].texWorldCoord[1]);
 }
 
-int getVertexIndex(int index)
-{
+int getVertexIndex(int index) {
     return defalult_indices[index % 6] + ((index / 6) * 4);
 }
 

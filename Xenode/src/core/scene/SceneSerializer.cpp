@@ -1,6 +1,8 @@
 #include "pch"
 #include "SceneSerializer.h"
-#include "core/app/Log.h"
+#include "Scene.h"
+
+#include <core/app/Log.h>
 
 // Ignore Warnings related to dll linking
 #pragma warning(push)
@@ -12,7 +14,6 @@
 #pragma warning(pop)
 
 #include "Components.h"
-#include "core/app/Log.h"
 
 namespace Xen {
 	static UUID GetUUID(Entity e)

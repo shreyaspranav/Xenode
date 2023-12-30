@@ -44,4 +44,13 @@ namespace Xen {
 		}
 		return nullptr;
 	}
+	Ref<TransformFeedbackBuffer> TransformFeedbackBuffer::CreateTransformFeedbackBuffer(Size size, const VertexBufferLayout& layout)
+	{
+		switch (DesktopApplication::GetGraphicsAPI())
+		{
+		case GraphicsAPI::XEN_OPENGL_API:
+			return std::make_shared<OpenGLTransformFeedbackBuffer>(size, layout);
+		}
+		return nullptr;
+	}
 }

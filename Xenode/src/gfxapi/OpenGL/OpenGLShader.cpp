@@ -315,9 +315,11 @@ namespace Xen {
 		return shaders;
 	}
 
-	void OpenGLShader::LoadShader(const VertexBufferLayout& layout)
+	void OpenGLShader::LoadShader(const Ref<TransformFeedbackBuffer>& transformFeedback)
 	{
 		XEN_PROFILE_FN();
+
+		//RegisterTransformFeedbackBuffer(transformFeedback, shared_from_this());
 
 		Timer t;
 

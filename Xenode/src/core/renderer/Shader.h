@@ -1,16 +1,15 @@
 #pragma once
 
 #include <Core.h>
-#include <glm/glm.hpp>
-#include "Structs.h"
 
+#include "Structs.h"
 #include "Buffer.h"
 
 namespace Xen {
 	class XEN_API Shader
 	{
 	public:
-		virtual void LoadShader(const VertexBufferLayout& layout) = 0;
+		virtual void LoadShader(const Ref<TransformFeedbackBuffer>& transformFeedbackBuffer) = 0;
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
@@ -33,6 +32,10 @@ namespace Xen {
 
 		static Ref<Shader> CreateShader(const std::string& filePath);
 		static Ref<Shader> CreateShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);
+
+	protected:
+		inline void RegisterTransformFeedbackBuffer(const Ref<TransformFeedbackBuffer>& transformFeedbackBuffer, const Ref<Shader>& shader) 
+		{ transformFeedbackBuffer->RegisterTransformFeedback(shader); }
 	};
 
 	class XEN_API ComputeShader

@@ -5,7 +5,7 @@
 namespace Xen {
 	typedef unsigned int GLenum;
 
-	class OpenGLShader : public Shader
+	class OpenGLShader : public Shader, std::enable_shared_from_this<OpenGLShader>
 	{
 	public:
 		OpenGLShader(const std::string& filePath);
@@ -13,7 +13,7 @@ namespace Xen {
 
 		virtual ~OpenGLShader();
 
-		void LoadShader(const VertexBufferLayout& layout) override;
+		void LoadShader(const Ref<TransformFeedbackBuffer>& transformFeedback) override;
 
 		inline uint32_t GetShaderID() override { return m_ShaderProgramID; }
 

@@ -53,8 +53,28 @@ namespace Xen {
 		inline ElementBufferDataType GetElementBufferDataType() const override;
 
 	private:
-		uint32_t m_BufferID, m_Size, m_Count, m_ActiveCount;
+		uint32_t m_BufferID, m_Count, m_ActiveCount;
+		Size m_Size;
 		ElementBufferDataType m_ElementDataType;
+	};
+
+	class OpenGLTransformFeedbackBuffer : public TransformFeedbackBuffer
+	{
+	public:
+		friend class OpenGLShader;
+	public:
+		OpenGLTransformFeedbackBuffer(Size size, const VertexBufferLayout& layout);
+		virtual ~OpenGLTransformFeedbackBuffer();
+
+	private:
+		void RegisterTransformFeedback(const Ref<Shader>& shader) override;
+
+	private:
+		Ref<VertexBuffer> m_VertexBuffer;
+
+		uint32_t m_BufferID;
+		Size m_Size;
+		std::vector<std::string> m_Attribs;
 	};
 
 	class OpenGLUniformBuffer : public UniformBuffer

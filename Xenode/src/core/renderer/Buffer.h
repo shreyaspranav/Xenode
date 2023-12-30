@@ -4,13 +4,13 @@
 
 namespace Xen {
 
-	enum class VertexBufferDataType 
+	enum class VertexBufferDataType
 	{
 		// GLSL: float, vec2, vec3, vec4:
 		Float, Float2, Float3, Float4,
 
 		// GLSL: int, ivec2, ivec3, ivec4:
-		Int, Int2, Int3, Int4, 
+		Int, Int2, Int3, Int4,
 
 		// GLSL: uint, uvec2, uvec3, uvec4:
 		UnsignedInt, UnsignedInt2, UnsignedInt3, UnsignedInt4,
@@ -43,15 +43,15 @@ namespace Xen {
 
 		inline const std::vector<VertexBufferElement>& GetBufferElements() const { return m_BufferElements; }
 
-		inline std::vector<VertexBufferElement>::iterator StartIterator()						{ return m_BufferElements.begin(); }
-		inline std::vector<VertexBufferElement>::iterator EndIterator()							{ return m_BufferElements.end(); }
-		inline std::vector<VertexBufferElement>::const_iterator StartIterator() const			{ return m_BufferElements.begin(); }
-		inline std::vector<VertexBufferElement>::const_iterator EndIterator() const				{ return m_BufferElements.end(); }
+		inline std::vector<VertexBufferElement>::iterator StartIterator() { return m_BufferElements.begin(); }
+		inline std::vector<VertexBufferElement>::iterator EndIterator() { return m_BufferElements.end(); }
+		inline std::vector<VertexBufferElement>::const_iterator StartIterator() const { return m_BufferElements.begin(); }
+		inline std::vector<VertexBufferElement>::const_iterator EndIterator() const { return m_BufferElements.end(); }
 
-		inline std::vector<VertexBufferElement>::reverse_iterator StartIteratorReverse()				{ return m_BufferElements.rbegin(); }
-		inline std::vector<VertexBufferElement>::reverse_iterator EndIteratorReverse()					{ return m_BufferElements.rend(); }
-		inline std::vector<VertexBufferElement>::const_reverse_iterator StartIteratorReverse() const	{ return m_BufferElements.rbegin(); }
-		inline std::vector<VertexBufferElement>::const_reverse_iterator EndIteratorReverse() const		{ return m_BufferElements.rend(); }
+		inline std::vector<VertexBufferElement>::reverse_iterator StartIteratorReverse() { return m_BufferElements.rbegin(); }
+		inline std::vector<VertexBufferElement>::reverse_iterator EndIteratorReverse() { return m_BufferElements.rend(); }
+		inline std::vector<VertexBufferElement>::const_reverse_iterator StartIteratorReverse() const { return m_BufferElements.rbegin(); }
+		inline std::vector<VertexBufferElement>::const_reverse_iterator EndIteratorReverse() const { return m_BufferElements.rend(); }
 	private:
 		std::vector<VertexBufferElement> m_BufferElements;
 	};
@@ -93,6 +93,19 @@ namespace Xen {
 		virtual inline bool HasElementBuffer() const = 0;
 
 		static Ref<VertexBuffer> CreateVertexBuffer(Size size, const VertexBufferLayout& layout);
+	};
+
+
+	class Shader;
+
+	class XEN_API TransformFeedbackBuffer
+	{
+	public:
+		friend class Shader;
+
+		static Ref<TransformFeedbackBuffer> CreateTransformFeedbackBuffer(Size size, const VertexBufferLayout& layout);
+	private:
+		virtual void RegisterTransformFeedback(const Ref<Shader>& shader) = 0;
 	};
 
 

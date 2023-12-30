@@ -1,10 +1,13 @@
 #include "pch"
 #include "OpenGLBuffer.h"
-#include "core/app/Log.h"
+
+#include <core/app/Log.h>
+#include <core/app/Profiler.h>
+
+#include <core/renderer/Shader.h>
 
 #include <glad/gl.h>
 
-#include <core/app/Profiler.h>
 
 namespace Xen {
 
@@ -219,6 +222,31 @@ namespace Xen {
 	inline uint32_t OpenGLElementBuffer::GetActiveCount() const		{ return m_ActiveCount; }
 
 	inline uint32_t OpenGLElementBuffer::GetSize() const	{ return m_Size; }
+
+	// -------------------------
+
+	OpenGLTransformFeedbackBuffer::OpenGLTransformFeedbackBuffer(Size size, const VertexBufferLayout& layout)
+		:m_Size(size)
+	{
+		m_VertexBuffer = VertexBuffer::CreateVertexBuffer(size, layout);
+		
+		for (auto it = layout.StartIterator(); it != layout.EndIterator(); it++)
+			m_Attribs.push_back((*it).name);
+	}
+	OpenGLTransformFeedbackBuffer::~OpenGLTransformFeedbackBuffer()
+	{
+	}
+	void OpenGLTransformFeedbackBuffer::RegisterTransformFeedback(const Ref<Shader>& shader)
+	{
+		const char* test[2] = {"test1attr", "test2attr"};
+
+		glTransformFeedbackVaryings(shader->GetShaderID(), 2, test, GL_INTERLEAVED_ATTRIBS);
+	}
+
+	// ------------------------------
+
+
+
 
 	//-------OpenGLUniformBuffer---------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------------

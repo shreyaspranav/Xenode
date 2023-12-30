@@ -1,19 +1,18 @@
 #include "pch"
 #include "Renderer2D.h"
 
-#include "core/app/Log.h"
-#include "glm/glm.hpp"
-#include <glm/ext/matrix_transform.hpp>
+#include <core/app/Log.h>
+#include <core/app/Profiler.h>
 
-#include "core/app/Profiler.h"
+#include "Buffer.h"
+#include "Shader.h"
+#include "RenderCommand.h"
+
+#include <glm/glm.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Xen {
-
-	SceneData Renderer2D::s_Data;
-
-	// The maximum amount of quads or circles drawn per batch:
-	uint32_t max_quads_per_batch = 10000;
 
 	// The maximum amount of vertices drawn per batch:
 	uint32_t max_vertices_per_batch = 40000;
@@ -42,6 +41,25 @@ namespace Xen {
 		glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f),
 		glm::vec4( 0.5f, -0.5f, 0.0f, 1.0f),
 	};
+
+	struct SceneData
+	{
+		Ref<Camera> camera;
+
+		Ref<VertexBuffer> lineVertexBuffer;
+		Ref<Shader> lineShader;
+
+		Ref<Shader> shader;
+
+		Ref<Shader> lightShader;
+		Ref<Shader> screenShader;
+
+		Ref<UniformBuffer> cameraUniformBuffer;
+		Ref<StorageBuffer> vertexStorageBuffer;
+
+		SceneData()
+		{}
+	}s_Data;
 
 	struct Vertex
 	{
@@ -153,6 +171,8 @@ namespace Xen {
 	{
 		XEN_PROFILE_FN();
 
+
+		// This is completely not required but just kept here for reference purposes
 		bufferLayout = VertexBufferLayout{
 			{ "aPosition", VertexBufferDataType::Float3, 0 },
 			{ "aColor", VertexBufferDataType::Float4, 1 },
@@ -166,6 +186,7 @@ namespace Xen {
 			{ "_vertexID", VertexBufferDataType::Int, 9 }
 		};
 
+		// This is used tho..
 		lineBufferLayout = {
 			{ "aLinePosition", VertexBufferDataType::Float3, 0 },
 			{ "aLineColor", VertexBufferDataType::Float4, 1 }
@@ -184,14 +205,14 @@ namespace Xen {
 		// s_Data.vertexBuffer->SetElementBuffer(s_Data.indexBuffer);
 
 		s_Data.shader = Shader::CreateShader("assets/shaders/main_shader.shader");
-		s_Data.shader->LoadShader(bufferLayout);
+		s_Data.shader->LoadShader(nullptr);
 		// -------------------------------------------------------------------------------------
 
 		// Line Shader and Vertex Buffer: -------------------------------------------------------------------------
 		s_Data.lineVertexBuffer = VertexBuffer::CreateVertexBuffer(max_lines_per_batch * sizeof(LineVertex), lineBufferLayout);
 
 		s_Data.lineShader = Shader::CreateShader("assets/shaders/line_shader.shader");
-		s_Data.lineShader->LoadShader(lineBufferLayout);
+		s_Data.lineShader->LoadShader(nullptr);
 		// ---------------------------------------------------------------------------------------------------------
 		
 		// Will be revisiting the light stuff later.
@@ -317,6 +338,11 @@ namespace Xen {
 			RenderCommand::DrawIndexed(s_Data.vertexBuffer, batch_storage[i]->light_index_count);
 		}
 #endif
+	}
+
+	void Renderer2D::AddParticles(const ParticleSettings2D* particleSettings)
+	{
+
 	}
 
 	void Renderer2D::DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color, int32_t id)
