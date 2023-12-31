@@ -5,36 +5,44 @@ layout(points) in;
 layout(points) out;
 layout(max_vertices = 40) out;
 
-struct SourceParticleVertexOut {
-	vec3 position;
-	vec4 startColor;
-	vec4 endColor;
-	float lifetime;
-	uint particleCount;
-};
+// Input from vertex shader
+layout(location = 0) in vec3          position[];
+layout(location = 1) in vec4        startColor[];
+layout(location = 2) in float  currentLifetime[];
+layout(location = 3) in float    totallifetime[];
+layout(location = 4) in vec2          velocity[];
+layout(location = 5) in uint      particleType[];
 
-//layout(location = 0) in SourceParticleVertexOut sParticleVertexIn[];
-
-layout(location = 0) in vec3   position[];
-layout(location = 1) in vec4 startColor[];
-layout(location = 2) in vec4   endColor[];
-layout(location = 3) in float  lifetime[];
-layout(location = 4) in uint particleCount[];
-
-layout(std140, binding = 2) uniform PerFrameData 
+layout(std140, binding = 2) uniform PerFrameData
 {
 	float frameTime;
 	vec3 randomSeed;
+
+	uint numToGenerate;
 };
+
+layout(std140, binding = 3) uniform ParticleEmitterSettings
+{
+	vec4 startColor;
+	vec4 endColor;
+
+	vec2 lifeRange;
+	vec2 sizeRange;
+}
+
+layout(location = 0) out vec3  outPosition;
+layout(location = 1) out vec4  outColor;
+layout(location = 2) out float outCurrentLifetime;
+layout(location = 3) out float outTotalLifetime;
+layout(location = 4) out vec2  outVelocity;
+layout(location = 5) out uint  outParticleType;
+ 
 
 vec3 localRandomSeed;
 
-layout(location = 0) out vec3  outPosition;
-layout(location = 1) out vec4  outStartColor;
-layout(location = 2) out vec4  outEndColor;
-layout(location = 3) out float outLifetime;
-layout(location = 4) out uint  outParticleCount;
-
+// Temp:
+const float velocityDamping = 0.01;
+const float particleLifetime = 4.0;
 
 float rand()
 {
@@ -52,62 +60,71 @@ float rand()
 
 void main()
 {
-	gl_Position.xyz = position[0] + vec3(1.0, 1.0, 0.0);
-	outPosition = position[0] + vec3(1.0, 1.0, 0.0);
-	EmitVertex();
-	EndPrimitive();
-	
-	gl_Position.xyz = position[0] + vec3(-1.0, 1.0, 0.0);
-	outPosition = position[0] + vec3(-1.0, 1.0, 0.0);
-	EmitVertex();
-	EndPrimitive();
-	
-	gl_Position.xyz = position[0] + vec3(1.0, -1.0, 0.0);
-	outPosition = position[0] + vec3(1.0, -1.0, 0.0);
-	EmitVertex();
-	EndPrimitive();
-	
-	outStartColor = startColor[0];
+	localRandomSeed = randomSeed;
+
+	// particleType can be either 1 or 0
+	// 0 means generator particle
+	// 1 means normal particle
+
+	outPosition = position[0];
+	outVelocity = velocity[0];
+
+	if (particleType[0])
+	{
+		outPosition += velocity * frameTime;
+		outVelocity -= velocity * velocityDamping * frameTime;
+	}
+
+	outColor = mix(startColor, endColor, lifeTime[0] / totalLifeTime);
+	outLifeTime -= frameTime;
+	outParticleType = particleType[0];
+
+	if (outParticleType == 0)
+	{
+		EmitVertex();
+		EndPrimitive();
+
+		for (int i = 0; i < numToGenerate; i++)
+		{
+			outVelocity = vec2(rand(), rand());
+			outColor = startColor;
+			outLifetime = mix(lifeRange.x, lifeRange.y, rand());
+
+			EmitVertex();
+			EndPrimitive();
+		}
+	}
+	else if (outLifeTime > 0.0)
+	{
+		EmitVertex();
+		EndPrimitive();
+	}
 }
-
-//#shadertype: fragment
-//#version 450 core
-//
-//layout(location = 1) in vec4 startColor;
-//
-//layout(location = 0) out vec4 fragColor;
-//layout(location = 1) out vec4 maskColor;
-//layout(location = 2) out int entt_id;
-//
-//void main() {
-//	  fragColor = startColor;
-//}
-
-
 
 #shadertype: vertex
 #version 450 core
 
-layout(location = 0) in vec3 aPosition;
-layout(location = 1) in vec4 aStartColor;
-layout(location = 2) in vec4 aEndColor;
-layout(location = 3) in float aLifetime;
-layout(location = 4) in uint aParticleCount;
+layout(location = 0) in vec3  aPosition;
+layout(location = 1) in vec4  aColor;
+layout(location = 2) in float aCurrentLifetime;
+layout(location = 3) in float aTotalLifetime;
+layout(location = 4) in vec2 aVelocity;
+layout(location = 5) in uint  aParticleType;
 
 
-layout(location = 0) out vec3 position;
-layout(location = 1) out vec4 startColor;
-layout(location = 2) out vec4 endColor;
-layout(location = 3) out float lifetime;
-layout(location = 4) out uint particleCount;
+layout(location = 0) out vec3  position;
+layout(location = 1) out vec4  color;
+layout(location = 2) out float currentLifetime;
+layout(location = 3) out float totalLifetime;
+layout(location = 4) out vec2  velocity;
+layout(location = 5) out uint  particleType;
 
 void main()
 {
 	position = aPosition;
-	startColor = aStartColor;
-	endColor = aEndColor;
-	lifetime = aLifetime;
-	particleCount = aParticleCount;
-	
-	//gl_PointSize = 10.0;
+	color = aColor;
+	currentLifetime = aCurrentLifetime;
+	totalLifetime = aTotalLifetime;
+	velocity = aVelocity;
+	particleType = aParticleType;
 }

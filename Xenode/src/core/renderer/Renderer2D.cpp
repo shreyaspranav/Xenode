@@ -159,6 +159,7 @@ namespace Xen {
 	int texture_slots[8];
 
 	static std::vector<Ref<Renderer2DStorage>> batch_storage;
+	static std::vector<ParticleSettings2D&> particleSettings;
 
 	Renderer2D::Renderer2DStatistics stats;
 
@@ -458,6 +459,11 @@ namespace Xen {
 	void Renderer2D::SetLineWidth(float width)
 	{
 		line_width = width;
+	}
+
+	void Renderer2D::DrawParticles(const ParticleSettings2D& particleSettings)
+	{
+
 	}
 
 	void Renderer2D::DrawQuadOverlay(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)

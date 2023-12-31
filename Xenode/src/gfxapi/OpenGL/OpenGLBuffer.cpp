@@ -223,11 +223,14 @@ namespace Xen {
 
 	inline uint32_t OpenGLElementBuffer::GetSize() const	{ return m_Size; }
 
-	// -------------------------
+	//-------OpenGLTransformBuffer---------------------------------------------------------------------------------
+	//-------------------------------------------------------------------------------------------------------------
 
 	OpenGLTransformFeedbackBuffer::OpenGLTransformFeedbackBuffer(Size size, const VertexBufferLayout& layout)
 		:m_Size(size)
 	{
+		glCreateTransformFeedbacks(1, &m_BufferID);
+
 		m_VertexBuffer = VertexBuffer::CreateVertexBuffer(size, layout);
 		
 		for (auto it = layout.StartIterator(); it != layout.EndIterator(); it++)

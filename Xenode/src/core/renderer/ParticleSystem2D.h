@@ -16,7 +16,6 @@ namespace Xen {
 
 	private:
 		std::vector<ParticleInstance> m_Instances;
-		
 	};
 }
 
