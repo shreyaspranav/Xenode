@@ -28,6 +28,7 @@ project "Xen"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.ImGradientHDR}",
 
 	}
 

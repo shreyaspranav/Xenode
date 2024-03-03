@@ -23,6 +23,6 @@ namespace Xen {
 
 		Texture2D::BindTexture(unlitSceneTextureID, 0);
 
-		RenderCommand::DrawTriangles(nullptr, 6);
+		RenderCommand::DrawNonIndexed(PrimitiveType::Triangles, nullptr, 6);
 	}
 }

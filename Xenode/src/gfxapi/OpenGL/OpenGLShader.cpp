@@ -109,6 +109,7 @@ namespace Xen {
 
 		// Maybe we need zero level optimisation for debug purposes? : FIND OUT
 		compileOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
+		// compileOptions.SetOptimizationLevel(shaderc_optimization_level_zero);
 
 		shaderc::SpvCompilationResult shaderCompilationResult =
 			compiler.CompileGlslToSpv(shaderSource, GLShaderToShaderC(shaderType), GLShaderToString(shaderType), compileOptions);
@@ -315,7 +316,7 @@ namespace Xen {
 		return shaders;
 	}
 
-	void OpenGLShader::LoadShader(const Ref<TransformFeedbackBuffer>& transformFeedback)
+	void OpenGLShader::LoadShader(const Ref<TransformFeedback>& transformFeedback)
 	{
 		XEN_PROFILE_FN();
 
@@ -349,6 +350,9 @@ namespace Xen {
 					CompileAndLinkShaders(m_FileName, m_ShaderProgramID, shaderType, shaderSrc, m_ShaderSrcSHADigest[shaderType]);
 			}
 		}
+
+		if (transformFeedback)
+			transformFeedback->RegisterTransformFeedback(this);
 
 		int success;
 		char infoLog[512];

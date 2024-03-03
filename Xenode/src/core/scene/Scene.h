@@ -112,6 +112,8 @@ namespace Xen {
 
 		uint32_t m_MouseX = 0, m_MouseY = 0;
 
+		double m_Timestep = 1.0f;
+
 		friend class Entity;
 		friend class ::SceneHierarchyPanel;
 		friend class SceneSerializer;

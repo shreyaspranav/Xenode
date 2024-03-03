@@ -443,12 +443,15 @@ namespace Xen {
 		CopyComponentAllEntities<Component::ScriptComp>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::PointLight>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::AmbientLight>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::ParticleSystem2DComp>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 
 		return newScene;
 	}
 
 	void Scene::OnUpdateRuntime(double timestep, bool paused)
 	{
+		m_Timestep = timestep;
+
 		m_RenderableEntityIndex = 0;
 		//entt::observer group_observer{ m_Registry, entt::collector.group<Component::Transform, Component::SpriteRenderer>() };
 
@@ -473,6 +476,8 @@ namespace Xen {
 
 	void Scene::OnUpdate(double timestep, const Ref<Camera>& camera)
 	{
+		m_Timestep = timestep;
+
 		m_RenderableEntityIndex = 0;
 
 		Renderer2D::BeginScene(camera);
@@ -481,6 +486,7 @@ namespace Xen {
 
 		if(m_ShowPhysicsColliders)
 			RenderPhysicsColliders();
+
 		//RenderLights();
 	}
 
@@ -501,13 +507,7 @@ namespace Xen {
 			{ BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha, BlendOperation::Add }
 		);
 		Renderer2D::RenderFrame();
-		Renderer2D::RenderOverlay();
-
-		//testGeometryShader->Bind();
-		//testVertexBuffer->Bind();
-		////glEnable(GL_RASTERIZER_DISCARD);
-		//glDrawArrays(GL_POINTS, 0, 10);
-		////glDisable(GL_RASTERIZER_DISCARD);
+		Renderer2D::RenderOverlay(m_Timestep);
 
 		if (!onMainFrameBuffer)
 			m_UnlitSceneFB->Unbind();
@@ -778,6 +778,14 @@ namespace Xen {
 			//SortRenderableEntities();
 		}
 		m_IsDirty = false;
+
+		auto particleSystem2DView = m_Registry.view<Component::ParticleSystem2DComp>();
+
+		for (auto entt : particleSystem2DView)
+		{
+			Component::ParticleSystem2DComp& comp = Entity(entt, this).GetComponent<Component::ParticleSystem2DComp>();
+			Renderer2D::DrawParticles(&comp.particleInstance);
+		}
 	}
 	void Scene::RenderPhysicsColliders()
 	{

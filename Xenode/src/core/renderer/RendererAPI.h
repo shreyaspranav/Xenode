@@ -15,6 +15,13 @@ namespace Xen {
 
 	enum BlendOperation { Add, Subtract, ReverseSubtract };
 
+	enum class PrimitiveType
+	{
+		Points,
+		Lines, LineLoop, LineStrip,
+		Triangles, TriangleFan, TriangleStrip
+	};
+
 	struct BlendMode
 	{
 		BlendFactor srcFactor, dstFactor;
@@ -31,14 +38,14 @@ namespace Xen {
 		virtual void Clear() = 0;
 		virtual void SetClearColor(const Color& color) = 0;
 		virtual void OnWindowResize(uint32_t width, uint32_t height) = 0;
-		virtual void EnableDepthTest(bool enabled) = 0;
 		
 		virtual void SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode) = 0;
+		virtual void EnableDepthTest(bool enabled) = 0;
+		virtual void EnableRasterizer(bool enabled) = 0;
 
 		//Draw Commands
-		virtual void DrawIndexed(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices) = 0;
-		virtual void DrawLines(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices) = 0;
-		virtual void DrawTriangles(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices) = 0;
+		virtual void DrawIndexed(PrimitiveType type, const Ref<VertexBuffer>& vertexBuffer, int32_t indices) = 0;
+		virtual void DrawNonIndexed(PrimitiveType type, const Ref<VertexBuffer>& vertexBuffer, int32_t indices) = 0;
 
 		virtual void SetLineWidth(float width) = 0;
 	};

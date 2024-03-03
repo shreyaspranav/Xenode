@@ -44,19 +44,19 @@ namespace Xen {
 		s_Api->EnableDepthTest(enabled);
 	}
 
-	void RenderCommand::DrawIndexed(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices)
+	void RenderCommand::EnableRasterizer(bool enabled)
 	{
-		s_Api->DrawIndexed(vertexBuffer, indices);
+		s_Api->EnableRasterizer(enabled);
 	}
 
-	void RenderCommand::DrawLines(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices)
+	void RenderCommand::DrawIndexed(PrimitiveType type, const Ref<VertexBuffer>& vertexBuffer, int32_t indices)
 	{
-		s_Api->DrawLines(vertexBuffer, indices);
+		s_Api->DrawIndexed(type, vertexBuffer, indices);
 	}
 
-	void RenderCommand::DrawTriangles(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices)
+	void RenderCommand::DrawNonIndexed(PrimitiveType type, const Ref<VertexBuffer>& vertexBuffer, int32_t indices)
 	{
-		s_Api->DrawTriangles(vertexBuffer, indices);
+		s_Api->DrawNonIndexed(type, vertexBuffer, indices);
 	}
 
 	void RenderCommand::SetLineWidth(float width)

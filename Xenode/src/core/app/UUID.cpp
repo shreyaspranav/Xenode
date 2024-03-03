@@ -1,9 +1,6 @@
 #include "pch"
 #include "UUID.h"
 
-#include <random>
-#include "Log.h"
-
 namespace Xen {
 
 	static std::random_device s_RandomDevice;

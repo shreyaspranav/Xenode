@@ -5,6 +5,7 @@
 #include <core/renderer/Texture.h>
 #include <core/renderer/Camera.h>
 #include <core/scripting/Script.h>
+#include <core/renderer/ParticleSettings2D.h>
 
 #include "ScriptableEntity.h"
 #include <pch/pch>
@@ -176,35 +177,22 @@ namespace Xen {
 				:color(color), intensity(intensity) {}
 		};
 
-		// Physics Components:
+		// Physics Components: ------------------------------------------------------------------------------------------------------------------------------------
+		// --------------------------------------------------------------------------------------------------------------------------------------------------------
 		struct RigidBody2D
 		{
-			//enum class BodyType : int8_t { Static, Dynamic, Kinematic };
-
 			BodyType2D bodyType = BodyType2D::Static;
-			//bool fixedRotation = false;
-			//
-			//float bodyDensity = 1.0f;
-			//float bodyFriction = 0.1f;
-			//float bodyRestitution = 0.4f;
-			//float bodyRestitutionThreshold = 0.5f;
-
 			PhysicsMaterial2D physicsMaterial;
-
 			PhysicsBody2D* runtimePhysicsBody;
-
-			// Storage for the runtime object
-			void* runtimeBody = nullptr;
 
 			RigidBody2D() = default;
 			RigidBody2D(const RigidBody2D& rigidBody) = default;
 
 			RigidBody2D(BodyType2D type, bool fixedRotation = false)
-				:bodyType(type)
+				:bodyType(type), runtimePhysicsBody(nullptr)
 			{
 				physicsMaterial.fixedRotation = fixedRotation;
 			}
-
 		};
 
 		struct BoxCollider2D
@@ -218,8 +206,8 @@ namespace Xen {
 			BoxCollider2D(const BoxCollider2D& boxCollider) = default;
 
 			BoxCollider2D(const Vec2& bodyOffset, const Vec2& sizeScale)
-				:bodyOffset(bodyOffset), sizeScale(sizeScale) {}
-
+				:bodyOffset(bodyOffset), sizeScale(sizeScale), runtimePhysicsBody(nullptr)
+			{}
 		};
 
 		struct CircleCollider2D
@@ -234,6 +222,19 @@ namespace Xen {
 			
 			CircleCollider2D(const Vec2& bodyOffset, float radiusScale)
 				:bodyOffset(bodyOffset), radiusScale(radiusScale) {}
+		};
+
+		// Particle System ----
+
+		struct ParticleSystem2DComp
+		{
+			ParticleInstance2D particleInstance;
+
+			ParticleSystem2DComp() = default;
+			ParticleSystem2DComp(const ParticleSystem2DComp& particleSystem2D) = default;
+
+			ParticleSystem2DComp(const ParticleInstance2D& particleInstance)
+				:particleInstance(particleInstance) {}
 		};
 	}
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core.h>
+
 #include "Camera.h"
 #include "Texture.h"
 #include "Structs.h"
@@ -50,7 +52,7 @@ namespace Xen {
 		static void EndScene();
 		
 		static void RenderFrame();
-		static void RenderOverlay();
+		static void RenderOverlay(double timestep);
 
 		static void RenderLights();
 
@@ -70,7 +72,7 @@ namespace Xen {
 		static void SetLineWidth(float width);
 
 		// Particles:
-		static void DrawParticles(const ParticleSettings2D& particleSettings);
+		static void DrawParticles(ParticleInstance2D* particleSettings);
 
 		// Outline Only(for Debugging)
 		static void DrawQuadOverlay(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());

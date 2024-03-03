@@ -44,12 +44,12 @@ namespace Xen {
 		}
 		return nullptr;
 	}
-	Ref<TransformFeedbackBuffer> TransformFeedbackBuffer::CreateTransformFeedbackBuffer(Size size, const VertexBufferLayout& layout)
+	Ref<TransformFeedback> TransformFeedback::CreateTransformFeedback(std::vector<std::string> outAttributes, TransformFeedbackPrimitive primitive)
 	{
 		switch (DesktopApplication::GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
-			return std::make_shared<OpenGLTransformFeedbackBuffer>(size, layout);
+			return std::make_shared<OpenGLTransformFeedback>(outAttributes, primitive);
 		}
 		return nullptr;
 	}

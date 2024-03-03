@@ -1,11 +1,13 @@
 #pragma once
 #include "Core.h"
 #include <core/scene/Scene.h>
-#include "core/scene/Components.h"
-#include "imgui.h"
+#include <core/scene/Components.h>
+#include <core/app/Log.h>
 
-#include "core/app/Log.h"
 #include <glm/gtc/type_ptr.hpp>
+
+#include <imgui.h>
+#include <ImGradientHDR.h>
 
 #include "StringValues.h"
 
@@ -128,6 +130,12 @@ public:
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
+				if (m_SelectedEntity.HasAnyComponent<Xen::Component::ParticleSystem2DComp>())
+				{
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_PARTICLE_SYSTEM_2D);
+					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
+				}
+
 				for (int i = 0; i < m_AvailableComponents.size(); i++)
 				{
 					if (ImGui::Selectable(m_AvailableComponents[i].c_str()))
@@ -160,10 +168,12 @@ public:
 						else if (m_AvailableComponents[i].contains("Circle Collider 2D"))
 							m_SelectedEntity.AddComponent<Xen::Component::CircleCollider2D>();
 
+						else if (m_AvailableComponents[i].contains("Particle System 2D"))
+							m_SelectedEntity.AddComponent<Xen::Component::ParticleSystem2DComp>();
+
 						std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), m_AvailableComponents[i]);
 						m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 					}
-					
 				}
 
 				ImGui::EndPopup();
@@ -668,7 +678,7 @@ public:
 						ImGui::EndPopup();
 					}
 
-					Xen::Component::RigidBody2D& rBody = m_SelectedEntity.GetComponent< Xen::Component::RigidBody2D>();
+					Xen::Component::RigidBody2D& rBody = m_SelectedEntity.GetComponent<Xen::Component::RigidBody2D>();
 
 					ImGui::Columns(2, "##RigidBody2D", false);
 					ImGui::SetColumnWidth(0, 120.0f);
@@ -887,6 +897,248 @@ public:
 					ImGui::Columns(1);
 				}
 			}
+
+			backPS:
+			if (m_SelectedEntity.HasAnyComponent<Xen::Component::ParticleSystem2DComp>())
+			{
+				if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_PARTICLE_SYSTEM_2D.c_str(), tree_flags))
+				{
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+						ImGui::OpenPopup("DeleteComponentParticleSystem2D");
+
+					if (ImGui::BeginPopup("DeleteComponentParticleSystem2D"))
+					{
+						if (ImGui::Selectable("Delete Component: Particle System 2D"))
+						{
+							m_SelectedEntity.DeleteComponent<Xen::Component::ParticleSystem2DComp>();
+							ImGui::EndPopup();
+							goto backPS;
+						}
+						ImGui::EndPopup();
+					}
+
+					Xen::Component::ParticleSystem2DComp& particleSystem = m_SelectedEntity.GetComponent<Xen::Component::ParticleSystem2DComp>();
+					Xen::ParticleSettings2D& particleSettings2D = particleSystem.particleInstance.particleSettings;
+
+					// TODO: Fix the transform situation:
+					Xen::Component::Transform& transform = m_SelectedEntity.GetComponent<Xen::Component::Transform>();
+					particleSettings2D.position = transform.position;
+
+					ImGui::Columns(2, "##PC", false);
+					ImGui::SetColumnWidth(0, 120.0f);
+
+					PaddedText("Particle Count", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					int rate = particleSettings2D.rate;
+					if (ImGui::DragInt("##ParticleCount", &rate, 1.0f))
+						particleSettings2D.rate = rate;
+					ImGui::PopItemWidth();
+
+					ImGui::NextColumn();
+
+					PaddedText("Size Range", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					float sizeRange[] = {
+						particleSettings2D.sizeRandomRange.x,
+						particleSettings2D.sizeRandomRange.y
+					};
+
+					ImGui::PushItemWidth(-0.1f);
+					if (ImGui::DragFloat2("##SizeRange", sizeRange, 0.01f, 0.001f, 10.0f))
+						particleSettings2D.sizeRandomRange = {sizeRange[0], sizeRange[1]};
+					ImGui::PopItemWidth();
+
+					ImGui::NextColumn();
+
+					PaddedText("Lifetime Range", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					float lifeRange[] = {
+						particleSettings2D.lifeRandomRange.x,
+						particleSettings2D.lifeRandomRange.y
+					};
+
+					ImGui::PushItemWidth(-0.1f);
+					if (ImGui::DragFloat2("##LifeRange", lifeRange, 0.01f, 1.0f, 50.0f))
+						particleSettings2D.lifeRandomRange = { lifeRange[0], lifeRange[1] };
+					ImGui::PopItemWidth();
+
+					ImGui::NextColumn();
+
+					PaddedText("Velocity Range", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					float velocityRange[] = {
+						particleSettings2D.velocityRandomRange.x,
+						particleSettings2D.velocityRandomRange.y
+					};
+
+					ImGui::PushItemWidth(-0.1f);
+					if (ImGui::DragFloat2("##VelocityRange", velocityRange, 0.01f, 0.001f, 10.0f))
+						particleSettings2D.velocityRandomRange = { velocityRange[0], velocityRange[1] };
+					ImGui::PopItemWidth();
+
+					ImGui::NextColumn();
+
+					PaddedText("Velocity Damping", 0.0f, 3.0f);
+					ImGui::NextColumn();
+
+					ImGui::PushItemWidth(-0.1f);
+					ImGui::DragFloat("##VelocityDamping", &particleSettings2D.velocityDamping, 0.01f, 0.0f, 10.0f);
+					ImGui::PopItemWidth();
+
+					ImGui::Columns(1);
+
+					ImGuiTreeNodeFlags particleSettingsTreeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth;
+
+					// if (ImGui::TreeNodeEx("Color", particleSettingsTreeFlags))
+					{
+						state = ImGradientHDRState();
+						Xen::ColorGradient& tempGradient = particleSettings2D.colorGradient;
+
+						for (auto&& it = tempGradient.ColorBegin(); it != tempGradient.ColorEnd(); ++it)
+						{
+							const Xen::Color& color = (*it).color;
+							state.AddColorMarker((*it).sliderValue, { color.r, color.g, color.b }, 1.0f);
+						}
+
+						for (auto&& it = tempGradient.AlphaBegin(); it != tempGradient.AlphaEnd(); ++it)
+						{
+							state.AddAlphaMarker((*it).sliderValue, (*it).alpha);
+						}
+
+						ImGradientHDR(10, state, tempState, true);
+
+						if (tempState.draggingMarkerType == ImGradientHDRMarkerType::Color)
+						{
+							auto&& marker = state.GetColorMarker(tempState.draggingIndex);
+							tempGradient.EditColorPosition({ marker->Color[0], marker->Color[1], marker->Color[2], 1.0f }, marker->Position);
+						}
+
+						else if (tempState.draggingMarkerType == ImGradientHDRMarkerType::Alpha)
+						{
+							auto&& marker = state.GetAlphaMarker(tempState.draggingIndex);
+							tempGradient.EditAlphaPosition(marker->Alpha, marker->Position);
+						}
+
+
+						if (tempState.selectedMarkerType == ImGradientHDRMarkerType::Color)
+						{
+							// Get the index and the color of that selected color slider:
+
+							auto selectedColorMarker = state.GetColorMarker(tempState.selectedIndex);
+							if (selectedColorMarker)
+							{
+								if (ImGui::ColorPicker3("##Color", selectedColorMarker->Color.data()))
+									tempGradient.EditColor(selectedColorMarker->Position, { selectedColorMarker->Color[0], selectedColorMarker->Color[1], selectedColorMarker->Color[2], 1.0f });
+							}
+						}
+
+						ImGui::Columns(2, "##PSAlpha", false);
+						ImGui::SetColumnWidth(0, 120.0f);
+
+						if (tempState.selectedMarkerType == ImGradientHDRMarkerType::Alpha)
+						{
+							PaddedText("Alpha", 0.0f, 3.0f);
+							ImGui::NextColumn();
+
+							// Get the index and the color of that selected color slider:
+
+							auto selectedAlphaMarker = state.GetAlphaMarker(tempState.selectedIndex);
+							if (selectedAlphaMarker)
+							{
+								ImGui::PushItemWidth(-0.1f);
+								if (ImGui::SliderFloat("##Alpha", &selectedAlphaMarker->Alpha, 0.0f, 1.0f))
+									tempGradient.EditAlpha(selectedAlphaMarker->Position, selectedAlphaMarker->Alpha);
+								ImGui::PopItemWidth();
+							}
+							ImGui::NextColumn();
+							ImGui::Columns(1);
+						}
+
+						if (state.ColorCount > tempGradient.GetColorsSize())
+						{
+							for (int i = 0; i < state.ColorCount; i++)
+							{
+								auto color = state.GetColorMarker(i)->Color;
+								float sliderValue = state.GetColorMarker(i)->Position;
+
+								Xen::ColorGradient::ColorSlider slider = { { color[0], color[1], color[2], 1.0f }, sliderValue };
+								if (std::find(tempGradient.ColorBegin(), tempGradient.ColorEnd(), slider) == tempGradient.ColorEnd())
+									tempGradient.AddColor(slider.color, slider.sliderValue);
+							}
+						}
+
+						if (state.AlphaCount > tempGradient.GetAlphasSize())
+						{
+							for (int i = 0; i < state.AlphaCount; i++)
+							{
+								float alpha = state.GetAlphaMarker(i)->Alpha;
+								float sliderValue = state.GetAlphaMarker(i)->Position;
+
+								Xen::ColorGradient::AlphaSlider slider = { alpha, sliderValue };
+								if (std::find(tempGradient.AlphaBegin(), tempGradient.AlphaEnd(), slider) == tempGradient.AlphaEnd())
+									tempGradient.AddAlpha(slider.alpha, slider.sliderValue);
+							}
+						}
+
+						int affectColorByRadioIndex;
+
+						switch (particleSettings2D.affectColorBy)
+						{
+							case Xen::AffectColorBy::Distance: affectColorByRadioIndex = 0; break;
+							case Xen::AffectColorBy::Lifetime: affectColorByRadioIndex = 1; break;
+							case Xen::AffectColorBy::Random:   affectColorByRadioIndex = 2; break;
+						}
+
+						ImGui::Columns(2, "##RadioButtonThingy", false);
+						ImGui::SetColumnWidth(0, 120.0f);
+
+						PaddedText("Affect By", 0.0f, 3.0f);
+						ImGui::NextColumn();
+
+						ImGui::RadioButton("Distance", &affectColorByRadioIndex, 0);
+								
+						ImGui::NextColumn();
+						ImGui::NextColumn();
+
+						ImGui::RadioButton("Lifetime", &affectColorByRadioIndex, 1);
+
+						ImGui::NextColumn();
+						ImGui::NextColumn();
+
+						ImGui::RadioButton("Random", &affectColorByRadioIndex, 2);
+
+						switch (affectColorByRadioIndex)
+						{
+							case 0: particleSettings2D.affectColorBy = Xen::AffectColorBy::Distance; break;
+							case 1: particleSettings2D.affectColorBy = Xen::AffectColorBy::Lifetime; break;
+							case 2: particleSettings2D.affectColorBy = Xen::AffectColorBy::Random;   break;
+						}
+
+						ImGui::NextColumn();
+
+						if (affectColorByRadioIndex == 0)
+						{
+							PaddedText("Distance Scale", 0.0f, 3.0f);
+							ImGui::NextColumn();
+
+							ImGui::PushItemWidth(-0.1f);
+							ImGui::DragFloat("##DistanceFactor", &particleSettings2D.colorDistanceScale, 0.1f, 1.0f, 0.0f);
+							ImGui::PopItemWidth();
+						}
+						
+						ImGui::Columns(1);
+
+						// ImGui::TreePop();
+					}
+
+					ImGui::Separator();
+				}
+			}
 		}
 
 		ImGui::End();
@@ -1043,7 +1295,7 @@ private:
 		Xen::StringValues::COMPONENT_RIGID_BODY_2D,
 		Xen::StringValues::COMPONENT_BOX_COLLIDER_2D,
 		Xen::StringValues::COMPONENT_CIRCLE_COLLIDER_2D,
-		
+		Xen::StringValues::COMPONENT_PARTICLE_SYSTEM_2D
 	};
 
 	std::vector<std::string> m_AvailableComponents = m_Components;
@@ -1053,4 +1305,11 @@ private:
 
 	std::string m_TextureLoadDropType;
 	std::string m_ScriptLoadDropType;
+
+
+	ImGradientHDRState state;
+	ImGradientHDRTemporaryState tempState;
+
+	float p = 0.0f;
+	float f = 200.0f;
 };

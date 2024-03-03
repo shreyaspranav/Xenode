@@ -72,6 +72,21 @@ namespace Xen {
 		return 0;
 	}
 
+	static GLenum ToGLPrimitve(TransformFeedbackPrimitive primitive)
+	{
+		switch (primitive)
+		{
+		case Xen::TransformFeedbackPrimitive::Points:		return GL_POINTS;
+		case Xen::TransformFeedbackPrimitive::Lines:		return GL_LINES;
+		case Xen::TransformFeedbackPrimitive::Triangles:	return GL_TRIANGLES;
+		}
+
+		XEN_ENGINE_LOG_ERROR("Invalid Primitive type!");
+		TRIGGER_BREAKPOINT;
+
+		return (GLenum)0;
+	}
+
 	//-------OpenGLVertexBuffer---------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------
 	OpenGLVertexBuffer::OpenGLVertexBuffer(Size size, const VertexBufferLayout& layout) 
@@ -116,7 +131,7 @@ namespace Xen {
 			case VertexBufferDataType::Int2:
 			case VertexBufferDataType::Int3:
 			case VertexBufferDataType::Int4:
-				// For Integer formats should use a different funtion. Facepalm! wasted 1 hour on this:
+				// For Integer formats should use a different function. Facepalm! wasted 1 hour on this:
 				glVertexArrayAttribIFormat(m_VertexArrayID, (*it).shader_location,
 					CalculateCount((*it).type), GL_INT, offset);
 				offset += CalculateSize((*it).type);
@@ -161,6 +176,8 @@ namespace Xen {
 
 	void OpenGLVertexBuffer::SetElementBuffer(const Ref<ElementBuffer>& elementBuffer)
 	{
+		m_ElementBuffer = elementBuffer;
+
 		Ref<OpenGLElementBuffer> openglElementBuffer = std::dynamic_pointer_cast<OpenGLElementBuffer>(elementBuffer);
 		glVertexArrayElementBuffer(m_VertexArrayID, openglElementBuffer->m_BufferID);
 
@@ -226,24 +243,49 @@ namespace Xen {
 	//-------OpenGLTransformBuffer---------------------------------------------------------------------------------
 	//-------------------------------------------------------------------------------------------------------------
 
-	OpenGLTransformFeedbackBuffer::OpenGLTransformFeedbackBuffer(Size size, const VertexBufferLayout& layout)
-		:m_Size(size)
+	OpenGLTransformFeedback::OpenGLTransformFeedback(std::vector<std::string> outAttributes, TransformFeedbackPrimitive primitive)
+		:m_TFeedbackPrimitive(primitive), m_Attribs(outAttributes)
 	{
 		glCreateTransformFeedbacks(1, &m_BufferID);
-
-		m_VertexBuffer = VertexBuffer::CreateVertexBuffer(size, layout);
-		
-		for (auto it = layout.StartIterator(); it != layout.EndIterator(); it++)
-			m_Attribs.push_back((*it).name);
 	}
-	OpenGLTransformFeedbackBuffer::~OpenGLTransformFeedbackBuffer()
+	OpenGLTransformFeedback::~OpenGLTransformFeedback()
 	{
+		glDeleteTransformFeedbacks(1, &m_BufferID);
 	}
-	void OpenGLTransformFeedbackBuffer::RegisterTransformFeedback(const Ref<Shader>& shader)
+	void OpenGLTransformFeedback::BeginFeedback()
 	{
-		const char* test[2] = {"test1attr", "test2attr"};
+		glBeginTransformFeedback(ToGLPrimitve(m_TFeedbackPrimitive));
+	}
+	void OpenGLTransformFeedback::EndFeedback()
+	{
+		glEndTransformFeedback();
+	}
+	void OpenGLTransformFeedback::Bind()
+	{
+		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_BufferID);
+	}
+	void OpenGLTransformFeedback::Unbind()
+	{
+		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+	}
+	void OpenGLTransformFeedback::SetFeedbackBuffer(const Ref<VertexBuffer> vertexBuffer)
+	{
+		const Ref<OpenGLVertexBuffer> buffer = std::dynamic_pointer_cast<OpenGLVertexBuffer, VertexBuffer>(vertexBuffer);
 
-		glTransformFeedbackVaryings(shader->GetShaderID(), 2, test, GL_INTERLEAVED_ATTRIBS);
+		glTransformFeedbackBufferBase(m_BufferID, 0, buffer->m_VertexBufferID);
+		//glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer->m_VertexBufferID);
+	}
+	void OpenGLTransformFeedback::RegisterTransformFeedback(const Shader* shader)
+	{
+
+		std::vector<char*> cstrings;
+		cstrings.reserve(m_Attribs.size());
+
+		for (auto& s : m_Attribs)
+			cstrings.push_back(&s[0]);
+
+		for(auto& att : m_Attribs)
+			glTransformFeedbackVaryings(shader->GetShaderID(), m_Attribs.size(), cstrings.data(), GL_INTERLEAVED_ATTRIBS);
 	}
 
 	// ------------------------------

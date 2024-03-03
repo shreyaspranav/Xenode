@@ -3,6 +3,7 @@
 #include <Core.h>
 
 #include "Structs.h"
+#include "Buffer.h"
 
 namespace Xen {
 	class Texture2D;
@@ -11,6 +12,7 @@ namespace Xen {
 
 	enum class ValueType				{ Fixed, Random };
 	enum class EmissionType				{ RateOverTime, Burst, };
+	enum class AffectColorBy			{ Distance = 0, Lifetime = 1, Random = 2 };
 
 	// This union is represent a float that can be fixed or be a random value between two floats
 	union FloatValue
@@ -41,22 +43,22 @@ namespace Xen {
 		// Angle of the emitter IN DEGREES.
 		float emitterAngle;
 
-		// Particle Size, Rotation and Velocity
-		ValueType sizeQuantityType;
-		ValueType rotationQuantityType;
-		ValueType velocityQuantityType;
+		// Ranges of size, rotation, and velocity
+		Vec2 sizeRandomRange =		{ 0.1f,  0.4f };
+		Vec2 rotationRandomRange =	{ 0.0f,  180.0f };
+		Vec2 velocityRandomRange =	{ 0.3f,  0.9f };
+		Vec2 lifeRandomRange =		{ 10.0f, 2.0f };
 
-		FloatValue size;
-		FloatValue rotation;
-		FloatValue velocity;
+		// Used to dampen the velocity of each particle every frame
+		float velocityDamping = 0.1f;
 
 		// No. of particles emitted in a second
-		uint16_t rate;
+		uint32_t rate = 10;
 
 		// Color gradient
-		// TODO: Use an actual color gradient type in future
-		Color startColor;
-		Color endColor;
+		ColorGradient colorGradient;
+		AffectColorBy affectColorBy = AffectColorBy::Lifetime;
+		float colorDistanceScale = 4.0f;
 
 		// Use Local if the particles need to follow the emitter point
 		ParticleSimulationSpace particleSimulationSpace;
@@ -65,9 +67,23 @@ namespace Xen {
 		ParticlePhysicsSettings physicsSettings;
 	};
 
-	struct ParticleInstance
+	struct ParticleInstance2D
 	{
-		ParticleSettings2D* settings;
+	public:
+		friend class ParticleSystem2D;
+
+		ParticleSettings2D particleSettings;
+		Vec3 instancePosition;
+
+	private:
+		Ref<VertexBuffer> particleReadWriteBuffer[2];
+
+		bool buffersInitialized = false;
+
+		uint32_t numParticlesInBuffer = 1;
+		uint32_t currentBuffer = 0;
+
+		// TODO: Maybe add shaders for each particle instance.
 	};
 }
 

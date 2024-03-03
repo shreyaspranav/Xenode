@@ -9,12 +9,12 @@ namespace Xen {
 	class XEN_API Shader
 	{
 	public:
-		virtual void LoadShader(const Ref<TransformFeedbackBuffer>& transformFeedbackBuffer) = 0;
+		virtual void LoadShader(const Ref<TransformFeedback>& transformFeedbackBuffer) = 0;
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
-		virtual inline uint32_t GetShaderID() = 0; //Temp!
+		virtual inline uint32_t GetShaderID() const = 0; //Temp!
 
 		virtual void SetFloat(const std::string& name, float value) = 0;
 		virtual void SetFloat2(const std::string& name, const Vec2& value) = 0;
@@ -33,9 +33,9 @@ namespace Xen {
 		static Ref<Shader> CreateShader(const std::string& filePath);
 		static Ref<Shader> CreateShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);
 
-	protected:
-		inline void RegisterTransformFeedbackBuffer(const Ref<TransformFeedbackBuffer>& transformFeedbackBuffer, const Ref<Shader>& shader) 
-		{ transformFeedbackBuffer->RegisterTransformFeedback(shader); }
+	//protected:
+	//	inline void RegisterTransformFeedbackBuffer(const Ref<TransformFeedback>& transformFeedback, const Ref<Shader>& shader) 
+	//	{ transformFeedback->RegisterTransformFeedback(shader); }
 	};
 
 	class XEN_API ComputeShader

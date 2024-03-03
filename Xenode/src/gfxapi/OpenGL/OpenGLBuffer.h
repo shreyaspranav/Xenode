@@ -6,6 +6,9 @@ namespace Xen {
 	class OpenGLVertexBuffer : public VertexBuffer
 	{
 	public:
+		friend class OpenGLTransformFeedback;
+
+	public:
 		OpenGLVertexBuffer(Size size, const VertexBufferLayout& layout);
 		virtual ~OpenGLVertexBuffer();
 
@@ -15,6 +18,8 @@ namespace Xen {
 		void SetElementBuffer(const Ref<ElementBuffer>& elementBuffer) override;
 
 		inline const VertexBufferLayout& GetBufferLayout() const override { return m_BufferLayout; }
+
+		inline Ref<ElementBuffer> GetElementBuffer() const override { return m_ElementBuffer; }
 
 		inline void Bind() const override;
 		inline void Unbind() const override;
@@ -29,6 +34,8 @@ namespace Xen {
 		uint32_t m_Count;
 		Size m_Size;
 		VertexBufferLayout m_BufferLayout;
+
+		Ref<ElementBuffer> m_ElementBuffer = nullptr;
 
 		bool m_HasElementBuffer;
 	};
@@ -58,19 +65,28 @@ namespace Xen {
 		ElementBufferDataType m_ElementDataType;
 	};
 
-	class OpenGLTransformFeedbackBuffer : public TransformFeedbackBuffer
+	class OpenGLTransformFeedback : public TransformFeedback
 	{
 	public:
 		friend class OpenGLShader;
 	public:
-		OpenGLTransformFeedbackBuffer(Size size, const VertexBufferLayout& layout);
-		virtual ~OpenGLTransformFeedbackBuffer();
+		OpenGLTransformFeedback(std::vector<std::string> outAttributes, TransformFeedbackPrimitive primitive);
+		virtual ~OpenGLTransformFeedback();
+
+		void BeginFeedback() override;
+		void EndFeedback() override;
+
+		void Bind() override;
+		void Unbind() override;
+
+		void SetFeedbackBuffer(const Ref<VertexBuffer> vertexBuffer) override;
+		void RegisterTransformFeedback(const Shader* shader) override;
 
 	private:
-		void RegisterTransformFeedback(const Ref<Shader>& shader) override;
 
 	private:
 		Ref<VertexBuffer> m_VertexBuffer;
+		TransformFeedbackPrimitive m_TFeedbackPrimitive;
 
 		uint32_t m_BufferID;
 		Size m_Size;

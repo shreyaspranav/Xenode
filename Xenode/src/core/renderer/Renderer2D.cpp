@@ -8,6 +8,8 @@
 #include "Shader.h"
 #include "RenderCommand.h"
 
+#include "ParticleSystem2D.h"
+
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -159,7 +161,9 @@ namespace Xen {
 	int texture_slots[8];
 
 	static std::vector<Ref<Renderer2DStorage>> batch_storage;
-	static std::vector<ParticleSettings2D&> particleSettings;
+
+	static std::vector<ParticleInstance2D*> particleInstances;
+	uint32_t particleInstanceIndex;
 
 	Renderer2D::Renderer2DStatistics stats;
 
@@ -236,6 +240,10 @@ namespace Xen {
 
 		s_Data.cameraUniformBuffer = UniformBuffer::CreateUniformBuffer(sizeof(CameraData), bufferLayout, 1);
 		s_Data.vertexStorageBuffer = StorageBuffer::CreateStorageBuffer(max_vertices_per_batch * sizeof(Vertex), bufferLayout, 1);
+
+		particleInstances.resize(100);
+
+		ParticleSystem2D::Initialize();
 	}
 
 	void Renderer2D::ShutDown()
@@ -273,6 +281,8 @@ namespace Xen {
 			stats.texture_count += storage->texture_slot_index;
 
 		s_Data.cameraUniformBuffer->Put(0, glm::value_ptr(camera->GetViewProjectionMatrix()), sizeof(glm::mat4));
+
+		particleInstanceIndex = 0;
 	}
 
 	void Renderer2D::EndScene()
@@ -304,11 +314,11 @@ namespace Xen {
 
 			s_Data.vertexStorageBuffer->Put(0, batch_storage[batch_index]->verts, batch_storage[batch_index]->vertex_index * sizeof(Vertex));
 			
-			RenderCommand::DrawTriangles(nullptr, batch_storage[i]->index_count);
+			RenderCommand::DrawNonIndexed(PrimitiveType::Triangles, nullptr, batch_storage[i]->index_count);
 		}
 	}
 
-	void Renderer2D::RenderOverlay()
+	void Renderer2D::RenderOverlay(double timestep)
 	{
 		for (int i = 0; i <= batch_index; i++)
 		{
@@ -319,8 +329,13 @@ namespace Xen {
 
 			s_Data.lineVertexBuffer->Put(batch_storage[i]->line_verts, batch_storage[i]->line_vertex_index * sizeof(LineVertex));
 
-			RenderCommand::DrawLines(s_Data.lineVertexBuffer, batch_storage[i]->line_vertex_index);
+			RenderCommand::DrawNonIndexed(PrimitiveType::Lines, s_Data.lineVertexBuffer, batch_storage[i]->line_vertex_index);
 		}
+
+		s_Data.lineShader->Unbind();
+
+		for (int i = 0; i < particleInstanceIndex; i++)
+			ParticleSystem2D::RenderParticles(particleInstances[i], timestep);
 	}
 	void Renderer2D::RenderLights()
 	{
@@ -461,9 +476,10 @@ namespace Xen {
 		line_width = width;
 	}
 
-	void Renderer2D::DrawParticles(const ParticleSettings2D& particleSettings)
+	void Renderer2D::DrawParticles(ParticleInstance2D* particleSettings)
 	{
-
+		// XEN_ENGINE_LOG_INFO("X: {0}", particleInstanceIndex);
+		particleInstances[particleInstanceIndex++] = particleSettings;
 	}
 
 	void Renderer2D::DrawQuadOverlay(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color)

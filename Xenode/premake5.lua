@@ -25,9 +25,14 @@ project "Xenode"
 
 		"src/pch/pch.cpp",
 
-		--ImGuizmo source files
+		-- Extra ImGui Files:
+
+		-- ImGuizmo: 
 		"../deps/ImGuizmo/*.cpp",
 		"../deps/ImGuizmo/*.h",
+		-- ImGradientHDR:
+		"../deps/ImGradientHDR/*.cpp",
+		"../deps/ImGradientHDR/*.h",
 
 		--SHA256 source files
 		"../deps/SHA256/**.cpp",
@@ -59,6 +64,7 @@ project "Xenode"
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.freetype}",
 		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.ImGradientHDR}",
 		"%{IncludeDir.Box2D}",
 		"%{IncludeDir.Optick}",
 		"%{IncludeDir.Lua}",
@@ -80,6 +86,8 @@ project "Xenode"
 			"../deps/optick/src/optick_gpu.vulkan.cpp" -- Remove vulkan for now
 		}
 
+	filter "files:../deps/ImGradientHDR/**.cpp"
+		flags { "NoPCH" }
 	filter "files:../deps/ImGuizmo/**.cpp"
 		flags { "NoPCH" }
 	filter "files:../deps/optick/**.cpp"

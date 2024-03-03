@@ -13,12 +13,13 @@ namespace Xen {
 		static void OnWindowResize(uint32_t width, uint32_t height);
 
 		static void SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode);
+
 		static void EnableDepthTest(bool enabled);
+		static void EnableRasterizer(bool enabled);
 
 		// Draw Commands:
-		static void DrawIndexed(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices = 0);
-		static void DrawLines(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices = 0);
-		static void DrawTriangles(const Ref<VertexBuffer>& vertexBuffer, uint32_t indices = 0);
+		static void DrawIndexed(PrimitiveType type, const Ref<VertexBuffer>& vertexBuffer, int32_t indices = -1);
+		static void DrawNonIndexed(PrimitiveType type, const Ref<VertexBuffer>& vertexBuffer, int32_t indices = -1);
 
 		static void SetLineWidth(float width);
 

@@ -1,3 +1,5 @@
+require "cmake"
+
 workspace "Xenode"
 	configurations { "Debug", "Release_Debug", "Production" }
 	architecture "x64"
@@ -31,6 +33,7 @@ IncludeDir["Taskflow"] 		= "%{wks.location}/deps/taskflow"
 IncludeDir["entt"] 			= "%{wks.location}/deps/entt/include"
 IncludeDir["yaml_cpp"] 		= "%{wks.location}/deps/yaml-cpp/include"
 IncludeDir["ImGuizmo"] 		= "%{wks.location}/deps/ImGuizmo"
+IncludeDir["ImGradientHDR"] = "%{wks.location}/deps/ImGradientHDR"
 IncludeDir["Optick"] 		= "%{wks.location}/deps/optick/include"
 IncludeDir["Box2D"] 		= "%{wks.location}/deps/box2d/include"
 IncludeDir["Lua"] 			= "%{wks.location}/deps/lua/include"

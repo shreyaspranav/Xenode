@@ -21,6 +21,8 @@ namespace Xen {
 
 	enum class ElementBufferDataType { Unsigned16Bit, Unsigned32Bit };
 
+	enum class TransformFeedbackPrimitive { Points, Lines, Triangles };
+
 	struct VertexBufferElement
 	{
 		std::string name;
@@ -89,6 +91,7 @@ namespace Xen {
 
 		virtual inline uint32_t GetCount() const = 0;
 		virtual inline uint32_t GetSize() const = 0;
+		virtual inline Ref<ElementBuffer> GetElementBuffer() const = 0;
 
 		virtual inline bool HasElementBuffer() const = 0;
 
@@ -98,14 +101,21 @@ namespace Xen {
 
 	class Shader;
 
-	class XEN_API TransformFeedbackBuffer
+	class XEN_API TransformFeedback
 	{
 	public:
 		friend class Shader;
 
-		static Ref<TransformFeedbackBuffer> CreateTransformFeedbackBuffer(Size size, const VertexBufferLayout& layout);
+		virtual void SetFeedbackBuffer(const Ref<VertexBuffer> buffer) = 0;
+		virtual void BeginFeedback() = 0;
+		virtual void EndFeedback() = 0;
+
+		virtual void Bind() = 0;
+		virtual void Unbind() = 0;
+
+		virtual void RegisterTransformFeedback(const Shader* shader) = 0;
+		static Ref<TransformFeedback> CreateTransformFeedback(std::vector<std::string> outAttributes, TransformFeedbackPrimitive primitive);
 	private:
-		virtual void RegisterTransformFeedback(const Ref<Shader>& shader) = 0;
 	};
 
 
