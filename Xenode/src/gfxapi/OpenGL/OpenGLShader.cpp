@@ -108,8 +108,8 @@ namespace Xen {
 		compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
 
 		// Maybe we need zero level optimisation for debug purposes? : FIND OUT
-		compileOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
-		// compileOptions.SetOptimizationLevel(shaderc_optimization_level_zero);
+		// compileOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
+		compileOptions.SetOptimizationLevel(shaderc_optimization_level_zero);
 
 		shaderc::SpvCompilationResult shaderCompilationResult =
 			compiler.CompileGlslToSpv(shaderSource, GLShaderToShaderC(shaderType), GLShaderToString(shaderType), compileOptions);
