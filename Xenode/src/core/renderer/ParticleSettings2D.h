@@ -75,7 +75,7 @@ namespace Xen {
 		ParticleSettings2D particleSettings;
 		Vec3 instancePosition;
 
-	private:
+	// private:
 		Ref<VertexBuffer> particleReadWriteBuffer[2];
 
 		bool buffersInitialized = false;

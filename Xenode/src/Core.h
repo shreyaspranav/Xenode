@@ -34,3 +34,7 @@ namespace Xen {
 	template<typename T>
 	using Ref = std::shared_ptr<T>;
 }
+
+
+// TEMP: 
+#define XEN_ENABLE_DEBUG_RENDERER

@@ -91,7 +91,7 @@ struct Vertex {
 int defalult_indices[6] = { 0, 1, 2, 0, 2, 3 };
 
 layout(std430, binding = 1) readonly buffer VertexData		{ Vertex vertices[]; };
-layout(std140, binding = 1) uniform CameraData				{ mat4 ViewProjectionMatrix; };
+layout(std140, binding = 1) uniform PerFrameData			{ mat4 ViewProjectionMatrix; };
 
 vec3 getPosition(int i) {
 	return vec3(vertices[i].pos[0], 

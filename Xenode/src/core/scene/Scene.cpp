@@ -506,8 +506,8 @@ namespace Xen {
 			{ BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha, BlendOperation::Add },
 			{ BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha, BlendOperation::Add }
 		);
-		Renderer2D::RenderFrame();
-		Renderer2D::RenderOverlay(m_Timestep);
+		Renderer2D::RenderFrame(m_Timestep);
+		// Renderer2D::RenderOverlay(m_Timestep);
 
 		if (!onMainFrameBuffer)
 			m_UnlitSceneFB->Unbind();
@@ -710,58 +710,47 @@ namespace Xen {
 		for (auto& entity : sprite_group_observer)
 		{
 			Component::Transform& transform = Entity(entity, this).GetComponent<Component::Transform>();
-
 			Component::SpriteRenderer& spriteRenderer = Entity(entity, this).GetComponent<Component::SpriteRenderer>();
 
-			if (spriteRenderer.texture == nullptr) {
-				switch (spriteRenderer.primitive)
-				{
-				case Component::SpriteRenderer::Primitive::Triangle:
-					//Renderer2D::DrawClearTriangle(transform.position,
-					//	transform.rotation,
-					//	{ transform.scale.x, transform.scale.y },
-					//	spriteRenderer.color,
-					//	(uint32_t)entity);
-					break;
-				case Component::SpriteRenderer::Primitive::Quad:
-					Renderer2D::DrawClearQuad(transform.position,
-						transform.rotation,
-						{ transform.scale.x, transform.scale.y },
-						spriteRenderer.color,
-						(uint32_t)entity);
-					break;
-				case Component::SpriteRenderer::Primitive::Polygon:
-					//Renderer2D::DrawPolygon(transform.position,
-					//	transform.rotation,
-					//	{ transform.scale.x, transform.scale.y },
-					//	spriteRenderer.polygon_properties.segment_count,
-					//	spriteRenderer.color,
-					//	(uint32_t)entity);
-					break;
-				case Component::SpriteRenderer::Primitive::Circle:
-					Renderer2D::DrawClearCircle(transform.position,
-						transform.rotation,
-						{ transform.scale.x, transform.scale.y },
-						spriteRenderer.color,
-						spriteRenderer.circle_properties.thickness,
-						spriteRenderer.circle_properties.innerfade,
-						spriteRenderer.circle_properties.outerfade,
-						(uint32_t)entity);
-					break;
-				default:
-					break;
-				}
-			}
-			else
-				Renderer2D::DrawTexturedQuad(spriteRenderer.texture,
-					transform.position,
-					transform.rotation,
-					{ transform.scale.x, transform.scale.y },
-					spriteRenderer.color,
-					spriteRenderer.texture_tile_factor,
-					nullptr,
-					(uint32_t)entity);
+			if (spriteRenderer.primitive == Component::SpriteRenderer::Primitive::Quad)
+			{
+				// Create a QuadSprite Object:
+				Renderer2D::QuadSprite quadSprite;
 
+				// Set the properties of the object
+				quadSprite.position = transform.position;
+				quadSprite.rotation = transform.rotation.z;
+				quadSprite.scale = { transform.scale.x, transform.scale.y };
+
+				// TODO: Also implement per vertex coloring
+				quadSprite.useSingleColor = true;
+				quadSprite.color[0] = spriteRenderer.color; // Only the first element is checked if useSingleColor = true
+				quadSprite.id = (int32_t)entity;
+				quadSprite.texture = spriteRenderer.texture;
+
+				// Add the sprite to the renderer
+				Renderer2D::DrawQuadSprite(quadSprite);
+			}
+			else if (spriteRenderer.primitive == Component::SpriteRenderer::Primitive::Circle)
+			{
+				// Create a CircleSprite Object:
+				Renderer2D::CircleSprite circleSprite;
+
+				// Set the properties of the object
+				circleSprite.position = transform.position;
+				circleSprite.rotation = transform.rotation.z;
+				circleSprite.scale = { transform.scale.x, transform.scale.y };
+				circleSprite.color = spriteRenderer.color;
+				
+				circleSprite.thickness = spriteRenderer.circle_properties.thickness;
+				circleSprite.innerFade = spriteRenderer.circle_properties.innerfade;
+				circleSprite.outerFade = spriteRenderer.circle_properties.outerfade;
+
+				circleSprite.id = (int32_t)entity;
+
+				// Add the sprite to the renderer
+				Renderer2D::DrawCircleSprite(circleSprite);
+			}
 		}
 
 		// TODO: Make RenderableLayers, that can be arranged in order and can be rendered in order
@@ -784,7 +773,7 @@ namespace Xen {
 		for (auto entt : particleSystem2DView)
 		{
 			Component::ParticleSystem2DComp& comp = Entity(entt, this).GetComponent<Component::ParticleSystem2DComp>();
-			Renderer2D::DrawParticles(&comp.particleInstance);
+			Renderer2D::DrawParticles(comp.particleInstance.particleSettings);
 		}
 	}
 	void Scene::RenderPhysicsColliders()
@@ -800,7 +789,7 @@ namespace Xen {
 			Vec3 newPosition = { transform.position.x + collider.bodyOffset.x, transform.position.y + collider.bodyOffset.y, transform.position.z };
 			Vec2 newScale = { transform.scale.x * collider.sizeScale.x, transform.scale.y * collider.sizeScale.y};
 
-			Renderer2D::DrawQuadOverlay(newPosition, transform.rotation, newScale, m_PhysicsColliderColor);
+			// Renderer2D::DrawQuadOverlay(newPosition, transform.rotation, newScale, m_PhysicsColliderColor);
 		}
 
 		for (auto& entity : circleColliders)
@@ -811,7 +800,7 @@ namespace Xen {
 			Vec3 newPosition = { transform.position.x + collider.bodyOffset.x, transform.position.y + collider.bodyOffset.y, transform.position.z };
 			float scale = collider.radiusScale * transform.scale.x;
 
-			Renderer2D::DrawCircleOverlay(newPosition, scale, m_PhysicsColliderColor);
+			// Renderer2D::DrawCircleOverlay(newPosition, scale, m_PhysicsColliderColor);
 		}
 	}
 	void Scene::RenderLights()

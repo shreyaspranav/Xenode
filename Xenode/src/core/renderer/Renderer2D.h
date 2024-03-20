@@ -7,6 +7,10 @@
 #include "Structs.h"
 #include "ParticleSettings2D.h"
 
+#include "SpriteRenderer2D.h"
+#include "ParticlesRenderer2D.h"
+
+
 namespace Xen {
 
 	class Renderer2D
@@ -44,54 +48,79 @@ namespace Xen {
 			uint32_t circle_indices_drawn;
 		};
 
+		struct QuadSprite 
+		{
+			Vec3 position;
+			float rotation;
+			Vec2 scale;
+
+			Color color[4];
+			bool useSingleColor = true;
+			
+			// TODO: Change this to AssetHandle:
+			Ref<Texture2D> texture;
+			Vec2 textureCoords[4] = {
+				{ 1.0f, 1.0f },
+				{ 0.0f, 1.0f },
+				{ 0.0f, 0.0f },
+				{ 1.0f, 0.0f }
+			};
+
+			int32_t id = -1;
+		};
+
+		struct CircleSprite
+		{
+			Vec3 position;
+			float rotation;
+			Vec2 scale;
+
+			Color color;
+
+			Vec2 worldCoords[4] = {
+				{  1.0f,  1.0f },
+				{ -1.0f,  1.0f },
+				{ -1.0f, -1.0f },
+				{  1.0f, -1.0f }
+			};
+
+			float thickness = 1.0f, innerFade = 0.0f, outerFade = 0.0f;
+			int32_t id = -1;
+		};
+
 	public:
-		static void Init();
-		static void ShutDown();
+		static void Init()
+		{
+			SpriteRenderer2D::Init();
+			ParticlesRenderer2D::Init();
+		}
+
+		static void BeginScene(const Ref<Camera>& camera)
+		{
+			SpriteRenderer2D::BeginScene(camera);
+			ParticlesRenderer2D::BeginScene(camera);
+		}
+
+		static void EndScene()
+		{
+			SpriteRenderer2D::EndScene();
+			ParticlesRenderer2D::EndScene();
+		}
+
+		static void RenderFrame(double timestep)
+		{
+			SpriteRenderer2D::RenderFrame(timestep);
+			ParticlesRenderer2D::RenderFrame(timestep);
+		}
 		
-		static void BeginScene(const Ref<Camera>& camera);
-		static void EndScene();
-		
-		static void RenderFrame();
-		static void RenderOverlay(double timestep);
+		// These functions do not draw, but adds them to a buffer and then renders them in RenderFrame()
+		// 
+		// Implemented in SpriteRenderer2D.cpp ---------------------------------------------------------
+		static void DrawQuadSprite(const QuadSprite& quadSprite);
+		static void DrawCircleSprite(const CircleSprite& circleSprite);
 
-		static void RenderLights();
-
-		static void AddParticles(const ParticleSettings2D* particleSettings);
-
-		// Draw Functions:
-		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color(), int32_t id = -1);
-		static void DrawClearQuad(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color color[4], int32_t id = -1);
-		
-		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& tintcolor = Color(1.0f), float tiling_factor = 1.0f, const Vec2 tex_coords[4] = nullptr, int32_t id = -1);
-		static void DrawTexturedQuad(const Ref<Texture2D>& texture, const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color tintcolor[4], float tiling_factor = 1.0f, const Vec2 tex_coords[4] = nullptr, int32_t id = -1);
-
-		static void DrawLine(const Vec3& p1, const Vec3& p2, const Color& color = Color(1.0f, 1.0f, 1.0f, 1.0f), float thickness = 1.0f);
-
-		static void DrawClearCircle(const Vec3& position, const Vec3& rotation, const Vec2& scale = 1.0f, const Color& color = Color(), float thickness = 1.0f, float innerfade = 0.0f, float outerfade = 0.0f, int32_t id = -1);
-
-		static void SetLineWidth(float width);
-
-		// Particles:
-		static void DrawParticles(ParticleInstance2D* particleSettings);
-
-		// Outline Only(for Debugging)
-		static void DrawQuadOverlay(const Vec3& position, const Vec3& rotation, const Vec2& scale, const Color& color = Color());
-		static void DrawCircleOverlay(const Vec3& position, float radius, const Color& color = Color(), float thickness = 0.025f);
-
-
-		// Stats functions:
-		static Renderer2DStatistics& GetStatistics();
-	
-	private:
-		static void AddPrimitive(Primitive primitive, const Vec3& position, const Vec3& rotation, const Vec2& scale, int32_t id);
-
-		static void AddColorStatic(uint8_t vertex_count, const Color& color);
-		static void AddColorArray(uint8_t vertex_count, const Color* color);
-		static void AddTextureSlot(uint8_t vertex_count, bool is_clear_color, const Ref<Texture2D>& texture = nullptr);
-		static void AddDefaultTextureCoords(Primitive p, float tiling_factor = 1.0f);
-		static void AddID(uint8_t vertex_count, int32_t id);
-
-		static void JumpDeltaVertexIndex(uint32_t index_delta);
+		// Implemented in ParticlesRenderer2D.cpp ------------------------------------------------------
+		static void DrawParticles(const ParticleSettings2D& particles);
 	};
 
 }

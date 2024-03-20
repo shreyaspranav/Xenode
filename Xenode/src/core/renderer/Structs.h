@@ -158,7 +158,7 @@ namespace Xen {
 			std::sort(m_Alphas.begin(), m_Alphas.end());
 
 			// Calculate finalColor:
-			auto firstColor = *(m_Colors.begin());  // std::pair, first -> position, second -> color
+			auto firstColor = *(m_Colors.begin());
 			auto lastColor  = *(m_Colors.end());
 
 			if (sliderValue < firstColor.sliderValue)

@@ -11,9 +11,8 @@ namespace Xen {
 		friend class ParticleInstance;
 
 		static void Initialize();
-		//static void RenderParticles(ParticleSettings2D* particleSettings, double timestep);
-
 		static void RenderParticles(ParticleInstance2D* particleInstance, double timestep);
+
 	private:
 		static void InitializeBuffers(ParticleInstance2D* particleInstance);
 	};
