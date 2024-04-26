@@ -1,5 +1,3 @@
-require "cmake"
-
 workspace "Xenode"
 	configurations { "Debug", "Release_Debug", "Production" }
 	architecture "x64"
@@ -55,12 +53,12 @@ newoption {
 
 -- Main projects:
 group "Core"
-	include "Xenode/"
-	include "Xen/"
-	include "XenodeRuntime/"
+	include "core/Xenode/Xenode.premake.lua"
+	include "core/Xen/Xen.premake.lua"
+	include "core/XenodeRuntime/XenodeRuntime.premake.lua"
 group ""
 group "Sandbox"
-	include "SandboxApp/"
+	include "sandbox/SandboxApp/SandboxApp.premake.lua"
 group ""
 
 --include "SandboxAppAndroid/SandboxAndroidBuild.lua"

@@ -32,7 +32,7 @@ project "Xen"
 
 	}
 
-	links { "Xenode", "yaml-cpp", "GLFW", "ImGui", "Box2D" }
+	links { "Xenode", "yaml-cpp", "GLFW", "ImGui", "Box2D", "Lua" }
 
 	pic "on"
 
@@ -99,5 +99,19 @@ project "Xen"
 		links { "pthread" }
 		buildoptions{ "-std=c++2b", "-Wa,-mbig-obj" }
 
+	filter { "action:gmake*", "system:windows" }
+		links { "gdi32", "comdlg32" }
 
+	filter { "system:windows", "configurations:Debug" }
+		links {
+			"%{Library.ShaderC_Debug}"
+		}
+	filter { "system:windows", "configurations:Release_Debug" }
+		links {
+			"%{Library.ShaderC_Release}"
+		}
+	filter { "system:windows", "configurations:Production" }
+		links {
+			"%{Library.ShaderC_Release}"
+		}
 
