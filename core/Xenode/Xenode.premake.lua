@@ -28,15 +28,15 @@ project "Xenode"
 		-- Extra ImGui Files:
 
 		-- ImGuizmo: 
-		"../deps/ImGuizmo/*.cpp",
-		"../deps/ImGuizmo/*.h",
+		"../../deps/ImGuizmo/*.cpp",
+		"../../deps/ImGuizmo/*.h",
 		-- ImGradientHDR:
-		"../deps/ImGradientHDR/*.cpp",
-		"../deps/ImGradientHDR/*.h",
+		"../../deps/ImGradientHDR/*.cpp",
+		"../../deps/ImGradientHDR/*.h",
 
 		--SHA256 source files
-		"../deps/SHA256/**.cpp",
-		"../deps/SHA256/**.h",
+		"../../deps/SHA256/**.cpp",
+		"../../deps/SHA256/**.h",
 	}
 
 	links { 
@@ -76,23 +76,23 @@ project "Xenode"
 
 	filter { "options:enable-profiling"}
 		files {
-			"../deps/optick/src/*.cpp",
-			"../deps/optick/src/*.h"
+			"../../deps/optick/src/*.cpp",
+			"../../deps/optick/src/*.h"
 		}
 
 		defines { "XEN_ENABLE_PROFILING" }
 
 		removefiles {
-			"../deps/optick/src/optick_gpu.vulkan.cpp" -- Remove vulkan for now
+			"../../deps/optick/src/optick_gpu.vulkan.cpp" -- Remove vulkan for now
 		}
 
-	filter "files:../deps/ImGradientHDR/**.cpp"
+	filter "files:../../deps/ImGradientHDR/**.cpp"
 		flags { "NoPCH" }
-	filter "files:../deps/ImGuizmo/**.cpp"
+	filter "files:../../deps/ImGuizmo/**.cpp"
 		flags { "NoPCH" }
-	filter "files:../deps/optick/**.cpp"
+	filter "files:../../deps/optick/**.cpp"
 		flags { "NoPCH" }
-	filter "files:../deps/SHA256/**.cpp"
+	filter "files:../../deps/SHA256/**.cpp"
 		flags { "NoPCH" }
 
 	filter "system:windows"

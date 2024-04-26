@@ -12,13 +12,13 @@ project "Xen"
 		"src/**.h",
 
 		--ImGuizmo source files
-		"../deps/ImGuizmo/*.cpp",
-		"../deps/ImGuizmo/*.h"
+		"../../deps/ImGuizmo/*.cpp",
+		"../../deps/ImGuizmo/*.h"
 	}
 
 	includedirs {
-		"%{wks.location}/Xenode/src/core/",
-		"%{wks.location}/Xen/src",
+		"%{wks.location}/core/Xenode/src/",
+		"%{wks.location}/core/Xen/src",
 
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
