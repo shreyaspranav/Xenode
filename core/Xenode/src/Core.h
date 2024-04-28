@@ -28,11 +28,23 @@
 typedef size_t Size;
 
 namespace Xen {
+
+	// Custom Data types:
+
+	// A 'Scope' Smart pointer
 	template<typename T>
 	using Scope = std::unique_ptr<T>;
 
+	// A 'Reference' Smart Pointer
 	template<typename T>
 	using Ref = std::shared_ptr<T>;
+
+	// A map and a unordered_map
+	template<typename T, typename V>
+	using UnorderedMap = std::unordered_map<T, V>;
+
+	template<typename T, typename V>
+	using Map = std::map<T, V>;
 }
 
 

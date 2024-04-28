@@ -13,11 +13,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 Xen::Ref<Xen::Input> input;
-
-bool orbit_over = false;
-Xen::Vec2 initial_pos;
-
-float line_width = 1.0f;
+Xen::Vec2 mouseInitialPos;
 
 bool operator&(const KeyTransformOperation& o1, const KeyTransformOperation& o2) { return static_cast<uint16_t>(o1) & static_cast<uint16_t>(o2); }
 
@@ -39,8 +35,8 @@ void EditorLayer::OnAttach()
 
 	m_EditorCamera = std::make_shared<Xen::Camera>(
 		m_EditorCameraType == Xen::EditorCameraType::_2D ? Xen::CameraType::Orthographic : Xen::CameraType::Perspective, 
-		viewport_framebuffer_width, 
-		viewport_framebuffer_height
+		m_ViewportFrameBufferWidth, 
+		m_ViewportFrameBufferHeight
 	);
 
 	Xen::Renderer2D::Init();
@@ -81,36 +77,30 @@ void EditorLayer::OnAttach()
 
 	m_EditorCameraController = Xen::EditorCameraController(input, m_EditorCameraType);
 
+	// Load all the resource textures:
+	m_ResourceTextures.insert({ "Play",   Xen::Texture2D::CreateTexture2D("assets/textures/play.png",     false) });
+	m_ResourceTextures.insert({ "Stop",   Xen::Texture2D::CreateTexture2D("assets/textures/stop.png",     false) });
+	m_ResourceTextures.insert({ "Pause",  Xen::Texture2D::CreateTexture2D("assets/textures/pause.png",    false) });
+	m_ResourceTextures.insert({ "Step",   Xen::Texture2D::CreateTexture2D("assets/textures/step.png",     false) });
+	m_ResourceTextures.insert({ "2D",     Xen::Texture2D::CreateTexture2D("assets/textures/2d-quad.png",  false) });
+	m_ResourceTextures.insert({ "3D",     Xen::Texture2D::CreateTexture2D("assets/textures/3d-cube.png",  false) });
 
-	m_PlayTexture = Xen::Texture2D::CreateTexture2D("assets/textures/play.png", false);
-	m_StopTexture = Xen::Texture2D::CreateTexture2D("assets/textures/stop.png", false);
-	m_PauseTexture = Xen::Texture2D::CreateTexture2D("assets/textures/pause.png", false);
-	m_StepTexture = Xen::Texture2D::CreateTexture2D("assets/textures/step.png", false);
-	m_2DTexture = Xen::Texture2D::CreateTexture2D("assets/textures/2d-quad.png", false);
-	m_3DTexture = Xen::Texture2D::CreateTexture2D("assets/textures/3d-cube.png", false);
-
-	m_PlayTexture->LoadTexture();
-	m_StopTexture->LoadTexture();
-	m_PauseTexture->LoadTexture();
-	m_StepTexture->LoadTexture();
-	m_2DTexture->LoadTexture();
-	m_3DTexture->LoadTexture();
+	for (auto& [textureTag, texture] : m_ResourceTextures)
+		texture->LoadTexture();
 
 	// Assuming that m_EditorState is m_EditorState::Edit in the beginning
-	m_PlayOrPause = m_PlayTexture;
+	m_PlayOrPause = m_ResourceTextures["Play"];
 
 	// Assuming 2D view is the default:
 	if (m_EditorCameraType == Xen::EditorCameraType::_2D)
 	{
-		m_2DOr3DView = m_2DTexture;
+		m_2DOr3DView = m_ResourceTextures["2D"];
 		Xen::RenderCommand::EnableDepthTest(false);
 	}
 	else {
-		m_2DOr3DView = m_3DTexture;
+		m_2DOr3DView = m_ResourceTextures["3D"];
 		Xen::RenderCommand::EnableDepthTest(true);
 	}
-
-	m_EditorScene->Test();
 }
 
 void EditorLayer::OnDetach()
@@ -122,8 +112,8 @@ void EditorLayer::OnUpdate(double timestep)
 	m_EditorCameraController.SetCameraType(m_EditorCameraType);
 
 	Xen::Vec2 mouse = Xen::Vec2(input->GetMouseX(), input->GetMouseY());
-	Xen::Vec2 delta = (mouse - initial_pos) * 0.3f;
-	initial_pos = mouse;
+	Xen::Vec2 delta = (mouse - mouseInitialPos) * 0.3f;
+	mouseInitialPos = mouse;
 
 	bool active = true;
 
@@ -132,9 +122,9 @@ void EditorLayer::OnUpdate(double timestep)
 
 	if (m_EditorState == EditorState::Edit)
 	{
-		m_ActiveScene->SetMouseCoordinates(viewport_mouse_pos.x, viewport_mouse_pos.y);
+		m_ActiveScene->SetMouseCoordinates(m_ViewportMousePos.x, m_ViewportMousePos.y);
 
-		m_EditorCameraController.Update(&active, viewport_framebuffer_height);
+		m_EditorCameraController.Update(&active, m_ViewportFrameBufferHeight);
 		m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
 
 		if (m_EditorCameraType == Xen::EditorCameraType::_2D) 
@@ -159,7 +149,7 @@ void EditorLayer::OnUpdate(double timestep)
 	{
 		m_ActiveScene = m_RuntimeScene;
 
-		m_ActiveScene->SetMouseCoordinates(viewport_mouse_pos.x, viewport_mouse_pos.y);
+		m_ActiveScene->SetMouseCoordinates(m_ViewportMousePos.x, m_ViewportMousePos.y);
 
 		if (m_SceneStepped) {
 			m_ActiveScene->OnUpdateRuntime(timestep, false);
@@ -187,8 +177,8 @@ void EditorLayer::OnUpdate(double timestep)
 	{
 		// For some reason the red integer attachment is flipped!
 		int entt_id = m_ActiveScene->GetUnlitSceneFrameBuffer()->ReadIntPixel(m_ActiveScene->GetMousePickingFrameBufferIndex(),
-			viewport_mouse_pos.x, 
-			viewport_framebuffer_height - viewport_mouse_pos.y);
+			m_ViewportMousePos.x,
+			m_ViewportFrameBufferHeight - m_ViewportMousePos.y);
 
 		m_HierarchyPanel.SetSelectedEntity(Xen::Entity((entt::entity)entt_id, m_ActiveScene.get()));
 	}
@@ -199,11 +189,32 @@ void EditorLayer::OnUpdate(double timestep)
 
 void EditorLayer::OnImGuiUpdate()
 {
-	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+	// Sets up the dockspace and determines the positions of the panels that are pre-docked:
+	EditorLayer::ImGuiSetupDockSpace();
+
+	// Renders the menu bar(Also has code for the options in the menu bar: Like the open and save functionality).
+	EditorLayer::ImGuiRenderMenuBar();
+
+	// Renders all the panels such as the Scene Hierarchy Panel, Properties Panel, Content Browser Panel, etc.
+	EditorLayer::ImGuiRenderPanels();
+
+	// Renders the Viewport and the overlays in the viewport: Like the gizmos and whatnot.
+	EditorLayer::ImGuiRenderViewport();
+
+	// Renders the main toolbar:
+	EditorLayer::ImGuiRenderToolbar();
+}
+
+// ImGui Rendering divided into chunks: ---------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void EditorLayer::ImGuiSetupDockSpace()
+{
+	static ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
 
 	// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
 	// because it would be confusing to have two docking targets within each others.
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->Pos);
@@ -211,13 +222,13 @@ void EditorLayer::OnImGuiUpdate()
 	ImGui::SetNextWindowViewport(viewport->ID);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
 
 	// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
-	if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-		window_flags |= ImGuiWindowFlags_NoBackground;
+	if (dockspaceFlags & ImGuiDockNodeFlags_PassthruCentralNode)
+		windowFlags |= ImGuiWindowFlags_NoBackground;
 
 	// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
 	// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive, 
@@ -225,7 +236,10 @@ void EditorLayer::OnImGuiUpdate()
 	// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise 
 	// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin("DockSpace", nullptr, window_flags);
+
+	// The corresponding ImGui::End() is in EditorLayer::
+	ImGui::Begin("DockSpace", nullptr, windowFlags);
+	
 	ImGui::PopStyleVar();
 	ImGui::PopStyleVar(2);
 
@@ -233,26 +247,26 @@ void EditorLayer::OnImGuiUpdate()
 	ImGuiIO& io = ImGui::GetIO();
 	if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 	{
-		ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		ImGuiID dockspaceID = ImGui::GetID("MyDockSpace");
+		ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), dockspaceFlags);
 
 		static auto first_time = true;
 		if (first_time)
 		{
 			first_time = false;
 
-			ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
-			ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags | ImGuiDockNodeFlags_DockSpace);
-			ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
+			ImGui::DockBuilderRemoveNode(dockspaceID); // clear any previous layout
+			ImGui::DockBuilderAddNode(dockspaceID, dockspaceFlags | ImGuiDockNodeFlags_DockSpace);
+			ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
 
 			// split the dockspace into 2 nodes -- DockBuilderSplitNode takes in the following args in the following order
 			// window ID to split, direction, fraction (between 0 and 1), the final two setting let's us choose which id 
 			// we want (which ever one we DON'T set as NULL, will be returned by the function)
 			// out_id_at_dir is the id of the node in the direction we specified earlier, out_id_at_opposite_dir is in the opposite direction
 
-			auto dock_id_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.22f, nullptr, &dockspace_id); // For the Scene hierarchy panel and properties panel
-			auto dock_id_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);  // For the Content Browser panel
-			auto dock_id_up = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.065f, nullptr, &dockspace_id);    // For the toolbar
+			auto dock_id_left = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.22f, nullptr, &dockspaceID); // For the Scene hierarchy panel and properties panel
+			auto dock_id_down = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down, 0.3f, nullptr, &dockspaceID);  // For the Content Browser panel
+			auto dock_id_up = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Up, 0.065f, nullptr, &dockspaceID);    // For the toolbar
 
 			auto dock_id_left_down = ImGui::DockBuilderSplitNode(dock_id_left, ImGuiDir_Down, 0.5f, nullptr, &dock_id_left);
 
@@ -262,11 +276,14 @@ void EditorLayer::OnImGuiUpdate()
 			ImGui::DockBuilderDockWindow("##toolbar", dock_id_up);
 			ImGui::DockBuilderDockWindow(m_SceneSettingsPanel.GetPanelTitle().c_str(), dock_id_left_down);
 			ImGui::DockBuilderDockWindow(m_PropertiesPanel.GetPanelTitle().c_str(), dock_id_left_down);
-			//ImGui::DockBuilderDockWindow("Window Three", dock_id_left_down);
-			ImGui::DockBuilderDockWindow((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str(), dockspace_id); // IMP: To Dock In Centre!! use directly 'dockspace_id'
-			ImGui::DockBuilderFinish(dockspace_id);
+			ImGui::DockBuilderDockWindow((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str(), dockspaceID); // IMP: To Dock In Centre!! use directly 'dockspaceID'
+			ImGui::DockBuilderFinish(dockspaceID);
 		}
 	}
+}
+
+void EditorLayer::ImGuiRenderMenuBar()
+{
 	if (ImGui::BeginMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
@@ -277,10 +294,10 @@ void EditorLayer::OnImGuiUpdate()
 				m_EditorScene->NewScene();
 				m_HierarchyPanel.SetActiveScene(m_ActiveScene);
 			}
-			if (ImGui::MenuItem("Open", "Ctrl+O")) 
+			if (ImGui::MenuItem("Open", "Ctrl+O"))
 			{
 				const std::string& filePath = Xen::Utils::OpenFileDialogOpen("Xenode 2D Scene (*.xen)\0*.*\0");
-				
+
 				if (!filePath.empty())
 				{
 					OpenScene(filePath);
@@ -290,7 +307,7 @@ void EditorLayer::OnImGuiUpdate()
 				}
 			}
 
-			if (ImGui::MenuItem("Save", "Ctrl+S")) 
+			if (ImGui::MenuItem("Save", "Ctrl+S"))
 			{
 				const std::string& filePath = Xen::Utils::OpenFileDialogSave("Xenode 2D Scene (*.xen)\0*.*\0");
 
@@ -314,63 +331,58 @@ void EditorLayer::OnImGuiUpdate()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Edit"))		{ ImGui::EndMenu(); }
-		if (ImGui::BeginMenu("Project"))	{ ImGui::EndMenu(); }
-		if (ImGui::BeginMenu("View"))		{ ImGui::EndMenu(); }
-		if (ImGui::BeginMenu("Build"))		{ ImGui::EndMenu(); }
-		if (ImGui::BeginMenu("Tools"))		{ ImGui::EndMenu(); }
-		if (ImGui::BeginMenu("About"))		{ ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("Edit")) { ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("Project")) { ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("View")) { ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("Build")) { ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("Tools")) { ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("About")) { ImGui::EndMenu(); }
 		ImGui::EndMenuBar();
 	}
 
+	// This is for ImGui::Begin() in EditorLayer::ImGuiSetupDockspace()
 	ImGui::End();
+}
 
+void EditorLayer::ImGuiRenderPanels()
+{
 	m_HierarchyPanel.OnImGuiRender();
-
-	m_ContentBrowserPanel.OnImGuiEditor();
-
+	m_ContentBrowserPanel.OnImGuiRender();
 	m_SceneSettingsPanel.OnImGuiRender();
-
 	m_PropertiesPanel.OnImGuiRender();
 
-	if(m_EditorState == EditorState::Edit)
+	if (m_EditorState == EditorState::Edit)
 		m_PropertiesPanel.SetActiveEntity(m_HierarchyPanel.GetSelectedEntity());
-	else 
+	else
 		m_PropertiesPanel.SetActiveEntity(m_ActiveScene->GetRuntimeEntity(m_HierarchyPanel.GetSelectedEntity(), m_ActiveScene));
+}
 
+void EditorLayer::ImGuiRenderViewport()
+{
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-
-	// Viewport Panel -------------------------------------------------------------------------------------------------------------------------
 	ImGui::Begin((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str());
 
 	m_IsMouseHoveredOnViewport = ImGui::IsWindowHovered();
 
-	float y_offset = ImGui::GetWindowHeight() - viewport_framebuffer_height;
+	auto [sx, sy] = ImGui::GetCursorScreenPos();
+	auto [mx, my] = ImGui::GetMousePos();
 
-	auto[sx, sy] = ImGui::GetCursorScreenPos();
-	auto[mx, my] = ImGui::GetMousePos();
+	m_ViewportMousePos.x = mx - sx;
+	m_ViewportMousePos.y = my - sy;
 
-	viewport_mouse_pos.x = mx - sx;
-	viewport_mouse_pos.y = my - sy;
-
-	if (viewport_framebuffer_width != ImGui::GetContentRegionAvail().x || viewport_framebuffer_height != ImGui::GetContentRegionAvail().y)
+	if (m_ViewportFrameBufferWidth != ImGui::GetContentRegionAvail().x || m_ViewportFrameBufferHeight != ImGui::GetContentRegionAvail().y)
 	{
 		if (ImGui::GetContentRegionAvail().x <= 0 || ImGui::GetContentRegionAvail().y <= 0) {}
 		else {
-			viewport_framebuffer_width = ImGui::GetContentRegionAvail().x;
-			viewport_framebuffer_height = ImGui::GetContentRegionAvail().y;
+			m_ViewportFrameBufferWidth = ImGui::GetContentRegionAvail().x;
+			m_ViewportFrameBufferHeight = ImGui::GetContentRegionAvail().y;
 
-			m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
-			m_EditorCamera->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
+			m_ActiveScene->OnViewportResize(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
+			m_EditorCamera->OnViewportResize(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
 		}
 	}
 
-	//m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
-
-	// Xen::Texture2D::BindTexture(m_ActiveScene->GetTestTexture(), 0);
-
-	ImGui::Image((void*)m_ActiveScene->GetUnlitSceneFrameBuffer()->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
-	//ImGui::Image((void*)m_ActiveScene->GetSceneFrameBuffer()->GetColorAttachmentRendererID(0), ImVec2(viewport_framebuffer_width, viewport_framebuffer_height), ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::Image((void*)m_ActiveScene->GetUnlitSceneFrameBuffer()->GetColorAttachmentRendererID(0), ImVec2(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight), ImVec2(0, 1), ImVec2(1, 0));
 
 	if (ImGui::BeginDragDropTarget())
 	{
@@ -390,6 +402,14 @@ void EditorLayer::OnImGuiUpdate()
 		ImGui::EndDragDropTarget();
 	}
 
+	EditorLayer::ImGuiRenderOverlay();
+	ImGui::End();
+	ImGui::PopStyleVar();
+}
+
+void EditorLayer::ImGuiRenderOverlay()
+{
+	float y_offset = ImGui::GetWindowHeight() - m_ViewportFrameBufferHeight;
 	m_IsMousePickingWorking = true;
 
 	if (m_EditorState == EditorState::Edit)
@@ -407,7 +427,7 @@ void EditorLayer::OnImGuiUpdate()
 
 			ImGuizmo::SetOrthographic(m_EditorCamera->GetProjectionType() == Xen::CameraType::Orthographic ? true : false);
 			ImGuizmo::SetDrawlist();
-			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + y_offset, viewport_framebuffer_width, viewport_framebuffer_height);
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + y_offset, m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
 
 			glm::mat4 camera_view = m_EditorCamera->GetViewMatrix();
 			glm::mat4 camera_projection = m_EditorCamera->GetProjectionMatrix();
@@ -415,12 +435,12 @@ void EditorLayer::OnImGuiUpdate()
 			Xen::Component::Transform& entity_transform_comp = selectedEntity.GetComponent<Xen::Component::Transform>();
 
 			glm::vec3 radians_rotation_vec = glm::vec3(glm::radians(entity_transform_comp.rotation.x),
-					glm::radians(entity_transform_comp.rotation.y),
-					glm::radians(entity_transform_comp.rotation.z));
+				glm::radians(entity_transform_comp.rotation.y),
+				glm::radians(entity_transform_comp.rotation.z));
 
 			glm::mat4 entity_transform = glm::translate(glm::mat4(1.0f), entity_transform_comp.position.GetVec())
-							* glm::toMat4(glm::quat(radians_rotation_vec))
-							* glm::scale(glm::mat4(1.0f), entity_transform_comp.scale.GetVec());
+				* glm::toMat4(glm::quat(radians_rotation_vec))
+				* glm::scale(glm::mat4(1.0f), entity_transform_comp.scale.GetVec());
 
 			switch (m_GizmoOperation)
 			{
@@ -447,21 +467,21 @@ void EditorLayer::OnImGuiUpdate()
 				glm::vec3 translation, rotation, scale, skew;
 				glm::quat orientation;
 				glm::vec4 perspective;
-			
+
 				glm::decompose(entity_transform, scale, orientation, translation, skew, perspective);
-			
+
 				rotation = glm::eulerAngles(orientation);
-			
+
 				rotation.x = glm::degrees(rotation.x);
 				rotation.y = glm::degrees(rotation.y);
 				rotation.z = glm::degrees(rotation.z);
-			
+
 				glm::vec3 delta_rotation = rotation - entity_transform_comp.rotation.GetVec();
-			
+
 				entity_transform_comp.rotation.x += delta_rotation.x;
 				entity_transform_comp.rotation.y += delta_rotation.y;
 				entity_transform_comp.rotation.z += delta_rotation.z;
-			
+
 				entity_transform_comp.position = translation;
 				entity_transform_comp.scale = scale;
 			}
@@ -504,50 +524,34 @@ void EditorLayer::OnImGuiUpdate()
 			}
 		}
 	}
+}
 
-	ImGui::End();
-	// Viewport Panel END -------------------------------------------------------------------------------------------------------------------------
+void EditorLayer::ImGuiRenderToolbar()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-	ImGuiWindowClass window_class;
-	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
-	ImGui::SetNextWindowClass(&window_class);
+	ImGuiWindowClass windowClass;
+	windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
+	ImGui::SetNextWindowClass(&windowClass);
 
-	ImGuiWindowFlags toolbar_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
-	ImGui::Begin("##toolbar", nullptr, toolbar_flags);
-	
+	ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+	ImGui::Begin("##toolbar", nullptr, toolbarFlags);
+
 	ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
-
-	const char* scene_state;
-	switch (m_EditorState)
-	{
-	case EditorLayer::EditorState::Play:
-		scene_state = "Play";
-		break;
-	case EditorLayer::EditorState::Edit:
-		scene_state = "Edit";
-		break;
-	case EditorLayer::EditorState::Pause:
-		scene_state = "Pause";
-		break;
-	default:
-		break;
-	}
-
-	//ImGui::Text("Scene State: %s", scene_state); ImGui::SameLine();
 
 	float avail = ImGui::GetContentRegionAvail().x;
 
 	if (ImGui::ImageButton((ImTextureID)m_2DOr3DView->GetNativeTextureID(), { 25.0f, 25.0f }))
 	{
-		if (m_2DOr3DView == m_2DTexture)
+		if (m_2DOr3DView == m_ResourceTextures["2D"])
 		{
-			m_2DOr3DView = m_3DTexture;
+			m_2DOr3DView = m_ResourceTextures["3D"];
 			m_EditorCameraType = Xen::EditorCameraType::_3D;
 			m_EditorCamera->SetProjectionType(Xen::CameraType::Perspective);
 			Xen::RenderCommand::EnableDepthTest(true);
 		}
 		else {
-			m_2DOr3DView = m_2DTexture;
+			m_2DOr3DView = m_ResourceTextures["2D"];
 			m_EditorCameraType = Xen::EditorCameraType::_2D;
 			m_EditorCamera->SetProjectionType(Xen::CameraType::Orthographic);
 			Xen::RenderCommand::EnableDepthTest(false);
@@ -571,13 +575,13 @@ void EditorLayer::OnImGuiUpdate()
 
 	if (ImGui::ImageButton((ImTextureID)m_PlayOrPause->GetNativeTextureID(), { 25.0f, 25.0f }))
 	{
-		if (m_PlayOrPause == m_PlayTexture)
+		if (m_PlayOrPause == m_ResourceTextures["Play"])
 		{
-			m_PlayOrPause = m_PauseTexture;
+			m_PlayOrPause = m_ResourceTextures["Pause"];
 			OnScenePlay();
 		}
 		else {
-			m_PlayOrPause = m_PlayTexture;
+			m_PlayOrPause = m_ResourceTextures["Play"];
 			m_EditorState = EditorState::Pause;
 
 			OnScenePause();
@@ -590,11 +594,11 @@ void EditorLayer::OnImGuiUpdate()
 
 	ImGui::BeginDisabled(m_EditMode);
 
-	if (ImGui::ImageButton((ImTextureID)m_StopTexture->GetNativeTextureID(), { 25.0f, 25.0f })) 
+	if (ImGui::ImageButton((ImTextureID)m_ResourceTextures["Stop"]->GetNativeTextureID(), { 25.0f, 25.0f }))
 	{
 		m_EditorState = EditorState::Edit;
 		m_EditMode = true;
-		m_PlayOrPause = m_PlayTexture;
+		m_PlayOrPause = m_ResourceTextures["Play"];
 
 		OnSceneStop();
 	}
@@ -602,7 +606,7 @@ void EditorLayer::OnImGuiUpdate()
 	ImGui::SameLine();
 
 	ImGui::BeginDisabled(m_EditorState != EditorState::Pause);
-	if (ImGui::ImageButton((ImTextureID)m_StepTexture->GetNativeTextureID(), { 25.0f, 25.0f }))
+	if (ImGui::ImageButton((ImTextureID)m_ResourceTextures["Step"]->GetNativeTextureID(), { 25.0f, 25.0f }))
 	{
 		m_SceneStepped = true;
 	}
@@ -614,11 +618,9 @@ void EditorLayer::OnImGuiUpdate()
 	ImGui::End();
 
 	ImGui::PopStyleVar();
-
-	//ImGui::Begin("Test");
-	//ImGui::SliderFloat("Circle Thickness", &line_width, 0.0f, 1.0f);
-	//ImGui::End();
 }
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void EditorLayer::OnFixedUpdate()
 {
@@ -637,7 +639,7 @@ void EditorLayer::OnScenePlay()
 	}
 
 	m_HierarchyPanel.SetActiveScene(m_RuntimeScene);
-	m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
+	m_ActiveScene->OnViewportResize(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
 
 	m_EditorState = EditorState::Play;
 }
@@ -668,8 +670,8 @@ void EditorLayer::SaveScene(const std::string& filePath)
 
 void EditorLayer::OnWindowResizeEvent(Xen::WindowResizeEvent& event)
 {
-	m_EditorCamera->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
-	m_ActiveScene->OnViewportResize(viewport_framebuffer_width, viewport_framebuffer_height);
+	m_EditorCamera->OnViewportResize(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
+	m_ActiveScene->OnViewportResize(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
 }
 
 void EditorLayer::OnMouseScrollEvent(Xen::MouseScrollEvent& event)

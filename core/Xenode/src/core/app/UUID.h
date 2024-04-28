@@ -1,8 +1,6 @@
 #pragma once
 #include <Core.h>
 
-#include <xhash>
-
 namespace Xen {
 	class XEN_API UUID {
 	public:

@@ -64,8 +64,6 @@ namespace Xen {
 
 		void NewScene();
 
-		void Test();
-
 		inline void SetMouseCoordinates(uint32_t x, uint32_t y)		{ m_MouseX = x; m_MouseY = y; }
 		inline uint32_t GetMouseX() { return m_MouseX; }
 		inline uint32_t GetMouseY() { return m_MouseY; }
@@ -121,19 +119,6 @@ namespace Xen {
 		// Temp:
 		Ref<Shader> testGeometryShader;
 		Ref<VertexBuffer> testVertexBuffer;
-
-		struct TestVertexData {
-			Vec3 position;
-			Color startColor;
-			Color endColor;
-			float life;
-			uint32_t count;
-		};
-
-		std::vector<TestVertexData> testData = {
-			{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}, 1.0f, 22},
-			{{1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}, 1.0f, 69}
-		};
 	};
 
 	class XEN_API Entity

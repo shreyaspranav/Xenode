@@ -15,7 +15,7 @@ public:
 	ContentBrowserPanel() {}
 	~ContentBrowserPanel() {}
 
-	void OnImGuiEditor()
+	void OnImGuiRender()
 	{
 
 		// Load Textures of the icons here:

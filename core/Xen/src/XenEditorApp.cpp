@@ -16,8 +16,8 @@ public:
 
 		window_title = "Xen Editor";
 
-		imgui_always_render = 1;
-		fullscreen_monitor = 0;
+		imgui_always_render = true;
+		fullscreen_monitor = 0; // No fullscreen
 
 		vsync = true;
 	}

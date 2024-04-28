@@ -68,13 +68,23 @@ public:
 	void OnMouseButtonReleaseEvent(Xen::MouseButtonReleaseEvent& event) override;
 	
 	void OnKeyPressEvent(Xen::KeyPressEvent& event) override;
+private:
+	// The OnImGuiUpdate function is broken down into smaller functions:
+	void ImGuiSetupDockSpace();
+	void ImGuiRenderMenuBar();
+	void ImGuiRenderPanels();
+
+	void ImGuiRenderViewport();
+		void ImGuiRenderOverlay(); // ImGuiRenderViewport() calls ImGuiRenderOverlay()
+
+	void ImGuiRenderToolbar();
 
 private:
 	double m_Timestep;
 	Xen::GameMode m_GameMode;
 	Xen::EditorCameraType m_EditorCameraType = Xen::EditorCameraType::_2D;
 
-	uint32_t viewport_framebuffer_width = 1, viewport_framebuffer_height = 1;
+	uint32_t m_ViewportFrameBufferWidth = 1, m_ViewportFrameBufferHeight = 1;
 
 	Xen::Ref<Xen::FrameBuffer> m_ViewportFrameBuffer;
 	Xen::Ref<Xen::Scene> m_ActiveScene;
@@ -96,12 +106,15 @@ private:
 	// To disable mouse picking when mouse is over a gizmo:
 	bool m_IsMousePickingWorking = true;
 
-	Xen::Vec2 viewport_mouse_pos;
+	Xen::Vec2 m_ViewportMousePos;
 
 	// Editor Camera Stuff------------------------------------
 	Xen::Ref<Xen::Camera> m_EditorCamera;
 	Xen::EditorCameraController m_EditorCameraController;
 
+	// Resource textures refers to textures that are used in the editor:
+	Xen::UnorderedMap<std::string, Xen::Ref<Xen::Texture2D>> m_ResourceTextures;
+	
 	Xen::Ref<Xen::Texture2D> m_PlayTexture;
 	Xen::Ref<Xen::Texture2D> m_PauseTexture;
 	Xen::Ref<Xen::Texture2D> m_StopTexture;

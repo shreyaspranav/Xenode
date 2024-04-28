@@ -354,43 +354,6 @@ namespace Xen {
 		m_IsDirty = true;
 	}
 
-	void Scene::Test()
-	{
-		//m_BloomShader = ComputeShader::CreateComputeShader("assets/shaders/bloom.shader");
-		//m_BloomShader->LoadShader();
-		//
-		//m_TestInputTexture = Texture2D::CreateTexture2D("assets/textures/opengl.png", true);
-		//m_TestInputTexture->LoadTexture();
-		//
-		//TextureProperties p = m_TestInputTexture->GetTextureProperties();
-		//
-		//m_TestOutputTexture = Texture2D::CreateTexture2D({ m_FramebufferWidth / 2, m_FramebufferHeight / 2, TextureFormat::RGBA16F, 0 }, nullptr, 0);
-		//m_TestOutputTexture2 = Texture2D::CreateTexture2D({ m_FramebufferWidth / 4, m_FramebufferWidth / 4, TextureFormat::RGBA16F, 0 }, nullptr, 0);
-		//m_TestOutputTexture3 = Texture2D::CreateTexture2D({ p.width / 8, p.height / 8, TextureFormat::RGBA8, 0 }, nullptr, 0);
-		//m_TestOutputTexture4 = Texture2D::CreateTexture2D({ p.width / 16, p.height / 16, TextureFormat::RGBA8, 0 }, nullptr, 0);
-		//m_TestOutputTexture5 = Texture2D::CreateTexture2D({p.width / 32, p.height / 32, TextureFormat::RGBA8, 0}, nullptr, 0);
-		
-		
-		//glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-		//
-		//testGeometryShader = Shader::CreateShader("assets/shaders/particle_emitter.shader");
-		//testGeometryShader->LoadShader(nullptr);
-
-		//const std::string& name, VertexBufferDataType type, uint8_t shader_location
-
-		//VertexBufferLayout layout = {
-		//	{"aPosition", VertexBufferDataType::Float3, 0},
-		//	{"aStartColor", VertexBufferDataType::Float4, 1},
-		//	{"aEndColor", VertexBufferDataType::Float4, 2},
-		//	{"aLifetime", VertexBufferDataType::Float, 3},
-		//	{"aParticleCount", VertexBufferDataType::UnsignedInt, 4},
-		//};
-		//
-		//testVertexBuffer = VertexBuffer::CreateVertexBuffer(testData.size() * sizeof(TestVertexData), layout);
-		//testVertexBuffer->Put(testData.data(), testData.size() * sizeof(TestVertexData));
-
-	}
-
 	inline void Scene::CreateParticleSystem(const ParticleSettings2D* particleSettings)
 	{
 		
