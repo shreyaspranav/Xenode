@@ -1,4 +1,4 @@
-#include "EditorLayer.h"
+#include "LevelEditorLayer.h"
 #include "core/scene/ScriptableEntity.h"
 
 #include <core/app/Timer.h>
@@ -11,6 +11,9 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+
+#include <project/ProjectManager.h>
+#include <project/ProjectSerializer.h>
 
 Xen::Ref<Xen::Input> input;
 Xen::Vec2 mouseInitialPos;
@@ -101,6 +104,23 @@ void EditorLayer::OnAttach()
 		m_2DOr3DView = m_ResourceTextures["3D"];
 		Xen::RenderCommand::EnableDepthTest(true);
 	}
+
+	// Xen::ProjectProperties properties;
+	// properties.name = "default_project";
+	// properties.gameType = Xen::GameType::_2D;
+	// properties.scriptingLanguage = Xen::ScriptingLanguage::Lua;
+	// 
+	// std::filesystem::path path = "../../resources/projects";
+	// 
+	// Xen::ProjectManager::CreateProject(path, properties);
+
+	XEN_ENGINE_LOG_INFO("Project Exists: {0}", Xen::ProjectSerializer::IsValidProjectFile("../../resources/projects/default_project/default_project.xenproject"));
+
+	Xen::Ref<Xen::Project> p = Xen::ProjectManager::LoadProject("../../resources/projects/default_project/default_project.xenproject");
+	Xen::ProjectProperties props = p->GetProjectProperties();
+	Xen::ProjectSettings settings = p->GetProjectSettings();
+
+	XEN_ENGINE_LOG_INFO("Name: {0}", props.name);
 }
 
 void EditorLayer::OnDetach()

@@ -1,0 +1,8 @@
+Project:
+  Name: default_project
+  GameType: 2D
+  ScriptingLanguage: Lua
+  AssetsPath: assets/
+  BuildPath: build/
+  CachePath: .projcache/
+  StartScenePath: assets/Scene.xen

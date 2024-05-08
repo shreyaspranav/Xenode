@@ -14,7 +14,7 @@
 
 namespace Xen {
 
-	// Combine this with the asset pipline or the project system
+	// Combine this with the asset pipeline or the project system
 	const std::string cacheDirectory = "assets/.cache/";
 
 	static shaderc_shader_kind GLShaderToShaderC(GLenum shaderKind)

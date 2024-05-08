@@ -1,7 +1,7 @@
 #include <Xenode.h>
 #include <core/app/EntryPoint.h>
 
-#include "EditorLayer.h"
+#include "LevelEditorLayer.h"
 
 class XenEditorApp : public Xen::DesktopApplication
 {
@@ -11,8 +11,8 @@ public:
 
 	void OnCreate() override
 	{
-		window_width = 1280;
-		window_height = 720;
+		window_width = 1366;
+		window_height = 768;
 
 		window_title = "Xen Editor";
 
