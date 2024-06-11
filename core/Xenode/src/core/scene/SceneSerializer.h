@@ -4,6 +4,7 @@
 
 namespace Xen {
 	class Scene;
+	// class Scene;
 
 	class SceneSerializer
 	{

@@ -15,21 +15,23 @@
 #include <project/ProjectManager.h>
 #include <project/ProjectSerializer.h>
 
+#include <core/scene/SceneRuntime.h>
+
 Xen::Ref<Xen::Input> input;
 Xen::Vec2 mouseInitialPos;
 
 bool operator&(const KeyTransformOperation& o1, const KeyTransformOperation& o2) { return static_cast<uint16_t>(o1) & static_cast<uint16_t>(o2); }
 
-EditorLayer::EditorLayer()
+LevelEditorLayer::LevelEditorLayer()
 {
 	m_Timestep = 0.0f;
 }
 
-EditorLayer::~EditorLayer()
+LevelEditorLayer::~LevelEditorLayer()
 {
 }
 
-void EditorLayer::OnAttach()
+void LevelEditorLayer::OnAttach()
 {
 	m_GameMode = Xen::DesktopApplication::GetGameMode();
 
@@ -42,10 +44,8 @@ void EditorLayer::OnAttach()
 		m_ViewportFrameBufferHeight
 	);
 
-	Xen::Renderer2D::Init();
-
-	m_EditorScene = std::make_shared<Xen::Scene>();
-	m_RuntimeScene = std::make_shared<Xen::Scene>();
+	m_EditorScene = std::make_shared<Xen::Scene>(Xen::SceneType::_2D);
+	m_RuntimeScene = std::make_shared<Xen::Scene>(Xen::SceneType::_2D);
 	m_ActiveScene = m_EditorScene;
 
 	m_EditorCamera->Update();
@@ -121,13 +121,21 @@ void EditorLayer::OnAttach()
 	Xen::ProjectSettings settings = p->GetProjectSettings();
 
 	XEN_ENGINE_LOG_INFO("Name: {0}", props.name);
+
+	Xen::SceneRuntime::Initialize(Xen::DesktopApplication::GetWindow()->GetFrameBufferWidth(), Xen::DesktopApplication::GetWindow()->GetFrameBufferHeight());
+
+	Xen::SceneRuntime::SetActiveScene(m_ActiveScene);
+	Xen::SceneRuntime::SetAdditionalCamera(m_EditorCamera);
+
+	m_SceneSettings.renderSource = Xen::RenderSource::AdditionalCamera;
 }
 
-void EditorLayer::OnDetach()
+void LevelEditorLayer::OnDetach()
 {
+	Xen::SceneRuntime::Finalize();
 }
 
-void EditorLayer::OnUpdate(double timestep)
+void LevelEditorLayer::OnUpdate(double timestep)
 {
 	m_EditorCameraController.SetCameraType(m_EditorCameraType);
 
@@ -139,10 +147,18 @@ void EditorLayer::OnUpdate(double timestep)
 
 	Xen::RenderCommand::Clear();
 	m_Timestep = timestep;
+	
+	Xen::SceneRuntime::Begin(m_SceneSettings);
+
+	if (m_FirstRuntimeIteration)
+	{
+		Xen::SceneRuntime::ResizeFrameBuffer(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
+		m_FirstRuntimeIteration = false;
+	}
 
 	if (m_EditorState == EditorState::Edit)
 	{
-		m_ActiveScene->SetMouseCoordinates(m_ViewportMousePos.x, m_ViewportMousePos.y);
+		// m_ActiveScene->SetMouseCoordinates(m_ViewportMousePos.x, m_ViewportMousePos.y);
 
 		m_EditorCameraController.Update(&active, m_ViewportFrameBufferHeight);
 		m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
@@ -159,9 +175,7 @@ void EditorLayer::OnUpdate(double timestep)
 			m_EditorCamera->Update(true);
 		}
 
-
-		m_ActiveScene->OnUpdate(timestep, m_EditorCamera);
-
+		Xen::SceneRuntime::Update(timestep);
 		m_EditorScene = m_ActiveScene;
 	}
 
@@ -169,16 +183,18 @@ void EditorLayer::OnUpdate(double timestep)
 	{
 		m_ActiveScene = m_RuntimeScene;
 
-		m_ActiveScene->SetMouseCoordinates(m_ViewportMousePos.x, m_ViewportMousePos.y);
-
-		if (m_SceneStepped) {
-			m_ActiveScene->OnUpdateRuntime(timestep, false);
+		XEN_ENGINE_LOG_INFO("m_SceneStepped: {0}", m_SceneStepped);
+		if (m_SceneStepped) 
+		{
+			Xen::SceneRuntime::UpdateRuntime(timestep, false);
 			m_SceneStepped = false;
 		}
-		else 
-			m_ActiveScene->OnUpdateRuntime(timestep, m_ScenePaused);
-
+		else
+			Xen::SceneRuntime::UpdateRuntime(timestep, m_ScenePaused);
 	}
+
+
+	Xen::SceneRuntime::End();
 
 # if 0
 	// Line Rendering Test
@@ -196,39 +212,45 @@ void EditorLayer::OnUpdate(double timestep)
 	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport && m_IsMousePickingWorking)
 	{
 		// For some reason the red integer attachment is flipped!
-		int entt_id = m_ActiveScene->GetUnlitSceneFrameBuffer()->ReadIntPixel(m_ActiveScene->GetMousePickingFrameBufferIndex(),
-			m_ViewportMousePos.x,
-			m_ViewportFrameBufferHeight - m_ViewportMousePos.y);
+		// int entt_id = m_ActiveScene->GetUnlitSceneFrameBuffer()->ReadIntPixel(m_ActiveScene->GetMousePickingFrameBufferIndex(),
+		// 	m_ViewportMousePos.x,
+		// 	m_ViewportFrameBufferHeight - m_ViewportMousePos.y);
 
-		m_HierarchyPanel.SetSelectedEntity(Xen::Entity((entt::entity)entt_id, m_ActiveScene.get()));
+		// m_HierarchyPanel.SetSelectedEntity(Xen::SceneA::EntityA((entt::entity)entt_id, m_ActiveScene.get()));
 	}
 	//Xen::Renderer2D::DrawQuadOutline({ 0.0f, 0.0f, 0.1f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
 
-	m_ActiveScene->OnRender();
-} 
 
-void EditorLayer::OnImGuiUpdate()
+	// m_ActiveScene->OnRender();
+}
+void LevelEditorLayer::OnRender()
+{
+	Xen::SceneRuntime::Render();
+}
+
+
+void LevelEditorLayer::OnImGuiUpdate()
 {
 	// Sets up the dockspace and determines the positions of the panels that are pre-docked:
-	EditorLayer::ImGuiSetupDockSpace();
+	LevelEditorLayer::ImGuiSetupDockSpace();
 
-	// Renders the menu bar(Also has code for the options in the menu bar: Like the open and save functionality).
-	EditorLayer::ImGuiRenderMenuBar();
+	// Renders the menu bar (Also has code for the options in the menu bar: Like the open and save functionality).
+	LevelEditorLayer::ImGuiRenderMenuBar();
 
 	// Renders all the panels such as the Scene Hierarchy Panel, Properties Panel, Content Browser Panel, etc.
-	EditorLayer::ImGuiRenderPanels();
+	LevelEditorLayer::ImGuiRenderPanels();
 
 	// Renders the Viewport and the overlays in the viewport: Like the gizmos and whatnot.
-	EditorLayer::ImGuiRenderViewport();
+	LevelEditorLayer::ImGuiRenderViewport();
 
 	// Renders the main toolbar:
-	EditorLayer::ImGuiRenderToolbar();
+	LevelEditorLayer::ImGuiRenderToolbar();
 }
 
 // ImGui Rendering divided into chunks: ---------------------------------------------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void EditorLayer::ImGuiSetupDockSpace()
+void LevelEditorLayer::ImGuiSetupDockSpace()
 {
 	static ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
 
@@ -257,7 +279,7 @@ void EditorLayer::ImGuiSetupDockSpace()
 	// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-	// The corresponding ImGui::End() is in EditorLayer::
+	// The corresponding ImGui::End() is in LevelEditorLayer::
 	ImGui::Begin("DockSpace", nullptr, windowFlags);
 	
 	ImGui::PopStyleVar();
@@ -302,7 +324,7 @@ void EditorLayer::ImGuiSetupDockSpace()
 	}
 }
 
-void EditorLayer::ImGuiRenderMenuBar()
+void LevelEditorLayer::ImGuiRenderMenuBar()
 {
 	if (ImGui::BeginMenuBar())
 	{
@@ -311,7 +333,8 @@ void EditorLayer::ImGuiRenderMenuBar()
 			ImGui::MenuItem("Xenode", NULL, false, false);
 			if (ImGui::MenuItem("New"))
 			{
-				m_EditorScene->NewScene();
+				// TODO: Ask for a conformation menu:
+				m_EditorScene->DestroyAllEntities();
 				m_HierarchyPanel.SetActiveScene(m_ActiveScene);
 			}
 			if (ImGui::MenuItem("Open", "Ctrl+O"))
@@ -360,24 +383,25 @@ void EditorLayer::ImGuiRenderMenuBar()
 		ImGui::EndMenuBar();
 	}
 
-	// This is for ImGui::Begin() in EditorLayer::ImGuiSetupDockspace()
+	// This is for ImGui::Begin() in LevelEditorLayer::ImGuiSetupDockspace()
 	ImGui::End();
 }
 
-void EditorLayer::ImGuiRenderPanels()
+void LevelEditorLayer::ImGuiRenderPanels()
 {
 	m_HierarchyPanel.OnImGuiRender();
 	m_ContentBrowserPanel.OnImGuiRender();
 	m_SceneSettingsPanel.OnImGuiRender();
 	m_PropertiesPanel.OnImGuiRender();
 
-	if (m_EditorState == EditorState::Edit)
-		m_PropertiesPanel.SetActiveEntity(m_HierarchyPanel.GetSelectedEntity());
-	else
-		m_PropertiesPanel.SetActiveEntity(m_ActiveScene->GetRuntimeEntity(m_HierarchyPanel.GetSelectedEntity(), m_ActiveScene));
+	// Temp:
+	m_PropertiesPanel.SetActiveEntity(m_HierarchyPanel.GetSelectedEntity());
+	// if (m_EditorState == EditorState::Edit)
+	// else
+	// 	m_PropertiesPanel.SetActiveEntity(m_ActiveScene->GetRuntimeEntity(m_HierarchyPanel.GetSelectedEntity(), m_ActiveScene));
 }
 
-void EditorLayer::ImGuiRenderViewport()
+void LevelEditorLayer::ImGuiRenderViewport()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	ImGui::Begin((std::string(ICON_FA_MOUNTAIN_SUN) + std::string("  2D Viewport")).c_str());
@@ -397,12 +421,14 @@ void EditorLayer::ImGuiRenderViewport()
 			m_ViewportFrameBufferWidth = ImGui::GetContentRegionAvail().x;
 			m_ViewportFrameBufferHeight = ImGui::GetContentRegionAvail().y;
 
-			m_ActiveScene->OnViewportResize(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
+			Xen::SceneRuntime::ResizeFrameBuffer(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
 			m_EditorCamera->OnViewportResize(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
 		}
 	}
 
-	ImGui::Image((void*)m_ActiveScene->GetUnlitSceneFrameBuffer()->GetColorAttachmentRendererID(0), ImVec2(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight), ImVec2(0, 1), ImVec2(1, 0));
+	// ImGui::Image((void*)m_ActiveScene->GetUnlitSceneFrameBuffer()->GetColorAttachmentRendererID(0), ImVec2(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight), ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::Image((void*)Xen::SceneRuntime::GetActiveFrameBuffer()->GetColorAttachmentRendererID(0), ImVec2(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight), ImVec2(0, 1), ImVec2(1, 0));
+
 
 	if (ImGui::BeginDragDropTarget())
 	{
@@ -422,12 +448,12 @@ void EditorLayer::ImGuiRenderViewport()
 		ImGui::EndDragDropTarget();
 	}
 
-	EditorLayer::ImGuiRenderOverlay();
+	LevelEditorLayer::ImGuiRenderOverlay();
 	ImGui::End();
 	ImGui::PopStyleVar();
 }
 
-void EditorLayer::ImGuiRenderOverlay()
+void LevelEditorLayer::ImGuiRenderOverlay()
 {
 	float y_offset = ImGui::GetWindowHeight() - m_ViewportFrameBufferHeight;
 	m_IsMousePickingWorking = true;
@@ -546,7 +572,7 @@ void EditorLayer::ImGuiRenderOverlay()
 	}
 }
 
-void EditorLayer::ImGuiRenderToolbar()
+void LevelEditorLayer::ImGuiRenderToolbar()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
@@ -642,79 +668,90 @@ void EditorLayer::ImGuiRenderToolbar()
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void EditorLayer::OnFixedUpdate()
+void LevelEditorLayer::OnFixedUpdate()
 {
-
+	Xen::SceneRuntime::FixedUpdate();
 }
 
-void EditorLayer::OnScenePlay()
+void LevelEditorLayer::OnScenePlay()
 {
 	m_ScenePaused = false;
 
 	if (m_EditorState != EditorState::Pause)
 	{
-		m_RuntimeScene = Xen::Scene::Copy(m_EditorScene);
+		Xen::SceneUtils::CopyScene(m_RuntimeScene, m_EditorScene);
 		m_ActiveScene = m_RuntimeScene;
-		m_ActiveScene->OnRuntimeStart();
+		Xen::SceneRuntime::SetActiveScene(m_ActiveScene);
+		Xen::SceneRuntime::RuntimeBegin();
 	}
-
 	m_HierarchyPanel.SetActiveScene(m_RuntimeScene);
-	m_ActiveScene->OnViewportResize(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
 
 	m_EditorState = EditorState::Play;
+
+	// By default, run with the runtime camera
+	// if no primary camera entities, render from the editor camera itself:
+	m_SceneSettings.renderSource = Xen::RenderSource::RuntimeCamera;
+
+	m_FirstRuntimeIteration = true;
 }
 
-void EditorLayer::OnSceneStop()
+void LevelEditorLayer::OnSceneStop()
 {
-	m_ActiveScene->OnRuntimeStop();
-	m_ActiveScene = m_EditorScene;
+	Xen::SceneRuntime::RuntimeEnd();
 
-	m_HierarchyPanel.SetActiveScene(m_EditorScene);
+	m_ActiveScene->DestroyAllEntities();
+	m_ActiveScene = m_EditorScene;
+	
+	Xen::SceneRuntime::SetActiveScene(m_ActiveScene);
+	m_HierarchyPanel.SetActiveScene(m_ActiveScene);
+
+	// By default, edit with the additional camera:
+	m_SceneSettings.renderSource = Xen::RenderSource::AdditionalCamera;
 }
 
-void EditorLayer::OnScenePause()
+void LevelEditorLayer::OnScenePause()
 {
 	m_ScenePaused = true;
 }
 
-void EditorLayer::OpenScene(const std::string& filePath)
+void LevelEditorLayer::OpenScene(const std::string& filePath)
 {
-	m_EditorScene->NewScene();
+	m_EditorScene->DestroyAllEntities();
 	Xen::SceneSerializer::Deserialize(m_EditorScene, filePath);
 }
 
-void EditorLayer::SaveScene(const std::string& filePath)
+void LevelEditorLayer::SaveScene(const std::string& filePath)
 {
 	Xen::SceneSerializer::Serialize(m_EditorScene, filePath);
 }
 
-void EditorLayer::OnWindowResizeEvent(Xen::WindowResizeEvent& event)
+void LevelEditorLayer::OnWindowResizeEvent(Xen::WindowResizeEvent& event)
 {
 	m_EditorCamera->OnViewportResize(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
-	m_ActiveScene->OnViewportResize(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
+	Xen::SceneRuntime::ResizeFrameBuffer(m_ViewportFrameBufferWidth, m_ViewportFrameBufferHeight);
 }
 
-void EditorLayer::OnMouseScrollEvent(Xen::MouseScrollEvent& event)
+void LevelEditorLayer::OnMouseScrollEvent(Xen::MouseScrollEvent& event)
 {
 
 }
 
-void EditorLayer::OnMouseMoveEvent(Xen::MouseMoveEvent& event)
+void LevelEditorLayer::OnMouseMoveEvent(Xen::MouseMoveEvent& event)
 {
 
 }
 
-void EditorLayer::OnMouseButtonPressEvent(Xen::MouseButtonPressEvent& event)
+void LevelEditorLayer::OnMouseButtonPressEvent(Xen::MouseButtonPressEvent& event)
 {
 
 }
 
-void EditorLayer::OnMouseButtonReleaseEvent(Xen::MouseButtonReleaseEvent& event)
+void LevelEditorLayer::OnMouseButtonReleaseEvent(Xen::MouseButtonReleaseEvent& event)
 {
 
 }
 
-void EditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
+void LevelEditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 {
 	if (m_IsMouseHoveredOnViewport)
 	{

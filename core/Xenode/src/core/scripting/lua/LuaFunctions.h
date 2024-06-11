@@ -15,7 +15,7 @@ namespace Xen {
 		static void Init();
 		static void SetCurrentEntity(const Entity& entity);
 
-		// Funtions related to input:
+		// Functions related to input:
 		static int lua_IsKeyPressed(lua_State* L);
 		static int lua_IsMouseButtonPressed(lua_State* L);
 		static int lua_GetNormalizedMouseCoords2D(lua_State* L);

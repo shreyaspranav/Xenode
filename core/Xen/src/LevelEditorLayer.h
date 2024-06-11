@@ -9,6 +9,8 @@
 #include <core/scene/SceneSerializer.h>
 #include <core/scene/EditorCameraController.h>
 
+#include <core/scene/SceneRuntime.h>
+
 enum KeyTransformOperation : uint16_t
 {
 	None = 0,
@@ -32,7 +34,7 @@ enum KeyTransformOperation : uint16_t
 	Scale2D = ScaleX | ScaleY
 };
 
-class EditorLayer : public Xen::Layer
+class LevelEditorLayer : public Xen::Layer
 {
 public:
 	enum class GizmoOperation
@@ -44,12 +46,13 @@ public:
 
 	enum class EditorState { Play, Edit, Pause };
 
-	EditorLayer();
-	virtual ~EditorLayer();
+	LevelEditorLayer();
+	virtual ~LevelEditorLayer();
 
 	void OnAttach() override;
 	void OnDetach() override;
 	void OnUpdate(double timestep) override;
+	void OnRender() override;
 	void OnImGuiUpdate() override;
 	void OnFixedUpdate() override;
 
@@ -114,17 +117,12 @@ private:
 
 	// Resource textures refers to textures that are used in the editor:
 	Xen::UnorderedMap<std::string, Xen::Ref<Xen::Texture2D>> m_ResourceTextures;
-	
-	Xen::Ref<Xen::Texture2D> m_PlayTexture;
-	Xen::Ref<Xen::Texture2D> m_PauseTexture;
-	Xen::Ref<Xen::Texture2D> m_StopTexture;
-	Xen::Ref<Xen::Texture2D> m_StepTexture;
-	Xen::Ref<Xen::Texture2D> m_2DTexture;
-	Xen::Ref<Xen::Texture2D> m_3DTexture;
 
 	EditorState m_EditorState = EditorState::Edit;
+	Xen::SceneSettings m_SceneSettings;
 
 	Xen::Ref<Xen::Texture2D> m_PlayOrPause;
 	Xen::Ref<Xen::Texture2D> m_2DOr3DView;
 	bool m_EditMode = true;
+	bool m_FirstRuntimeIteration = false;
 };

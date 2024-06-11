@@ -3,6 +3,8 @@
 
 #include <core/app/Log.h>
 
+#ifdef XEN_INCLUDE_2D_PHYSICS
+
 #include <box2d/box2d.h>
 #include <glm/gtc/constants.hpp>
 
@@ -11,30 +13,47 @@ namespace Xen {
 	constexpr auto DEGTORAD = 0.0174532925199432957f;
 	constexpr auto RADTODEG = 57.295779513082320876f;
 
-	b2World* physicsWorld;
-	std::vector<PhysicsBody2D*> physicsBodies;
-
-	void Physics2D::Init(const Vec2& gravity)
+	struct PhysicsState
 	{
-		physicsWorld = new b2World({ gravity.x, gravity.y });
+		double fixedTimeStep;
+
+		b2World* physicsWorld;
+		std::vector<PhysicsBody2D*> physicsBodies;
+
+	}physicsState;
+
+	void Physics2D::Init(const Vec2& gravity, double fixedTimeStep)
+	{
+		physicsState.fixedTimeStep = fixedTimeStep;
+		physicsState.physicsWorld = new b2World({ gravity.x, gravity.y });
 	}
 
 	void Physics2D::End()
 	{
-		for (PhysicsBody2D* body : physicsBodies) {
-			physicsWorld->DestroyBody((b2Body*)(body->runtimeBody));
+		for (PhysicsBody2D* body : physicsState.physicsBodies)
+		{
+			physicsState.physicsWorld->DestroyBody((b2Body*)(body->runtimeBody));
 			delete body;
 		}
 
-		physicsBodies.clear();
-		delete physicsWorld;
+		physicsState.physicsBodies.clear();
+		delete physicsState.physicsWorld;
 	}
-	void Physics2D::Step(double timestep, uint32_t physicsStepIterations, uint32_t velocityIterations, uint32_t positionIterations)
-	{
-		for (int i = 0; i < physicsStepIterations; i++)
-			physicsWorld->Step(timestep, velocityIterations, positionIterations);
 
-		for (PhysicsBody2D* body : physicsBodies)
+	void Physics2D::Step(double timestep, uint32_t velocityIterations, uint32_t positionIterations)
+	{
+		// timestep *= 0.001; // Because the timestep is in milliseconds and box2d expects in seconds
+
+		// uint8_t stepIterationsMinusOne = (timestep / physicsState.fixedTimeStep);
+		// double lastIterationTimeStep = timestep - (physicsState.fixedTimeStep * stepIterationsMinusOne);
+		// 
+		// for (int i = 0; i < stepIterationsMinusOne * 2; i++)
+		// 	physicsState.physicsWorld->Step(physicsState.fixedTimeStep, velocityIterations, positionIterations);
+		// 
+		// physicsState.physicsWorld->Step(lastIterationTimeStep, velocityIterations, positionIterations);
+		physicsState.physicsWorld->Step(physicsState.fixedTimeStep, velocityIterations, positionIterations);
+
+		for (PhysicsBody2D* body : physicsState.physicsBodies)
 		{
 			b2Body* physicsBody = (b2Body*)body->runtimeBody;
 
@@ -42,12 +61,13 @@ namespace Xen {
 			body->rotation = physicsBody->GetAngle() * RADTODEG;
 		}
 	}
+
 	PhysicsBody2D* Physics2D::CreateBoxBody(const Vec2& position, float rotation, const Vec2& scale, BodyType2D type, const PhysicsMaterial2D& physicsMaterial)
 	{
 		PhysicsBody2D* body = Physics2D::AddBody(position, rotation, type, physicsMaterial);
 
 		b2Body* physicsBody = (b2Body*)body->runtimeBody;
-		
+
 		b2PolygonShape boxShape;
 
 		// These are HALF Extents:
@@ -69,11 +89,11 @@ namespace Xen {
 		fixtureDef.filter = noCollisionFilter;
 
 		b2Fixture* bodyFixture = physicsBody->CreateFixture(&fixtureDef);
-		
+
 		body->shape = BodyShape2D::Box;
 		body->runtimeBody = physicsBody;
 		body->runtimeFixtures.push_back(bodyFixture);
-		physicsBodies.push_back(body);
+		physicsState.physicsBodies.push_back(body);
 
 		return body;
 	}
@@ -108,7 +128,7 @@ namespace Xen {
 		body->shape = BodyShape2D::Circle;
 		body->runtimeBody = physicsBody;
 		body->runtimeFixtures.push_back(bodyFixture);
-		physicsBodies.push_back(body);
+		physicsState.physicsBodies.push_back(body);
 
 		return body;
 	}
@@ -163,11 +183,13 @@ namespace Xen {
 
 	void Physics2D::DeleteBody(PhysicsBody2D* body)
 	{
-		physicsWorld->DestroyBody((b2Body*)body->runtimeBody);
+		physicsState.physicsWorld->DestroyBody((b2Body*)body->runtimeBody);
 
-		for (auto it = physicsBodies.begin(); it != physicsBodies.end(); ++it) {
-			if (*it == body) {
-				physicsBodies.erase(it);
+		for (auto it = physicsState.physicsBodies.begin(); it != physicsState.physicsBodies.end(); ++it) 
+		{
+			if (*it == body) 
+			{
+				physicsState.physicsBodies.erase(it);
 				break;
 			}
 		}
@@ -183,14 +205,14 @@ namespace Xen {
 
 		b2Body* physicsBody = (b2Body*)body->runtimeBody;
 		physicsBody->SetTransform({ position.x, position.y }, body->rotation * DEGTORAD);
-		
+
 		body->position = position;
 	}
 
 	void Physics2D::ApplyForce(PhysicsBody2D* body, const Vec2& point, const Vec2& force)
 	{
 		b2Body* physicsBody = (b2Body*)body->runtimeBody;
-		physicsBody->ApplyForce({force.x, force.y}, {point.x, point.y}, true);
+		physicsBody->ApplyForce({ force.x, force.y }, { point.x, point.y }, true);
 	}
 
 	void Physics2D::ApplyForceToCenter(PhysicsBody2D* body, const Vec2& force)
@@ -228,7 +250,7 @@ namespace Xen {
 			break;
 		}
 
-		b2Body* physicsBody = physicsWorld->CreateBody(&bodyDef);
+		b2Body* physicsBody = physicsState.physicsWorld->CreateBody(&bodyDef);
 
 		physicsBody->SetTransform({ position.x, position.y }, rotation * DEGTORAD);
 		body->position = position;
@@ -240,3 +262,26 @@ namespace Xen {
 		return body;
 	}
 }
+
+#else
+
+namespace Xen {
+	void Physics2D::Init(const Vec2& gravity) {}
+	void Physics2D::End() {}
+	void Physics2D::Step(double timestep, uint32_t velocityIterations, uint32_t positionIterations) {}
+	PhysicsBody2D* Physics2D::CreateBoxBody(const Vec2& position, float rotation, const Vec2& scale, BodyType2D type, const PhysicsMaterial2D& physicsMaterial) {}
+	PhysicsBody2D* Physics2D::CreateCircleBody(const Vec2& position, float rotation, float radius, BodyType2D type, const PhysicsMaterial2D& physicsMaterial) {}
+	void Physics2D::SetPhysicsMaterial(PhysicsBody2D* body, const PhysicsMaterial2D& material, const Vec2& scale) {}
+	void Physics2D::SetBodyType(PhysicsBody2D* body, BodyType2D type) {}
+	void Physics2D::SetBodyTransform(PhysicsBody2D* body, const Vec2& position, float rotation) {}
+	void Physics2D::DeleteBody(PhysicsBody2D* body) {}
+	void Physics2D::AddCollider(PhysicsBody2D* body, const Vec2& position) {}
+	void Physics2D::ApplyForce(PhysicsBody2D* body, const Vec2& point, const Vec2& force) {}
+	void Physics2D::ApplyForceToCenter(PhysicsBody2D* body, const Vec2& force) {}
+	void Physics2D::SetLinearVelocity(PhysicsBody2D* body, const Vec2& velocity) {}
+	void Physics2D::SetAngularVelocity(PhysicsBody2D* body, float omega) {}
+
+	// Private Methods: --------------------------------------------------------------------------------------------------------------------------------
+	PhysicsBody2D* Physics2D::AddBody(const Vec2& position, float rotation, BodyType2D type, const PhysicsMaterial2D& physicsMaterial) {}
+}
+#endif

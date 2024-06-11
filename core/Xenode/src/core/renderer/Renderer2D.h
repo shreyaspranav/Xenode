@@ -6,9 +6,11 @@
 #include "Texture.h"
 #include "Structs.h"
 #include "ParticleSettings2D.h"
+#include "FrameBuffer.h"
 
 #include "SpriteRenderer2D.h"
 #include "ParticlesRenderer2D.h"
+#include "RenderCommand.h"
 
 
 namespace Xen {
@@ -18,11 +20,11 @@ namespace Xen {
 	private:
 		// Way of identifing each primitive: 
 		enum class Primitive {
-			LINE =		1 << 0,
-			TRIANGLE =	1 << 1,
-			QUAD =		1 << 2,
-			POLYGON =	1 << 3,
-			CIRCLE =	1 << 4,
+			LINE = 1 << 0,
+			TRIANGLE = 1 << 1,
+			QUAD = 1 << 2,
+			POLYGON = 1 << 3,
+			CIRCLE = 1 << 4,
 
 			POINT_LIGHT = 1 << 5,
 			SHADOW_QUAD = 1 << 6
@@ -48,7 +50,7 @@ namespace Xen {
 			uint32_t circle_indices_drawn;
 		};
 
-		struct QuadSprite 
+		struct QuadSprite
 		{
 			Vec3 position;
 			float rotation;
@@ -56,7 +58,7 @@ namespace Xen {
 
 			Color color[4];
 			bool useSingleColor = true;
-			
+
 			// TODO: Change this to AssetHandle:
 			Ref<Texture2D> texture;
 			Vec2 textureCoords[4] = {
@@ -107,12 +109,22 @@ namespace Xen {
 			ParticlesRenderer2D::EndScene();
 		}
 
-		static void RenderFrame(double timestep)
+		static void RenderFrame(double timestep, const Ref<FrameBuffer> targetFrameBuffer = nullptr)
 		{
+			if (targetFrameBuffer)
+			{
+				targetFrameBuffer->Bind();
+				RenderCommand::Clear();
+				targetFrameBuffer->ClearAttachments();
+			}
+
 			SpriteRenderer2D::RenderFrame(timestep);
 			ParticlesRenderer2D::RenderFrame(timestep);
+
+			if (targetFrameBuffer)
+				targetFrameBuffer->Unbind();
 		}
-		
+
 		// These functions do not draw, but adds them to a buffer and then renders them in RenderFrame()
 		// 
 		// Implemented in SpriteRenderer2D.cpp ---------------------------------------------------------

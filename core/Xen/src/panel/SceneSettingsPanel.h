@@ -30,13 +30,16 @@ public:
 		PaddedText("Show Physics Colliders", 0.0f, 3.0f);
 		ImGui::NextColumn();
 
-		bool enablePhysicsColliders = m_Scene->IsPhysicsCollidersShown();
-		bool enablePhysicsCollidersRuntime = m_Scene->IsPhysicsCollidersRuntimeShown();
+		// bool enablePhysicsColliders = m_Scene->IsPhysicsCollidersShown();
+		// bool enablePhysicsCollidersRuntime = m_Scene->IsPhysicsCollidersRuntimeShown();
+
+		bool enablePhysicsColliders = false;
+		bool enablePhysicsCollidersRuntime = false;
 
 		ImGui::PushItemWidth(-1.0f);
 
-		if (ImGui::Checkbox("##ShowPhysicsColliders", &enablePhysicsColliders))
-			m_Scene->ShowPhysicsColliders(enablePhysicsColliders);
+		if (ImGui::Checkbox("##ShowPhysicsColliders", &enablePhysicsColliders)) {}
+		// 	m_Scene->ShowPhysicsColliders(enablePhysicsColliders);
 
 		ImGui::PopItemWidth();
 
@@ -47,8 +50,8 @@ public:
 
 		ImGui::PushItemWidth(-1.0f);
 
-		if (ImGui::Checkbox("##ShowPhysicsCollidersRuntime", &enablePhysicsCollidersRuntime))
-			m_Scene->ShowPhysicsCollidersRuntime(enablePhysicsCollidersRuntime);
+		if (ImGui::Checkbox("##ShowPhysicsCollidersRuntime", &enablePhysicsCollidersRuntime)) {}
+		// 	m_Scene->ShowPhysicsCollidersRuntime(enablePhysicsCollidersRuntime);
 
 		ImGui::PopItemWidth();
 

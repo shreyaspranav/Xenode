@@ -18,7 +18,7 @@ public:
 	PropertiesPanel(const Xen::Entity& entity) : m_SelectedEntity(entity) {}
 	~PropertiesPanel() {}
 
-	inline void SetActiveEntity(const Xen::Entity& entity)								{ m_SelectedEntity = entity; }
+	inline void SetActiveEntity(const Xen::Entity& entity)						{ m_SelectedEntity = entity; }
 	inline void SetPanelTitle(const std::string& title)									{ m_PanelTitle = title; }
 	inline void SetTextureLoadDropType(const std::string& texture_load_drop_type)		{ m_TextureLoadDropType = texture_load_drop_type; }
 	inline void SetScriptLoadDropType(const std::string& script_load_drop_type)			{ m_ScriptLoadDropType = script_load_drop_type;  }

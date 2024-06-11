@@ -9,6 +9,8 @@
 
 #include "StringValues.h"
 
+#include <core/scene/SceneUtils.h>
+
 class SceneHierarchyPanel {
 
 public:
@@ -28,7 +30,7 @@ public:
 		ImGui::Begin(m_PanelTitle.c_str());
 
 		if (ImGui::Button(ICON_FA_CIRCLE_PLUS))
-			m_Scene->CreateEntity("Unnamed");
+			m_Scene->AddNewEntity("Unnamed");
 		ImGui::SameLine();
 
 		ImGui::PushItemWidth(-30.0f);
@@ -38,16 +40,24 @@ public:
 
 		ImGui::Separator();
 
-		m_Scene->m_Registry.each([&](auto& entity) 
-			{
-				Xen::Entity entt = Xen::Entity(entity, m_Scene.get());  
-				DrawNode(entt);
-			});
+		auto view = m_Scene->m_SceneRegistry.view<Xen::Component::Transform>();
+
+		for (auto entt : view)
+		{
+			Xen::Entity entity = Xen::Entity(entt, m_Scene.get());
+			DrawNode(entity);
+		}
+
+		// m_Scene->m_Registry.([&](auto& entity) 
+		// 	{
+		// 		Xen::Entity entt = Xen::Entity(entity, m_Scene.get());  
+		// 		DrawNode(entt);
+		// 	});
 
 		if (ImGui::BeginPopup("DeleteEntity"))
 		{
 			if (ImGui::Selectable("Clone Entity"))
-				m_Scene->CopyEntity(m_CurrentRightClickedEntity);
+				Xen::SceneUtils::CopyEntity(m_CurrentRightClickedEntity);
 
 			ImGui::Separator();
 
@@ -58,7 +68,6 @@ public:
 		}
 
 		ImGui::End();
-		//ImGui::ShowDemoWindow();
 	}
 private:
 	void DrawNode(Xen::Entity entity)

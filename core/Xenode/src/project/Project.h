@@ -43,6 +43,8 @@ namespace Xen
 
 			XEN_ENGINE_LOG_ERROR("Unknown GameType!");
 			TRIGGER_BREAKPOINT;
+
+			return "";
 		}
 
 		static GameType ToGameTypeFromString(const std::string& gameType)
@@ -56,6 +58,8 @@ namespace Xen
 				XEN_ENGINE_LOG_ERROR("Unknown GameType!");
 				TRIGGER_BREAKPOINT;
 			}
+
+			return GameType::_2D;
 		}
 
 		static std::string ToScriptingLanguageString(ScriptingLanguage lang)
@@ -68,6 +72,8 @@ namespace Xen
 
 			XEN_ENGINE_LOG_ERROR("Unknown Scripting Language!");
 			TRIGGER_BREAKPOINT;
+
+			return "";
 		}
 
 		static ScriptingLanguage ToScriptingLanguageFromString(const std::string& lang)
@@ -81,6 +87,8 @@ namespace Xen
 				XEN_ENGINE_LOG_ERROR("Unknown GameType!");
 				TRIGGER_BREAKPOINT;
 			}
+
+			return ScriptingLanguage::Lua;
 		}
 	};
 
@@ -93,7 +101,7 @@ namespace Xen
 			:m_ProjectProperties(properties) 
 		{
 			m_ProjectSettings.startScene = std::make_shared<Scene>();
-			m_ProjectSettings.startScene->NewScene();
+			m_ProjectSettings.startScene->DestroyAllEntities();
 		}
 
 		~Project() {}

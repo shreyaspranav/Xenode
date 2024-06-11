@@ -300,9 +300,6 @@ namespace Xen {
 			Timer timer;
 
 			XEN_PROFILER_TAG("Timestep", (float)timestep);
-
-			DesktopApplication::OnUpdate(timestep / 1000.0);
-
 			lag += timestep;
 
 			while (lag >= MS_PER_UPDATE)
@@ -310,21 +307,25 @@ namespace Xen {
 				DesktopApplication::OnFixedUpdate();
 				lag -= MS_PER_UPDATE;
 			}
+
+			DesktopApplication::OnUpdate(timestep);
+
 			// Run this function in a different thread:
 			DesktopApplication::OnRender();
-			ImGuiRender();
+			DesktopApplication::ImGuiRender();
 
 			m_Context->SwapBuffers();
 			window->Update();
 
 			timer.Stop();
-			timestep = timer.GetElapedTime(); // timestep is in microseconds !
+			timestep = timer.GetElapedTime() / 1000.0; // timestep is in microseconds !
 		}
 
 		for (int i = stack->GetCount(); i >= 1; i--)
 			stack->GetLayer(i)->OnDetach();
 
 		m_Context->DestroyContext();
+
 		XEN_STOP_PROFILER();
 		XEN_SAVE_PROFILER_CAPTURE("logs/profiler_capture.opt")
 	}

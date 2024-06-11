@@ -45,44 +45,46 @@ namespace Xen {
 	{
 		Scene* scene = currentEntity.GetParentScene();
 
-		Entity cameraEntity = scene->GetPrimaryCameraEntity();
+		// Entity cameraEntity = scene->GetPrimaryCameraEntity();
 
-		if (!cameraEntity.IsNull())
-		{
-			Vec2 to_return;
+		// if (!cameraEntity.IsNull())
+		// {
+		// 	Vec2 to_return;
+		// 
+		// 	uint32_t mouseX = scene->GetMouseX();
+		// 	uint32_t mouseY = scene->GetMouseY();
+		// 
+		// 	// Mouse is outside viewport
+		// 	if (mouseX == -1 || mouseY == -1)
+		// 		return 0;
+		// 
+		// 	Component::CameraComp& camera = cameraEntity.GetComponent<Component::CameraComp>();
+		// 
+		// 	uint32_t frameBufferWidth = camera.camera->GetFrameBufferWidth();
+		// 	uint32_t frameBufferHeight = camera.camera->GetFrameBufferHeight();
+		// 
+		// 	// Invert the Y coordinate:
+		// 	mouseY = frameBufferHeight - mouseY;
+		// 
+		// 	Vec3 scale = camera.camera->GetScale();
+		// 	Vec3 position = camera.camera->GetPosition();
+		// 
+		// 	float aspectRatio = (float)frameBufferWidth / (float)frameBufferHeight;
+		// 	
+		// 	to_return.x = (((((float)mouseX / (float)frameBufferWidth ) * 2.0f) - 1.0f) * scale.x * aspectRatio) + position.x;
+		// 	to_return.y = (((((float)mouseY / (float)frameBufferHeight) * 2.0f) - 1.0f) * scale.y) + position.y;
+		// 
+		// 	lua_pushnumber(L, to_return.x);
+		// 	lua_pushnumber(L, to_return.y);
+		// 
+		// 	return 2;
+		// }
+		// else {
+		// 	XEN_ENGINE_LOG_ERROR("Primary Camera Entity not found!");
+		// 	return 0;
+		// }
 
-			uint32_t mouseX = scene->GetMouseX();
-			uint32_t mouseY = scene->GetMouseY();
-
-			// Mouse is outside viewport
-			if (mouseX == -1 || mouseY == -1)
-				return 0;
-
-			Component::CameraComp& camera = cameraEntity.GetComponent<Component::CameraComp>();
-
-			uint32_t frameBufferWidth = camera.camera->GetFrameBufferWidth();
-			uint32_t frameBufferHeight = camera.camera->GetFrameBufferHeight();
-
-			// Invert the Y coordinate:
-			mouseY = frameBufferHeight - mouseY;
-
-			Vec3 scale = camera.camera->GetScale();
-			Vec3 position = camera.camera->GetPosition();
-
-			float aspectRatio = (float)frameBufferWidth / (float)frameBufferHeight;
-			
-			to_return.x = (((((float)mouseX / (float)frameBufferWidth ) * 2.0f) - 1.0f) * scale.x * aspectRatio) + position.x;
-			to_return.y = (((((float)mouseY / (float)frameBufferHeight) * 2.0f) - 1.0f) * scale.y) + position.y;
-
-			lua_pushnumber(L, to_return.x);
-			lua_pushnumber(L, to_return.y);
-
-			return 2;
-		}
-		else {
-			XEN_ENGINE_LOG_ERROR("Primary Camera Entity not found!");
-			return 0;
-		}
+		return 0;
 	}
 
 	int LuaFunctions::lua_GetCurrentTransform(lua_State* L)

@@ -27,7 +27,6 @@ namespace Xen {
 
 	private:
 		Entity m_Entity;
-		friend class Scene;
 	};
 }
 #endif

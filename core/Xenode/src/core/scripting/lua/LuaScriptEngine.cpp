@@ -12,7 +12,7 @@ namespace Xen {
 	{
 		m_LuaVM = luaL_newstate();
 
-		SetupLuaFuntions();
+		SetupLuaFunctions();
 		LuaFunctions::Init();
 	}
 	
@@ -21,7 +21,7 @@ namespace Xen {
 		lua_close(m_LuaVM);
 	}
 
-	void LuaScriptEngine::OnStart(const Ref<Script>& script, const Entity& entity)
+	void LuaScriptEngine::OnStart(const Ref<Script>& script, Entity entity)
 	{
 		//LUA_OK		= 0;
 		//LUA_YIELD		= 1;
@@ -49,7 +49,7 @@ namespace Xen {
 			lua_pcall(m_LuaVM, 0, 0, 0);
 	}
 
-	void LuaScriptEngine::OnUpdate(const Ref<Script>& script, const Entity& entity, double timestep)
+	void LuaScriptEngine::OnUpdate(const Ref<Script>& script, Entity entity, double timestep)
 	{
 		Ref<LuaScript> luaScript = std::dynamic_pointer_cast<LuaScript>(script);
 
@@ -74,9 +74,32 @@ namespace Xen {
 		}
 	}
 
-	void LuaScriptEngine::SetupLuaFuntions()
+	void LuaScriptEngine::OnFixedUpdate(const Ref<Script>& script, Entity entity)
 	{
-		// Funtions related to input: -----------------------------------------------------------
+		Ref<LuaScript> luaScript = std::dynamic_pointer_cast<LuaScript>(script);
+
+		LuaFunctions::SetCurrentEntity(entity);
+
+		int status = luaL_dostring(m_LuaVM, luaScript->GetScriptCode().c_str());
+
+		if (status != LUA_OK)
+		{
+			XEN_ENGINE_LOG_ERROR("Error Occured in script: {0}: Error {1}", script->GetFilePath(), lua_tostring(m_LuaVM, -1));
+			lua_pop(m_LuaVM, 1);
+		}
+
+		// Make sure to change this when asset system is implemented 
+		// AddLuaPath("assets/scripts/");
+
+		lua_getglobal(m_LuaVM, luaScript->onFixedUpdateFunction.c_str());
+
+		if (lua_isfunction(m_LuaVM, -1))
+			lua_pcall(m_LuaVM, 0, 0, 0);
+	}
+
+	void LuaScriptEngine::SetupLuaFunctions()
+	{
+		// Functions related to input: -----------------------------------------------------------
 		lua_register(m_LuaVM, "IsKeyPressed", LuaFunctions::lua_IsKeyPressed);
 		lua_register(m_LuaVM, "IsMouseButtonPressed", LuaFunctions::lua_IsMouseButtonPressed);
 		lua_register(m_LuaVM, "GetNormalizedMouseCoords2D", LuaFunctions::lua_GetNormalizedMouseCoords2D);

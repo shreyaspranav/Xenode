@@ -4,17 +4,19 @@
 #include "ScriptLang.h"
 #include "Script.h"
 
-namespace Xen {
+#include <core/scene/Scene.h>
 
-	class Entity;
-
+namespace Xen 
+{
 	class XEN_API ScriptEngine
 	{
 	public:
-		static Ref<ScriptEngine> InitScriptEngine();
+		static ScriptEngine* InitScriptEngine();
 
-		virtual void OnStart(const Ref<Script>& script, const Entity& entity) = 0;
-		virtual void OnUpdate(const Ref<Script>& script, const Entity& entity, double timestep) = 0;
+		virtual void OnStart(const Ref<Script>& script, Entity entity) = 0;
+
+		virtual void OnUpdate(const Ref<Script>& script, Entity entity, double timestep) = 0;
+		virtual void OnFixedUpdate(const Ref<Script>& script, Entity entity) = 0;
 	};
 }
 

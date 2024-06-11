@@ -1,18 +1,21 @@
 #pragma once
 
 #include <Core.h>
-#include <core/app/DesktopApplication.h>
+#include "Scene.h"
+#include <core/renderer/Structs.h>
 
 namespace Xen {
 	class XEN_API ScenePhysics
 	{
 	public:
-		ScenePhysics(GameMode mode);
-		~ScenePhysics();
+		static void Initialize(double fixedTimeStep);
+		static void SetActiveScene(const Ref<Scene>& scene);
 
-		void InitPhysics();
-		void EndPhysics();
-	private:
-		GameMode m_CurrentGameMode;
+		static void RuntimeStart(const Vec3& gravity);
+
+		static void Step(double timestep);
+		static void FixedStepUpdate();
+
+		static void RuntimeEnd();
 	};
 }

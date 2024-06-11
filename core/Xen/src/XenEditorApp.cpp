@@ -11,20 +11,20 @@ public:
 
 	void OnCreate() override
 	{
-		window_width = 1366;
-		window_height = 768;
+		window_width = 1600;
+		window_height = 900;
 
 		window_title = "Xen Editor";
 
 		imgui_always_render = true;
 		fullscreen_monitor = 0; // No fullscreen
 
-		vsync = true;
+		vsync = false;
 	}
 
 	void OnStart() override
 	{
-		PushLayer(std::make_shared<EditorLayer>());
+		PushLayer(std::make_shared<LevelEditorLayer>());
 	}
 
 	void OnUpdate(double timestep) override

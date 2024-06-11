@@ -1,165 +1,123 @@
 #pragma once
 
 #include <Core.h>
-#include <entt.hpp>
-
-#include <core/renderer/Camera.h>
 #include <core/app/UUID.h>
 
-#include <core/scripting/ScriptEngine.h>
-#include <core/renderer/FrameBuffer.h>
-
-#include <core/renderer/Shader.h>
-#include <core/renderer/Texture.h>
-#include <core/renderer/ParticleSettings2D.h>
-
-#include <core/renderer/PostProcessPipeline.h>
+#include <entt.hpp>
 
 class SceneHierarchyPanel;
 
-namespace Xen {
+namespace Xen 
+{
+	enum class SceneType { _2D, _2D_AND_3D };
+	
 	class Entity;
 
+	// Alternate Implementation: will replace:
 	class XEN_API Scene
 	{
 	public:
-		Scene();
+		Scene() {}
+
+		Scene(SceneType sceneType);
 		~Scene();
 
-		void OnUpdate(double timestep, const Ref<Camera>& camera);
-		void OnUpdateRuntime(double timestep, bool paused); // if 'paused' = true, scripts and physics won't be updated
-		void OnRender(bool onMainFrameBuffer = false);
+		// Creates a new Entity in the Scene and returns it.
+		Entity AddNewEntity(const std::string& tag, bool createTransformComponent = true);
+		Entity AddNewEntityWithID(const std::string& tag, UUID id, bool createTransformComponent = true);
 
-		void OnRuntimeStart();
-		void OnRuntimeStop();
+		// Creates a new child entity for a parent entity and returns it.
+		// Not Implemented: Will implement nested entities later.
+		Entity AddNewEntity(const Entity& parent, const std::string& tag);
 
-		void OnCreate();
+		// Destroys and removes the entity and its children entities from the scene.
+		void DestroyEntity(const Entity& entity);
 
-		void OnViewportResize(uint32_t width, uint32_t height);
-
-		inline void SetPhysicsColliderColor(const Color& color) { m_PhysicsColliderColor = color; }
-
-		inline void ShowPhysicsColliders(bool show = true)			{ m_ShowPhysicsColliders = show; }
-		inline void ShowPhysicsCollidersRuntime(bool show = true)	{ m_ShowPhysicsCollidersRuntime = show; }
-
-		Entity CreateEntity(const std::string& name = std::string());
-		Entity CreateEntityWithUUID(const std::string& name, UUID id);
-		Entity CopyEntity(Entity entity);
-		Entity GetRuntimeEntity(Entity editorEntity, const Ref<Scene>& runtimeScene);
-
-		inline const Color& GetPhysicsColliderColor() { return m_PhysicsColliderColor; }
-
-		inline bool IsPhysicsCollidersShown()				{ return m_ShowPhysicsColliders; }
-		inline bool IsPhysicsCollidersRuntimeShown()		{ return m_ShowPhysicsCollidersRuntime; }
-
-		const Ref<FrameBuffer>& GetSceneFrameBuffer();
-		const Ref<FrameBuffer>& GetUnlitSceneFrameBuffer();
-
-		inline uint8_t GetMousePickingFrameBufferIndex() { return 2; }
-
-		void DestroyEntity(Entity entity);
+		// Destroys all entities.
 		void DestroyAllEntities();
 
-		Entity GetPrimaryCameraEntity();
+		// Returns the type of the scene.
+		SceneType GetSceneType() { return m_SceneType; }
 
-		void NewScene();
-
-		inline void SetMouseCoordinates(uint32_t x, uint32_t y)		{ m_MouseX = x; m_MouseY = y; }
-		inline uint32_t GetMouseX() { return m_MouseX; }
-		inline uint32_t GetMouseY() { return m_MouseY; }
-
-		inline void CreateParticleSystem(const ParticleSettings2D* particleSettings);
-
-		static Ref<Scene> Copy(Ref<Scene> srcScene);
-	private:
-		void SortRenderableEntities();
-
-		void UpdateNativeScripts(double timestep);
-		void UpdateScripts(double timestep);
-		void UpdateCameras();
-		void SimulatePhysics(double fixedTimeStep);
-		void RenderSprites();
-		void RenderPhysicsColliders();
-		void RenderLights();
-
-	private:
-		entt::registry m_Registry;
-		uint32_t m_FramebufferWidth = 1, m_FramebufferHeight = 1;
-
-		std::vector<Entity> m_RenderableEntities;
-		std::vector<float> m_ZCoordinates;
-		uint32_t m_RenderableEntityIndex = 0;
-
-		bool m_IsDirty = true;
-		bool m_isRunningOnRuntime = false;
-
-		bool m_ShowPhysicsColliders = false;
-		bool m_ShowPhysicsCollidersRuntime = false;
-		Color m_PhysicsColliderColor = { 0.0f, 1.0f, 0.0f, 1.0f };
-
-		Ref<ScriptEngine> m_ScriptEngine;
-
-		BloomProperties m_BloomProperties;
-
-		Ref<Texture2D> m_UnlitFBTexture;
-
-		// FrameBuffers:
-		Ref<FrameBuffer> m_UnlitSceneFB;
-		Ref<FrameBuffer> m_LightMaskFB;
-		Ref<FrameBuffer> m_FinalSceneFB;
-
-		uint32_t m_MouseX = 0, m_MouseY = 0;
-
-		double m_Timestep = 1.0f;
-
-		friend class Entity;
-		friend class ::SceneHierarchyPanel;
+		// Friend classes declared so that these classes can access the entt::registry m_SceneRegistry
+		friend class SceneRuntime;
+		friend class SceneRenderer;
+		friend class ScenePhysics;
+		friend class SceneUtils;
 		friend class SceneSerializer;
+		friend class Entity;
 
-		// Temp:
-		Ref<Shader> testGeometryShader;
-		Ref<VertexBuffer> testVertexBuffer;
+		friend class ::SceneHierarchyPanel;
+
+	private:
+		entt::registry m_SceneRegistry;
+		SceneType m_SceneType;
 	};
 
-	class XEN_API Entity
+	class Entity
 	{
 	public:
-		Entity() : m_Entity(entt::null), m_Scene(nullptr) {}
-		Entity(Scene* scene) : m_Scene(scene) { m_Entity = m_Scene->m_Registry.create(); }
-		Entity(entt::entity e, Scene* scene) : m_Entity(e), m_Scene(scene) {}
-		~Entity() {}
+		Entity();
+		Entity(Scene* scene);
+		Entity(entt::entity e, Scene* scene);
+
+		~Entity();
+
+		bool IsNull();
+		bool IsValid();
 
 		template<typename T, typename... Args>
-		inline T& AddComponent(Args&&... args) const { return m_Scene->m_Registry.emplace<T>(m_Entity, std::forward<Args>(args)...); }
+		T& AddComponent(Args&&... args)
+		{
+			return m_ParentScene->m_SceneRegistry.emplace<T>(m_Entity, std::forward<Args>(args)...);
+		}
 
 		template<typename T>
-		inline void DeleteComponent() const { m_Scene->m_Registry.remove<T>(m_Entity); }
+		void DeleteComponent()
+		{
+			m_ParentScene->m_SceneRegistry.remove<T>(m_Entity);
+		}
 
 		template<typename T>
-		inline T& GetComponent() const { return m_Scene->m_Registry.get<T>(m_Entity); }
+		T& GetComponent()
+		{
+			return m_ParentScene->m_SceneRegistry.get<T>(m_Entity);
+		}
 
 		template<typename... T>
-		inline bool HasAnyComponent() const { return m_Scene->m_Registry.any_of<T...>(m_Entity); }
+		bool HasAnyComponent()
+		{
+			return m_ParentScene->m_SceneRegistry.any_of<T...>(m_Entity);
+		}
 
 		template<typename... T>
-		inline bool HasAllComponent() const { return m_Scene->m_Registry.all_of<T...>(m_Entity); }
+		bool HasAllComponent()
+		{
+			return m_ParentScene->m_SceneRegistry.all_of<T...>(m_Entity);
+		}
 
 		template<typename T, typename... Args>
-		inline T& ReplaceComponent(Args&&... args) const { return m_Scene->m_Registry.replace<T>(std::forward<Args>(args)...); }
+		T& ReplaceComponent(Args&&... args)
+		{
+			return m_ParentScene->m_SceneRegistry.replace<T>(std::forward<Args>(args)...);
+		}
 
-		operator uint32_t() const { return (uint32_t)m_Entity; }
+		template<typename T, typename... Args>
+		T& EmplaceOrReplaceComponent(Args&&... args)
+		{
+			return m_ParentScene->m_SceneRegistry.emplace_or_replace<T>(m_Entity, std::forward<Args>(args)...);
+		}
+
+		operator int32_t() const { return (int32_t)m_Entity; }
 		operator entt::entity() const { return m_Entity; }
 
-		bool IsNull() { return m_Entity == entt::null ? true : false; }
-		bool IsValid() { return m_Scene->m_Registry.valid(m_Entity); }
 		bool operator==(const Entity& other) { return other.m_Entity == m_Entity; }
 		bool operator!=(const Entity& other) { return other.m_Entity != m_Entity; }
 
-		inline Scene* GetParentScene() { return m_Scene; }
-
+		inline Scene* GetParentScene() { return m_ParentScene; }
 	private:
-		entt::entity m_Entity = entt::null;
-		Scene* m_Scene;
+		entt::entity m_Entity;
+		Scene* m_ParentScene;
 	};
 }
 

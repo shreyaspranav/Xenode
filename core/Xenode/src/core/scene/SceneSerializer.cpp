@@ -250,8 +250,19 @@ namespace Xen {
 		yamlEmitter << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 
 		uint32_t entity_count = 0;
-		scene->m_Registry.each([&](auto& entityID) {
 
+		// auto group = scene->m_Registry.group();
+
+		// for (auto entt : scene->m_Registry.)
+		// {
+		// 	Entity entity = Entity(entt, scene.get());
+		// 	entity_count++;
+		// 
+		// 	SerializeEntity(yamlEmitter, entity, entity_count);
+		// }
+
+		scene->m_SceneRegistry.each([&](auto& entityID) {
+		
 			Entity entity = Entity(entityID, scene.get());
 			entity_count++;
 			
@@ -299,7 +310,7 @@ namespace Xen {
 				std::string tag = entity["Entity"][0].as<std::string>();
 				uint64_t uuid = entity["Entity"][1].as<uint64_t>();
 
-				Entity entt = scene->CreateEntity(tag);
+				Entity entt = scene->AddNewEntity(tag);
 
 				// Transform Component------------------------------------------------------
 				const YAML::Node& transform_component = entity["Transform"];
@@ -414,18 +425,18 @@ namespace Xen {
 					if (camera_node["ProjectionType"].as<std::string>() == "Orthographic")
 					{
 						camera = std::make_shared<Camera>(
-							CameraType::Orthographic,
-							scene->m_FramebufferWidth,
-							scene->m_FramebufferHeight
+							CameraType::Orthographic, 1, 1
+							// scene->m_FramebufferWidth,
+							// scene->m_FramebufferHeight
 						);
 					}
 
 					else if (camera_node["ProjectionType"].as<std::string>() == "Perspective")
 					{
 						camera = std::make_shared<Camera>(
-							CameraType::Perspective,
-							scene->m_FramebufferWidth,
-							scene->m_FramebufferHeight
+							CameraType::Perspective, 1, 1
+							// scene->m_FramebufferWidth,
+							// scene->m_FramebufferHeight
 							);
 
 						float FovAngle = camera_node["FovAngle"].as<float>();

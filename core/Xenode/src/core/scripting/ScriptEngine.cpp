@@ -7,12 +7,12 @@
 #include "lua/LuaScriptEngine.h"
 
 namespace Xen {
-	Ref<ScriptEngine> ScriptEngine::InitScriptEngine() 
+	ScriptEngine* ScriptEngine::InitScriptEngine() 
 	{
 		switch (DesktopApplication::GetScriptingLanguage())
 		{
 		case ScriptLang::Lua:
-			return std::make_shared<LuaScriptEngine>();
+			return new LuaScriptEngine();
 			break;
 		}
 
