@@ -183,6 +183,7 @@ void LevelEditorLayer::OnUpdate(double timestep)
 	{
 		m_ActiveScene = m_RuntimeScene;
 
+		// m_SceneStepped will be reset to false in OnFixedUpdate function
 		if (m_SceneStepped) 
 			Xen::SceneRuntime::UpdateRuntime(timestep, false);
 		else
@@ -668,7 +669,6 @@ void LevelEditorLayer::OnFixedUpdate()
 {
 	if (m_EditorState == EditorState::Play || m_EditorState == EditorState::Pause)
 	{
-		XEN_ENGINE_LOG_INFO("m_SceneStepped: {0}", m_SceneStepped);
 		if (m_SceneStepped)
 		{
 			Xen::SceneRuntime::FixedUpdate();
