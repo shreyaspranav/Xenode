@@ -183,12 +183,8 @@ void LevelEditorLayer::OnUpdate(double timestep)
 	{
 		m_ActiveScene = m_RuntimeScene;
 
-		// XEN_ENGINE_LOG_INFO("m_SceneStepped: {0}", m_SceneStepped);
 		if (m_SceneStepped) 
-		{
 			Xen::SceneRuntime::UpdateRuntime(timestep, false);
-			m_SceneStepped = false;
-		}
 		else
 			Xen::SceneRuntime::UpdateRuntime(timestep, m_ScenePaused);
 	}
@@ -219,7 +215,7 @@ void LevelEditorLayer::OnUpdate(double timestep)
 
 		Xen::SceneRuntime::GetActiveFrameBuffer()->Unbind();
 
-		XEN_ENGINE_LOG_INFO("Entity: {0}", entt_id);
+		// XEN_ENGINE_LOG_INFO("Entity: {0}", entt_id);
 
 	}
 }
@@ -670,7 +666,17 @@ void LevelEditorLayer::ImGuiRenderToolbar()
 
 void LevelEditorLayer::OnFixedUpdate()
 {
-	Xen::SceneRuntime::FixedUpdate();
+	if (m_EditorState == EditorState::Play || m_EditorState == EditorState::Pause)
+	{
+		XEN_ENGINE_LOG_INFO("m_SceneStepped: {0}", m_SceneStepped);
+		if (m_SceneStepped)
+		{
+			Xen::SceneRuntime::FixedUpdate();
+			m_SceneStepped = false;
+		}
+		else
+			Xen::SceneRuntime::FixedUpdate();
+	}
 }
 
 void LevelEditorLayer::OnScenePlay()
