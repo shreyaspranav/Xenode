@@ -13,8 +13,11 @@
 #include <core/physics/Physics2D.h>
 
 namespace Xen {
+
+	// The Component namespace will contain all the components that can be added to an entity.
 	namespace Component {
 
+		// Component that holds the UUID id of an entity
 		struct ID 
 		{
 			UUID id;
@@ -24,6 +27,7 @@ namespace Xen {
 			ID(const ID& tag) = default;
 		};
 
+		// Component that holds the string "tag" of an entity
 		struct Tag
 		{
 			std::string tag;
@@ -33,6 +37,8 @@ namespace Xen {
 			Tag(const Tag& tag) = default;
 		};
 
+		// Component that holds the position, rotation and scale of an entity 
+		// TODO: Use a quaternion for rotation
 		struct Transform
 		{
 			Vec3 position;
@@ -43,9 +49,11 @@ namespace Xen {
 			Transform(const Transform& transform) = default;
 
 			Transform(const Vec3& position, const Vec3& rotation, const Vec3& scale) 
-				: position(position), rotation(rotation), scale(scale) {}
+				:position(position), rotation(rotation), scale(scale) {}
 		};
 
+		// Component that represents a sprite that is to be rendered
+		// TODO: Add back rendering of triangle and polygons through shaders
 		struct SpriteRenderer
 		{
 			enum class Primitive { Triangle, Quad, Polygon, Circle };
@@ -76,6 +84,8 @@ namespace Xen {
 				: color(color), texture(texture), texture_tile_factor(tile_factor), primitive(Primitive::Quad) {}
 		};
 
+		// Component that represents renderable text
+		// TODO: This is not implemented, implement this
 		struct TextRenderer
 		{
 			std::string text = "Text";
@@ -89,6 +99,7 @@ namespace Xen {
 				: text(text), italic(italic), bold(bold) {}
 		};
 
+		// Component that represents a scene camera.
 		struct CameraComp
 		{
 			Ref<Camera> camera;
@@ -104,6 +115,7 @@ namespace Xen {
 			CameraComp(const Ref<Camera>& camera) : camera(camera) {}
 		};
 
+		// Component that represents native C++ scripts
 		struct NativeScript
 		{
 			ScriptableEntity* scriptable_entity_instance = nullptr;
@@ -126,6 +138,7 @@ namespace Xen {
 			}
 		};
 
+		// Component that represents a script written in Lua or any other scripting language
 		struct ScriptComp
 		{
 			Ref<Script> script_instance = nullptr;
@@ -149,6 +162,8 @@ namespace Xen {
 			}
 		};
 
+		// Represents a 2D point light
+		// TODO: This is not implemented, implement this.
 		struct PointLight
 		{
 			float radius = 1.0f;
@@ -165,6 +180,8 @@ namespace Xen {
 				:lightColor(color), radius(radius), fallofA(fallofA), fallofB(fallofB) {}
 		};
 
+		// Represents a 2D ambient light
+		// TODO: This is not implemented, implement this.
 		struct AmbientLight
 		{
 			Color color;

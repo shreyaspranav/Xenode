@@ -13,8 +13,7 @@ layout(location = 8) flat in int vertexID;
 
 
 layout(location = 0) out vec4 fragColor;
-layout(location = 1) out vec4 maskColor;
-layout(location = 2) out int entt_id;
+layout(location = 1) out int entt_id;
 
 uniform sampler2D tex[8];
 
@@ -68,7 +67,6 @@ void main()
 	}
 
 	fragColor = output_color;
-	maskColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	entt_id = vertexID;
 }
 

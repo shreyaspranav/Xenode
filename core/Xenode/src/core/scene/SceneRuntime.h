@@ -82,6 +82,9 @@ namespace Xen
 		static void ResizeFrameBuffer(uint32_t width, uint32_t height);
 
 		static const Ref<FrameBuffer> GetActiveFrameBuffer();
+
+		// Method that returns the integer value of a specified pixel in a integer attachment of a framebuffer if an integer framebuffer exists:
+		// static int GetIntPixel()
 	private:
 		static void InitScripts();
 	};

@@ -183,7 +183,7 @@ void LevelEditorLayer::OnUpdate(double timestep)
 	{
 		m_ActiveScene = m_RuntimeScene;
 
-		XEN_ENGINE_LOG_INFO("m_SceneStepped: {0}", m_SceneStepped);
+		// XEN_ENGINE_LOG_INFO("m_SceneStepped: {0}", m_SceneStepped);
 		if (m_SceneStepped) 
 		{
 			Xen::SceneRuntime::UpdateRuntime(timestep, false);
@@ -211,17 +211,17 @@ void LevelEditorLayer::OnUpdate(double timestep)
 
 	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport && m_IsMousePickingWorking)
 	{
+		Xen::SceneRuntime::GetActiveFrameBuffer()->Bind();
+
 		// For some reason the red integer attachment is flipped!
-		// int entt_id = m_ActiveScene->GetUnlitSceneFrameBuffer()->ReadIntPixel(m_ActiveScene->GetMousePickingFrameBufferIndex(),
-		// 	m_ViewportMousePos.x,
-		// 	m_ViewportFrameBufferHeight - m_ViewportMousePos.y);
+		int entt_id = Xen::SceneRuntime::GetActiveFrameBuffer()->ReadIntPixel(1, m_ViewportMousePos.x, m_ViewportFrameBufferHeight - m_ViewportMousePos.y);
+		m_HierarchyPanel.SetSelectedEntity(Xen::Entity((entt::entity)entt_id, m_ActiveScene.get()));
 
-		// m_HierarchyPanel.SetSelectedEntity(Xen::SceneA::EntityA((entt::entity)entt_id, m_ActiveScene.get()));
+		Xen::SceneRuntime::GetActiveFrameBuffer()->Unbind();
+
+		XEN_ENGINE_LOG_INFO("Entity: {0}", entt_id);
+
 	}
-	//Xen::Renderer2D::DrawQuadOutline({ 0.0f, 0.0f, 0.1f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
-
-
-	// m_ActiveScene->OnRender();
 }
 void LevelEditorLayer::OnRender()
 {

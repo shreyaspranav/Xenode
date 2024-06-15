@@ -68,7 +68,7 @@ namespace Xen {
 		}
 	}
 
-	void SetupTexture(uint32_t texture_id, uint8_t mipLevels, uint32_t width, uint32_t height, GLenum internal_format, GLenum format, FrameBufferFiltering filtering, uint32_t samples)
+	void SetupTexture(uint32_t texture_id, uint8_t mipLevels, uint32_t width, uint32_t height, GLenum internal_format, FrameBufferFiltering filtering, uint32_t samples)
 	{
 		if (samples > 1)
 			glTextureStorage2DMultisample(texture_id, samples, internal_format, width, height, GL_FALSE);
@@ -149,7 +149,6 @@ namespace Xen {
 				SetupTexture(m_ColorAttachments[color_att_index], m_Spec.attachments[i].mipmaps,
 					m_Spec.width, m_Spec.height,
 					GL_R32I,
-					GL_RED_INTEGER,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);
 				break;
@@ -157,7 +156,6 @@ namespace Xen {
 				SetupTexture(m_ColorAttachments[color_att_index], m_Spec.attachments[i].mipmaps,
 					m_Spec.width, m_Spec.height,
 					GL_RGB8,
-					GL_RGB,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);
 				break;
@@ -165,7 +163,6 @@ namespace Xen {
 				SetupTexture(m_ColorAttachments[color_att_index], m_Spec.attachments[i].mipmaps,
 					m_Spec.width, m_Spec.height,
 					GL_RGB16F,
-					GL_RGB,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);
 				break;
@@ -173,14 +170,12 @@ namespace Xen {
 				SetupTexture(m_ColorAttachments[color_att_index], m_Spec.attachments[i].mipmaps,
 					m_Spec.width, m_Spec.height,
 					GL_RGB32F,
-					GL_RGB,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);
 			case FrameBufferTextureFormat::R11G11B10F:
 				SetupTexture(m_ColorAttachments[color_att_index], m_Spec.attachments[i].mipmaps,
 					m_Spec.width, m_Spec.height,
 					GL_R11F_G11F_B10F,
-					GL_RGB,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);
 				break;
@@ -197,14 +192,12 @@ namespace Xen {
 				SetupTexture(m_DepthAttachmentT, 1,
 					m_Spec.width, m_Spec.height,
 					GL_DEPTH24_STENCIL8,
-					GL_DEPTH24_STENCIL8,
 					m_Spec.attachments[depth_att_index].filtering,
 					m_Spec.samples);
 				break;
 			case FrameBufferTextureFormat::Depth32F_Stencil8:
 				SetupTexture(m_DepthAttachmentT, 1, 
 					m_Spec.width, m_Spec.height,
-					GL_DEPTH32F_STENCIL8,
 					GL_DEPTH32F_STENCIL8,
 					m_Spec.attachments[depth_att_index].filtering,
 					m_Spec.samples);
@@ -240,11 +233,10 @@ namespace Xen {
 		uint8_t color_att_index = 0;
 		for (int i = 0; i < m_Spec.attachments.size(); i++)
 		{
-			float clearColor[4] = {
+			float clearColor[] = {
 				m_Spec.attachments[i].clearColor.r,
 				m_Spec.attachments[i].clearColor.g,
 				m_Spec.attachments[i].clearColor.b,
-				m_Spec.attachments[i].clearColor.a,
 			};
 
 			int r_color = (int)m_Spec.attachments[i].clearColor.r;
@@ -259,12 +251,9 @@ namespace Xen {
 				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RED_INTEGER, GL_INT, &r_color);
 				break;
 			case FrameBufferTextureFormat::RGB8:
-				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGB, GL_FLOAT, clearColor);
-				break;
 			case FrameBufferTextureFormat::RGB16F:
-				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGB, GL_FLOAT, clearColor);
-				break;
 			case FrameBufferTextureFormat::RGB32F:
+			case FrameBufferTextureFormat::R11G11B10F:
 				glClearTexImage(m_ColorAttachments[color_att_index], 0, GL_RGB, GL_FLOAT, clearColor);
 				break;
 			default:
@@ -286,8 +275,10 @@ namespace Xen {
 	int32_t OpenGLFrameBuffer::ReadIntPixel(uint32_t index, int32_t x, int32_t y)
 	{
 		glNamedFramebufferReadBuffer(m_FrameBufferID, GL_COLOR_ATTACHMENT0 + index);
-		int data;
+		
+		int32_t data;
 		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &data);
+
 		return data;
 	}
 	void OpenGLFrameBuffer::SetClearColor(uint32_t index, const Color& color)

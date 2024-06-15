@@ -13,7 +13,6 @@ namespace Xen
 	
 	class Entity;
 
-	// Alternate Implementation: will replace:
 	class XEN_API Scene
 	{
 	public:
