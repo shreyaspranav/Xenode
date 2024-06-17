@@ -11,6 +11,7 @@ namespace Xen
 	struct ProjectManagerData
 	{
 		Ref<Project> currentProject = nullptr;
+		std::filesystem::path currentProjectPath;
 
 	}projectManagerState;
 
@@ -61,6 +62,8 @@ namespace Xen
 			return nullptr;
 		}
 
+		projectManagerState.currentProjectPath = pathToProjectFile.parent_path();
+
 		ProjectProperties p;
 		Ref<Project> project = Project::CreateProject(p);
 
@@ -76,6 +79,10 @@ namespace Xen
 	const Ref<Project>& ProjectManager::GetCurrentProject()
 	{
 		return projectManagerState.currentProject;
+	}
+	const std::filesystem::path& ProjectManager::GetCurrentProjectPath()
+	{
+		return projectManagerState.currentProjectPath;
 	}
 	void ProjectManager::UnloadProject()
 	{

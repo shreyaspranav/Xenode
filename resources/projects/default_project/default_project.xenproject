@@ -5,4 +5,4 @@ Project:
   AssetsPath: assets/
   BuildPath: build/
   CachePath: .projcache/
-  StartScenePath: assets/Scene.xen
+  StartScenePath: assets/2DPhysicsTest.xen

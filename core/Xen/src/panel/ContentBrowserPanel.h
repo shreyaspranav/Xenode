@@ -13,6 +13,12 @@ class ContentBrowserPanel
 {
 public:
 	ContentBrowserPanel() {}
+	ContentBrowserPanel(const std::filesystem::path& assetsDirectory) 
+		:m_AssetsPath(assetsDirectory) 
+	{
+		m_CurrentPath = m_AssetsPath;
+	}
+
 	~ContentBrowserPanel() {}
 
 	void OnImGuiRender()
@@ -126,9 +132,8 @@ private:
 	std::string m_BackIcon = std::string(ICON_FA_ARROW_UP);
 	std::string m_SearchIcon = std::string(ICON_FA_MAGNIFYING_GLASS);
 	
-	// Hardcoded it to assets, change in future
-	std::filesystem::path m_AssetsPath{ "assets" };
-	std::filesystem::path m_CurrentPath{ "assets" };
+	std::filesystem::path m_AssetsPath;
+	std::filesystem::path m_CurrentPath;
 
 	// Drag drop types:
 	std::string m_SceneLoadDropType = "XEN_CONTENT_BROWSER_SCENE_LOAD";

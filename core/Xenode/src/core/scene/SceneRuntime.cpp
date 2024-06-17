@@ -102,10 +102,12 @@ namespace Xen
 				{
 					sceneRuntimeState.runtimeCameraTransform = entity.GetComponent<Component::Transform>();
 					sceneRuntimeState.runtimeCamera = cameraComp.camera;
+					SceneRenderer::SetActiveCamera(sceneRuntimeState.runtimeCamera);
 					return;
 				}
 			}
 		}
+
 	}
 #ifdef XEN_GAME_FINAL_BUILD
 	void SceneRuntime::UpdateFinal(double timestep)

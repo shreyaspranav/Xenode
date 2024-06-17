@@ -44,7 +44,9 @@ void LevelEditorLayer::OnAttach()
 		m_ViewportFrameBufferHeight
 	);
 
-	m_EditorScene = std::make_shared<Xen::Scene>(Xen::SceneType::_2D);
+	Xen::ProjectSettings& projectSettings = Xen::ProjectManager::GetCurrentProject()->GetProjectSettings();
+
+	m_EditorScene = projectSettings.startScene;
 	m_RuntimeScene = std::make_shared<Xen::Scene>(Xen::SceneType::_2D);
 	m_ActiveScene = m_EditorScene;
 
@@ -72,7 +74,11 @@ void LevelEditorLayer::OnAttach()
 
 	m_HierarchyPanel = SceneHierarchyPanel(m_ActiveScene);
 	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
-	m_ContentBrowserPanel = ContentBrowserPanel();     
+
+	Xen::ProjectSettings settings = Xen::ProjectManager::GetCurrentProject()->GetProjectSettings();
+	std::filesystem::path projectPath = Xen::ProjectManager::GetCurrentProjectPath();
+	m_ContentBrowserPanel = ContentBrowserPanel(projectPath / settings.relAssetDirectory);
+
 	m_SceneSettingsPanel = SceneSettingsPanel(m_ActiveScene);
 
 	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
@@ -114,13 +120,13 @@ void LevelEditorLayer::OnAttach()
 	// 
 	// Xen::ProjectManager::CreateProject(path, properties);
 
-	XEN_ENGINE_LOG_INFO("Project Exists: {0}", Xen::ProjectSerializer::IsValidProjectFile("../../resources/projects/default_project/default_project.xenproject"));
-
-	Xen::Ref<Xen::Project> p = Xen::ProjectManager::LoadProject("../../resources/projects/default_project/default_project.xenproject");
-	Xen::ProjectProperties props = p->GetProjectProperties();
-	Xen::ProjectSettings settings = p->GetProjectSettings();
-
-	XEN_ENGINE_LOG_INFO("Name: {0}", props.name);
+	// XEN_ENGINE_LOG_INFO("Project Exists: {0}", Xen::ProjectSerializer::IsValidProjectFile("../../resources/projects/default_project/default_project.xenproject"));
+	// 
+	// Xen::Ref<Xen::Project> p = Xen::ProjectManager::LoadProject("../../resources/projects/default_project/default_project.xenproject");
+	// Xen::ProjectProperties props = p->GetProjectProperties();
+	// Xen::ProjectSettings settings = p->GetProjectSettings();
+	// 
+	// XEN_ENGINE_LOG_INFO("Name: {0}", props.name);
 
 	Xen::SceneRuntime::Initialize(Xen::DesktopApplication::GetWindow()->GetFrameBufferWidth(), Xen::DesktopApplication::GetWindow()->GetFrameBufferHeight());
 
@@ -184,8 +190,11 @@ void LevelEditorLayer::OnUpdate(double timestep)
 		m_ActiveScene = m_RuntimeScene;
 
 		// m_SceneStepped will be reset to false in OnFixedUpdate function
-		if (m_SceneStepped) 
+		if (m_SceneStepped)
+		{
 			Xen::SceneRuntime::UpdateRuntime(timestep, false);
+			m_SceneStepped = false;
+		}
 		else
 			Xen::SceneRuntime::UpdateRuntime(timestep, m_ScenePaused);
 	}
@@ -215,9 +224,6 @@ void LevelEditorLayer::OnUpdate(double timestep)
 		m_HierarchyPanel.SetSelectedEntity(Xen::Entity((entt::entity)entt_id, m_ActiveScene.get()));
 
 		Xen::SceneRuntime::GetActiveFrameBuffer()->Unbind();
-
-		// XEN_ENGINE_LOG_INFO("Entity: {0}", entt_id);
-
 	}
 }
 void LevelEditorLayer::OnRender()
@@ -635,7 +641,7 @@ void LevelEditorLayer::ImGuiRenderToolbar()
 
 	ImGui::SameLine();
 
-	ImGui::BeginDisabled(m_EditMode);
+	ImGui::BeginDisabled(m_EditMode); 
 
 	if (ImGui::ImageButton((ImTextureID)m_ResourceTextures["Stop"]->GetNativeTextureID(), { 25.0f, 25.0f }))
 	{
@@ -670,10 +676,7 @@ void LevelEditorLayer::OnFixedUpdate()
 	if (m_EditorState == EditorState::Play || m_EditorState == EditorState::Pause)
 	{
 		if (m_SceneStepped)
-		{
 			Xen::SceneRuntime::FixedUpdate();
-			m_SceneStepped = false;
-		}
 		else
 			Xen::SceneRuntime::FixedUpdate();
 	}

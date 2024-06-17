@@ -2,6 +2,7 @@
 #include <Core.h>
 
 #include "Project.h"
+#include <filesystem>
 
 namespace Xen 
 {
@@ -16,6 +17,9 @@ namespace Xen
 
 		// Returns the instance of the current project
 		static const Ref<Project>& GetCurrentProject();
+
+		// Returns the path of the current project
+		static const std::filesystem::path& GetCurrentProjectPath();
 
 		// Unloads the current project
 		static void UnloadProject();

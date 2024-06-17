@@ -11,11 +11,12 @@
 #include "shaderc/shaderc.hpp"
 #include "SHA256.h"
 #include <core/app/Timer.h>
+#include <project/ProjectManager.h>
 
 namespace Xen {
 
 	// Combine this with the asset pipeline or the project system
-	const std::string cacheDirectory = "assets/.cache/";
+	std::string cacheDirectory = "assets/.cache/";
 
 	static shaderc_shader_kind GLShaderToShaderC(GLenum shaderKind)
 	{
