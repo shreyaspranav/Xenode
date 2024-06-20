@@ -75,9 +75,6 @@ namespace Xen
 			projectSettings.relBuildDirectory = std::filesystem::path(rootNode["BuildPath"].as<std::string>());
 			projectSettings.relCacheDirectory = std::filesystem::path(rootNode["CachePath"].as<std::string>());
 			projectSettings.relStartScenePath = std::filesystem::path(rootNode["StartScenePath"].as<std::string>());
-
-			Ref<Scene> startScene = std::make_shared<Scene>();
-			projectSettings.startScene = startScene;
 		}
 		else
 		{

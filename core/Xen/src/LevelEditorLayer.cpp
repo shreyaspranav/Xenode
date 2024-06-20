@@ -16,6 +16,7 @@
 #include <project/ProjectSerializer.h>
 
 #include <core/scene/SceneRuntime.h>
+#include <core/scene/Components.h>
 
 Xen::Ref<Xen::Input> input;
 Xen::Vec2 mouseInitialPos;
@@ -46,7 +47,7 @@ void LevelEditorLayer::OnAttach()
 
 	Xen::ProjectSettings& projectSettings = Xen::ProjectManager::GetCurrentProject()->GetProjectSettings();
 
-	m_EditorScene = projectSettings.startScene;
+	m_EditorScene = std::make_shared<Xen::Scene>(Xen::SceneType::_2D);
 	m_RuntimeScene = std::make_shared<Xen::Scene>(Xen::SceneType::_2D);
 	m_ActiveScene = m_EditorScene;
 
@@ -76,6 +77,9 @@ void LevelEditorLayer::OnAttach()
 	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
 
 	Xen::ProjectSettings settings = Xen::ProjectManager::GetCurrentProject()->GetProjectSettings();
+	Xen::ProjectProperties properties = Xen::ProjectManager::GetCurrentProject()->GetProjectProperties();
+	
+	// Get the active projects asset directory
 	std::filesystem::path projectPath = Xen::ProjectManager::GetCurrentProjectPath();
 	m_ContentBrowserPanel = ContentBrowserPanel(projectPath / settings.relAssetDirectory);
 
@@ -85,6 +89,9 @@ void LevelEditorLayer::OnAttach()
 	m_PropertiesPanel.SetScriptLoadDropType(m_ContentBrowserPanel.GetScriptLoadDropType());
 
 	m_EditorCameraController = Xen::EditorCameraController(input, m_EditorCameraType);
+	
+	// Open the scene after initialising the editor camera controller because it uses the m_EditorCameraController object
+	OpenScene((projectPath / settings.relStartScenePath).string());
 
 	// Load all the resource textures:
 	m_ResourceTextures.insert({ "Play",   Xen::Texture2D::CreateTexture2D("assets/textures/play.png",     false) });
@@ -726,12 +733,22 @@ void LevelEditorLayer::OnScenePause()
 void LevelEditorLayer::OpenScene(const std::string& filePath)
 {
 	m_EditorScene->DestroyAllEntities();
-	Xen::SceneSerializer::Deserialize(m_EditorScene, filePath);
+	Xen::Component::Transform editorCameraTransform = Xen::SceneSerializer::Deserialize(m_EditorScene, filePath);
+
+	m_EditorCameraController.SetCameraPosition(editorCameraTransform.position);
+	m_EditorCameraController.SetZoom(editorCameraTransform.scale.x);
+
+	m_EditorCamera->Update();
 }
 
 void LevelEditorLayer::SaveScene(const std::string& filePath)
 {
-	Xen::SceneSerializer::Serialize(m_EditorScene, filePath);
+	Xen::Component::Transform editorCameraTransform;
+	editorCameraTransform.position = m_EditorCamera->GetPosition();
+	editorCameraTransform.rotation = m_EditorCamera->GetRotation();
+	editorCameraTransform.scale = m_EditorCamera->GetScale();
+
+	Xen::SceneSerializer::Serialize(m_EditorScene, editorCameraTransform, filePath);
 }
 
 void LevelEditorLayer::OnWindowResizeEvent(Xen::WindowResizeEvent& event)

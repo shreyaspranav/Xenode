@@ -26,7 +26,6 @@ namespace Xen
 		std::filesystem::path relBuildDirectory = "build/";
 
 		std::filesystem::path relStartScenePath = "assets/Scene.xen";
-		Ref<Scene> startScene;
 	};
 
 
@@ -99,10 +98,7 @@ namespace Xen
 
 		Project(const ProjectProperties& properties)
 			:m_ProjectProperties(properties) 
-		{
-			m_ProjectSettings.startScene = std::make_shared<Scene>();
-			m_ProjectSettings.startScene->DestroyAllEntities();
-		}
+		{}
 
 		~Project() {}
 

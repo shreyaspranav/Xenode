@@ -37,7 +37,8 @@ namespace Xen
 			std::filesystem::create_directories(projectPath / settings.relCacheDirectory);
 
 			// Serialize the Start Scene:
-			SceneSerializer::Serialize(settings.startScene, (projectPath / settings.relStartScenePath).string());
+			Component::Transform editorCameraTransform;
+			SceneSerializer::Serialize(std::make_shared<Scene>(), editorCameraTransform, (projectPath / settings.relStartScenePath).string());
 
 			return project;
 		}
@@ -68,10 +69,6 @@ namespace Xen
 		Ref<Project> project = Project::CreateProject(p);
 
 		ProjectSerializer::Deserialize(project, pathToProjectFile);
-
-		std::filesystem::path startScenePath = pathToProjectFile.parent_path() / project->GetProjectSettings().relStartScenePath;
-		SceneSerializer::Deserialize(project->GetProjectSettings().startScene, startScenePath.string());
-
 		projectManagerState.currentProject = project;
 
 		return project;

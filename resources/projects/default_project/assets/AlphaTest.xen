@@ -1,48 +1,6 @@
 Scene: Untitled
 Entities:
-  - Entity: [Green, 16935957436178857427]
-    Transform:
-      Position: [0.400000006, 0.200000003, -0.0299999993]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    SpriteRenderer:
-      SpritePrimitive: 3
-      CircleProperties:
-        Thickness: 1
-        InnerFade: 1
-        OuterFade: 0.0260000005
-      Color: [0, 1, 0, 1]
-      Texture:
-        TextureFileRelPath: "null"
-        TextureTilingFactor: 1
-  - Entity: [Red, 8021599163232532029]
-    Transform:
-      Position: [-0.400000006, 0.200000003, 0.119999997]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    SpriteRenderer:
-      SpritePrimitive: 3
-      CircleProperties:
-        Thickness: 1
-        InnerFade: 1
-        OuterFade: 0.0189999994
-      Color: [1, 0, 0, 1]
-      Texture:
-        TextureFileRelPath: "null"
-        TextureTilingFactor: 1
-  - Entity: [Camera, 7311479619208647848]
-    Transform:
-      Position: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    CameraComp:
-      Camera:
-        ProjectionType: Orthographic
-        ZNear: 1
-        ZFar: -1
-      IsPrimary: true
-      IsResizable: true
-  - Entity: [Blue, 9010529117443771411]
+  - Entity: [Blue, 685955370045853708]
     Transform:
       Position: [0, -0.349999994, 0]
       Rotation: [0, 0, 0]
@@ -57,4 +15,50 @@ Entities:
       Texture:
         TextureFileRelPath: "null"
         TextureTilingFactor: 1
+  - Entity: [Camera, 13758586662865305732]
+    Transform:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComp:
+      Camera:
+        ProjectionType: Orthographic
+        ZNear: 1
+        ZFar: -1
+      IsPrimary: true
+      IsResizable: true
+  - Entity: [Red, 4484395172443241015]
+    Transform:
+      Position: [-0.400000006, 0.200000003, 0.119999997]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 3
+      CircleProperties:
+        Thickness: 1
+        InnerFade: 1
+        OuterFade: 0.0189999994
+      Color: [1, 0, 0, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+  - Entity: [Green, 17228616923279644862]
+    Transform:
+      Position: [0.400000006, 0.200000003, -0.0299999993]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 3
+      CircleProperties:
+        Thickness: 1
+        InnerFade: 1
+        OuterFade: 0.0260000005
+      Color: [0, 1, 0, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
 Entity Count: 4
+EditorCameraTransform:
+  Position: [0, 0, 0]
+  Rotation: [0, 0, 0]
+  Scale: [0.970589936, 0.970589936, 1]

@@ -240,7 +240,7 @@ namespace Xen {
 		yamlEmitter << YAML::EndMap; // Entity
 	}
 
-	void SceneSerializer::Serialize(const Ref<Scene>& scene, const std::string& filePath)
+	void SceneSerializer::Serialize(const Ref<Scene>& scene, const Component::Transform& editorCameraTransform, const std::string& filePath)
 	{
 		YAML::Emitter yamlEmitter;
 
@@ -251,17 +251,8 @@ namespace Xen {
 
 		uint32_t entity_count = 0;
 
-		// auto group = scene->m_Registry.group();
-
-		// for (auto entt : scene->m_Registry.)
-		// {
-		// 	Entity entity = Entity(entt, scene.get());
-		// 	entity_count++;
-		// 
-		// 	SerializeEntity(yamlEmitter, entity, entity_count);
-		// }
-
-		scene->m_SceneRegistry.each([&](auto& entityID) {
+		scene->m_SceneRegistry.each([&](auto& entityID)
+		{
 		
 			Entity entity = Entity(entityID, scene.get());
 			entity_count++;
@@ -271,18 +262,26 @@ namespace Xen {
 
 		yamlEmitter << YAML::EndSeq;
 		yamlEmitter << YAML::Key << "Entity Count" << YAML::Value << entity_count;
+
+		yamlEmitter << YAML::Key << "EditorCameraTransform" << YAML::Value << YAML::BeginMap;
+		yamlEmitter << YAML::Key << "Position" << YAML::Value << editorCameraTransform.position;
+		yamlEmitter << YAML::Key << "Rotation" << YAML::Value << editorCameraTransform.rotation;
+		yamlEmitter << YAML::Key << "Scale" << YAML::Value << editorCameraTransform.scale;
+
 		yamlEmitter << YAML::EndMap;
 
 		std::ofstream out_stream(filePath);
 		out_stream << yamlEmitter.c_str();
 		out_stream.close();
 	}
+
 	void SceneSerializer::SerializeBinary(const Ref<Scene>& scene, const std::string& filePath)
 	{
 		XEN_ENGINE_LOG_ERROR("Not Yet Implemented!");
 		TRIGGER_BREAKPOINT;
 	}
-	void SceneSerializer::Deserialize(const Ref<Scene>& scene, const std::string& filePath)
+
+	Component::Transform SceneSerializer::Deserialize(const Ref<Scene>& scene, const std::string& filePath)
 	{
 		std::ifstream file_stream(filePath);
 		std::stringstream scene_string_data;
@@ -513,7 +512,28 @@ namespace Xen {
 				}
 			}
 		}
-		
+		// Getting the Editor Camera Transform:
+
+		Vec3 position = {
+			scene_data["EditorCameraTransform"]["Position"][0].as<float>(),
+			scene_data["EditorCameraTransform"]["Position"][1].as<float>(),
+			scene_data["EditorCameraTransform"]["Position"][2].as<float>(),
+		};
+
+		Vec3 rotation = {
+			scene_data["EditorCameraTransform"]["Rotation"][0].as<float>(),
+			scene_data["EditorCameraTransform"]["Rotation"][1].as<float>(),
+			scene_data["EditorCameraTransform"]["Rotation"][2].as<float>(),
+		};
+
+		Vec3 scale = {
+			scene_data["EditorCameraTransform"]["Scale"][0].as<float>(),
+			scene_data["EditorCameraTransform"]["Scale"][1].as<float>(),
+			scene_data["EditorCameraTransform"]["Scale"][2].as<float>(),
+		};
+
+		Component::Transform transform = { position, rotation, scale };
+		return transform;
 	}
 	void SceneSerializer::DeserializeBinary(const Ref<Scene>& scene, const std::string& filePath)
 	{

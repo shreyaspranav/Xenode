@@ -78,7 +78,8 @@ namespace Xen {
 
 			else if (m_CameraType == EditorCameraType::_2D)
 			{
-				if (*active) {
+				if (*active) 
+				{
 					if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
 						Pan(m_MouseDelta);
 					else if (m_Input->IsKeyPressed(KEY_LEFT_CONTROL))
@@ -94,6 +95,21 @@ namespace Xen {
 		inline const Vec2& GetMouseDelta()			{ return m_MouseDelta; }
 		inline const Vec3& GetFocalPoint()			{ return m_FocalPoint; };
 		inline const Vec3& GetCameraPosition()		{ return m_CameraPosition; };
+
+		inline void SetCameraPosition(const Vec3& position) 
+		{ 
+			if (m_CameraType == EditorCameraType::_2D)
+			{
+				m_CameraPosition = position; 
+				m_FocalPoint = position;
+			}
+
+			else 
+			{
+				// Find out a way of determining the focal distance and the direction.
+			}
+		}
+
 		inline float GetFocalDistance()				{ return m_FocalDistance; }
 		inline float GetZoom()						{ return m_FocalDistance; }
 
@@ -110,7 +126,7 @@ namespace Xen {
 
 		Vec2 m_CameraAngleAlongFocalPoint;
 		Vec2 m_InitialMouseCoords;
-
+		
 		Vec2 m_MouseDelta;
 
 		Ref<Input> m_Input;
