@@ -4,7 +4,7 @@
 #include <Core.h>
 
 #ifdef XEN_DEVICE_DESKTOP
-#include <core/app/Window.h>
+#include <core/app/desktop/Window.h>
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "backends/imgui_impl_glfw.h"
@@ -33,23 +33,6 @@ namespace Xen {
 
 		void Begin();
 		void End();
-
-		virtual void OnWindowMoveEvent(WindowMoveEvent& event) override;
-		virtual void OnWindowResizeEvent(WindowResizeEvent& event) override;
-		virtual void OnWindowCloseEvent(WindowCloseEvent& event) override;
-		virtual void OnWindowFocusEvent(WindowFocusEvent& event) override;
-		virtual void OnWindowMinimizeEvent(WindowMinimizeEvent& event) override;
-		virtual void OnWindowMaximizeEvent(WindowMaximizeEvent& event) override;
-
-		virtual void OnKeyPressEvent(KeyPressEvent& event) override;
-		virtual void OnKeyReleaseEvent(KeyReleaseEvent& event) override;
-		virtual void OnCharEnterEvent(CharEnterEvent& event) override;
-
-		virtual void OnMouseEnterEvent(MouseEnterEvent& event) override;
-		virtual void OnMouseMoveEvent(MouseMoveEvent& event) override;
-		virtual void OnMouseButtonPressEvent(MouseButtonPressEvent& event) override;
-		virtual void OnMouseButtonReleaseEvent(MouseButtonReleaseEvent& event) override;
-		virtual void OnMouseScrollEvent(MouseScrollEvent& event) override;
 	};
 }
 

@@ -1,14 +1,14 @@
 #include "pch"
 #include "Buffer.h"
+#include <core/app/GameApplication.h>
 
-#include "core/app/DesktopApplication.h"
+#include <gfxapi/OpenGL/OpenGLBuffer.h>
 
-#include "gfxapi/OpenGL/OpenGLBuffer.h"
 
 namespace Xen {
 	Ref<VertexBuffer> VertexBuffer::CreateVertexBuffer(Size size, const VertexBufferLayout& layout)
 	{
-		switch (DesktopApplication::GetGraphicsAPI())
+		switch (GetApplicationInstance()->GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLVertexBuffer>(size, layout);
@@ -18,7 +18,7 @@ namespace Xen {
 
 	Ref<ElementBuffer> ElementBuffer::CreateElementBuffer(Size size, ElementBufferDataType dataType)
 	{
-		switch (DesktopApplication::GetGraphicsAPI())
+		switch (GetApplicationInstance()->GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLElementBuffer>(size, dataType);
@@ -28,7 +28,7 @@ namespace Xen {
 	Ref<UniformBuffer> UniformBuffer::CreateUniformBuffer(Size size, const VertexBufferLayout& layout, uint8_t bindingIndex)
 	{
 
-		switch (DesktopApplication::GetGraphicsAPI())
+		switch (GetApplicationInstance()->GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLUniformBuffer>(size, layout, bindingIndex);
@@ -37,7 +37,7 @@ namespace Xen {
 	}
 	Ref<StorageBuffer> StorageBuffer::CreateStorageBuffer(Size size, const VertexBufferLayout& layout, uint8_t bindingIndex)
 	{
-		switch (DesktopApplication::GetGraphicsAPI())
+		switch (GetApplicationInstance()->GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLStorageBuffer>(size, layout, bindingIndex);
@@ -46,7 +46,7 @@ namespace Xen {
 	}
 	Ref<TransformFeedback> TransformFeedback::CreateTransformFeedback(std::vector<std::string> outAttributes, TransformFeedbackPrimitive primitive)
 	{
-		switch (DesktopApplication::GetGraphicsAPI())
+		switch (GetApplicationInstance()->GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLTransformFeedback>(outAttributes, primitive);

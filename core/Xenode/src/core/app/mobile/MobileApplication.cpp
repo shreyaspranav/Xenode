@@ -1,6 +1,6 @@
 #include <pch>
 #include "MobileApplication.h"
-#include "Timer.h"
+#include <core/app/Timer.h>
 
 #ifdef XEN_DEVICE_MOBILE
 namespace Xen {

@@ -1,26 +1,63 @@
 #pragma once
 
 #include <Core.h>
-#include "KeyCodes.h"
+#include "input/KeyboardInput.h"
+#include "input/MouseInput.h"
 
-namespace Xen {
+namespace Xen 
+{
 
+	// Private macros: (Not meant to be used in other files) --------------------------------------------------------------------------
+
+	// Implements the Event Type getter functions.
+#define _DEFINE_EVENT(type) static EventType GetStaticType() { return type; }\
+							EventType GetEventType() const override { return GetStaticType(); }
+
+#ifndef XEN_PRODUCTION
+	
+// To be used with _TO_STRING_IMPL(event, ...)
+#define _TO_STRING_MEMBER(member) ss << #member << ": " << member << ", ";
+
+// Macro to define the overridden ToString method
+#define _TO_STRING_IMPL(event, ...) \
+    std::string ToString() const override \
+	{ \
+        std::stringstream ss; \
+        ss << #event << ": "; \
+		__VA_ARGS__ \
+        std::string result = ss.str(); \
+        if (!result.empty() && result[result.size() - 2] == ',') \
+		{ \
+            result.pop_back(); \
+            result.pop_back(); \
+        } \
+        return result; \
+    }
+
+#else
+#define _TO_STRING_MEMBER(member)
+#define _TO_STRING_IMPL(event, ...)
+#endif
+	// ---------------------------------------------------------------------------------------------------------------------------
+
+	// The Type of the Event, If you need to implement a event, 
+	// insert here and also implement the event class 
 	enum class EventType
 	{
-
 		// Window Events:
 		WindowMoveEvent, WindowResizeEvent, WindowCloseEvent, WindowFocusEvent, WindowMinimizeEvent, WindowMaximizeEvent,
 
 		// Keyboard Events:
-		KeyPressEvent, KeyReleaseEvent, CharEnterEvent,
+		KeyboardEvent, CharEnterEvent,
 
 		// Mouse Events:
-		MouseEnterEvent, MouseMoveEvent, MouseButtonPressEvent, MouseButtonReleaseEvent, MouseScrollEvent,
+		MouseEnterEvent, MouseMoveEvent, MouseButtonEvent, MouseScrollEvent,
 
 		// Monitor Events:
 		MonitorConnectEvent, MonitorDisconnectEvent
 	};
 
+	// The base class of an Event.
 	class XEN_API Event
 	{
 	public:
@@ -28,16 +65,13 @@ namespace Xen {
 
 		virtual ~Event() {}
 		
-		virtual EventType GetEventName() const = 0;
+		virtual EventType GetEventType() const = 0;
 		virtual std::string ToString() const = 0;
 	};
 
+	//---------------------- Window Events:-------------------------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------------------------------------------------------------
 
-	//----------------------Window Events:---------------------------------------------------------
-	//---------------------------------------------------------------------------------------------
-
-
-	// Window Moved Event:---------------------------------------
 	class XEN_API WindowMoveEvent : public Event
 	{
 	private:
@@ -51,17 +85,10 @@ namespace Xen {
 		uint32_t GetXPos() const { return m_XPos; }
 		uint32_t GetYPos() const { return m_YPos; }
 
-		EventType GetEventName() const override { return EventType::WindowMoveEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "WindowMoved: X_Pos: " << m_XPos << ", Y_Pos: " << m_YPos;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::WindowMoveEvent);
+		_TO_STRING_IMPL(WindowMoveEvent, _TO_STRING_MEMBER(m_XPos) _TO_STRING_MEMBER(m_YPos));
 	};
 
-
-	// Window Resize Event:-------------------------------------
 	class XEN_API WindowResizeEvent : public Event
 	{
 	private:
@@ -75,17 +102,10 @@ namespace Xen {
 		uint32_t GetWidth() const { return m_Width; }
 		uint32_t GetHeight() const { return m_Height; }
 
-		EventType GetEventName() const override { return EventType::WindowResizeEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "WindowResize: Width " << m_Width << ", Height: " << m_Height;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::WindowResizeEvent);
+		_TO_STRING_IMPL(WindowResizeEvent, _TO_STRING_MEMBER(m_Width) _TO_STRING_MEMBER(m_Height));
 	};
 
-
-	// Window Close Event:-------------------------------------
 	class XEN_API WindowCloseEvent : public Event
 	{
 	private:
@@ -103,17 +123,10 @@ namespace Xen {
 
 		int GetExitCode() const { return m_ExitCode; }
 		
-		EventType GetEventName() const override { return EventType::WindowCloseEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "WindowClosed: " << m_ExitCode;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::WindowCloseEvent);
+		_TO_STRING_IMPL(WindowCloseEvent, _TO_STRING_MEMBER(m_ExitCode));
 	};
 
-
-	// Window Focus Event:-------------------------------------
 	class XEN_API WindowFocusEvent : public Event
 	{
 	private:
@@ -125,17 +138,10 @@ namespace Xen {
 
 		bool IsFocused() const { return m_Focused; }
 
-		EventType GetEventName() const override { return EventType::WindowFocusEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "WindowFocus: " << m_Focused;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::WindowFocusEvent);
+		_TO_STRING_IMPL(WindowFocusEvent, _TO_STRING_MEMBER(m_Focused));
 	};
 
-
-	// Window Minimise Event:-------------------------------------
 	class XEN_API WindowMinimizeEvent : public Event
 	{
 	private:
@@ -147,17 +153,10 @@ namespace Xen {
 
 		bool IsMinimised() const { return m_Minimised; }
 
-		EventType GetEventName() const override { return EventType::WindowMinimizeEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "WindowMinimise: " << m_Minimised;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::WindowMinimizeEvent);
+		_TO_STRING_IMPL(WindowMinimizeEvent, _TO_STRING_MEMBER(m_Minimised));
 	};
 
-
-	// Window Maximise Event:-------------------------------------
 	class XEN_API WindowMaximizeEvent : public Event
 	{
 	private:
@@ -169,62 +168,29 @@ namespace Xen {
 
 		bool IsMaximised() const { return m_Maximised; }
 
-		EventType GetEventName() const override { return EventType::WindowMaximizeEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "WindowMaximise: " << m_Maximised;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::WindowMaximizeEvent);
+		_TO_STRING_IMPL(WindowMaximizeEvent, _TO_STRING_MEMBER(m_Maximised));
 	};
 
-	//----------------------Key Events:------------------------------------------------------------
-	//---------------------------------------------------------------------------------------------
+	//---------------------- Key Events:----------------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------------------------------------------------
 
-	// Key Press Event:----------------------------
-	class KeyPressEvent : public Event
+	class KeyboardEvent : public Event
 	{
 	private:
-		KeyCode m_Code;
-		bool m_IsRepeat;
+		KeyboardKeyCode m_Code;
+		KeyAction m_Action;
 
 	public:
-		KeyPressEvent(KeyCode code) : m_Code(code) { m_IsRepeat = 0; }
-		KeyPressEvent(KeyCode code, bool repeat) : m_Code(code), m_IsRepeat(repeat) {}
+		KeyboardEvent(KeyboardKeyCode code, KeyAction action = KeyAction::Press) : m_Code(code), m_Action(action) {}
 
-		virtual ~KeyPressEvent() {}
+		virtual ~KeyboardEvent() {}
 
-		KeyCode GetKey() const { return m_Code; }
-		bool IsRepeat() { return m_IsRepeat; }
+		KeyboardKeyCode GetKey() const { return m_Code; }
+		KeyAction GetAction() const { return m_Action; }
 
-		EventType GetEventName() const override { return EventType::KeyPressEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "KeyPressed: " << m_Code << ", Repeat: " << m_IsRepeat;
-			return ss.str();
-		}
-	};
-
-	// Key Release Event:----------------------------
-	class KeyReleaseEvent : public Event
-	{
-	private:
-		KeyCode m_Code;
-
-	public:
-		KeyReleaseEvent(KeyCode code) : m_Code(code) {}
-		virtual ~KeyReleaseEvent() {}
-
-		KeyCode GetKey() const { return m_Code; }
-
-		EventType GetEventName() const override { return EventType::KeyReleaseEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "KeyReleased: " << m_Code;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::KeyboardEvent);
+		_TO_STRING_IMPL(KeyboardEvent, _TO_STRING_MEMBER(m_Code) _TO_STRING_MEMBER(m_Action));
 	};
 
 	class CharEnterEvent : public Event
@@ -237,19 +203,13 @@ namespace Xen {
 
 		uint32_t GetChar() const { return m_CharCode; }
 
-		EventType GetEventName() const override { return EventType::CharEnterEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "CharEnter: " << m_CharCode;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::CharEnterEvent);
+		_TO_STRING_IMPL(CharEnterEvent, _TO_STRING_MEMBER(m_CharCode));
 	};
 
-	//----------------------Mouse Events:------------------------------------------------------------
-	//-----------------------------------------------------------------------------------------------
+	//---------------------- Mouse Events:----------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
 
-	// Mouse Enter Event:-----------------------------
 	class MouseEnterEvent : public Event
 	{
 	private:
@@ -261,16 +221,10 @@ namespace Xen {
 
 		bool IsInWindow() { return m_IsInWindow; }
 
-		EventType GetEventName() const override { return EventType::MouseEnterEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "MouseEntered: " << m_IsInWindow;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::MouseEnterEvent);
+		_TO_STRING_IMPL(MouseEnterEvent, _TO_STRING_MEMBER(m_IsInWindow));
 	};
 
-	// Mouse Move Event:------------------------------
 	class MouseMoveEvent : public Event
 	{
 	private:
@@ -283,58 +237,28 @@ namespace Xen {
 		uint16_t GetX() const { return m_X; }
 		uint16_t GetY() const { return m_Y; }
 
-		EventType GetEventName() const override { return EventType::MouseMoveEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "MouseMoved: X:" << m_X << ", Y:" << m_Y;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::MouseMoveEvent);
+		_TO_STRING_IMPL(MouseMoveEvent, _TO_STRING_MEMBER(m_X) _TO_STRING_MEMBER(m_Y));
 	};
 
-	// Mouse Button Press Event:------------------------------
-	class MouseButtonPressEvent : public Event
+	class MouseButtonEvent : public Event
 	{
 	private:
-		MouseKeyCode m_Code;
+		MouseButtonCode m_Code;
+		MouseButtonAction m_Action;
 
 	public:
-		MouseButtonPressEvent(MouseKeyCode code) : m_Code(code) {}
-		virtual ~MouseButtonPressEvent() {}
+		MouseButtonEvent(MouseButtonCode code, MouseButtonAction action = MouseButtonAction::Press) 
+			: m_Code(code), m_Action(action) {}
+		virtual ~MouseButtonEvent() {}
 
-		MouseKeyCode GetMouseKeyCode() { return m_Code; }
+		MouseButtonCode GetMouseButtonCode() { return m_Code; }
+		MouseButtonAction GetMouseButtonAction() { return m_Action; }
 
-		EventType GetEventName() const override { return EventType::MouseButtonPressEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "MouseButtonPressed: " << m_Code;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::MouseButtonEvent);
+		_TO_STRING_IMPL(MouseButtonEvent, _TO_STRING_MEMBER(m_Code) _TO_STRING_MEMBER(m_Action));
 	};
 
-	// Mouse Button Release Event:------------------------------
-	class MouseButtonReleaseEvent: public Event
-	{
-	private:
-		MouseKeyCode m_Code;
-
-	public:
-		MouseButtonReleaseEvent(MouseKeyCode code) : m_Code(code) {}
-		virtual ~MouseButtonReleaseEvent() {}
-
-		MouseKeyCode GetMouseKeyCode() { return m_Code; }
-
-		EventType GetEventName() const override { return EventType::MouseButtonReleaseEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "MouseButtonReleased: " << m_Code;
-			return ss.str();
-		}
-	};
-
-	// Mouse Scroll Event:------------------------------
 	class MouseScrollEvent : public Event
 	{
 	private:
@@ -347,57 +271,40 @@ namespace Xen {
 		float GetXOffset() { return m_XOffset; }
 		float GetYOffset() { return m_YOffset; }
 
-		EventType GetEventName() const override { return EventType::MouseScrollEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "MouseScroll: X:" << m_XOffset << " ,Y:" << m_YOffset;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::MouseScrollEvent);
+		_TO_STRING_IMPL(MouseScrollEvent, _TO_STRING_MEMBER(m_XOffset) _TO_STRING_MEMBER(m_YOffset));
 	};
 
-	//----------------------Monitor Events:------------------------------------------------------------
-	//-----------------------------------------------------------------------------------------------
+	//---------------------- Monitor Events:-----------------------------------------------------------------------------------------------------
+	//-------------------------------------------------------------------------------------------------------------------------------------------
 
-	// Monitor Connect Event:--------------------------
 	class MonitorConnectEvent : public Event
 	{
 	private:
 		uint8_t m_MonitorCount;
 
 	public:
-		MonitorConnectEvent(uint8_t monitor_count) : m_MonitorCount(monitor_count) {}
+		MonitorConnectEvent(uint8_t monitorCount) : m_MonitorCount(monitorCount) {}
 		virtual ~MonitorConnectEvent() {}
 
 		uint8_t GetMonitorCount() { return m_MonitorCount; }
 
-		EventType GetEventName() const override { return EventType::MonitorConnectEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "MonitorConnect: monitor_count: " << m_MonitorCount;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::MonitorConnectEvent);
+		_TO_STRING_IMPL(MonitorConnectEvent, _TO_STRING_MEMBER(m_MonitorCount));
 	};
 
-	// Monitor Disconnect Event:--------------------------
 	class MonitorDisconnectEvent : public Event
 	{
 	private:
 		uint8_t m_MonitorCount;
 
 	public:
-		MonitorDisconnectEvent(uint8_t monitor_count) : m_MonitorCount(monitor_count) {}
+		MonitorDisconnectEvent(uint8_t monitorCount) : m_MonitorCount(monitorCount) {}
 		virtual ~MonitorDisconnectEvent() {}
 
 		uint8_t GetMonitorCount() { return m_MonitorCount; }
 
-		EventType GetEventName() const override { return EventType::MonitorDisconnectEvent; }
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "MonitorDisconnectEvent: monitor_count: " << m_MonitorCount;
-			return ss.str();
-		}
+		_DEFINE_EVENT(EventType::MonitorDisconnectEvent);
+		_TO_STRING_IMPL(MonitorDisconnectEvent, _TO_STRING_MEMBER(m_MonitorCount));
 	};
 }

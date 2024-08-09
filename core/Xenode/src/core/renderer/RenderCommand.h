@@ -3,10 +3,14 @@
 #include <Core.h>
 #include "RendererAPI.h"
 
-namespace Xen {
+#include <core/app/GameApplication.h>
 
+namespace Xen 
+{
 	class XEN_API RenderCommand
 	{
+		friend class DesktopGameApplication;
+
 	public:
 		static void Clear();
 		static void SetClearColor(const Color& color);
@@ -22,9 +26,7 @@ namespace Xen {
 		static void DrawNonIndexed(PrimitiveType type, const Ref<VertexBuffer>& vertexBuffer, int32_t indices = -1);
 
 		static void SetLineWidth(float width);
-
 	private:
-		static Scope<RendererAPI> GetRendererAPI();
-		static Scope<RendererAPI> s_Api;
+		static void Init();
 	};
 }

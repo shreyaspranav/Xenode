@@ -1,7 +1,9 @@
 #pragma once
+#include <Core.h>
 
-#include <core/app/Window.h>
+#ifdef XEN_DEVICE_DESKTOP
 
+#include <core/app/desktop/Window.h>
 #include <core/app/EventDispatcher.h>
 
 struct GLFWwindow;
@@ -11,12 +13,13 @@ struct GLFWmonitor;
 namespace Xen {
 
 
-	struct UserPointer
+	struct WindowData
 	{
 		WindowProps props;
-		EventDispatcher dispatcher;
+		
+		EventCallbackFn eventCallbackFn;
 
-		uint8_t monitor_count;
+		uint8_t monitorCount;
 		GLFWmonitor** monitors;
 	};
 
@@ -26,7 +29,7 @@ namespace Xen {
 		GLFWwindow* m_Window;
 		GLFWcursor* m_Cursor;
 
-		UserPointer m_UserPointer;
+		WindowData m_WindowData;
 		 
 	public:
 		GLFW_window(const WindowProps& props);
@@ -37,7 +40,7 @@ namespace Xen {
 		void Update() override;
 		void Shutdown() override;
 
-		void SetRenderingAPI(GraphicsAPI api) override { m_UserPointer.props.api = api; }
+		void SetRenderingAPI(GraphicsAPI api) override { m_WindowData.props.api = api; }
 
 		void SetWindowResolution(uint32_t width, uint32_t height) override;
 		void SetWindowMaxResolution(uint32_t width, uint32_t height) override;
@@ -65,11 +68,11 @@ namespace Xen {
 		void SetFullScreenMonitor(const Ref<Monitor>& monitor) override;
 		void SetWindowed() override;
 
-		inline const std::string& GetTitle() const override { return m_UserPointer.props.title; }
-		inline bool IsVsync() const override { return m_UserPointer.props.vsync; }
+		inline const std::string& GetTitle() const override { return m_WindowData.props.title; }
+		inline bool IsVsync() const override { return m_WindowData.props.vsync; }
 
-		void SetupEventListeners(const EventDispatcher& dispacher) override;
+		void SetEventCallbackFunction(const EventCallbackFn& callbackFn) override { m_WindowData.eventCallbackFn = callbackFn; }
 	};
-
 }
 
+#endif

@@ -1,10 +1,12 @@
 #pragma once
 #include <Core.h>
 
-#include <core/app/EventDispatcher.h>
-#include "Monitor.h"
+#ifdef XEN_DEVICE_DESKTOP
 
-#include "GraphicsAPI.h"
+#include <core/app/EventDispatcher.h>
+#include <core/app/GameApplication.h>
+
+#include "Monitor.h"
 
 namespace Xen {
 	struct WindowProps {
@@ -17,7 +19,7 @@ namespace Xen {
 		WindowProps(const std::string& title = "Xenode Application",
 						uint16_t width = 1024,
 						uint16_t height = 576,
-						bool vsync = 0, bool resizable = 1, GraphicsAPI api = GraphicsAPI::XEN_OPENGL_API) 
+						bool vsync = false, bool resizable = true, GraphicsAPI api = GraphicsAPI::XEN_OPENGL_API) 
 						
 						: title(title), width(width), height(height), vsync(vsync), api(api), resizable(resizable)
 		{}
@@ -62,8 +64,10 @@ namespace Xen {
 		virtual void SetFullScreenMonitor(const Ref<Monitor>& monitor) = 0;
 		virtual void SetWindowed() = 0;
 
-		virtual void SetupEventListeners(const EventDispatcher& dispacher) = 0;
+		virtual void SetEventCallbackFunction(const EventCallbackFn& callbackFn) = 0;
 
 		static Ref<Window> GetWindow(const WindowProps& props = WindowProps());
 	};
 }
+
+#endif

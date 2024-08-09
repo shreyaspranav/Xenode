@@ -9,8 +9,8 @@
 
 #ifdef XEN_DEVICE_DESKTOP
 
-#include "DesktopApplication.h"
-extern Xen::DesktopApplication* Xen::CreateDesktopApplication();
+#include "desktop/DesktopGameApplication.h"
+extern Xen::DesktopGameApplication* Xen::CreateApplication();
 
 #ifdef XEN_PRODUCTION
 
@@ -47,7 +47,8 @@ int main()
 {
 	XEN_INIT_LOGGER;
 
-	auto app = Xen::CreateDesktopApplication();
+	// auto app = Xen::CreateDesktopApplication();
+	auto app = Xen::CreateApplication();
 	app->Run();
 	delete app;
 

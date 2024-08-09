@@ -55,8 +55,8 @@ namespace Xen {
 
 		glfwMakeContextCurrent(m_CurrentWindow);
 
-		UserPointer p = *(UserPointer*)glfwGetWindowUserPointer(m_CurrentWindow);
-		bool vsync = p.props.vsync;
+		WindowData* data = (WindowData*)glfwGetWindowUserPointer(m_CurrentWindow);
+		bool vsync = data->props.vsync;
 		glfwSwapInterval(vsync);
 
 		int version = gladLoadGL(glfwGetProcAddress);
@@ -129,20 +129,20 @@ namespace Xen {
 		}
 		#endif // XEN_DEBUG
 
-		int data;
+		int d;
 		XEN_ENGINE_LOG_INFO("GPU Limits:-----------------------------------------");
 
-		glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &data);
-		XEN_ENGINE_LOG_INFO("Texture Slots: {0}", data);
+		glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &d);
+		XEN_ENGINE_LOG_INFO("Texture Slots: {0}", d);
 
-		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &data);
-		XEN_ENGINE_LOG_INFO("Max 4-component generic vertex attributes: {0}", data);
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &d);
+		XEN_ENGINE_LOG_INFO("Max 4-component generic vertex attributes: {0}", d);
 
-		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &data);
-		XEN_ENGINE_LOG_INFO("Max Texture Size: {0}", data);
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &d);
+		XEN_ENGINE_LOG_INFO("Max Texture Size: {0}", d);
 
-		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &data);
-		XEN_ENGINE_LOG_INFO("Max No. Of Uniform Variables: {0}", data);
+		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &d);
+		XEN_ENGINE_LOG_INFO("Max No. Of Uniform Variables: {0}", d);
 
 		XEN_ENGINE_LOG_INFO("----------------------------------------------------");
 

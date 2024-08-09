@@ -1,7 +1,9 @@
 #pragma once
-
 #include <Core.h>
-#include <core/app/Monitor.h>
+
+#ifdef XEN_DEVICE_DESKTOP
+
+#include <core/app/desktop/Monitor.h>
 
 struct GLFWmonitor;
 struct GLFWvidmode;
@@ -25,7 +27,12 @@ namespace Xen {
 		uint32_t GetMonitorHeight() const override;
 		uint32_t GetMonitorRefreshRate() const override;
 
+		uint8_t GetMonitorRedBits() const override;
+		uint8_t GetMonitorGreenBits() const override;
+		uint8_t GetMonitorBlueBits() const override;
+
 		void* GetNativeMonitor() const override;
 	};
 }
 
+#endif

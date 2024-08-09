@@ -1,15 +1,15 @@
 #include "pch"
 #include "ScriptEngine.h"
 
-#include "core/app/Log.h"
-#include "core/app/DesktopApplication.h"
+#include <core/app/Log.h>
+#include <core/app/GameApplication.h>
 
 #include "lua/LuaScriptEngine.h"
 
 namespace Xen {
 	ScriptEngine* ScriptEngine::InitScriptEngine() 
 	{
-		switch (DesktopApplication::GetScriptingLanguage())
+		switch (GetApplicationInstance()->GetScriptLang())
 		{
 		case ScriptLang::Lua:
 			return new LuaScriptEngine();

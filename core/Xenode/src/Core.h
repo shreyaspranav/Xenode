@@ -1,3 +1,38 @@
+// Documentation: ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+// Core.h is the file that is included to every header file in the engine, it contains code that is common to all the 
+// header files in the engine.
+// -----------------------------------------------------------------------------------------------------------------------------------------------
+// Here are the list of compiler definitions defined by premake(build system) based on various factors:
+// 
+// Platform macros:
+//		XEN_PLATFORM_WINDOWS		-> defined for windows systems
+//		XEN_PLATFORM_LINUX			-> defined for linux systems
+//		XEN_PLATFORM_ANDROID		-> defined for android systems
+// 
+//		XEN_DEVICE_DESKTOP			-> defined for desktop systems
+//		XEN_DEVICE_MOBILE			-> defined for mobile systems
+// 
+// Build configurations:
+//		XEN_DEBUG					-> "Debug" build
+//		XEN_RELEASE					-> "Release_Debug" build, it is a debug build with some optimizations turned on
+//		XEN_PRODUCTION				-> "Production" build, final build that will be distributed
+// 
+// Build Target:
+//		XEN_BUILD_LIB				-> defined when built as a shared library
+//		XEN_BUILD_EXE				-> defined when built as a executable(mostly used when other targets are using 
+//									the header files in the engine core)
+// 
+// Logging: 
+//		XEN_LOG_ON					-> Logging is enabled(Logging specific code will be compiled)
+//		XEN_LOG_OFF					-> Logging is disabled(Logging specific code will not be compiled)
+// 
+// Profiling:
+//		XEN_ENABLE_PROFILING		-> Enable profiling(optick)[will be enabled when projects are generated with --enable-profiling option]
+// 
+// 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 #include <pch/pch>
 
@@ -27,6 +62,8 @@
 
 typedef size_t Size;
 
+#define XEN_BIND_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+
 namespace Xen {
 
 	// Custom Data types:
@@ -38,6 +75,10 @@ namespace Xen {
 	// A 'Reference' Smart Pointer
 	template<typename T>
 	using Ref = std::shared_ptr<T>;
+
+	// A Dynamic Array:
+	template<typename T>
+	using Vector = std::vector<T>;
 
 	// A map and a unordered_map
 	template<typename T, typename V>

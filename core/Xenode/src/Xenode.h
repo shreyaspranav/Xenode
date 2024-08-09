@@ -5,7 +5,7 @@
 #include <core/app/Surface.h>
 
 #elif XEN_DEVICE_DESKTOP
-#include <core/app/DesktopApplication.h>
+#include <core/app/desktop/DesktopGameApplication.h>
 #endif
 
 #include <core/app/Log.h>
@@ -18,7 +18,9 @@
 
 #include <core/app/Log.h>
 #include <core/app/Layer.h>
-#include <core/app/Input.h>
+
+#include <core/app/input/KeyboardInput.h>
+#include <core/app/input/MouseInput.h>
 
 #include <core/renderer/Buffer.h>
 #include <core/renderer/Shader.h>

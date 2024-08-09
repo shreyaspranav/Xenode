@@ -1,13 +1,14 @@
 #include <Xenode.h>
 #include <core/app/EntryPoint.h>
-//#include "FlappyBird.h"
-#include "Test.h"
+
+// TEMP:
+#include <core/app/desktop/DesktopGameApplication.h>
 
 class ExampleLayer : public Xen::Layer
 {
 private:
 	bool window_handle = 1;
-	float my_color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 public:
 	ExampleLayer()
@@ -30,64 +31,62 @@ public:
 	}
 	void OnUpdate(double timestep) override
 	{
-
+		Xen::RenderCommand::Clear();
+		Xen::RenderCommand::SetClearColor({ color[0], color[1], color[2], color[3] });
 	}
 	
 	void OnImGuiUpdate() override
 	{
-		
-	}
+		ImGui::ShowDemoWindow();
 
-	void OnMouseScrollEvent(Xen::MouseScrollEvent& event) override
-	{
-		event.handled = 1;
+		ImGui::Begin("Background Color Test");
+		ImGui::ColorPicker4("Background Color", color);
+		ImGui::End();
 	}
 };
 
-class SandboxApp : public Xen::DesktopApplication
+class SandboxApp : public Xen::DesktopGameApplication
 {
 public:
 	SandboxApp()
 	{
-
+		
 	}
 	~SandboxApp()
 	{
-
+		
 	}
 
 	void OnCreate() override
 	{
-		window_width = 1280;
-		window_height = 720;
+		Xen::DesktopGameApplication::OnCreate();
 
-		window_title = "TestBed";
-		imgui_render = true;
-		vsync = false;
+		gameProperties.windowWidth = 1600;
+		gameProperties.windowHeight = 900;
+		gameProperties.windowTitle = "Application layer refactor test";
+		gameProperties.windowVsync = true;
 	}
+
 	void OnStart() override
 	{
-		//Xen::Ref<Xen::Layer> testLayer = std::make_shared<FlappyBirdLayer>();
-		//PushLayer(testLayer);
-		PushLayer(std::make_shared<TestLayer>());
+		Xen::DesktopGameApplication::OnStart();
+		PushLayer(std::make_shared<ExampleLayer>());
 	}
-	void OnUpdate(double timestep) override
-	{
 
+	void OnUpdate(float timestep) override
+	{
+		Xen::DesktopGameApplication::OnUpdate(timestep);
 	}
 
 	void OnRender() override
 	{
-
+		Xen::DesktopGameApplication::OnRender();
 	}
 
 	void OnFixedUpdate() override
 	{
-
+		Xen::DesktopGameApplication::OnFixedUpdate();
 	}
-
-private:
-
 };
 
-Xen::DesktopApplication* Xen::CreateDesktopApplication() { return new SandboxApp(); }
+Xen::DesktopGameApplication* Xen::CreateApplication() { return new SandboxApp(); }

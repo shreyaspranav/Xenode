@@ -1,5 +1,8 @@
 #include "pch"
 #include "GLFW_monitor.h"
+
+#ifdef XEN_DEVICE_DESKTOP
+
 #include <core/app/Log.h>
 #include <GLFW/glfw3.h>
 
@@ -41,4 +44,9 @@ namespace Xen {
 	uint32_t GLFW_monitor::GetMonitorHeight() const						{ return (uint32_t)m_CurrentMonitorVidMode->height; }
 	uint32_t GLFW_monitor::GetMonitorRefreshRate() const				{ return (uint32_t)m_CurrentMonitorVidMode->refreshRate; }
 	void* GLFW_monitor::GetNativeMonitor() const						{ return m_Monitor; }
+	uint8_t GLFW_monitor::GetMonitorRedBits() const						{ return (uint8_t)m_CurrentMonitorVidMode->redBits; }
+	uint8_t GLFW_monitor::GetMonitorGreenBits() const					{ return (uint8_t)m_CurrentMonitorVidMode->greenBits; }
+	uint8_t GLFW_monitor::GetMonitorBlueBits() const					{ return (uint8_t)m_CurrentMonitorVidMode->blueBits; }
 }
+
+#endif

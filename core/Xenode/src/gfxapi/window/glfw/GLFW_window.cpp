@@ -1,9 +1,12 @@
 #include "pch"
 #include "GLFW_window.h"
-#include <GLFW/glfw3.h>
+
+#ifdef XEN_DEVICE_DESKTOP
 
 #include <core/app/Log.h>
-#include <core/app/DesktopApplication.h>
+#include <core/app/GameApplication.h>
+
+#include <GLFW/glfw3.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -12,7 +15,7 @@ namespace Xen {
 	 
 	GLFW_window::GLFW_window(const WindowProps& props)
 	{
-		m_UserPointer.props = props;
+		m_WindowData.props = props;
 		if (!glfwInit())
 		{
 			XEN_ENGINE_LOG_ERROR_SEVERE("GLFW failed to initialise!");
@@ -22,12 +25,12 @@ namespace Xen {
 
 	void GLFW_window::Create()
 	{
-		if (m_UserPointer.props.resizable)
+		if (m_WindowData.props.resizable)
 			glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		else 
 			glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-		if (m_UserPointer.props.api == GraphicsAPI::XEN_OPENGL_API)
+		if (m_WindowData.props.api == GraphicsAPI::XEN_OPENGL_API)
 		{
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
 			#ifdef XEN_DEBUG
@@ -38,7 +41,7 @@ namespace Xen {
 		else
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-		m_Window = glfwCreateWindow(m_UserPointer.props.width, m_UserPointer.props.height, m_UserPointer.props.title.c_str(), NULL, NULL);
+		m_Window = glfwCreateWindow(m_WindowData.props.width, m_WindowData.props.height, m_WindowData.props.title.c_str(), NULL, NULL);
 
 		if (!m_Window)
 		{
@@ -54,109 +57,105 @@ namespace Xen {
 			});
 
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		glfwSetWindowPos(m_Window, (mode->width - m_UserPointer.props.width) / 2, (mode->height - m_UserPointer.props.height) / 2);
+		glfwSetWindowPos(m_Window, (mode->width - m_WindowData.props.width) / 2, (mode->height - m_WindowData.props.height) / 2);
 
-		glfwSetWindowUserPointer(m_Window, &m_UserPointer);
+		glfwSetWindowUserPointer(m_Window, &m_WindowData);
 
-		int monitor_c;
-		m_UserPointer.monitors = glfwGetMonitors(&monitor_c);
-		m_UserPointer.monitor_count = (uint8_t)monitor_c;
+		int monitorC;
+		m_WindowData.monitors = glfwGetMonitors(&monitorC);
+		m_WindowData.monitorCount = (uint8_t)monitorC;
 
-		glfwSetMonitorUserPointer(glfwGetPrimaryMonitor(), &m_UserPointer);
+		glfwSetMonitorUserPointer(glfwGetPrimaryMonitor(), &m_WindowData);
 		
-		glfwSwapInterval(m_UserPointer.props.vsync);
+		glfwSwapInterval(m_WindowData.props.vsync);
 
 		m_Cursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 		glfwSetCursor(m_Window, m_Cursor);
+
+		// Window Callbacks:-----
+		glfwSetWindowPosCallback(m_Window, 
+			[](GLFWwindow* window, int xpos, int ypos)
+			{
+				WindowMoveEvent e((uint32_t)xpos, (uint32_t)ypos);
+				WindowData* data = (WindowData*)glfwGetWindowUserPointer(window);
+				data->eventCallbackFn(e);
+			});
+
+		glfwSetWindowSizeCallback(m_Window, 
+			[](GLFWwindow* window, int width, int height)
+			{
+				WindowResizeEvent e((uint32_t)width, (uint32_t)height);
+				WindowData* data = (WindowData*)glfwGetWindowUserPointer(window);
+				data->eventCallbackFn(e);
+			});
+
+		glfwSetWindowCloseCallback(m_Window, 
+			[](GLFWwindow* window)
+			{
+				WindowCloseEvent e(WindowCloseEvent::USER_EXIT);
+				WindowData* data = (WindowData*)glfwGetWindowUserPointer(window);
+				data->eventCallbackFn(e);
+			});
+
+		glfwSetWindowFocusCallback(m_Window, 
+			[](GLFWwindow* window, int focused)
+			{
+				WindowFocusEvent e((bool)focused);
+				WindowData* data = (WindowData*)glfwGetWindowUserPointer(window);
+				data->eventCallbackFn(e);
+			});
+
+		glfwSetWindowIconifyCallback(m_Window, 
+			[](GLFWwindow* window, int iconified)
+			{
+				WindowMinimizeEvent e((bool)iconified);
+				WindowData* data = (WindowData*)glfwGetWindowUserPointer(window);
+				data->eventCallbackFn(e);
+			});
+
+		glfwSetWindowMaximizeCallback(m_Window, 
+			[](GLFWwindow* window, int maximized)
+			{
+				WindowMaximizeEvent e((bool)maximized);
+				WindowData* data = (WindowData*)glfwGetWindowUserPointer(window);
+				data->eventCallbackFn(e);
+			});
+
+		// Monitor Events:--------------------------------------------------------------------------------------------------------
+
+		glfwSetMonitorCallback(
+			[](GLFWmonitor* monitor, int event)
+			{
+				if (event == GLFW_CONNECTED)
+				{
+					WindowData* data = (WindowData*)glfwGetMonitorUserPointer(glfwGetPrimaryMonitor());
+					data->monitorCount++;
+				}
+				else if (event == GLFW_DISCONNECTED)
+				{
+					WindowData* data = (WindowData*)glfwGetMonitorUserPointer(glfwGetPrimaryMonitor());
+					data->monitorCount--;
+				}
+			});
 	}
 
 
 	void GLFW_window::SetFullScreenMonitor(const Ref<Monitor>& monitor)
 	{
-		glfwSetWindowMonitor(m_Window, (GLFWmonitor*)monitor->GetNativeMonitor(), 0, 0, m_UserPointer.props.width, m_UserPointer.props.height, GLFW_DONT_CARE);
+		glfwSetWindowMonitor(m_Window, (GLFWmonitor*)monitor->GetNativeMonitor(), 0, 0, m_WindowData.props.width, m_WindowData.props.height, GLFW_DONT_CARE);
 	}
 
 	void GLFW_window::SetWindowed()
 	{
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		glfwSetWindowPos(m_Window, (mode->width - m_UserPointer.props.width) / 2, (mode->height - m_UserPointer.props.height) / 2);
+		glfwSetWindowPos(m_Window, (mode->width - m_WindowData.props.width) / 2, (mode->height - m_WindowData.props.height) / 2);
 
-		glfwSetWindowMonitor(m_Window, NULL, (mode->width - m_UserPointer.props.width) / 2, (mode->height - m_UserPointer.props.height) / 2, m_UserPointer.props.width, m_UserPointer.props.height, GLFW_DONT_CARE);
-	}
-
-	void GLFW_window::SetupEventListeners(const EventDispatcher& dispatcher)
-	{
-		m_UserPointer.dispatcher = dispatcher;
-
-		// Window Callbacks:-----
-		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* window, int xpos, int ypos)
-			{
-				WindowMoveEvent e((uint32_t)xpos, (uint32_t)ypos);
-				UserPointer pointer = *(UserPointer*)glfwGetWindowUserPointer(window);
-				pointer.dispatcher.PostEvent(e);
-			});
-
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
-			{
-				WindowResizeEvent e((uint32_t)width, (uint32_t)height);
-				UserPointer pointer = *(UserPointer*)glfwGetWindowUserPointer(window);
-				pointer.dispatcher.PostEvent(e);
-			});
-
-		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
-			{
-				WindowCloseEvent e(WindowCloseEvent::USER_EXIT);
-				UserPointer pointer = *(UserPointer*)glfwGetWindowUserPointer(window);
-				pointer.dispatcher.PostEvent(e);
-			});
-
-		//glfwSetWindowRefreshCallback(m_Window, [](GLFWwindow* window)
-		//	{
-		//
-		//	});
-
-		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focused)
-			{
-				WindowFocusEvent e((bool)focused);
-				UserPointer pointer = *(UserPointer*)glfwGetWindowUserPointer(window);
-				pointer.dispatcher.PostEvent(e);
-			});
-
-		glfwSetWindowIconifyCallback(m_Window, [](GLFWwindow* window, int iconified)
-			{
-				WindowMinimizeEvent e((bool)iconified);
-				UserPointer pointer = *(UserPointer*)glfwGetWindowUserPointer(window);
-				pointer.dispatcher.PostEvent(e);
-			});
-
-		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* window, int maximized)
-			{
-				WindowMaximizeEvent e((bool)maximized);
-				UserPointer pointer = *(UserPointer*)glfwGetWindowUserPointer(window);
-				pointer.dispatcher.PostEvent(e);
-			});
-
-		//glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
-		//	{
-		//
-		//	});
-
-		// Monitor Events:-----------------
-
-		glfwSetMonitorCallback([](GLFWmonitor* monitor, int event)
-			{
-				if (event == GLFW_CONNECTED)
-				{
-					UserPointer pointer = *(UserPointer*)glfwGetMonitorUserPointer(glfwGetPrimaryMonitor());
-					pointer.monitor_count++;
-				}
-				else if (event == GLFW_DISCONNECTED)
-				{
-					UserPointer pointer = *(UserPointer*)glfwGetMonitorUserPointer(glfwGetPrimaryMonitor());
-					pointer.monitor_count--;
-				}
-			});
-		
+		glfwSetWindowMonitor(m_Window, NULL, 
+			(mode->width - m_WindowData.props.width) / 2, 
+			(mode->height - m_WindowData.props.height) / 2, 
+			m_WindowData.props.width, 
+			m_WindowData.props.height, 
+			GLFW_DONT_CARE);
 	}
 
 	void GLFW_window::SetWindowIcon(const std::string& icon_path)
@@ -244,3 +243,5 @@ namespace Xen {
 	void GLFW_window::FocusWindow()													{ glfwFocusWindow(m_Window); }
 	void GLFW_window::SetVsync(bool enabled)										{ glfwSwapInterval(enabled); }
 }
+
+#endif

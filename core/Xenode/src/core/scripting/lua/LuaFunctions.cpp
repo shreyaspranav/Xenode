@@ -2,8 +2,9 @@
 #include "LuaFunctions.h"
 
 #include <core/app/Log.h>
-#include <core/app/Input.h>
-#include <core/app/DesktopApplication.h>
+#include <core/app/input/KeyboardInput.h>
+#include <core/app/input/MouseInput.h>
+#include <core/app/GameApplication.h>
 #include <lua.hpp>
 
 #include <core/scene/Components.h>
@@ -12,9 +13,8 @@
 namespace Xen {
 
 	Entity currentEntity;
-	Ref<Input> input;
 
-	void LuaFunctions::Init() { input = Input::GetInputInterface(); input->SetWindow(DesktopApplication::GetWindow()); }
+	void LuaFunctions::Init() {}
 	void LuaFunctions::SetCurrentEntity(const Entity& entity) { currentEntity = entity; }
 
 	int LuaFunctions::lua_IsKeyPressed(lua_State* L)
@@ -36,7 +36,7 @@ namespace Xen {
 		if (key > 7)
 			return 0;
 
-		lua_pushboolean(L, (int)input->IsMouseButtonPressed((MouseKeyCode)key));
+		lua_pushboolean(L, (int)MouseInput::IsMouseButtonPressed((MouseButtonCode)key));
 
 		return 1;
 	}
@@ -285,44 +285,44 @@ namespace Xen {
 
 		switch (k)
 		{
-		case 'A':	return input->IsKeyPressed(KeyCode::KEY_A);
-		case 'B':	return input->IsKeyPressed(KeyCode::KEY_B);
-		case 'C':	return input->IsKeyPressed(KeyCode::KEY_C);
-		case 'D':	return input->IsKeyPressed(KeyCode::KEY_D);
-		case 'E':	return input->IsKeyPressed(KeyCode::KEY_E);
-		case 'F':	return input->IsKeyPressed(KeyCode::KEY_F);
-		case 'G':	return input->IsKeyPressed(KeyCode::KEY_G);
-		case 'H':	return input->IsKeyPressed(KeyCode::KEY_H);
-		case 'I':	return input->IsKeyPressed(KeyCode::KEY_I);
-		case 'J':	return input->IsKeyPressed(KeyCode::KEY_J);
-		case 'K':	return input->IsKeyPressed(KeyCode::KEY_K);
-		case 'L':	return input->IsKeyPressed(KeyCode::KEY_L);
-		case 'M':	return input->IsKeyPressed(KeyCode::KEY_M);
-		case 'N':	return input->IsKeyPressed(KeyCode::KEY_N);
-		case 'O':	return input->IsKeyPressed(KeyCode::KEY_O);
-		case 'P':	return input->IsKeyPressed(KeyCode::KEY_P);
-		case 'Q':	return input->IsKeyPressed(KeyCode::KEY_Q);
-		case 'R':	return input->IsKeyPressed(KeyCode::KEY_R);
-		case 'S':	return input->IsKeyPressed(KeyCode::KEY_S);
-		case 'T':	return input->IsKeyPressed(KeyCode::KEY_T);
-		case 'U':	return input->IsKeyPressed(KeyCode::KEY_U);
-		case 'V':	return input->IsKeyPressed(KeyCode::KEY_V);
-		case 'W':	return input->IsKeyPressed(KeyCode::KEY_W);
-		case 'X':	return input->IsKeyPressed(KeyCode::KEY_X);
-		case 'Y':	return input->IsKeyPressed(KeyCode::KEY_Y);
-		case 'Z':	return input->IsKeyPressed(KeyCode::KEY_Z);
+		case 'A':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_A);
+		case 'B':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_B);
+		case 'C':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_C);
+		case 'D':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_D);
+		case 'E':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_E);
+		case 'F':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_F);
+		case 'G':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_G);
+		case 'H':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_H);
+		case 'I':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_I);
+		case 'J':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_J);
+		case 'K':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_K);
+		case 'L':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_L);
+		case 'M':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_M);
+		case 'N':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_N);
+		case 'O':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_O);
+		case 'P':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_P);
+		case 'Q':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_Q);
+		case 'R':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_R);
+		case 'S':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_S);
+		case 'T':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_T);
+		case 'U':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_U);
+		case 'V':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_V);
+		case 'W':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_W);
+		case 'X':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_X);
+		case 'Y':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_Y);
+		case 'Z':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_Z);
 
-		case '`':	return input->IsKeyPressed(KeyCode::KEY_GRAVE_ACCENT);
-		case ';':	return input->IsKeyPressed(KeyCode::KEY_SEMICOLON);
-		case '\'':	return input->IsKeyPressed(KeyCode::KEY_APOSTROPHE);
-		case ',':	return input->IsKeyPressed(KeyCode::KEY_COMMA);
-		case '.':	return input->IsKeyPressed(KeyCode::KEY_PERIOD);
-		case '/':	return input->IsKeyPressed(KeyCode::KEY_SLASH);
-		case '\\':	return input->IsKeyPressed(KeyCode::KEY_BACKSLASH);
-		case '[':	return input->IsKeyPressed(KeyCode::KEY_LEFT_BRACKET);
-		case ']':	return input->IsKeyPressed(KeyCode::KEY_RIGHT_BRACKET);
-		case '-':	return input->IsKeyPressed(KeyCode::KEY_MINUS);
-		case '=':	return input->IsKeyPressed(KeyCode::KEY_EQUAL);
+		case '`':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_GRAVE_ACCENT);
+		case ';':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_SEMICOLON);
+		case '\'':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_APOSTROPHE);
+		case ',':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_COMMA);
+		case '.':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_PERIOD);
+		case '/':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_SLASH);
+		case '\\':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_BACKSLASH);
+		case '[':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_LEFT_BRACKET);
+		case ']':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_RIGHT_BRACKET);
+		case '-':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_MINUS);
+		case '=':	return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_EQUAL);
 
 
 		default:
@@ -332,23 +332,25 @@ namespace Xen {
 
 	bool LuaFunctions::IsKeyPressed(std::string& key)
 	{
+
+		// TODO: Find a faster way than this string comparing crap.
 		char* k = (char*)key.c_str();
 
 		for (int i = 0; i < key.size(); i++)
 			k[i] = std::toupper(key.at(i));
 
-			 if (strcmp(key.c_str(), "TAB")		== 0)		return input->IsKeyPressed(KeyCode::KEY_TAB);
-		else if (strcmp(key.c_str(), "LSHIFT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_LEFT_SHIFT);
-		else if (strcmp(key.c_str(), "LCTRL")	== 0)		return input->IsKeyPressed(KeyCode::KEY_LEFT_CONTROL);
-		else if (strcmp(key.c_str(), "LALT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_LEFT_ALT);
-		else if (strcmp(key.c_str(), "RALT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_RIGHT_ALT);
-		else if (strcmp(key.c_str(), "RCTRL")	== 0)		return input->IsKeyPressed(KeyCode::KEY_RIGHT_CONTROL);
-		else if (strcmp(key.c_str(), "RSHIFT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_RIGHT_SHIFT);
-		else if (strcmp(key.c_str(), "ENTER")	== 0)		return input->IsKeyPressed(KeyCode::KEY_ENTER);
-		else if (strcmp(key.c_str(), "UP")		== 0)		return input->IsKeyPressed(KeyCode::KEY_UP);
-		else if (strcmp(key.c_str(), "DOWN")	== 0)		return input->IsKeyPressed(KeyCode::KEY_DOWN);
-		else if (strcmp(key.c_str(), "LEFT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_LEFT);
-		else if (strcmp(key.c_str(), "RIGHT")	== 0)		return input->IsKeyPressed(KeyCode::KEY_RIGHT);
+			 if (strcmp(key.c_str(), "TAB")		== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_TAB);
+		else if (strcmp(key.c_str(), "LSHIFT")	== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_LEFT_SHIFT);
+		else if (strcmp(key.c_str(), "LCTRL")	== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_LEFT_CONTROL);
+		else if (strcmp(key.c_str(), "LALT")	== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_LEFT_ALT);
+		else if (strcmp(key.c_str(), "RALT")	== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_RIGHT_ALT);
+		else if (strcmp(key.c_str(), "RCTRL")	== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_RIGHT_CONTROL);
+		else if (strcmp(key.c_str(), "RSHIFT")	== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_RIGHT_SHIFT);
+		else if (strcmp(key.c_str(), "ENTER")	== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_ENTER);
+		else if (strcmp(key.c_str(), "UP")		== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_UP);
+		else if (strcmp(key.c_str(), "DOWN")	== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_DOWN);
+		else if (strcmp(key.c_str(), "LEFT")	== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_LEFT);
+		else if (strcmp(key.c_str(), "RIGHT")	== 0)		return KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_RIGHT);
 		else	XEN_APP_LOG_ERROR("Lua: {0} is not a key!", key);
 
 		return false;

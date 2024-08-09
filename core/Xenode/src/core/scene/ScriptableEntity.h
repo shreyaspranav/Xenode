@@ -2,8 +2,9 @@
 #ifdef XEN_DEVICE_DESKTOP
 
 #include "Scene.h"
-#include "core/app/Input.h"
-#include "core/app/DesktopApplication.h"
+#include "core/app/input/KeyboardInput.h"
+#include "core/app/input/MouseInput.h"
+#include <core/app/GameApplication.h>
 
 namespace Xen {
 	class ScriptableEntity
@@ -13,13 +14,6 @@ namespace Xen {
 
 		template<typename T>
 		inline T& GetComponent() { return m_Entity.GetComponent<T>(); }
-
-		inline Ref<Input> GetInput() 
-		{
-			Ref<Input> input = Input::GetInputInterface();
-			input->SetWindow(DesktopApplication::GetWindow());
-			return input;
-		}
 
 		virtual void OnCreate() {}
 		virtual void OnDestroy() {}

@@ -1,7 +1,7 @@
 #include "pch"
 #include "SceneRenderer.h"
 
-#include <core/app/DesktopApplication.h>
+#include <core/app/GameApplication.h>
 #include <core/renderer/FrameBuffer.h>
 #include <core/renderer/Renderer2D.h>
 #include <core/renderer/RenderCommand.h>
@@ -26,7 +26,7 @@ namespace Xen {
 	// Implementation: -------------------------------------------------------------------------------------------------------------------------------------
 	void SceneRenderer::Initialize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		GameMode gameMode = DesktopApplication::GetGameMode();
+		GameType gameMode = GetApplicationInstance()->GetGameType();
 
 		// Depending on SceneType, the FrameBufferSpec might be a little different.
 		// Only 2D implementation is written for now.
@@ -65,7 +65,7 @@ namespace Xen {
 		// The 2D Renderer has to be initialized no matter what. Because the sceneType can be either _2D or _2D_AND_3D
 		Renderer2D::Init();
 
-		if (gameMode == GameMode::_3D)
+		if (gameMode == GameType::_3D)
 		{
 			// Initialize the 3D Renderer
 		}
@@ -73,14 +73,14 @@ namespace Xen {
 
 	void SceneRenderer::SetActiveScene(const Ref<Scene>& scene)
 	{
-		GameMode gameMode = DesktopApplication::GetGameMode();
+		GameType gameMode = GetApplicationInstance()->GetGameType();
 
 		// When the gameMode is _3D, the allowed values of sceneType are _2D_AND_3D and _3D
 		// When the gameMode is _2D, the allowed values of sceneType is only _2D
 		// It is OK to accept 2D scenes in a 3D game, but won't make sense (just use a 2D project)
 		// But it is not OK to accept 3D scenes in a 2D game
 		// Don't know if this restriction is good, will see later.
-		if (gameMode == GameMode::_2D && scene->GetSceneType() == SceneType::_2D_AND_3D)
+		if (gameMode == GameType::_2D && scene->GetSceneType() == SceneType::_2D_AND_3D)
 		{
 			// TODO: Do some better error handling:
 			XEN_ENGINE_LOG_ERROR("Cannot open a 3D scene in 2D Game Mode!");

@@ -1,66 +1,74 @@
 #include "pch"
 #include "RenderCommand.h"
 
-#include "core/app/DesktopApplication.h"
+#include <core/app/GameApplication.h>
 
-#include "gfxapi/OpenGL/OpenGLRendererAPI.h"
+#include <gfxapi/OpenGL/OpenGLRendererAPI.h>
 #include "RendererAPI.h"
 
-namespace Xen {
-
-	Scope<RendererAPI> RenderCommand::s_Api = GetRendererAPI();
-	Scope<RendererAPI> RenderCommand::GetRendererAPI()
+namespace Xen 
+{
+	struct BaseRendererState
 	{
-		switch (DesktopApplication::GetGraphicsAPI())
+		Scope<RendererAPI> rendererAPI;
+	}baseRendererState;
+
+	// Implementation: --------------------------------------------------------------------------------------------------------------------
+	void RenderCommand::Init()
+	{
+		switch (GetApplicationInstance()->GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
-			return std::make_unique<OpenGLRendererAPI>();
+			baseRendererState.rendererAPI = std::make_unique<OpenGLRendererAPI>();
+			break;
+		default:
+			baseRendererState.rendererAPI = nullptr;
+			break;
 		}
-		return nullptr;
 	}
-
+	
 	void RenderCommand::Clear()
 	{
-		s_Api->Clear();
+		baseRendererState.rendererAPI->Clear();
 	}
 
 	void RenderCommand::SetClearColor(const Color& color)
 	{
-		s_Api->SetClearColor(color);
+		baseRendererState.rendererAPI->SetClearColor(color);
 	}
 
 	void RenderCommand::OnWindowResize(uint32_t width, uint32_t height)
 	{
-		s_Api->OnWindowResize(width, height);
+		baseRendererState.rendererAPI->OnWindowResize(width, height);
 	}
 
 	void RenderCommand::SetBlendMode(BlendMode colorBlendMode, BlendMode alphaBlendMode)
 	{
-		s_Api->SetBlendMode(colorBlendMode, alphaBlendMode);
+		baseRendererState.rendererAPI->SetBlendMode(colorBlendMode, alphaBlendMode);
 	}
 
 	void RenderCommand::EnableDepthTest(bool enabled)
 	{
-		s_Api->EnableDepthTest(enabled);
+		baseRendererState.rendererAPI->EnableDepthTest(enabled);
 	}
 
 	void RenderCommand::EnableRasterizer(bool enabled)
 	{
-		s_Api->EnableRasterizer(enabled);
+		baseRendererState.rendererAPI->EnableRasterizer(enabled);
 	}
 
 	void RenderCommand::DrawIndexed(PrimitiveType type, const Ref<VertexBuffer>& vertexBuffer, int32_t indices)
 	{
-		s_Api->DrawIndexed(type, vertexBuffer, indices);
+		baseRendererState.rendererAPI->DrawIndexed(type, vertexBuffer, indices);
 	}
 
 	void RenderCommand::DrawNonIndexed(PrimitiveType type, const Ref<VertexBuffer>& vertexBuffer, int32_t indices)
 	{
-		s_Api->DrawNonIndexed(type, vertexBuffer, indices);
+		baseRendererState.rendererAPI->DrawNonIndexed(type, vertexBuffer, indices);
 	}
 
 	void RenderCommand::SetLineWidth(float width)
 	{
-		s_Api->SetLineWidth(width);
+		baseRendererState.rendererAPI->SetLineWidth(width);
 	}
 }

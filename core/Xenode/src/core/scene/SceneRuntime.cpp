@@ -5,7 +5,7 @@
 
 #include "Components.h"
 
-#include <core/app/DesktopApplication.h>
+#include <core/app/GameApplication.h>
 #include <core/app/Log.h>
 
 #include <core/scripting/ScriptEngine.h>

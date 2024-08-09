@@ -2,7 +2,8 @@
 
 #include <Core.h>
 
-namespace Xen {
+namespace Xen 
+{
 	class XEN_API Timer
 	{
 	#ifdef XEN_DEVICE_DESKTOP
@@ -27,9 +28,6 @@ namespace Xen {
 	private:
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTime;
 		uint64_t m_ElapsedTime = 0;
-
-		inline static double GetTimeS() { time_t a;  return time(&a); }// WTF??
-		inline static double GetTimeMS() { time_t a; return time(&a) * 1000.0; }// WTF??
 
 	#elif XEN_DEVICE_MOBILE	
 	#ifdef XEN_PLATFORM_ANDROID

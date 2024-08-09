@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core.h>
-#include <core/app/Window.h>
+#include <core/app/desktop/Window.h>
 
 namespace Xen {
 	class XEN_API GraphicsContext

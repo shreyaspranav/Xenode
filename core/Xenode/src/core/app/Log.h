@@ -7,16 +7,6 @@
 #pragma warning(push, 0)
 #include <spdlog/spdlog.h>
 
-#ifdef XEN_DEVICE_DESKTOP
-
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/rotating_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-
-
-#elif XEN_PLATFORM_ANDROID
-#include <spdlog/sinks/android_sink.h>
-#endif
 #pragma warning(pop)
 
 namespace Xen {

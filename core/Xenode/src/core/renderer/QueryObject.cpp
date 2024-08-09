@@ -1,15 +1,15 @@
 #include "pch"
 #include "QueryObject.h"
 
-#include <gfxapi/OpenGL/OpenGLQueryObject.h>
+#include <core/app/GameApplication.h>
 
-#include <core/app/DesktopApplication.h>
+#include <gfxapi/OpenGL/OpenGLQueryObject.h>
 
 namespace Xen
 {
 	Ref<QueryObject> QueryObject::CreateQueryObject(QueryTarget target)
 	{
-		switch (DesktopApplication::GetGraphicsAPI())
+		switch (GetApplicationInstance()->GetGraphicsAPI())
 		{
 		case GraphicsAPI::XEN_OPENGL_API:
 			return std::make_shared<OpenGLQueryObject>(target);

@@ -64,7 +64,7 @@ project "Xen"
 			"%{wks.location}/Xenode/src"
 		}
 
-		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXEC", "XEN_DEVICE_DESKTOP" }
+		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXE", "XEN_DEVICE_DESKTOP" }
 
 	filter "configurations:Debug"
         defines {"XEN_DEBUG", "XEN_LOG_ON"}

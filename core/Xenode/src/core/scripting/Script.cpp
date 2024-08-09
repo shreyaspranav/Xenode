@@ -1,15 +1,16 @@
 #include "pch"
 #include "Script.h"
 
-#include "core/scripting/lua/LuaScript.h"
+#include <core/app/GameApplication.h>
 
-#include "core/app/Log.h"
-#include "core/app/DesktopApplication.h"
+#include <core/scripting/lua/LuaScript.h>
+
+#include <core/app/Log.h>
 
 namespace Xen {
 	Ref<Script> Script::CreateScript(const std::string& filePath)
 	{
-		switch (DesktopApplication::GetScriptingLanguage())
+		switch (GetApplicationInstance()->GetScriptLang())
 		{
 		case ScriptLang::Lua:
 			return std::make_shared<LuaScript>(filePath);
