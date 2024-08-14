@@ -15,10 +15,13 @@
 #include <project/ProjectManager.h>
 #include <project/ProjectSerializer.h>
 
+#include <core/app/GameApplication.h>
+#include <core/app/input/MouseInput.h>
+#include <core/app/input/keyboardInput.h>
+
 #include <core/scene/SceneRuntime.h>
 #include <core/scene/Components.h>
 
-Xen::Ref<Xen::Input> input;
 Xen::Vec2 mouseInitialPos;
 
 bool operator&(const KeyTransformOperation& o1, const KeyTransformOperation& o2) { return static_cast<uint16_t>(o1) & static_cast<uint16_t>(o2); }
@@ -34,10 +37,10 @@ LevelEditorLayer::~LevelEditorLayer()
 
 void LevelEditorLayer::OnAttach()
 {
-	m_GameMode = Xen::DesktopApplication::GetGameMode();
+	m_GameMode = Xen::GetApplicationInstance()->GetGameType();
 
-	input = Xen::Input::GetInputInterface();
-	input->SetWindow(Xen::DesktopApplication::GetWindow());
+	// input = Xen::Input::GetInputInterface();
+	// input->SetWindow(Xen::DesktopApplication::GetWindow());
 
 	m_EditorCamera = std::make_shared<Xen::Camera>(
 		m_EditorCameraType == Xen::EditorCameraType::_2D ? Xen::CameraType::Orthographic : Xen::CameraType::Perspective, 
@@ -88,7 +91,7 @@ void LevelEditorLayer::OnAttach()
 	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
 	m_PropertiesPanel.SetScriptLoadDropType(m_ContentBrowserPanel.GetScriptLoadDropType());
 
-	m_EditorCameraController = Xen::EditorCameraController(input, m_EditorCameraType);
+	m_EditorCameraController = Xen::EditorCameraController(m_EditorCameraType);
 	
 	// Open the scene after initialising the editor camera controller because it uses the m_EditorCameraController object
 	OpenScene((projectPath / settings.relStartScenePath).string());
@@ -135,7 +138,9 @@ void LevelEditorLayer::OnAttach()
 	// 
 	// XEN_ENGINE_LOG_INFO("Name: {0}", props.name);
 
-	Xen::SceneRuntime::Initialize(Xen::DesktopApplication::GetWindow()->GetFrameBufferWidth(), Xen::DesktopApplication::GetWindow()->GetFrameBufferHeight());
+	Xen::DesktopGameApplication* dGameApp = (Xen::DesktopGameApplication*)Xen::GetApplicationInstance();
+
+	Xen::SceneRuntime::Initialize(dGameApp->GetGameWindow()->GetFrameBufferWidth(), dGameApp->GetGameWindow()->GetFrameBufferHeight());
 
 	Xen::SceneRuntime::SetActiveScene(m_ActiveScene);
 	Xen::SceneRuntime::SetAdditionalCamera(m_EditorCamera);
@@ -152,7 +157,8 @@ void LevelEditorLayer::OnUpdate(double timestep)
 {
 	m_EditorCameraController.SetCameraType(m_EditorCameraType);
 
-	Xen::Vec2 mouse = Xen::Vec2(input->GetMouseX(), input->GetMouseY());
+	Xen::MousePointer p = Xen::MouseInput::GetMousePointer();
+	Xen::Vec2 mouse = Xen::Vec2(p.x, p.y);
 	Xen::Vec2 delta = (mouse - mouseInitialPos) * 0.3f;
 	mouseInitialPos = mouse;
 
@@ -222,7 +228,7 @@ void LevelEditorLayer::OnUpdate(double timestep)
 #endif
 
 
-	if (input->IsMouseButtonPressed(Xen::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport && m_IsMousePickingWorking)
+	if (Xen::MouseInput::IsMouseButtonPressed(Xen::MouseButtonCode::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport && m_IsMousePickingWorking)
 	{
 		Xen::SceneRuntime::GetActiveFrameBuffer()->Bind();
 
@@ -572,7 +578,7 @@ void LevelEditorLayer::ImGuiRenderOverlay()
 				if (m_KeyTransformOperation & KeyTransformOperation::ScaleY)
 					transformComp.scale.y += m_EditorCameraController.GetMouseDelta().x * speed;
 
-				if (m_KeyTransformOperation != KeyTransformOperation::None && input->IsMouseButtonPressed(Xen::MouseKeyCode::MOUSE_BUTTON_LEFT))
+				if (m_KeyTransformOperation != KeyTransformOperation::None && Xen::MouseInput::IsMouseButtonPressed(Xen::MouseButtonCode::MOUSE_BUTTON_LEFT))
 				{
 					m_KeyTransformOperation = KeyTransformOperation::None;
 					m_IsMousePickingWorking = true;
@@ -767,44 +773,34 @@ void LevelEditorLayer::OnMouseMoveEvent(Xen::MouseMoveEvent& event)
 
 }
 
-void LevelEditorLayer::OnMouseButtonPressEvent(Xen::MouseButtonPressEvent& event)
-{
-
-}
-
-void LevelEditorLayer::OnMouseButtonReleaseEvent(Xen::MouseButtonReleaseEvent& event)
-{
-
-}
-
-void LevelEditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
+void LevelEditorLayer::OnKeyboardEvent(Xen::KeyboardEvent& event)
 {
 	if (m_IsMouseHoveredOnViewport)
 	{
 		switch (event.GetKey())
 		{
-		case Xen::KeyCode::KEY_Q:
+		case Xen::KeyboardKeyCode::KEY_Q:
 			m_GizmoOperation = GizmoOperation::Translate;
 			break;
-		case Xen::KeyCode::KEY_W:
+		case Xen::KeyboardKeyCode::KEY_W:
 			m_GizmoOperation = m_EditorCamera->GetProjectionType() == Xen::CameraType::Orthographic ? GizmoOperation::Rotate2D : GizmoOperation::Rotate3D;
 			break;
-		case Xen::KeyCode::KEY_E:
+		case Xen::KeyboardKeyCode::KEY_E:
 			m_GizmoOperation = GizmoOperation::Scale;
 			break;
 
 		// Setting Up Key transformations here:
-		case Xen::KeyCode::KEY_T:
+		case Xen::KeyboardKeyCode::KEY_T:
 			m_KeyTransformOperation = KeyTransformOperation::Translate;
 			break;
-		case Xen::KeyCode::KEY_R:
-			m_KeyTransformOperation = m_GameMode == Xen::GameMode::_2D ? KeyTransformOperation::Rotate2D : KeyTransformOperation::Rotate;
+		case Xen::KeyboardKeyCode::KEY_R:
+			m_KeyTransformOperation = m_GameMode == Xen::GameType::_2D ? KeyTransformOperation::Rotate2D : KeyTransformOperation::Rotate;
 			break;
-		case Xen::KeyCode::KEY_S:
-			m_KeyTransformOperation = m_GameMode == Xen::GameMode::_2D ? KeyTransformOperation::Scale2D : KeyTransformOperation::Scale;
+		case Xen::KeyboardKeyCode::KEY_S:
+			m_KeyTransformOperation = m_GameMode == Xen::GameType::_2D ? KeyTransformOperation::Scale2D : KeyTransformOperation::Scale;
 			break;
 
-		case Xen::KeyCode::KEY_X:
+		case Xen::KeyboardKeyCode::KEY_X:
 			if (m_KeyTransformOperation & TranslateX || m_KeyTransformOperation & TranslateY || m_KeyTransformOperation & TranslateZ)
 				m_KeyTransformOperation = TranslateX;
 			else if (m_KeyTransformOperation & RotateX || m_KeyTransformOperation & RotateY || m_KeyTransformOperation & RotateZ)
@@ -812,7 +808,7 @@ void LevelEditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 			else if (m_KeyTransformOperation & ScaleX || m_KeyTransformOperation & ScaleY || m_KeyTransformOperation & ScaleZ)
 				m_KeyTransformOperation = ScaleX;
 			break;
-		case Xen::KeyCode::KEY_Y:
+		case Xen::KeyboardKeyCode::KEY_Y:
 			if (m_KeyTransformOperation & TranslateX || m_KeyTransformOperation & TranslateY || m_KeyTransformOperation & TranslateZ)
 				m_KeyTransformOperation = TranslateY;
 			else if (m_KeyTransformOperation & RotateX || m_KeyTransformOperation & RotateY || m_KeyTransformOperation & RotateZ)
@@ -820,7 +816,7 @@ void LevelEditorLayer::OnKeyPressEvent(Xen::KeyPressEvent& event)
 			else if (m_KeyTransformOperation & ScaleX || m_KeyTransformOperation & ScaleY || m_KeyTransformOperation & ScaleZ)
 				m_KeyTransformOperation = ScaleY;
 			break;
-		case Xen::KeyCode::KEY_Z:
+		case Xen::KeyboardKeyCode::KEY_Z:
 			break;
 		}
 	}	

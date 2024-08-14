@@ -63,14 +63,13 @@ public:
 	void OpenScene(const std::string& filePath);
 	void SaveScene(const std::string& filePath);
 
-	void OnWindowResizeEvent(Xen::WindowResizeEvent& event) override;
+	void OnWindowResizeEvent(Xen::WindowResizeEvent& event);
 
-	void OnMouseScrollEvent(Xen::MouseScrollEvent& event) override;
-	void OnMouseMoveEvent(Xen::MouseMoveEvent& event) override;
-	void OnMouseButtonPressEvent(Xen::MouseButtonPressEvent& event) override;
-	void OnMouseButtonReleaseEvent(Xen::MouseButtonReleaseEvent& event) override;
+	void OnMouseScrollEvent(Xen::MouseScrollEvent& event);
+	void OnMouseMoveEvent(Xen::MouseMoveEvent& event);
+	void OnMouseButtonEvent(Xen::MouseButtonEvent& event);
 	
-	void OnKeyPressEvent(Xen::KeyPressEvent& event) override;
+	void OnKeyboardEvent(Xen::KeyboardEvent& event);
 private:
 	// The OnImGuiUpdate function is broken down into smaller functions:
 	void ImGuiSetupDockSpace();
@@ -83,8 +82,8 @@ private:
 	void ImGuiRenderToolbar();
 
 private:
-	double m_Timestep;
-	Xen::GameMode m_GameMode;
+	float m_Timestep;
+	Xen::GameType m_GameMode;
 	Xen::EditorCameraType m_EditorCameraType = Xen::EditorCameraType::_2D;
 
 	uint32_t m_ViewportFrameBufferWidth = 1, m_ViewportFrameBufferHeight = 1;

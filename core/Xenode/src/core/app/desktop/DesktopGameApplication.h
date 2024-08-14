@@ -95,6 +95,7 @@ namespace Xen
 
 		// Getters: ----------------------------------------------------------------------------------------------------
 		inline Ref<Window> GetGameWindow() const				{ return m_GameWindow; }
+		inline DesktopGameProperties GetDesktopGameProperties() { return gameProperties; }
 
 		// Getters inherited from the GameApplication:
 		inline GameType GetGameType() const override			{ return gameProperties.gameType; };

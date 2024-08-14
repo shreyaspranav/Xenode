@@ -3,18 +3,16 @@
 
 #include <core/app/Log.h>
 #include <core/scene/Scene.h>
+#include <core/app/GameApplication.h>
 
 namespace Xen 
 {
-	enum class GameType : int8_t { _2D, _3D };
-	enum class ScriptingLanguage : int8_t { Lua, CSharp };
-
 	// Struct to represent the project properties. It is required during the creation of a project:
 	struct ProjectProperties
 	{
 		std::string name = "UnnamedProject";
 		GameType gameType = GameType::_2D;
-		ScriptingLanguage scriptingLanguage = ScriptingLanguage::Lua;
+		ScriptLang scriptLang = ScriptLang::Lua;
 
 	};
 
@@ -61,12 +59,12 @@ namespace Xen
 			return GameType::_2D;
 		}
 
-		static std::string ToScriptingLanguageString(ScriptingLanguage lang)
+		static std::string ToScriptLangString(ScriptLang lang)
 		{
 			switch (lang)
 			{
-			case ScriptingLanguage::Lua:	return "Lua";
-			case ScriptingLanguage::CSharp:	return "C#";
+			case ScriptLang::Lua:	return "Lua";
+			case ScriptLang::CSharp:	return "C#";
 			}
 
 			XEN_ENGINE_LOG_ERROR("Unknown Scripting Language!");
@@ -75,19 +73,19 @@ namespace Xen
 			return "";
 		}
 
-		static ScriptingLanguage ToScriptingLanguageFromString(const std::string& lang)
+		static ScriptLang ToScriptLangFromString(const std::string& lang)
 		{
 			if (lang == "Lua")
-				return ScriptingLanguage::Lua;
+				return ScriptLang::Lua;
 			else if (lang == "C#")
-				return ScriptingLanguage::CSharp;
+				return ScriptLang::CSharp;
 			else
 			{
 				XEN_ENGINE_LOG_ERROR("Unknown GameType!");
 				TRIGGER_BREAKPOINT;
 			}
 
-			return ScriptingLanguage::Lua;
+			return ScriptLang::Lua;
 		}
 	};
 

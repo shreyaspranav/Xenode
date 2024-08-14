@@ -28,7 +28,7 @@ namespace Xen
 				// Fields from ProjectProperties struct:
 				yaml << YAML::Key << "Name" << YAML::Value << projectProperties.name;
 				yaml << YAML::Key << "GameType" << YAML::Value << ProjectUtil::ToGameTypeString(projectProperties.gameType);
-				yaml << YAML::Key << "ScriptingLanguage" << YAML::Value << ProjectUtil::ToScriptingLanguageString(projectProperties.scriptingLanguage);
+				yaml << YAML::Key << "ScriptingLanguage" << YAML::Value << ProjectUtil::ToScriptLangString(projectProperties.scriptLang);
 
 				// Fields from ProjectSettings struct:
 				yaml << YAML::Key << "AssetsPath" << YAML::Value << projectSettings.relAssetDirectory.string();
@@ -62,13 +62,13 @@ namespace Xen
 		{
 			YAML::Node rootNode = sceneData["Project"];
 
-			ProjectProperties& projectPropeties = project->GetProjectProperties();
+			ProjectProperties& projectProperties = project->GetProjectProperties();
 			ProjectSettings& projectSettings = project->GetProjectSettings();
 
 			// Deserialize ProjectProperties:
-			projectPropeties.name = rootNode["Name"].as<std::string>();
-			projectPropeties.gameType = ProjectUtil::ToGameTypeFromString(rootNode["GameType"].as<std::string>());
-			projectPropeties.scriptingLanguage = ProjectUtil::ToScriptingLanguageFromString(rootNode["ScriptingLanguage"].as<std::string>());
+			projectProperties.name = rootNode["Name"].as<std::string>();
+			projectProperties.gameType = ProjectUtil::ToGameTypeFromString(rootNode["GameType"].as<std::string>());
+			projectProperties.scriptLang = ProjectUtil::ToScriptLangFromString(rootNode["ScriptingLanguage"].as<std::string>());
 
 			// Deserialize ProjectSettings:
 			projectSettings.relAssetDirectory = std::filesystem::path(rootNode["AssetsPath"].as<std::string>());

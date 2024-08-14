@@ -33,6 +33,15 @@ namespace Xen
 
 		return glfwGetMouseButton(mouseInputState.currentWindow, mouseButtonCode) == GLFW_PRESS ? true : false;
 	}
+
+	MousePointer GLFW_mouse_input::GetMousePointer()
+	{
+		double x, y;
+		glfwGetCursorPos(mouseInputState.currentWindow, &x, &y);
+
+		return MousePointer((uint16_t)x, (uint16_t)y);
+	}
+
 	void GLFW_mouse_input::Init(const Ref<Window>& window)
 	{
 		// Set the window in the current state.

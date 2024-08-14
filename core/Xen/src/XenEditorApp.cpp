@@ -4,7 +4,7 @@
 #include "LevelEditorLayer.h"
 #include <project/ProjectManager.h>
 
-class XenEditorApp : public Xen::DesktopApplication
+class XenEditorApp : public Xen::DesktopGameApplication
 {
 public:
 	XenEditorApp() {}
@@ -12,20 +12,20 @@ public:
 
 	void OnCreate() override
 	{
-		window_width = 1600;
-		window_height = 900;
+		Xen::DesktopGameApplication::OnCreate();
 
-		window_title = "Xen Editor";
+		gameProperties.windowWidth = 1600;
+		gameProperties.windowHeight = 900;
 
-		imgui_always_render = true;
-		fullscreen_monitor = 0; // No fullscreen
+		gameProperties.windowTitle= "Xen Editor";
 
-		vsync = false;
-
+		gameProperties.windowVsync = false;
 	}
 
 	void OnStart() override
 	{
+		Xen::DesktopGameApplication::OnStart();
+
 #ifndef XEN_PRODUCTION
 		// Load the default project in case of debug and release_debug builds:
 		Xen::Ref<Xen::Project> p = Xen::ProjectManager::LoadProject("../../resources/projects/default_project/default_project.xenproject");
@@ -37,22 +37,22 @@ public:
 		PushLayer(std::make_shared<LevelEditorLayer>());
 	}
 
-	void OnUpdate(double timestep) override
+	void OnUpdate(float timestep) override
 	{
-
+		Xen::DesktopGameApplication::OnUpdate(timestep);
 	}
 
 	void OnFixedUpdate() override
 	{
-
+		Xen::DesktopGameApplication::OnFixedUpdate();
 	}
 
 	void OnRender() override
 	{
-
+		Xen::DesktopGameApplication::OnRender();
 	}
 
 private:
 };
 
-Xen::DesktopApplication* Xen::CreateDesktopApplication() { return new XenEditorApp(); }
+Xen::DesktopGameApplication* Xen::CreateApplication() { return new XenEditorApp(); }

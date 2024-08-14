@@ -12,6 +12,8 @@ namespace Xen
 		friend class MouseInput;
 	public:
 		static bool IsMouseButtonPressed(MouseButtonCode code);
+		static MousePointer GetMousePointer();
+
 	private:
 		static void Init(const Ref<Window>& window);
 	};

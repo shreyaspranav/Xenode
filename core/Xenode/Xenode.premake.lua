@@ -14,11 +14,13 @@ project "Xenode"
 		"src/gfxapi/**.h",
 		"src/imgui/**.h",
 		"src/scripting/**.h",
+		"src/project/**.h",
 
 		"src/core/**.cpp",
 		"src/gfxapi/**.cpp",
 		"src/imgui/**.cpp",
 		"src/scripting/**.cpp",
+		"src/project/**.cpp",
 
 		"src/Core.h",
 		"src/Xenode.h",

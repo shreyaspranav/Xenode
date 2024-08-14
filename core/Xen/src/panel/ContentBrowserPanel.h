@@ -5,7 +5,7 @@
 #include <imgui/IconsFontAwesome.h>
 
 #include <core/renderer/Texture.h>
-#include <core/app/DesktopApplication.h>
+#include <core/app/GameApplication.h>
 
 #include "StringValues.h"
 
@@ -97,7 +97,7 @@ public:
 				if (path.extension().string() == ".xen")
 					ImGui::SetDragDropPayload(m_SceneLoadDropType.c_str(), payload_data, pathString.size() + 1);
 
-				else if (path.extension().string() == ".lua" && Xen::DesktopApplication::GetScriptingLanguage() == ScriptLang::Lua)
+				else if (path.extension().string() == ".lua" && Xen::GetApplicationInstance()->GetScriptLang() == Xen::ScriptLang::Lua)
 					ImGui::SetDragDropPayload(m_ScriptLoadDropType.c_str(), payload_data, pathString.size() + 1);
 
 				// TODO: make sure to support all the texture formats:

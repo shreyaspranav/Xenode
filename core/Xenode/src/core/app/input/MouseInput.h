@@ -23,12 +23,23 @@ namespace Xen
 		MOUSE_BUTTON_MIDDLE = MOUSE_BUTTON_3,
 	};
 
+	struct MousePointer
+	{
+		uint16_t x = 0, y = 0;
+
+		MousePointer(uint16_t x, uint16_t y)
+			:x(x), y(y) {}
+	};
+
 	class XEN_API MouseInput
 	{
 		friend class DesktopGameApplication;
 	public:
 		// Get the status of the Mouse Button
 		static bool IsMouseButtonPressed(MouseButtonCode code);
+
+		// Get the absolute X and Y coordinates of the mouse pointer
+		static MousePointer GetMousePointer();
 
 		// These set of methods should only be called by children of GameApplication
 	private:

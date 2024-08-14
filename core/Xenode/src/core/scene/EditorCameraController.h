@@ -3,6 +3,9 @@
 #include <core/renderer/Structs.h>
 #include <core/renderer/Camera.h>
 
+#include <core/app/input/MouseInput.h>
+#include <core/app/input/KeyboardInput.h>
+
 namespace Xen {
 
 	enum class EditorCameraType { _2D, _3D };
@@ -10,9 +13,8 @@ namespace Xen {
 	class XEN_API EditorCameraController 
 	{
 	public:
-		EditorCameraController() {}
-		EditorCameraController(Ref<Input> input, EditorCameraType type = EditorCameraType::_3D)
-			:m_Input(input), m_CameraType(type)
+		EditorCameraController(EditorCameraType type = EditorCameraType::_3D)
+			:m_CameraType(type)
 		{
 			m_CameraAngleAlongFocalPoint = Xen::Vec2(90.0f, 0.0f);
 			if (type == EditorCameraType::_2D)
@@ -25,8 +27,8 @@ namespace Xen {
 
 		void Orbit(const Vec2& delta)
 		{
-			Vec2 delta_angle = (Vec2&)delta;
-			m_CameraAngleAlongFocalPoint = m_CameraAngleAlongFocalPoint + (delta_angle * m_OrbitSpeed);
+			Vec2 deltaAngle = (Vec2&)delta;
+			m_CameraAngleAlongFocalPoint = m_CameraAngleAlongFocalPoint + (deltaAngle * m_OrbitSpeed);
 		}
 
 		void Pan(const Vec2& delta)
@@ -46,7 +48,9 @@ namespace Xen {
 
 		void Update(bool* active, uint32_t frameBufferHeight)
 		{
-			Xen::Vec2 mouse = Xen::Vec2(m_Input->GetMouseX(), m_Input->GetMouseY());
+			const MousePointer& p = MouseInput::GetMousePointer();
+
+			Xen::Vec2 mouse = Xen::Vec2(p.x, p.y);
 			m_MouseDelta = ((Vec2&)mouse - m_InitialMouseCoords) * (1.0f / (2.0f * frameBufferHeight));
 			m_InitialMouseCoords = mouse;
 
@@ -55,11 +59,11 @@ namespace Xen {
 			if (m_CameraType == EditorCameraType::_3D)
 			{
 				if (*active) {
-					if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE) && m_Input->IsKeyPressed(KEY_LEFT_SHIFT))
+					if (MouseInput::IsMouseButtonPressed(MouseButtonCode::MOUSE_BUTTON_MIDDLE) && KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_LEFT_SHIFT))
 						Pan(m_MouseDelta);
-					else if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))
+					else if (MouseInput::IsMouseButtonPressed(MouseButtonCode::MOUSE_BUTTON_MIDDLE))
 						Orbit(m_MouseDelta);
-					else if (m_Input->IsKeyPressed(KEY_LEFT_CONTROL))
+					else if (KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_LEFT_CONTROL))
 						Zoom(m_MouseDelta.y);
 				}
 
@@ -80,9 +84,9 @@ namespace Xen {
 			{
 				if (*active) 
 				{
-					if (m_Input->IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+					if (MouseInput::IsMouseButtonPressed(MouseButtonCode::MOUSE_BUTTON_RIGHT))
 						Pan(m_MouseDelta);
-					else if (m_Input->IsKeyPressed(KEY_LEFT_CONTROL))
+					else if (KeyboardInput::IsKeyPressed(KeyboardKeyCode::KEY_LEFT_CONTROL))
 						Zoom(m_MouseDelta.y);
 				}
 
@@ -128,8 +132,6 @@ namespace Xen {
 		Vec2 m_InitialMouseCoords;
 		
 		Vec2 m_MouseDelta;
-
-		Ref<Input> m_Input;
 
 		float m_FocalDistance = 4.0f;
 		

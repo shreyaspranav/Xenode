@@ -13,6 +13,17 @@ namespace Xen
 		TRIGGER_BREAKPOINT;
 #endif
 	}
+
+	MousePointer MouseInput::GetMousePointer()
+	{
+#ifdef XEN_DEVICE_DESKTOP
+		return GLFW_mouse_input::GetMousePointer();
+#elif defined(XEN_DEVICE_MOBILE)
+		TRIGGER_BREAKPOINT;
+#endif
+	}
+
+	// Private Functions: -------------------------------------------------------------------------------------------------
 	void MouseInput::Init(const Ref<Window>& window)
 	{
 #ifdef XEN_DEVICE_DESKTOP
