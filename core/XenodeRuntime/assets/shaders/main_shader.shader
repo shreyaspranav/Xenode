@@ -13,8 +13,7 @@ layout(location = 8) flat in int vertexID;
 
 
 layout(location = 0) out vec4 fragColor;
-layout(location = 1) out vec4 maskColor;
-layout(location = 2) out int entt_id;
+layout(location = 1) out int entt_id;
 
 uniform sampler2D tex[8];
 
@@ -68,7 +67,6 @@ void main()
 	}
 
 	fragColor = output_color;
-	maskColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	entt_id = vertexID;
 }
 
@@ -91,12 +89,12 @@ struct Vertex {
 int defalult_indices[6] = { 0, 1, 2, 0, 2, 3 };
 
 layout(std430, binding = 1) readonly buffer VertexData		{ Vertex vertices[]; };
-layout(std140, binding = 1) uniform CameraData				{ mat4 ViewProjectionMatrix; };
+layout(std140, binding = 1) uniform PerFrameData			{ mat4 ViewProjectionMatrix; };
 
 vec3 getPosition(int i) {
 	return vec3(vertices[i].pos[0], 
 		vertices[i].pos[1], 
-		vertices[1].pos[2]);
+		vertices[i].pos[2]);
 }
 
 vec4 getColor(int i) {
@@ -111,8 +109,7 @@ vec2 getTextureWorldCoord(int i) {
 		vertices[i].texWorldCoord[1]);
 }
 
-int getVertexIndex(int index)
-{
+int getVertexIndex(int index) {
     return defalult_indices[index % 6] + ((index / 6) * 4);
 }
 

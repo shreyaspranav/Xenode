@@ -20,6 +20,8 @@ namespace Xen {
 		Ref<FrameBuffer> frameBuffer;
 		Ref<Camera> sceneCamera;
 
+		bool renderToGameWindow;
+
 	}sceneRendererState;
 
 
@@ -106,8 +108,10 @@ namespace Xen {
 		SceneRenderer::Update2D(timestep);
 	}
 
-	void SceneRenderer::Render()
+	void SceneRenderer::Render(bool renderToGameWindow)
 	{
+		sceneRendererState.renderToGameWindow = renderToGameWindow;
+
 		// Update 3D first, then 2D
 		if (sceneRendererState.currentScene->GetSceneType() == SceneType::_2D_AND_3D)
 			SceneRenderer::Render3D();
@@ -122,6 +126,7 @@ namespace Xen {
 
 	void SceneRenderer::ResizeFrameBuffer(uint32_t width, uint32_t height)
 	{
+		// TODO: Rename this method to OnViewportResize or something
 		RenderCommand::OnWindowResize(width, height);
 		sceneRendererState.frameBuffer->Resize(width, height);
 
@@ -220,6 +225,12 @@ namespace Xen {
 
 		// TODO: Figure out what to do if entities are to be rendered in different framebuffers:
 		// Both sets of entities must be updated in the update function and rendered in the render function.
-		Renderer2D::RenderFrame(sceneRendererState.timestep, sceneRendererState.frameBuffer);
+		// Renderer2D::RenderFrame(sceneRendererState.timestep, sceneRendererState.frameBuffer);
+		
+		// TODO: This is TEMPORARY, 
+		// Since there is no post processing or any use of HDR, just render to the default framebuffer
+		// if running in the runtime.
+		Renderer2D::RenderFrame(sceneRendererState.timestep, 
+			sceneRendererState.renderToGameWindow ? nullptr : sceneRendererState.frameBuffer);
 	}
 }

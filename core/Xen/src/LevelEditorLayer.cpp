@@ -695,6 +695,15 @@ void LevelEditorLayer::OnFixedUpdate()
 	}
 }
 
+void LevelEditorLayer::OnEvent(Xen::Event& event)
+{
+	Xen::EventDispatcher::Dispatch<Xen::KeyboardEvent>(event, XEN_BIND_FN(LevelEditorLayer::OnKeyboardEvent));
+
+	Xen::EventDispatcher::Dispatch<Xen::MouseButtonEvent>(event, XEN_BIND_FN(LevelEditorLayer::OnMouseButtonEvent));
+	Xen::EventDispatcher::Dispatch<Xen::MouseMoveEvent>(event, XEN_BIND_FN(LevelEditorLayer::OnMouseMoveEvent));
+	Xen::EventDispatcher::Dispatch<Xen::MouseScrollEvent>(event, XEN_BIND_FN(LevelEditorLayer::OnMouseScrollEvent));
+}
+
 void LevelEditorLayer::OnScenePlay()
 {
 	m_ScenePaused = false;
@@ -769,6 +778,11 @@ void LevelEditorLayer::OnMouseScrollEvent(Xen::MouseScrollEvent& event)
 }
 
 void LevelEditorLayer::OnMouseMoveEvent(Xen::MouseMoveEvent& event)
+{
+
+}
+
+void LevelEditorLayer::OnMouseButtonEvent(Xen::MouseButtonEvent& event)
 {
 
 }

@@ -1,5 +1,5 @@
+#define XEN_INCLUDE_ENTRY_POINT
 #include <Xenode.h>
-#include <core/app/EntryPoint.h>
 
 #include "LevelEditorLayer.h"
 #include <project/ProjectManager.h>

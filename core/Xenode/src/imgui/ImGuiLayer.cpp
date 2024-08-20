@@ -35,6 +35,9 @@ namespace Xen {
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport;
 		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
+		// Set this to true to have a undecorated viewport window.
+		io.ConfigViewportsNoDecoration = false;
+
 		ImGuiStyle* style = &ImGui::GetStyle();
 		style->Colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.00f);
 

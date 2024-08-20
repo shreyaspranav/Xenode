@@ -12,8 +12,8 @@ project "XenodeRuntime"
 	}
 
 	includedirs {
-		"%{wks.location}/Xenode/src/core/",
-		"%{wks.location}/Xen/src",
+		"%{wks.location}/Core/Xenode/src/core/",
+		"%{wks.location}/Core/XenodeRuntime/src/",
 
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",
@@ -38,8 +38,8 @@ project "XenodeRuntime"
 		systemversion "latest"
 
 		includedirs {
-			"%{wks.location}/Xenode/src/platform/windows",
-			"%{wks.location}/Xenode/src"
+			"%{wks.location}/Core/Xenode/src/platform/windows",
+			"%{wks.location}/Core/Xenode/src"
 		}
 
 		defines { "XEN_PLATFORM_WINDOWS", "XEN_BUILD_EXE", "XEN_DEVICE_DESKTOP" }
@@ -49,8 +49,8 @@ project "XenodeRuntime"
 		systemversion "latest"
 
 		includedirs {
-			"%{wks.location}/Xenode/src/platform/linux",
-			"%{wks.location}/Xenode/src"
+			"%{wks.location}/Core/Xenode/src/platform/linux",
+			"%{wks.location}/Core/Xenode/src"
 		}
 
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXEC", "XEN_DEVICE_DESKTOP" }

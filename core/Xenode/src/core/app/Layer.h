@@ -18,5 +18,7 @@ namespace Xen {
 		virtual void OnRender() {}
 
 		virtual void OnImGuiUpdate() {}
+
+		virtual void OnEvent(Event& event) {}
 	};
 }

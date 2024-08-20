@@ -25,8 +25,6 @@ namespace Xen
 	{
 		s_ApplicationInstance = this;
 		m_IsGameRunning = true;
-
-		OnCreate();
 	}
 
 	DesktopGameApplication::~DesktopGameApplication()
@@ -155,8 +153,12 @@ namespace Xen
 	void DesktopGameApplication::OnEvent(Event& event)
 	{
 		EventDispatcher::Dispatch<WindowCloseEvent>(event, XEN_BIND_FN(DesktopGameApplication::OnWindowCloseEvent));
-		EventDispatcher::Dispatch<CharEnterEvent>(event, XEN_BIND_FN(DesktopGameApplication::OnCharEnterEvent));
-		XEN_ENGINE_LOG_TRACE("Event: {0}", event.ToString());
+		// EventDispatcher::Dispatch<CharEnterEvent>(event, XEN_BIND_FN(DesktopGameApplication::OnCharEnterEvent));
+		
+		for (const auto& layer : m_LayerStack)
+			layer->OnEvent(event);
+
+		// XEN_ENGINE_LOG_TRACE("Event: {0}", event.ToString());
 	}
 
 	void DesktopGameApplication::OnWindowCloseEvent(WindowCloseEvent& windowCloseEvent)
@@ -190,6 +192,7 @@ namespace Xen
 
 		const float MS_PER_UPDATE = (1.0f / 60.0f) * 1000.0f;
 
+		OnCreate();
 		OnStart();
 
 		double timestep = 0.0;

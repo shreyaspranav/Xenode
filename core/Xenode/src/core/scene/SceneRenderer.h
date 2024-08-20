@@ -18,7 +18,7 @@ namespace Xen {
 		static void SetActiveCamera(const Ref<Camera>& camera);
 
 		static void Update(double timestep);
-		static void Render();
+		static void Render(bool renderToGameWindow = false);
 
 		static void End();
 

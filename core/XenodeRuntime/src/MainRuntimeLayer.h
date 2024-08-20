@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Xenode.h>
+#include <core/scene/Scene.h>
 
 class MainRuntimeLayer : public Xen::Layer
 {
@@ -14,7 +15,10 @@ public:
 	void OnFixedUpdate() override;
 	void OnRender() override;
 
-	void OnWindowResizeEvent(Xen::WindowResizeEvent& event) override;
+	void OnEvent(Xen::Event& event) override;
+
+	void OnWindowResizeEvent(Xen::WindowResizeEvent& event);
 private:
 	Xen::Ref<Xen::Scene> m_CurrentScene;
+	bool m_FirstIteration = true;
 };

@@ -1,9 +1,11 @@
+#define XEN_INCLUDE_ENTRY_POINT
 #include <Xenode.h>
-#include <core/app/EntryPoint.h>
+
+#include <project/ProjectManager.h>
 
 #include "MainRuntimeLayer.h"
 
-class XenodeRuntimeApplication : public Xen::DesktopApplication
+class XenodeRuntimeApplication : public Xen::DesktopGameApplication
 {
 public:
 	XenodeRuntimeApplication()
@@ -17,36 +19,48 @@ public:
 	
 	void OnCreate() override
 	{
-		window_width = 1920;
-		window_height = 1200;
+		Xen::DesktopGameApplication::OnCreate();
 
-		window_title = "Xenode Runtime";
-		imgui_render = true;
-		vsync = false;
+		// Setup the gameProperties:
+		gameProperties.windowWidth = 1920;
+		gameProperties.windowHeight = 1200;
+		gameProperties.windowVsync = true;
 
-		fullscreen_monitor = 1;
+		gameProperties.fullScreenMonitorIndex = 1;
+
+		// Load a project into the ProjectManager
+		std::filesystem::path relProjectPath = "../../resources/projects/default_project/default_project.xenproject";
+		Xen::Ref<Xen::Project> loadedProject = Xen::ProjectManager::LoadProject(relProjectPath);
+
+		if (loadedProject)
+			gameProperties.windowTitle = loadedProject->GetProjectProperties().name;
+		else
+			gameProperties.windowTitle = "Xenode Runtime: Project failed to load!";
 	}
 
 	void OnStart() override 
 	{
+		Xen::DesktopGameApplication::OnStart();
+
 		Xen::Ref<Xen::Layer> mainRuntimeLayer = std::make_shared<MainRuntimeLayer>();
-		DesktopApplication::PushLayer(mainRuntimeLayer);
+		DesktopGameApplication::PushLayer(mainRuntimeLayer);
 	}
 
-	void OnUpdate(double timestep) override
+	void OnUpdate(float timestep) override
 	{
-
+		Xen::DesktopGameApplication::OnUpdate(timestep);
 	}
 
 	void OnFixedUpdate() override
 	{
+		Xen::DesktopGameApplication::OnFixedUpdate();
 
 	}
 
 	void OnRender() override
 	{
-
+		Xen::DesktopGameApplication::OnRender();
 	}
 };
 
-Xen::DesktopApplication* Xen::CreateDesktopApplication() { return new XenodeRuntimeApplication(); }
+Xen::DesktopGameApplication* Xen::CreateApplication() { return new XenodeRuntimeApplication(); }

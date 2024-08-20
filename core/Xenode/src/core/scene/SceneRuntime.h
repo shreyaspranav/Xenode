@@ -28,6 +28,8 @@ namespace Xen
 	{
 		Vec3 gravity = { 0.0f, -10.0f, 0.0f };
 		RenderSource renderSource = RenderSource::Unknown;
+
+		bool renderToGameWindow = false;
 	};
 
 	// SceneRuntime Class: This class is used to handle the runtime of the scene i.e, Initializing, Updating and 

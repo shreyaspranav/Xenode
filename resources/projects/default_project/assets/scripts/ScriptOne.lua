@@ -7,7 +7,7 @@ function OnUpdate(timestep)
 	local transform = GetCurrentTransform()
 
 	if (IsKeyPressed('left')) then
-		LogWarning("Left, X:" .. transform.position.x)
+		LogWarning("Left")
 	end
 	if (IsKeyPressed('right')) then
 		LogWarning("Right")

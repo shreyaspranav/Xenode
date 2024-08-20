@@ -1,8 +1,6 @@
+#define XEN_INCLUDE_ENTRY_POINT
 #include <Xenode.h>
-#include <core/app/EntryPoint.h>
-
-// TEMP:
-#include <core/app/desktop/DesktopGameApplication.h>
+#include <core/renderer/RenderCommand.h>
 
 class ExampleLayer : public Xen::Layer
 {

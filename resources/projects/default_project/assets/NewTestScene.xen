@@ -1,0 +1,121 @@
+Scene: Untitled
+Entities:
+  - Entity: [Unnamed, 13081534962527440184]
+    Transform:
+      Position: [3.4050138, 0.0159490705, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 3
+      CircleProperties:
+        Thickness: 0.442999989
+        InnerFade: 1
+        OuterFade: 0.0359999985
+      Color: [1, 0.123893797, 0.123893797, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+    CircleCollider2D:
+      RadiusScale: 1
+      Offset: [0, 0]
+  - Entity: [DumbPlatform, 17469004840791291473]
+    Transform:
+      Position: [-3.04849124, -1.36647642, 0]
+      Rotation: [0, 0, 90]
+      Scale: [21.5979023, 0.143529147, 1]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [1, 0.716814101, 0, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+    BoxCollider2D:
+      SizeScale: [1, 1]
+      Offset: [0, 0]
+  - Entity: [DumbPlatform, 3257649365161913388]
+    Transform:
+      Position: [2.39367723, -3.58913112, 0]
+      Rotation: [0, 0, 0]
+      Scale: [21.6102028, 0.143624663, 1]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [1, 0.716814101, 0, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+    BoxCollider2D:
+      SizeScale: [1, 1]
+      Offset: [0, 0]
+  - Entity: [DumbSquare, 16883080258216127350]
+    Transform:
+      Position: [7.34683609, 1.7865392, 0.879999995]
+      Rotation: [0, 0, 121.783081]
+      Scale: [0.778406143, 0.588922083, 1]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [0, 0.734513283, 1, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+    RigidBody2D:
+      FixedRotation: false
+      BodyType: 1
+      Density: 1.5
+      Friction: 0.200000003
+      Restitution: 0.699999988
+      RestitutionThreshold: 0
+    BoxCollider2D:
+      SizeScale: [1, 1]
+      Offset: [0, 0]
+  - Entity: [DumbSquare, 17663564803756398916]
+    Transform:
+      Position: [0.424799263, -0.400662512, 0]
+      Rotation: [0, 0, 48.8327789]
+      Scale: [0.778405607, 0.588921189, 1]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [0, 0.734513283, 1, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+    RigidBody2D:
+      FixedRotation: false
+      BodyType: 1
+      Density: 1.5
+      Friction: 0.200000003
+      Restitution: 0
+      RestitutionThreshold: 51.9000015
+    BoxCollider2D:
+      SizeScale: [1, 1]
+      Offset: [0, 0]
+  - Entity: [Camera, 12853994037897522825]
+    Transform:
+      Position: [2.70419788, -0.844181895, 0]
+      Rotation: [0, 0, 0]
+      Scale: [3, 3, 1]
+    CameraComp:
+      Camera:
+        ProjectionType: Orthographic
+        ZNear: 1
+        ZFar: -1
+      IsPrimary: true
+      IsResizable: true
+  - Entity: [DumbPlatform, 10211683079623653118]
+    Transform:
+      Position: [8.72929859, -1.70220685, 0]
+      Rotation: [0, 0, 90]
+      Scale: [21.5917282, 0.143480912, 1]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [1, 0.716814101, 0, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+    BoxCollider2D:
+      SizeScale: [1, 1]
+      Offset: [0, 0]
+Entity Count: 7
+EditorCameraTransform:
+  Position: [2.86386418, -0.680811524, 0]
+  Rotation: [0, 0, 0]
+  Scale: [3.06459379, 3.06459379, 1]

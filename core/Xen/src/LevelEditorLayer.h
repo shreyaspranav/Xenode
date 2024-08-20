@@ -56,6 +56,8 @@ public:
 	void OnImGuiUpdate() override;
 	void OnFixedUpdate() override;
 
+	void OnEvent(Xen::Event& event) override;
+
 	void OnScenePlay();
 	void OnSceneStop();
 	void OnScenePause();

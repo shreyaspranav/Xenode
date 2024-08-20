@@ -191,7 +191,7 @@ namespace Xen
 
 	void SceneRuntime::Render()
 	{
-		SceneRenderer::Render();
+		SceneRenderer::Render(sceneRuntimeState.sceneSettings.renderToGameWindow);
 	}
 
 	void SceneRuntime::RuntimeEnd()
