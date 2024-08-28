@@ -1,6 +1,81 @@
 Scene: Untitled
 Entities:
-  - Entity: [Circle, 10424854905733904889]
+  - Entity: [Camera, 8403733468981487659]
+    Transform:
+      Position: [-2.5487206, -0.0520145893, 0]
+      Rotation: [0, 0, 0]
+      Scale: [8, 8, 1]
+    CameraComp:
+      Camera:
+        ProjectionType: Orthographic
+        ZNear: 1
+        ZFar: -1
+      IsPrimary: true
+      IsResizable: true
+  - Entity: [Quad 2, 9960889600108382157]
+    Transform:
+      Position: [0, -3.58999991, 0.00100000005]
+      Rotation: [0, 0, 16.500021]
+      Scale: [16.0300007, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [0.831858397, 0, 0, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+    RigidBody2D:
+      FixedRotation: false
+      BodyType: 0
+      Density: 1
+      Friction: 1
+      Restitution: 0.400000006
+      RestitutionThreshold: 0.5
+    BoxCollider2D:
+      SizeScale: [1, 1]
+      Offset: [0, 0]
+  - Entity: [Quad 1, 7194313267077436601]
+    Transform:
+      Position: [-4.91718388, 0.741465986, 0]
+      Rotation: [0, 0, 69.0000076]
+      Scale: [0.999999583, 0.999999583, 1]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [1, 1, 1, 1]
+      Texture:
+        TextureFileRelPath: assets\textures\CheckerBoardTexture.png
+        TextureTilingFactor: 1
+    RigidBody2D:
+      FixedRotation: false
+      BodyType: 1
+      Density: 0.349999994
+      Friction: 0
+      Restitution: 0.949999988
+      RestitutionThreshold: 0.5
+    BoxCollider2D:
+      SizeScale: [1, 1]
+      Offset: [0, 0]
+  - Entity: [Quad 3, 12661845135490325747]
+    Transform:
+      Position: [-6.52781296, -2.18553162, 0.00200000009]
+      Rotation: [0, 0, -32.7000008]
+      Scale: [16.0300007, 1, 1]
+    SpriteRenderer:
+      SpritePrimitive: 1
+      Color: [0, 1, 0.761061907, 1]
+      Texture:
+        TextureFileRelPath: "null"
+        TextureTilingFactor: 1
+    RigidBody2D:
+      FixedRotation: false
+      BodyType: 0
+      Density: 1
+      Friction: 0.100000001
+      Restitution: 0.400000006
+      RestitutionThreshold: 0.5
+    BoxCollider2D:
+      SizeScale: [1, 1]
+      Offset: [0, 0]
+  - Entity: [Circle, 14394883336376193101]
     Transform:
       Position: [1.54020929, 1.46323407, 0]
       Rotation: [0, 0, 0]
@@ -25,81 +100,6 @@ Entities:
     CircleCollider2D:
       RadiusScale: 1
       Offset: [0, 0]
-  - Entity: [Quad 3, 6611081836496312074]
-    Transform:
-      Position: [-6.52781296, -2.18553162, 0.00200000009]
-      Rotation: [0, 0, -32.7000008]
-      Scale: [16.0300007, 1, 1]
-    SpriteRenderer:
-      SpritePrimitive: 1
-      Color: [0, 1, 0.761061907, 1]
-      Texture:
-        TextureFileRelPath: "null"
-        TextureTilingFactor: 1
-    RigidBody2D:
-      FixedRotation: false
-      BodyType: 0
-      Density: 1
-      Friction: 0.100000001
-      Restitution: 0.400000006
-      RestitutionThreshold: 0.5
-    BoxCollider2D:
-      SizeScale: [1, 1]
-      Offset: [0, 0]
-  - Entity: [Quad 1, 10571135757967044298]
-    Transform:
-      Position: [-4.91718388, 0.741465986, 0]
-      Rotation: [0, 0, 69.0000076]
-      Scale: [0.999999583, 0.999999583, 1]
-    SpriteRenderer:
-      SpritePrimitive: 1
-      Color: [1, 1, 1, 1]
-      Texture:
-        TextureFileRelPath: assets\textures\CheckerBoardTexture.png
-        TextureTilingFactor: 1
-    RigidBody2D:
-      FixedRotation: false
-      BodyType: 1
-      Density: 0.349999994
-      Friction: 0
-      Restitution: 0.949999988
-      RestitutionThreshold: 0.5
-    BoxCollider2D:
-      SizeScale: [1, 1]
-      Offset: [0, 0]
-  - Entity: [Quad 2, 16252339660971990121]
-    Transform:
-      Position: [0, -3.58999991, 0.00100000005]
-      Rotation: [0, 0, 16.500021]
-      Scale: [16.0300007, 1, 1]
-    SpriteRenderer:
-      SpritePrimitive: 1
-      Color: [0.831858397, 0, 0, 1]
-      Texture:
-        TextureFileRelPath: "null"
-        TextureTilingFactor: 1
-    RigidBody2D:
-      FixedRotation: false
-      BodyType: 0
-      Density: 1
-      Friction: 1
-      Restitution: 0.400000006
-      RestitutionThreshold: 0.5
-    BoxCollider2D:
-      SizeScale: [1, 1]
-      Offset: [0, 0]
-  - Entity: [Camera, 15512478875564238411]
-    Transform:
-      Position: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [8, 8, 1]
-    CameraComp:
-      Camera:
-        ProjectionType: Orthographic
-        ZNear: 1
-        ZFar: -1
-      IsPrimary: true
-      IsResizable: true
 Entity Count: 5
 EditorCameraTransform:
   Position: [-2.45573092, -0.665094078, 0]
