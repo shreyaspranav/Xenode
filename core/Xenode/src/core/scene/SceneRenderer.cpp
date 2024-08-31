@@ -4,9 +4,11 @@
 #include <core/app/GameApplication.h>
 #include <core/renderer/FrameBuffer.h>
 #include <core/renderer/Renderer2D.h>
+#include <core/renderer/DebugRenderer.h>
 #include <core/renderer/RenderCommand.h>
 
 #include "Components.h"
+#include "SceneRuntime.h"
 
 namespace Xen {
 
@@ -14,6 +16,11 @@ namespace Xen {
 	struct SceneRendererData
 	{
 		Ref<Scene> currentScene;
+		bool isRuntime;
+
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+		SceneDebugSettings debugSettings;
+#endif
 		double timestep;
 
 		// Renderer Specific stuff:
@@ -63,6 +70,9 @@ namespace Xen {
 		}
 
 		sceneRendererState.frameBuffer = FrameBuffer::CreateFrameBuffer(specifications);
+		
+		// Initialize the Debug Renderer First.
+		DebugRenderer::Init();
 
 		// The 2D Renderer has to be initialized no matter what. Because the sceneType can be either _2D or _2D_AND_3D
 		Renderer2D::Init();
@@ -71,6 +81,7 @@ namespace Xen {
 		{
 			// Initialize the 3D Renderer
 		}
+
 	}
 
 	void SceneRenderer::SetActiveScene(const Ref<Scene>& scene)
@@ -97,26 +108,44 @@ namespace Xen {
 		sceneRendererState.sceneCamera = camera;
 	}
 
-	void SceneRenderer::Update(double timestep)
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+	void SceneRenderer::SetSceneDebugSettings(const SceneDebugSettings& debugSettings)
+	{
+		sceneRendererState.debugSettings = debugSettings;
+	}
+#endif
+
+	void SceneRenderer::Update(double timestep, bool isRuntime)
 	{
 		sceneRendererState.timestep = timestep;
+		sceneRendererState.isRuntime = isRuntime;
 
 		// Update 3D first, then 2D
 		if (sceneRendererState.currentScene->GetSceneType() == SceneType::_2D_AND_3D)
 			SceneRenderer::Update3D(timestep);
 
 		SceneRenderer::Update2D(timestep);
+
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+		SceneRenderer::UpdateDebugGraphics(timestep);
+#endif
 	}
 
 	void SceneRenderer::Render(bool renderToGameWindow)
 	{
 		sceneRendererState.renderToGameWindow = renderToGameWindow;
 
+		RenderCommand::Clear();
+
 		// Update 3D first, then 2D
 		if (sceneRendererState.currentScene->GetSceneType() == SceneType::_2D_AND_3D)
 			SceneRenderer::Render3D();
 
 		SceneRenderer::Render2D();
+
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+		SceneRenderer::RenderDebugGraphics();
+#endif
 	}
 
 	void SceneRenderer::End()
@@ -137,7 +166,6 @@ namespace Xen {
 	{
 		return sceneRendererState.frameBuffer;
 	}
-
 
 	// Private Functions: ------------------------------------------------------------------------------------------------------------------------------
 
@@ -212,6 +240,10 @@ namespace Xen {
 		}
 
 		Renderer2D::EndScene();
+
+		// DebugRenderer::Begin(nullptr);
+		// DebugRenderer::Draw2DCircle({ 0.0f, 0.0f, 0.0f }, 10.0f, { 3.0f, 3.0f }, { 1.0f, 0.4f, 0.3f, 1.0f }, 5.0f);
+		// DebugRenderer::End();
 	}
 
 	void SceneRenderer::Render3D()
@@ -219,18 +251,79 @@ namespace Xen {
 		// 3D Rendering Logic
 	}
 
+
 	void SceneRenderer::Render2D()
 	{
-		RenderCommand::Clear();
-
 		// TODO: Figure out what to do if entities are to be rendered in different framebuffers:
 		// Both sets of entities must be updated in the update function and rendered in the render function.
 		// Renderer2D::RenderFrame(sceneRendererState.timestep, sceneRendererState.frameBuffer);
 		
-		// TODO: This is TEMPORARY, 
+		// TODO: This is TEMPORARY,
 		// Since there is no post processing or any use of HDR, just render to the default framebuffer
 		// if running in the runtime.
 		Renderer2D::RenderFrame(sceneRendererState.timestep, 
 			sceneRendererState.renderToGameWindow ? nullptr : sceneRendererState.frameBuffer);
+
 	}
+
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+	void SceneRenderer::UpdateDebugGraphics(double timestep)
+	{
+		DebugRenderer::Begin(sceneRendererState.sceneCamera);
+
+		// Updating and Rendering 2D Box Colliders: -----------------------------------------------------------------------------------------------------
+
+		if (sceneRendererState.debugSettings.physicsCollider != DebugRenderTargetFlag::Disabled)
+		{
+			if ((static_cast<bool>(sceneRendererState.debugSettings.physicsCollider & DebugRenderTargetFlag::Runtime) && sceneRendererState.isRuntime) ||
+				(static_cast<bool>(sceneRendererState.debugSettings.physicsCollider & DebugRenderTargetFlag::Editor) && !sceneRendererState.isRuntime))
+			{
+				auto&& boxCollider2DView = sceneRendererState.currentScene->m_SceneRegistry.view<Component::BoxCollider2D>();
+				auto&& circleCollider2DView = sceneRendererState.currentScene->m_SceneRegistry.view<Component::CircleCollider2D>();
+
+				for (auto entt : boxCollider2DView)
+				{
+					Entity entity = Entity(entt, sceneRendererState.currentScene.get());
+					auto& transform = entity.GetComponent<Component::Transform>();
+
+					auto& boxCollider2D = entity.GetComponent<Component::BoxCollider2D>();
+					DebugRenderer::Draw2DQuad(
+						transform.position + Vec3(boxCollider2D.bodyOffset.x, boxCollider2D.bodyOffset.y, 0.0f),
+						transform.rotation.z,
+						{ transform.scale.x * boxCollider2D.sizeScale.x, transform.scale.y * boxCollider2D.sizeScale.y },
+						sceneRendererState.debugSettings.physicsColliderColor, 2.0f
+					);
+				}
+				for (auto entt : circleCollider2DView)
+				{	
+					Entity entity = Entity(entt, sceneRendererState.currentScene.get());
+					auto& transform = entity.GetComponent<Component::Transform>();
+
+					auto& circleCollider2D = entity.GetComponent<Component::CircleCollider2D>();
+					DebugRenderer::Draw2DCircle(
+						transform.position + Vec3(circleCollider2D.bodyOffset.x, circleCollider2D.bodyOffset.y, 0.0f),
+						transform.rotation.z,
+						{ transform.scale.x * circleCollider2D.radiusScale, transform.scale.y },
+						sceneRendererState.debugSettings.physicsColliderColor, 2.0f
+					);
+				
+				}
+			}
+		}
+
+		// ------------------------------------------------------------------------------------------------------------------------------------------------
+		DebugRenderer::End();
+	}
+
+	void SceneRenderer::RenderDebugGraphics()
+	{
+		if(!sceneRendererState.renderToGameWindow)
+			sceneRendererState.frameBuffer->Bind();
+
+		DebugRenderer::RenderFrame(sceneRendererState.timestep);
+		
+		if (!sceneRendererState.renderToGameWindow)
+			sceneRendererState.frameBuffer->Unbind();
+	}
+#endif
 }

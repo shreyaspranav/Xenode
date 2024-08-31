@@ -11,6 +11,7 @@
 #include "SpriteRenderer2D.h"
 #include "ParticlesRenderer2D.h"
 #include "RenderCommand.h"
+#include "DebugRenderer.h"
 
 
 namespace Xen {

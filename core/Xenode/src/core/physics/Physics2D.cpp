@@ -51,7 +51,8 @@ namespace Xen {
 		// 	physicsState.physicsWorld->Step(physicsState.fixedTimeStep, velocityIterations, positionIterations);
 		// 
 		// physicsState.physicsWorld->Step(lastIterationTimeStep, velocityIterations, positionIterations);
-		physicsState.physicsWorld->Step(physicsState.fixedTimeStep, velocityIterations, positionIterations);
+		double timestepInSeconds = physicsState.fixedTimeStep / 1000.0f;
+		physicsState.physicsWorld->Step(timestepInSeconds, velocityIterations, positionIterations);
 
 		for (PhysicsBody2D* body : physicsState.physicsBodies)
 		{

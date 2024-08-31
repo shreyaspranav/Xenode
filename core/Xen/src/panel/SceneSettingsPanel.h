@@ -8,12 +8,14 @@
 #include "StringValues.h"
 #include "core/scene/Scene.h"
 
+#include "core/scene/SceneRuntime.h"
+
 class SceneSettingsPanel {
 
 public:
 	SceneSettingsPanel() {}
-	SceneSettingsPanel(const Xen::Ref<Xen::Scene>& scene) 
-		:m_Scene(scene){}
+	SceneSettingsPanel(const Xen::Ref<Xen::Scene>& scene, Xen::SceneSettings* sceneSettings)
+		:m_Scene(scene), m_SceneSettings(sceneSettings){}
 	~SceneSettingsPanel() {}
 
 	inline void SetPanelTitle(const std::string& title) { m_PanelTitle = title; }
@@ -23,40 +25,48 @@ public:
 	{
 		ImGui::Begin(m_PanelTitle.c_str());
 
-		ImGui::Columns(2, "##SceneSettings", false);
-		//ImGui::SetColumnWidth(1, 100.0f);
-		ImGui::SetColumnWidth(0, 245.0f);
+#ifdef XEN_ENABLE_DEBUG_RENDERER
 
-		PaddedText("Show Physics Colliders", 0.0f, 3.0f);
-		ImGui::NextColumn();
+		Xen::SceneDebugSettings& debugSettings = m_SceneSettings->debugSettings;
 
-		// bool enablePhysicsColliders = m_Scene->IsPhysicsCollidersShown();
-		// bool enablePhysicsCollidersRuntime = m_Scene->IsPhysicsCollidersRuntimeShown();
+		bool enablePhysicsColliders			= static_cast<bool>(debugSettings.physicsCollider & Xen::DebugRenderTargetFlag::Editor);
+		bool enablePhysicsCollidersRuntime	= static_cast<bool>(debugSettings.physicsCollider & Xen::DebugRenderTargetFlag::Runtime);
 
-		bool enablePhysicsColliders = false;
-		bool enablePhysicsCollidersRuntime = false;
+		ImGui::SeparatorText("Physics Settings");
 
-		ImGui::PushItemWidth(-1.0f);
+		if (ImGui::Checkbox("Show Physics Colliders", &enablePhysicsColliders))
+		{
+			enablePhysicsColliders ? 
+				debugSettings.physicsCollider |=  Xen::DebugRenderTargetFlag::Editor :
+				debugSettings.physicsCollider &= ~Xen::DebugRenderTargetFlag::Editor;
+		}
 
-		if (ImGui::Checkbox("##ShowPhysicsColliders", &enablePhysicsColliders)) {}
-		// 	m_Scene->ShowPhysicsColliders(enablePhysicsColliders);
+		if (ImGui::Checkbox("Show Physics Colliders At Runtime", &enablePhysicsCollidersRuntime))
+		{
+			enablePhysicsColliders ?
+				debugSettings.physicsCollider |=  Xen::DebugRenderTargetFlag::Runtime :
+				debugSettings.physicsCollider &= ~Xen::DebugRenderTargetFlag::Runtime;
+		}
 
-		ImGui::PopItemWidth();
+		float physicsColliderColor[] = 
+		{ 
+			debugSettings.physicsColliderColor.r, 
+			debugSettings.physicsColliderColor.g, 
+			debugSettings.physicsColliderColor.b 
+		};
 
-		ImGui::NextColumn();
+		ImGuiColorEditFlags flags = ImGuiColorEditFlags_NoInputs;
 
-		PaddedText("Show Physics Colliders(Runtime)", 0.0f, 3.0f);
-		ImGui::NextColumn();
+		if (ImGui::ColorEdit3("Physics Collider Color", physicsColliderColor, flags))
+		{
+			debugSettings.physicsColliderColor.r = physicsColliderColor[0];
+			debugSettings.physicsColliderColor.g = physicsColliderColor[1];
+			debugSettings.physicsColliderColor.b = physicsColliderColor[2];
+		}
 
-		ImGui::PushItemWidth(-1.0f);
-
-		if (ImGui::Checkbox("##ShowPhysicsCollidersRuntime", &enablePhysicsCollidersRuntime)) {}
-		// 	m_Scene->ShowPhysicsCollidersRuntime(enablePhysicsCollidersRuntime);
-
-		ImGui::PopItemWidth();
-
-		ImGui::Columns(1);
-
+#else
+		ImGui::Text("The Debug Renderer is not included!");
+#endif
 		ImGui::End();
 	}
 
@@ -76,4 +86,5 @@ private:
 	std::string m_PanelTitle = Xen::StringValues::PANEL_TITLE_SCENE_SETTINGS;
 
 	Xen::Ref<Xen::Scene> m_Scene;
+	Xen::SceneSettings* m_SceneSettings;
 };

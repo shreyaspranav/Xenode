@@ -33,10 +33,6 @@ namespace Xen
 
 		// The Additional camera (The camera by which the scene will be rendered during editing workflow in the editor)
 		Ref<Camera> additionalCamera;
-
-		// TEMP:
-		// Fixed timestep: (This is to be owned by the Application class)
-		const double fixedTimeStep = 1.0 / 60.0;
 		
 		ScriptEngine* scriptEngine;
 
@@ -47,7 +43,7 @@ namespace Xen
 	void SceneRuntime::Initialize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		SceneRenderer::Initialize(viewportWidth, viewportHeight);
-		ScenePhysics::Initialize(sceneRuntimeState.fixedTimeStep);
+		ScenePhysics::Initialize(GameApplication::FIXED_TIME_STEP);
 	}
 
 	void SceneRuntime::SetActiveScene(const Ref<Scene>& scene)
@@ -107,7 +103,6 @@ namespace Xen
 				}
 			}
 		}
-
 	}
 #ifdef XEN_GAME_FINAL_BUILD
 	void SceneRuntime::UpdateFinal(double timestep)
@@ -126,13 +121,19 @@ namespace Xen
 #else
 	void SceneRuntime::Update(double timestep)
 	{
-		SceneRenderer::Update(timestep);
+		SceneRenderer::Update(timestep, sceneRuntimeState.isRunning);
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+		SceneRenderer::SetSceneDebugSettings(sceneRuntimeState.sceneSettings.debugSettings);
+#endif
 	}
 
 	void SceneRuntime::UpdateRuntime(double timestep, bool paused)
 	{
 		sceneRuntimeState.paused = paused;
 
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+		SceneRenderer::SetSceneDebugSettings(sceneRuntimeState.sceneSettings.debugSettings);
+#endif
 		if (!sceneRuntimeState.isRunning) 
 		{
 			XEN_ENGINE_LOG_ERROR("The current scene is not running!");
@@ -163,7 +164,7 @@ namespace Xen
 				sceneRuntimeState.runtimeCamera->Update();
 			}
 		}
-		SceneRenderer::Update(timestep);
+		SceneRenderer::Update(timestep, sceneRuntimeState.isRunning);
 	}
 #endif // !XEN_GAME_FINAL_BUILD
 
@@ -185,7 +186,7 @@ namespace Xen
 			}
 
 			// Step the physics
-			ScenePhysics::Step(sceneRuntimeState.fixedTimeStep);
+			ScenePhysics::Step(GameApplication::FIXED_TIME_STEP);
 		}
 	}
 
@@ -221,7 +222,7 @@ namespace Xen
 		SceneRenderer::ResizeFrameBuffer(width, height);
 	}
 
-	const Ref<FrameBuffer> SceneRuntime::GetActiveFrameBuffer()
+	const Ref<FrameBuffer>& SceneRuntime::GetActiveFrameBuffer()
 	{
 		return SceneRenderer::GetActiveFrameBuffer();
 	}

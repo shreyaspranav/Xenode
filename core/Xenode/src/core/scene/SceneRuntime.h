@@ -11,16 +11,55 @@
 
 namespace Xen 
 {
-	// Guard this with a preprocessor:
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+
+	enum class DebugRenderTargetFlag : uint8_t
+	{
+		Disabled	= 0, 
+		Editor		= BIT(0),
+		Runtime		= BIT(1)
+	};
+
+	// Operators for DebugRenderTargetFlag -------------------------------------------------------------------------------
+	inline DebugRenderTargetFlag operator&(DebugRenderTargetFlag lhs, DebugRenderTargetFlag rhs)
+	{
+		return static_cast<DebugRenderTargetFlag>(static_cast<int>(lhs) & static_cast<int>(rhs));
+	}
+
+	inline DebugRenderTargetFlag operator|(DebugRenderTargetFlag lhs, DebugRenderTargetFlag rhs)
+	{
+		return static_cast<DebugRenderTargetFlag>(static_cast<int>(lhs) | static_cast<int>(rhs));
+	}
+
+	inline DebugRenderTargetFlag operator~(DebugRenderTargetFlag flag)
+	{
+		return static_cast<DebugRenderTargetFlag>(~(static_cast<int>(flag)));
+	}
+
+	inline DebugRenderTargetFlag operator|=(DebugRenderTargetFlag& lhs, DebugRenderTargetFlag&& rhs)
+	{
+		return lhs = lhs | rhs;
+	}
+
+	inline DebugRenderTargetFlag operator&=(DebugRenderTargetFlag& lhs, DebugRenderTargetFlag&& rhs)
+	{
+		return lhs = lhs & rhs;
+	}
+	// --------------------------------------------------------------------------------------------------------------------
+
 	struct SceneDebugSettings
 	{
 		// Global Debug Rendering flag
-		bool enableDebugRendering;
+		DebugRenderTargetFlag global;
+
+		// Physics components debug rendering flag
+		DebugRenderTargetFlag physicsCollider = DebugRenderTargetFlag::Editor;
 
 		// Color of various stuff
 		Color physicsColliderColor		= { 0.0f, 1.0f, 0.0f, 1.0f };
 		Color rigidBodyColor			= { 0.0f, 1.0f, 0.0f, 1.0f };
 	};
+#endif
 
 	enum class RenderSource { Unknown = 0, RuntimeCamera, AdditionalCamera };
 
@@ -30,6 +69,10 @@ namespace Xen
 		RenderSource renderSource = RenderSource::Unknown;
 
 		bool renderToGameWindow = false;
+
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+		SceneDebugSettings debugSettings;
+#endif
 	};
 
 	// SceneRuntime Class: This class is used to handle the runtime of the scene i.e, Initializing, Updating and 
@@ -60,7 +103,7 @@ namespace Xen
 
 		static void SetActiveScene(const Ref<Scene>& scene);
 
-		// The runtime uses additionalViewportCamera if mentioned(in SceneSettings), to render the scene instead of the primary camera in the scene. 
+		// The runtime uses additionalViewportCamera if mentioned(in SceneSettings), to render the scene instead of the primary camera in the scene.
 		static void SetAdditionalCamera(const Ref<Camera>& camera);
 
 		static void Begin(const SceneSettings& sceneSettings);
@@ -83,10 +126,8 @@ namespace Xen
 
 		static void ResizeFrameBuffer(uint32_t width, uint32_t height);
 
-		static const Ref<FrameBuffer> GetActiveFrameBuffer();
+		static const Ref<FrameBuffer>& GetActiveFrameBuffer();
 
-		// Method that returns the integer value of a specified pixel in a integer attachment of a framebuffer if an integer framebuffer exists:
-		// static int GetIntPixel()
 	private:
 		static void InitScripts();
 	};

@@ -190,8 +190,6 @@ namespace Xen
 
 		XEN_START_PROFILER();
 
-		const float MS_PER_UPDATE = (1.0f / 60.0f) * 1000.0f;
-
 		OnCreate();
 		OnStart();
 
@@ -207,10 +205,10 @@ namespace Xen
 			XEN_PROFILER_TAG("Timestep", (float)timestep);
 			lag += timestep;
 
-			while (lag >= MS_PER_UPDATE)
+			while (lag >= FIXED_TIME_STEP)
 			{
 				OnFixedUpdate();
-				lag -= MS_PER_UPDATE;
+				lag -= FIXED_TIME_STEP;
 			}
 
 			OnUpdate(timestep);

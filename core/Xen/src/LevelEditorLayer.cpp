@@ -86,7 +86,7 @@ void LevelEditorLayer::OnAttach()
 	std::filesystem::path projectPath = Xen::ProjectManager::GetCurrentProjectPath();
 	m_ContentBrowserPanel = ContentBrowserPanel(projectPath / settings.relAssetDirectory);
 
-	m_SceneSettingsPanel = SceneSettingsPanel(m_ActiveScene);
+	m_SceneSettingsPanel = SceneSettingsPanel(m_ActiveScene, &m_SceneSettings);
 
 	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
 	m_PropertiesPanel.SetScriptLoadDropType(m_ContentBrowserPanel.GetScriptLoadDropType());

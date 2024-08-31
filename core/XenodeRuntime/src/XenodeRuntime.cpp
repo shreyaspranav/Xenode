@@ -22,11 +22,11 @@ public:
 		Xen::DesktopGameApplication::OnCreate();
 
 		// Setup the gameProperties:
-		gameProperties.windowWidth = 1920;
-		gameProperties.windowHeight = 1200;
+		gameProperties.windowWidth = 1600;
+		gameProperties.windowHeight = 900;
 		gameProperties.windowVsync = true;
 
-		gameProperties.fullScreenMonitorIndex = 1;
+		gameProperties.fullScreenMonitorIndex = 0;
 
 		// Load a project into the ProjectManager
 		std::filesystem::path relProjectPath = "../../resources/projects/default_project/default_project.xenproject";

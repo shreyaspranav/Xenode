@@ -3,7 +3,9 @@
 
 #include <core/renderer/Camera.h>
 #include <core/renderer/FrameBuffer.h>
+
 #include "Scene.h"
+#include "SceneRuntime.h"
 
 namespace Xen {
 
@@ -17,7 +19,11 @@ namespace Xen {
 		static void SetActiveScene(const Ref<Scene>& scene);
 		static void SetActiveCamera(const Ref<Camera>& camera);
 
-		static void Update(double timestep);
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+		static void SetSceneDebugSettings(const SceneDebugSettings& debugSettings);
+#endif
+
+		static void Update(double timestep, bool isRuntime);
 		static void Render(bool renderToGameWindow = false);
 
 		static void End();
@@ -30,5 +36,10 @@ namespace Xen {
 
 		static void Render2D();
 		static void Render3D();
+
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+		static void UpdateDebugGraphics(double timestep);
+		static void RenderDebugGraphics();
+#endif
 	};
 }
