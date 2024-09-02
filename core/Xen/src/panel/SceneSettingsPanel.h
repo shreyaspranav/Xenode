@@ -43,7 +43,7 @@ public:
 
 		if (ImGui::Checkbox("Show Physics Colliders At Runtime", &enablePhysicsCollidersRuntime))
 		{
-			enablePhysicsColliders ?
+			enablePhysicsCollidersRuntime ?
 				debugSettings.physicsCollider |=  Xen::DebugRenderTargetFlag::Runtime :
 				debugSettings.physicsCollider &= ~Xen::DebugRenderTargetFlag::Runtime;
 		}

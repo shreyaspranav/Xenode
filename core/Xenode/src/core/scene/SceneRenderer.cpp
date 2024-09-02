@@ -240,10 +240,6 @@ namespace Xen {
 		}
 
 		Renderer2D::EndScene();
-
-		// DebugRenderer::Begin(nullptr);
-		// DebugRenderer::Draw2DCircle({ 0.0f, 0.0f, 0.0f }, 10.0f, { 3.0f, 3.0f }, { 1.0f, 0.4f, 0.3f, 1.0f }, 5.0f);
-		// DebugRenderer::End();
 	}
 
 	void SceneRenderer::Render3D()
@@ -319,7 +315,7 @@ namespace Xen {
 	{
 		if(!sceneRendererState.renderToGameWindow)
 			sceneRendererState.frameBuffer->Bind();
-
+		
 		DebugRenderer::RenderFrame(sceneRendererState.timestep);
 		
 		if (!sceneRendererState.renderToGameWindow)
