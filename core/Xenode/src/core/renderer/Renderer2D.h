@@ -63,10 +63,10 @@ namespace Xen {
 			// TODO: Change this to AssetHandle:
 			Ref<Texture2D> texture;
 			Vec2 textureCoords[4] = {
-				{ 1.0f, 1.0f },
-				{ 0.0f, 1.0f },
+				{ 1.0f, 0.0f },
 				{ 0.0f, 0.0f },
-				{ 1.0f, 0.0f }
+				{ 0.0f, 1.0f },
+				{ 1.0f, 1.0f }
 			};
 
 			int32_t id = -1;

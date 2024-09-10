@@ -16,6 +16,9 @@ layout(location = 2) flat in uint primitiveType;
 layout(location = 3) flat in float P1;
 layout(location = 4) flat in float P2;
 layout(location = 5) flat in float P3;
+layout(location = 6) flat in uint renderFromDebugCamera;
+
+layout(binding = 1) uniform sampler2D fontAtlasTexture;
 
 layout(location = 0) out vec4 fragColor;
 
@@ -75,6 +78,18 @@ void main()
 		if(lhs < rhs && lhsLimit > rhsLimit)
 			outColor = color;
 	}
+	else if(primitiveType == TEXT)
+	{
+		// TODO: use parameters P1, P2, P3 for charecter spacing or something.
+
+		// fontAtlasTexture is a single red channel texture(GL_RED), 
+		// Convert it to greyscale image.
+
+		vec4 greyScaleFontAtlasTexture = vec4(texture(fontAtlasTexture, worldCoords).r);
+
+		// texture coords = worldCoords
+		outColor = greyScaleFontAtlasTexture;
+	}
 
 	fragColor = outColor;
 }
@@ -94,12 +109,15 @@ struct Vertex
 	uint primitiveType;
 
 	float P1, P2, P3;
+	bool renderFromDebugCamera;
 };
 
 int defaultIndices[] = { 0, 1, 2, 0, 2, 3 };
 
-layout(std430, binding = 2) readonly buffer VertexData		{ Vertex vertices[]; };
-layout(std140, binding = 1) uniform PerFrameData			{ mat4 viewProjectionMatrix; };
+layout(std430, binding = 2) readonly buffer DebugVertexData		{ Vertex vertices[]; };
+
+layout(std140, binding = 1) uniform PerFrameData				{ mat4 viewProjectionMatrix; };
+layout(std140, binding = 4) uniform DebugPerFrameData			{ mat4 debugViewProjectionMatrix; };
 
 vec3 GetPosition(int i)
 {
@@ -136,20 +154,24 @@ int GetVertexIndex(int i)
 	return defaultIndices[i % 6] + (i / 6) * 4;
 }
 
-layout(location = 0) out vec4 color;
-layout(location = 1) out vec2 worldCoords;
-layout(location = 2) out uint primitiveType;
-layout(location = 3) out float P1;
-layout(location = 4) out float P2;
-layout(location = 5) out float P3;
-
+layout(location = 0) out vec4  color;
+layout(location = 1) out vec2  worldCoords;
+layout(location = 2) flat out uint  primitiveType;
+layout(location = 3) flat out float P1;
+layout(location = 4) flat out float P2;
+layout(location = 5) flat out float P3;
+layout(location = 6) flat out uint  renderFromDebugCamera;
 
 void main()
 {
 	int vertexIndex = GetVertexIndex(gl_VertexID);
 
-	gl_Position = viewProjectionMatrix * vec4(GetPosition(vertexIndex), 1.0);
+	if(vertices[vertexIndex].renderFromDebugCamera)
+		gl_Position = debugViewProjectionMatrix * vec4(GetPosition(vertexIndex), 1.0);
+	else
+		gl_Position = viewProjectionMatrix * vec4(GetPosition(vertexIndex), 1.0);
 	
+
 	color = GetColor(vertexIndex);
 	worldCoords = GetWorldCoords(vertexIndex);
 	primitiveType = vertices[vertexIndex].primitiveType;
@@ -157,5 +179,7 @@ void main()
 	P1 = vertices[vertexIndex].P1;
 	P2 = vertices[vertexIndex].P2;
 	P3 = vertices[vertexIndex].P3;
+
+	renderFromDebugCamera = uint(vertices[vertexIndex].renderFromDebugCamera);
 }
 

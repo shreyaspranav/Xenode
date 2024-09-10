@@ -58,6 +58,8 @@ namespace Xen
 		// Color of various stuff
 		Color physicsColliderColor		= { 0.0f, 1.0f, 0.0f, 1.0f };
 		Color rigidBodyColor			= { 0.0f, 1.0f, 0.0f, 1.0f };
+
+		bool showFPSOverlay = false;
 	};
 #endif
 

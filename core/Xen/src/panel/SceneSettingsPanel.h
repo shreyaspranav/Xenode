@@ -26,7 +26,6 @@ public:
 		ImGui::Begin(m_PanelTitle.c_str());
 
 #ifdef XEN_ENABLE_DEBUG_RENDERER
-
 		Xen::SceneDebugSettings& debugSettings = m_SceneSettings->debugSettings;
 
 		bool enablePhysicsColliders			= static_cast<bool>(debugSettings.physicsCollider & Xen::DebugRenderTargetFlag::Editor);
@@ -64,6 +63,8 @@ public:
 			debugSettings.physicsColliderColor.b = physicsColliderColor[2];
 		}
 
+		ImGui::SeparatorText("FPS Overlay");
+		ImGui::Checkbox("Show FPS Overlay", &m_SceneSettings->debugSettings.showFPSOverlay);
 #else
 		ImGui::Text("The Debug Renderer is not included!");
 #endif

@@ -23,6 +23,7 @@ namespace Xen {
 		int32_t ReadIntPixel(uint32_t index, int32_t x, int32_t y) override;
 
 		void SetClearColor(uint32_t index, const Color& color) override;
+		void SetActiveColorAttachments(std::initializer_list<uint32_t> indexList) override;
 
 		const FrameBufferSpec& GetFrameBufferSpecification() const override { return m_Spec; }
 

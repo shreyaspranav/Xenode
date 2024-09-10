@@ -56,7 +56,7 @@ namespace Xen {
 				GL_COLOR_ATTACHMENT2,
 				GL_COLOR_ATTACHMENT3,
 			};
-			glNamedFramebufferDrawBuffers(m_FrameBufferID, m_ColorAttachments.size(), draw_buffers);
+			// glNamedFramebufferDrawBuffers(m_FrameBufferID, m_ColorAttachments.size(), draw_buffers);
 		}
 		else
 			glNamedFramebufferDrawBuffer(m_FrameBufferID, GL_NONE);
@@ -289,5 +289,19 @@ namespace Xen {
 		}
 
 		m_Spec.attachments[index].clearColor = color;
+	}
+	void OpenGLFrameBuffer::SetActiveColorAttachments(std::initializer_list<uint32_t> indexList)
+	{
+		if (indexList.size() > 4)
+		{
+			XEN_ENGINE_LOG_ERROR("OpenGL doesn't support more than 4 draw buffers");
+			TRIGGER_BREAKPOINT;
+		}
+
+		std::vector<GLenum> drawBuffers;
+		for (uint32_t index : indexList)
+			drawBuffers.push_back(GL_COLOR_ATTACHMENT0 + index);
+
+		glNamedFramebufferDrawBuffers(m_FrameBufferID, indexList.size(), drawBuffers.data());
 	}
 }

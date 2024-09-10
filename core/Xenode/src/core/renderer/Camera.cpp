@@ -5,22 +5,26 @@
 #include "core/app/Log.h"
 
 namespace Xen {
-	Camera::Camera(CameraType type, uint32_t framebuffer_width, uint32_t framebuffer_height) : m_CameraType(type)
+	Camera::Camera(CameraType type, uint32_t framebufferWidth, uint32_t framebufferHeight, bool useScreenCoordinates) 
+		: m_CameraType(type), m_UseScreenCoordinates(useScreenCoordinates)
 	{
 		if (type == CameraType::Orthographic)
 		{
 			m_z_Near = 1.0f;
 			m_z_Far = -1.0f;
-			m_AspectRatio = (float)framebuffer_width / (float)framebuffer_height;
+			m_AspectRatio = (float)framebufferWidth / (float)framebufferHeight;
 
-			m_ProjectionMatrix = glm::ortho(-m_AspectRatio, m_AspectRatio, -1.0f, 1.0f, m_z_Near, m_z_Far);
+			if (useScreenCoordinates)
+				m_ProjectionMatrix = glm::ortho(0.0f, static_cast<float>(framebufferWidth), static_cast<float>(framebufferHeight), 0.0f);
+			else
+				m_ProjectionMatrix = glm::ortho(-m_AspectRatio, m_AspectRatio, -1.0f, 1.0f, m_z_Near, m_z_Far);
 		}
 
 		else if (type == CameraType::Perspective)
 		{
 			m_z_Near = 0.01f;
 			m_z_Far = 1000.0f;
-			m_AspectRatio = (float)framebuffer_width / (float)framebuffer_height;
+			m_AspectRatio = (float)framebufferWidth / (float)framebufferHeight;
 
 			m_ProjectionMatrix = glm::perspectiveLH(glm::radians(m_FovAngle), m_AspectRatio, m_z_Near, m_z_Far);
 		}
@@ -40,7 +44,8 @@ namespace Xen {
 
 		//m_ViewMatrix = glm::inverse(m_ViewMatrix);
 
-		if (!usedLookAt) {
+		if (!usedLookAt) 
+		{
 			glm::mat4 mat;
 			mat = glm::translate(glm::mat4(1.0f), m_CameraPosition.GetVec());
 			mat = glm::rotate(mat, glm::radians(m_Rotation.x), glm::vec3(1, 0, 0));
@@ -100,15 +105,18 @@ namespace Xen {
 		m_ViewMatrix = glm::inverse(m_ViewMatrix);
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 	}
-	void Camera::OnViewportResize(uint32_t framebuffer_width, uint32_t framebuffer_height)
+	void Camera::OnViewportResize(uint32_t framebufferWidth, uint32_t framebufferHeight)
 	{
-		m_AspectRatio = (float)framebuffer_width / (float)framebuffer_height;
+		m_AspectRatio = (float)framebufferWidth / (float)framebufferHeight;
 
-		m_FrameBufferWidth = framebuffer_width;
-		m_FrameBufferHeight = framebuffer_height;
+		m_FrameBufferWidth = framebufferWidth;
+		m_FrameBufferHeight = framebufferHeight;
 
 		if (m_CameraType == CameraType::Orthographic)
-			m_ProjectionMatrix = glm::ortho(-m_AspectRatio, m_AspectRatio, -1.0f, 1.0f, m_z_Near, m_z_Far);
+			if (m_UseScreenCoordinates)
+				m_ProjectionMatrix = glm::ortho(0.0f, static_cast<float>(framebufferWidth), static_cast<float>(framebufferHeight), 0.0f);
+			else
+				m_ProjectionMatrix = glm::ortho(-m_AspectRatio, m_AspectRatio, -1.0f, 1.0f, m_z_Near, m_z_Far);
 		
 		else if (m_CameraType == CameraType::Perspective)
 			m_ProjectionMatrix = glm::perspectiveLH(glm::radians(m_FovAngle), m_AspectRatio, m_z_Near, m_z_Far);

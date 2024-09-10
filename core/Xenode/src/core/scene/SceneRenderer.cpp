@@ -10,7 +10,17 @@
 #include "Components.h"
 #include "SceneRuntime.h"
 
-namespace Xen {
+
+// #define STB_TRUETYPE_IMPLEMENTATION
+#include <stb_truetype.h>
+
+namespace Xen 
+{
+
+	// Global Settings: ------------------------------------------------------------------------------------------------------------------
+	constexpr float fpsUpdateSpeedMS = 500.0f;
+	constexpr float fpsLimit = 30.0f;
+	// -----------------------------------------------------------------------------------------------------------------------------------
 
 	// A struct that holds the state of the SceneRenderer:
 	struct SceneRendererData
@@ -28,7 +38,10 @@ namespace Xen {
 		Ref<Camera> sceneCamera;
 
 		bool renderToGameWindow;
+		float elapsed = 0.0f;
 
+		std::stringstream fpsOverlay;
+		Color fpsOverlayDisplayColor;
 	}sceneRendererState;
 
 
@@ -72,7 +85,7 @@ namespace Xen {
 		sceneRendererState.frameBuffer = FrameBuffer::CreateFrameBuffer(specifications);
 		
 		// Initialize the Debug Renderer First.
-		DebugRenderer::Init();
+		DebugRenderer::Init(viewportWidth, viewportHeight);
 
 		// The 2D Renderer has to be initialized no matter what. Because the sceneType can be either _2D or _2D_AND_3D
 		Renderer2D::Init();
@@ -81,6 +94,58 @@ namespace Xen {
 		{
 			// Initialize the 3D Renderer
 		}
+#if 0
+		// Setting up the debug font -------------------------------------------------------
+		std::string fontPath = "assets/fonts/Ubuntu.ttf";
+
+		std::ifstream inputStream(fontPath.c_str(), std::ios::binary);
+
+		inputStream.seekg(0, std::ios::end);
+		auto pos = inputStream.tellg();
+		inputStream.seekg(0, std::ios::beg);
+
+		// Read the font data:
+		uint8_t* fontData = new uint8_t[static_cast<size_t>(pos)];
+		inputStream.read((char*)fontData, pos);
+		inputStream.close();
+
+		// Allocate the bitmap buffer
+		const uint32_t bitmapWidth = 1024, bitmapHeight = 1024, lineHeight = 64;
+		uint8_t* fontAtlas = new uint8_t[bitmapWidth * bitmapHeight];
+
+		stbtt_fontinfo fontInfo = {};
+		if (!stbtt_InitFont(&fontInfo, fontData, 0))
+		{
+			XEN_ENGINE_LOG_ERROR("stbtt_InitFont(): Failed to initialze font");
+			TRIGGER_BREAKPOINT;
+		}
+
+		// Rendering a font atlas from ascii 32 to ascii 126.
+		stbtt_pack_context ctx;
+
+		stbtt_PackBegin(&ctx, (unsigned char*)fontAtlas, bitmapWidth, bitmapHeight, 0, 1, nullptr);
+		stbtt_PackFontRange(&ctx, fontData, 0, lineHeight, 32, 95, charRenderData);
+		stbtt_PackEnd(&ctx);
+
+		TextureProperties props;
+		props.format = TextureFormat::G8;
+		props.width = 1024;
+		props.height = 1024;
+
+		atlasTexture = Texture2D::CreateTexture2D(props, fontAtlas, 1024 * 1024);
+
+		// Retrive the font and glyph metrics for each charecter/glyph
+		// int32_t ascent, descent, lineGap;
+		// struct GlyphMetrics
+		// {
+		// 	int32_t advanceWidth, leftSideBearing;
+		// 
+		// 
+		// }glyphMetrics[96];
+		// 
+		// stbtt_GetFontVMetrics(&fontInfo, &ascent, &descent, &lineGap);
+
+#endif
 
 	}
 
@@ -160,6 +225,7 @@ namespace Xen {
 		sceneRendererState.frameBuffer->Resize(width, height);
 
 		sceneRendererState.sceneCamera->OnViewportResize(width, height);
+		DebugRenderer::OnFrameBufferResize(width, height);
 	}
 
 	const Ref<FrameBuffer>& SceneRenderer::GetActiveFrameBuffer()
@@ -239,6 +305,46 @@ namespace Xen {
 			Renderer2D::DrawParticles(particleSystem2DComp.particleInstance.particleSettings);
 		}
 
+		
+#if 0
+		// Create a QuadSprite Object:
+		Renderer2D::QuadSprite quadSprite;
+
+		// Set the properties of the object
+		quadSprite.position = {0.0f, 0.0f, 0.0f};
+		quadSprite.rotation = 0.0f;
+		quadSprite.scale = { 1.0f, 1.0f };
+
+		quadSprite.useSingleColor = true;
+		quadSprite.color[0] = {1.0f, 1.0f, 1.0f, 1.0f};
+
+		// TODO: Also implement per vertex coloring for quad sprites
+		quadSprite.id = -1;
+		quadSprite.texture = atlasTexture;
+
+		const char* testString = "S hreyas";
+
+		for (int i = 0; i < strlen(testString); i++)
+		{
+			stbtt_aligned_quad alignedQuad;
+
+			charRenderData[i];
+
+			float x = 0.0f, y = 0.0f;
+			stbtt_GetPackedQuad(charRenderData, 1024, 1024, testString[i] - 32, &x, &y, &alignedQuad, 0);
+
+			quadSprite.textureCoords[0] = { alignedQuad.s1, alignedQuad.t0 };
+			quadSprite.textureCoords[1] = { alignedQuad.s0, alignedQuad.t0 };
+			quadSprite.textureCoords[2] = { alignedQuad.s0, alignedQuad.t1 };
+			quadSprite.textureCoords[3] = { alignedQuad.s1, alignedQuad.t1 };
+			
+			// Add the sprite to the renderer
+			Renderer2D::DrawQuadSprite(quadSprite);
+
+			quadSprite.position.x += 1.0f;
+		}
+
+#endif
 		Renderer2D::EndScene();
 	}
 
@@ -257,6 +363,8 @@ namespace Xen {
 		// TODO: This is TEMPORARY,
 		// Since there is no post processing or any use of HDR, just render to the default framebuffer
 		// if running in the runtime.
+		
+		sceneRendererState.frameBuffer->SetActiveColorAttachments({0, 1});
 		Renderer2D::RenderFrame(sceneRendererState.timestep, 
 			sceneRendererState.renderToGameWindow ? nullptr : sceneRendererState.frameBuffer);
 
@@ -266,6 +374,14 @@ namespace Xen {
 	void SceneRenderer::UpdateDebugGraphics(double timestep)
 	{
 		DebugRenderer::Begin(sceneRendererState.sceneCamera);
+
+		DebugRenderer::Draw2DQuad(
+			{ 300.0f, 300.0f, 0.0f },
+			0.0f,
+			{100.0f, 100.0f},
+			{1.0f, 1.0f, 1.0f, 1.0f},
+			100.0f
+		);
 
 		// Updating and Rendering 2D Box Colliders: -----------------------------------------------------------------------------------------------------
 
@@ -306,8 +422,37 @@ namespace Xen {
 				}
 			}
 		}
-
 		// ------------------------------------------------------------------------------------------------------------------------------------------------
+
+		// Show FPS: --------------------------------------------------------------------------------------------------------------------------------------
+
+		if (sceneRendererState.debugSettings.showFPSOverlay)
+		{
+			sceneRendererState.elapsed += timestep;
+
+			if (sceneRendererState.elapsed > fpsUpdateSpeedMS)
+			{
+				sceneRendererState.fpsOverlay.str("");
+				sceneRendererState.fpsOverlay  << "FPS: " << 1000.0f / timestep << " " << "Frame Time: " << timestep << "ms";
+				sceneRendererState.elapsed = 0.0f;
+
+				if (1000.0f / timestep < fpsLimit)
+					sceneRendererState.fpsOverlayDisplayColor = { 1.0f, 0.0f, 0.0f, 1.0f }; // Display Red
+				else
+					sceneRendererState.fpsOverlayDisplayColor = { 1.0f, 1.0f, 1.0f, 1.0f }; // Display White
+			}
+
+			DebugRenderer::DrawString(
+				sceneRendererState.fpsOverlay.str(),
+				{ 1.0f, 17.0f, 0.0f },
+				sceneRendererState.fpsOverlayDisplayColor,
+				0.0f,
+				0.4f,
+				true
+			);
+		}
+		// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
 		DebugRenderer::End();
 	}
 
@@ -316,6 +461,7 @@ namespace Xen {
 		if(!sceneRendererState.renderToGameWindow)
 			sceneRendererState.frameBuffer->Bind();
 		
+		sceneRendererState.frameBuffer->SetActiveColorAttachments({ 0 });
 		DebugRenderer::RenderFrame(sceneRendererState.timestep);
 		
 		if (!sceneRendererState.renderToGameWindow)

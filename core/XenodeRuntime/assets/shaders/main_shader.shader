@@ -33,13 +33,13 @@ void main()
 		output_color = texture(tex[tex_slot], TextureWorldCoords) * color;
 	}
 	
-    if (PrimitiveType == TRIANGLE)
-    {
-        if ((TextureWorldCoords.y < TextureWorldCoords.x * 2.0) && TextureWorldCoords.y < 2.0 - TextureWorldCoords.x * 2.0)
+	if (PrimitiveType == TRIANGLE)
+	{
+		if ((TextureWorldCoords.y < TextureWorldCoords.x * 2.0) && TextureWorldCoords.y < 2.0 - TextureWorldCoords.x * 2.0)
 			output_color = color;
 		else
-            output_color = vec4(0.0, 0.0, 0.0, 0.0);
-    }
+			output_color = vec4(0.0, 0.0, 0.0, 0.0);
+	}
 
 	if (PrimitiveType == CIRCLE)
 	{
@@ -86,7 +86,7 @@ struct Vertex {
 	int _verID;
 };
 
-int defalult_indices[6] = { 0, 1, 2, 0, 2, 3 };
+int defaultIndices[6] = { 0, 1, 2, 0, 2, 3 };
 
 layout(std430, binding = 1) readonly buffer VertexData		{ Vertex vertices[]; };
 layout(std140, binding = 1) uniform PerFrameData			{ mat4 ViewProjectionMatrix; };
@@ -110,7 +110,7 @@ vec2 getTextureWorldCoord(int i) {
 }
 
 int getVertexIndex(int index) {
-    return defalult_indices[index % 6] + ((index / 6) * 4);
+	return defaultIndices[index % 6] + ((index / 6) * 4);
 }
 
 
@@ -126,19 +126,19 @@ layout(location = 8) flat out int vertexID;
 
 void main()
 {
-    int vertexIndex = getVertexIndex(gl_VertexID);
+	int vertexIndex = getVertexIndex(gl_VertexID);
 	
-    vec3 pos = getPosition(vertexIndex);
+	vec3 pos = getPosition(vertexIndex);
 	gl_Position = ViewProjectionMatrix * vec4(pos, 1.0f);
 
-    color = getColor(vertexIndex);
-    TextureWorldCoords = getTextureWorldCoord(vertexIndex);
+	color = getColor(vertexIndex);
+	TextureWorldCoords = getTextureWorldCoord(vertexIndex);
 
 	P1 = vertices[vertexIndex].p1;
 	P2 = vertices[vertexIndex].p2;
 	P3 = vertices[vertexIndex].p3;
 	P4 = vertices[vertexIndex].p4;
-    P5 = vertices[vertexIndex].p5;
-    PrimitiveType = vertices[vertexIndex].primitiveT;
-    vertexID = vertices[vertexIndex]._verID;
+	P5 = vertices[vertexIndex].p5;
+	PrimitiveType = vertices[vertexIndex].primitiveT;
+	vertexID = vertices[vertexIndex]._verID;
 }

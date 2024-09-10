@@ -314,7 +314,7 @@ namespace Xen
 		for (int i = 0; i < 32; i++)
 			samplerInts[i] = i;
 
-		spriteRendererStorage.shader->SetIntArray("tex", samplerInts, 32);	
+		spriteRendererStorage.shader->SetIntArray("tex", samplerInts, 32);
 	}
 
 	void SpriteRenderer2D::BeginScene(const Ref<Camera>& camera)

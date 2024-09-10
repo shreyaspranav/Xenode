@@ -69,6 +69,7 @@ namespace Xen {
 		virtual uint32_t GetColorAttachmentRendererID(uint8_t index) const = 0;
 
 		virtual void SetClearColor(uint32_t index, const Color& color) = 0;
+		virtual void SetActiveColorAttachments(std::initializer_list<uint32_t> indexList) = 0;
 
 		static Ref<FrameBuffer> CreateFrameBuffer(const FrameBufferSpec& spec);
 	};

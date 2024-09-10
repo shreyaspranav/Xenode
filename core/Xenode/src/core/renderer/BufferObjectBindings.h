@@ -9,6 +9,10 @@ namespace Xen
 
 		constexpr uint8_t PARTICLE_EMITTER_PER_FRAME_DATA		= 2;
 		constexpr uint8_t PARTICLE_EMITTER_SETTINGS				= 3;
+
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+		constexpr uint8_t DEBUG_RENDERER_PER_FRAME_DATA			= 4;
+#endif
 	}
 
 	namespace StorageBufferBinding 

@@ -12,7 +12,10 @@ namespace Xen {
 	class XEN_API Camera
 	{
 	public:
-		Camera(CameraType type, uint32_t framebuffer_width, uint32_t framebuffer_height);
+		// if useScreenCoordinates = true and type = CameraType::Orthographic, an orthographic projection will created
+		// with top left being (0, 0) and bottom right being (framebufferWidth, frameBufferHeight)
+		// if type = Camera::Perspective, this option will not be used.
+		Camera(CameraType type, uint32_t framebufferWidth, uint32_t framebufferHeight, bool useScreenCoordinates = false);
 		~Camera();
 
 		void SetProjectionType(CameraType type);
@@ -22,8 +25,8 @@ namespace Xen {
 		inline void SetRotation(float rotation)					{ m_RotationZ = rotation; m_Rotation.z = rotation; }
 		inline void SetRotation(const Vec3& rotation)			{ m_Rotation = rotation; }
 
-		inline void SetNearPoint(float near_point)				{ m_z_Near = near_point; }
-		inline void SetFarPoint(float far_point)				{ m_z_Far = far_point; }
+		inline void SetNearPoint(float nearPoint)				{ m_z_Near = nearPoint; }
+		inline void SetFarPoint(float farPoint)					{ m_z_Far = farPoint; }
 
 		inline void SetFovAngle(float fov_angle)				{ m_FovAngle = fov_angle; }
 
@@ -50,7 +53,7 @@ namespace Xen {
 		void UpdateOnlyPosition();
 		void LookAtPoint(const Vec3& point, const Vec3& up = Vec3(0.0f, 1.0f, 0.0f));
 
-		void OnViewportResize(uint32_t framebuffer_width, uint32_t framebuffer_height);
+		void OnViewportResize(uint32_t framebufferWidth, uint32_t framebufferHeight);
 		static const glm::mat4& OnViewportResize(uint32_t framebuffer_width, uint32_t framebuffer_height, glm::mat4& view_projection, glm::mat4& view_mat);
 
 
@@ -72,5 +75,7 @@ namespace Xen {
 		float m_FovAngle = 60.0f;
 
 		uint32_t m_FrameBufferWidth = 1, m_FrameBufferHeight = 1;
+
+		bool m_UseScreenCoordinates;
 	};
 }
