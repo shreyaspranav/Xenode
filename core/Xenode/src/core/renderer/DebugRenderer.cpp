@@ -271,13 +271,6 @@ namespace Xen
 
 		// Allocate the bitmap buffer
 		uint8_t* fontAtlas = new uint8_t[fontAtlasTextureWidth * fontAtlasTextureHeight];
-
-		stbtt_fontinfo fontInfo = {};
-		if (!stbtt_InitFont(&fontInfo, fontData, 0))
-		{
-			XEN_ENGINE_LOG_ERROR("stbtt_InitFont(): Failed to initialize font");
-			TRIGGER_BREAKPOINT;
-		}
 		
 		// Rendering a font atlas from ascii 32 to ascii 126.
 		stbtt_pack_context ctx;
