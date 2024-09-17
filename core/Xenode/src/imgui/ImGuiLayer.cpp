@@ -15,6 +15,11 @@
 namespace Xen {
 	void ImGuiLayer::OnAttach()
 	{
+		const std::string mainFont = std::string(EDITOR_RESOURCES) + "/fonts/DroidSans.ttf";
+		const std::string iconFont = std::string(EDITOR_RESOURCES) + "/fonts/fa-solid-900.ttf";
+
+		const uint32_t fontSize = 15;
+
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
 
@@ -22,14 +27,14 @@ namespace Xen {
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 
-		io.Fonts->AddFontFromFileTTF("assets/fonts/DroidSans.ttf", 15);
+		io.Fonts->AddFontFromFileTTF(mainFont.c_str(), fontSize);
 		ImFontConfig config;
 		config.MergeMode = true;
 		//config.GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
 
 		static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 
-		io.Fonts->AddFontFromFileTTF("assets/fonts/fa-solid-900.ttf", 14, &config, icon_ranges);
+		io.Fonts->AddFontFromFileTTF(iconFont.c_str(), fontSize, &config, icon_ranges);
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport;

@@ -22,7 +22,8 @@ namespace Xen
 
 	// The main shader path that is used to render all the sprites:
 	// TODO: Refactor the code when the engine uses an actual asset system
-	std::string mainShaderPath = "assets/shaders/main_shader.shader";
+	// UPDATE TODO: The "Common Resources" should be an asset pack and the shader should be loaded from that.
+	const std::string mainShaderPath = std::string(COMMON_RESOURCES) + "/shaders/Renderer2D/SpriteRenderer2D.shader";
 
 	// --------------------------------------------------------------------------------------------------------------------------------
 

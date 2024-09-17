@@ -97,12 +97,12 @@ void LevelEditorLayer::OnAttach()
 	OpenScene((projectPath / settings.relStartScenePath).string());
 
 	// Load all the resource textures:
-	m_ResourceTextures.insert({ "Play",   Xen::Texture2D::CreateTexture2D("assets/textures/play.png",     false) });
-	m_ResourceTextures.insert({ "Stop",   Xen::Texture2D::CreateTexture2D("assets/textures/stop.png",     false) });
-	m_ResourceTextures.insert({ "Pause",  Xen::Texture2D::CreateTexture2D("assets/textures/pause.png",    false) });
-	m_ResourceTextures.insert({ "Step",   Xen::Texture2D::CreateTexture2D("assets/textures/step.png",     false) });
-	m_ResourceTextures.insert({ "2D",     Xen::Texture2D::CreateTexture2D("assets/textures/2d-quad.png",  false) });
-	m_ResourceTextures.insert({ "3D",     Xen::Texture2D::CreateTexture2D("assets/textures/3d-cube.png",  false) });
+	m_ResourceTextures.insert({ "Play",   Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/play.png",     false) });
+	m_ResourceTextures.insert({ "Stop",   Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/stop.png",     false) });
+	m_ResourceTextures.insert({ "Pause",  Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/pause.png",    false) });
+	m_ResourceTextures.insert({ "Step",   Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/step.png",     false) });
+	m_ResourceTextures.insert({ "2D",     Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/2d-quad.png",  false) });
+	m_ResourceTextures.insert({ "3D",     Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/3d-cube.png",  false) });
 
 	for (auto& [textureTag, texture] : m_ResourceTextures)
 		texture->LoadTexture();

@@ -16,8 +16,9 @@ namespace Xen
 
 	// The particle emitter shader and particle renderer shader path that is used to render all the particles:
 	// TODO: Refactor the code when the engine uses an actual asset system
-	const std::string particleEmitterShaderPath = "assets/shaders/particle_emitter.shader";
-	const std::string particleRendererShaderPath = "assets/shaders/particle_renderer.shader";
+	// UPDATE TODO: The "Common Resources" should be an asset pack and the shader should be loaded from that.
+	const std::string particleEmitterShaderPath  = std::string(COMMON_RESOURCES) + "/shaders/Renderer2D/ParticleEmitter2D.shader";
+	const std::string particleRendererShaderPath = std::string(COMMON_RESOURCES) + "/shaders/Renderer2D/ParticleRenderer2D.shader";
 
 	// ---------------------------------------------------------------------------------------------------------------------------------
 

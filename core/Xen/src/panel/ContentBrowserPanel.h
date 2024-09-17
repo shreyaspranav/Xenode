@@ -27,9 +27,9 @@ public:
 		// Load Textures of the icons here:
 		if (!m_LoadedTextures)
 		{
-			m_FileTexture = Xen::Texture2D::CreateTexture2D("assets/textures/file.png", false);
-			m_FolderTexture = Xen::Texture2D::CreateTexture2D("assets/textures/folder.png", false);
-			m_PngTexture = Xen::Texture2D::CreateTexture2D("assets/textures/png.png", false);
+			m_FileTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/file.png", false);
+			m_FolderTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/folder.png", false);
+			m_PngTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/png.png", false);
 			
 			m_FileTexture->LoadTexture();
 			m_FolderTexture->LoadTexture();

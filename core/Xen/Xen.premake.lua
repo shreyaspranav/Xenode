@@ -38,7 +38,10 @@ project "Xen"
 
 	postbuildcommands {
 		"{COPYFILE} %{wks.location}/bin/" .. bin_folder .. "/bin/yaml-cpp/yaml-cpp.dll %{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}"
+	}
 
+	defines {
+		"EDITOR_RESOURCES=\"%{EDITOR_RESOURCES_PATH}\""
 	}
 
 	filter "files:deps/ImGuizmo/*.cpp"

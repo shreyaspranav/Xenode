@@ -10,10 +10,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// TEMP: 
+#include "Texture.h"
+
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
-#include "Texture.h"
 
 #ifdef XEN_ENABLE_DEBUG_RENDERER
 namespace Xen 
@@ -36,8 +36,9 @@ namespace Xen
 	constexpr uint32_t fontAtlasTextureHeight = 512;
 	
 	// TODO: Change this after building a asset system
-	std::string debugRendererShaderPath = "assets/shaders/DebugRenderer.shader";
-	std::string fontPath = "assets/fonts/sui.ttf";
+	// UPDATE TODO: The "Common Resources" should be an asset pack and the shader should be loaded from that.
+	std::string debugRendererShaderPath = std::string(COMMON_RESOURCES) + "/shaders/DebugRenderer/DebugRenderer.shader";
+	std::string fontPath = std::string(COMMON_RESOURCES) + "/fonts/ProggyClean.ttf";
 
 	//-----------------------------------------------------------------------------------------------------------------
 

@@ -30,7 +30,19 @@
 // Profiling:
 //		XEN_ENABLE_PROFILING		-> Enable profiling(optick)[will be enabled when projects are generated with --enable-profiling option]
 // 
+// Miscellaneous: 
+//	"Common Resources" is a folder that contains resources might be common for a lot of projects.
+//	Such as shaders, common textures, etc. 
+//		COMMON_RESOURCES="..."		-> Relative path to the common resources folder
 // 
+//	"Editor Resources" is a folder that contains resources specific to the level editor
+//		EDITOR_RESOURCES="..."		-> Relative path to the editor resources folder
+//	
+// TODO: In the future, the "common resources" should be packed into an asset pack and should be loaded into every project,
+// and the "editor resources" should be packed into a "bin" folder or something convenient on the final build.
+// Find a good approach to this in regarding the build configurations and decide what to do.
+// 
+//	
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once

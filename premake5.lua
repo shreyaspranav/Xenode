@@ -8,10 +8,14 @@ workspace "Xenode"
 
 	--toolset "clang"
 
+-- Vulkan SDK is used for shaderc
 VULKAN_SDK_PATH = os.getenv("VULKAN_SDK")
 
--- dependencies:
+-- Paths of various resources
+COMMON_RESOURCES_PATH = "%{wks.location}/resources/CommonResources"
+EDITOR_RESOURCES_PATH = "%{wks.location}/resources/EditorResources"
 
+-- Dependencies:
 group "Dependencies"
 	include "deps/glfw"
 	include "deps/imgui"
@@ -57,8 +61,13 @@ group "Core"
 	include "core/Xen/Xen.premake.lua"
 	include "core/XenodeRuntime/XenodeRuntime.premake.lua"
 group ""
+
 group "Sandbox"
 	include "sandbox/SandboxApp/SandboxApp.premake.lua"
+group ""
+
+group "Resources"
+	include "resources/Resources.premake.lua"
 group ""
 
 --include "SandboxAppAndroid/SandboxAndroidBuild.lua"

@@ -443,7 +443,7 @@ namespace Xen
 
 			DebugRenderer::DrawString(
 				sceneRendererState.fpsOverlay.str(),
-				{ 1.0f, 17.0f, 0.0f },
+				{ 1.0f, 19.0f, 0.0f },
 				sceneRendererState.fpsOverlayDisplayColor,
 				0.0f,
 				0.4f,

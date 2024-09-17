@@ -74,7 +74,13 @@ project "Xenode"
 		"%{IncludeDir.VulkanSDK}",
 	}
 
-	defines {"_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS", "_CRT_SECURE_NO_WARNINGS"}
+	defines { 
+		"_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS", 
+		"_CRT_SECURE_NO_WARNINGS",
+		
+		"COMMON_RESOURCES=\"%{COMMON_RESOURCES_PATH}\"",
+		"EDITOR_RESOURCES=\"%{EDITOR_RESOURCES_PATH}\""
+	}
 
 	filter { "options:enable-profiling"}
 		files {
