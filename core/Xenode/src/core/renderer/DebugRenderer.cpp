@@ -311,6 +311,10 @@ namespace Xen
 		props.width = fontAtlasTextureWidth;
 		props.height = fontAtlasTextureHeight;
 		debugRendererState.fontAtlasTexture = Texture2D::CreateTexture2D(props, fontAtlas, fontAtlasTextureWidth * fontAtlasTextureHeight);
+
+		// Freeing up resources:
+		delete[] fontAtlas;
+		delete[] fontData;
 	}
 
 	void DebugRenderer::Begin(const Ref<Camera>& camera) 
