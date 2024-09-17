@@ -95,7 +95,7 @@ namespace Xen {
 		}
 	}
 
-	void ImGuiLayer::OnUpdate(double timestep)
+	void ImGuiLayer::OnUpdate(float timestep)
 	{
 
 	}

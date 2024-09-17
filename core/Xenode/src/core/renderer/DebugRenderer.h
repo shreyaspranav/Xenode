@@ -15,7 +15,7 @@ namespace Xen
 		static void Begin(const Ref<Camera>& camera);
 		static void End();
 
-		static void RenderFrame(double timestep);
+		static void RenderFrame(float timestep);
 
 		static void OnFrameBufferResize(uint32_t width, uint32_t height);
 		

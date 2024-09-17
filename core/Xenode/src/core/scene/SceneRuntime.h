@@ -112,10 +112,10 @@ namespace Xen
 		static void RuntimeBegin();
 
 #ifdef XEN_GAME_FINAL_BUILD
-		static void UpdateFinal(double timestep);
+		static void UpdateFinal(float timestep);
 #else
-		static void Update(double timestep);
-		static void UpdateRuntime(double timestep, bool paused);
+		static void Update(float timestep);
+		static void UpdateRuntime(float timestep, bool paused);
 #endif
 		static void FixedUpdate();
 		

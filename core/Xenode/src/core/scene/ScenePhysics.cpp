@@ -19,7 +19,7 @@ namespace Xen
 
 	}scenePhysicsState;
 
-	void ScenePhysics::Initialize(double fixedTimeStep)
+	void ScenePhysics::Initialize(float fixedTimeStep)
 	{
 		scenePhysicsState.fixedTimeStep = fixedTimeStep;
 	}
@@ -133,7 +133,7 @@ namespace Xen
 		}
 
 	}
-	void ScenePhysics::Step(double timestep)
+	void ScenePhysics::Step(float timestep)
 	{
 		if (scenePhysicsState.currentScene->GetSceneType() == SceneType::_2D)
 		{

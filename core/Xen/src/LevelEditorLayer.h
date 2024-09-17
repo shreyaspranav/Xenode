@@ -51,7 +51,7 @@ public:
 
 	void OnAttach() override;
 	void OnDetach() override;
-	void OnUpdate(double timestep) override;
+	void OnUpdate(float timestep) override;
 	void OnRender() override;
 	void OnImGuiUpdate() override;
 	void OnFixedUpdate() override;

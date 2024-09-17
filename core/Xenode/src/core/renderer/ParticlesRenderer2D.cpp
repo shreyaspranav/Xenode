@@ -180,7 +180,7 @@ namespace Xen
 		particlesRendererStorage.queryObject = QueryObject::CreateQueryObject(QueryTarget::TransformFeedbackPrimitivesWritten);
 	}
 
-	void ParticlesRenderer2D::RenderFrame(double timestep)
+	void ParticlesRenderer2D::RenderFrame(float timestep)
 	{
 
 		for (auto& particleInstance : particlesRendererStorage.particleInstances)

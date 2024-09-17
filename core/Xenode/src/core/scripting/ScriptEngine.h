@@ -15,7 +15,7 @@ namespace Xen
 
 		virtual void OnStart(const Ref<Script>& script, Entity entity) = 0;
 
-		virtual void OnUpdate(const Ref<Script>& script, Entity entity, double timestep) = 0;
+		virtual void OnUpdate(const Ref<Script>& script, Entity entity, float timestep) = 0;
 		virtual void OnFixedUpdate(const Ref<Script>& script, Entity entity) = 0;
 	};
 }

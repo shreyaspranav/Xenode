@@ -344,7 +344,7 @@ namespace Xen
 		// Nothing For Now!
 	}
 
-	void SpriteRenderer2D::RenderFrame(double timestep)
+	void SpriteRenderer2D::RenderFrame(float timestep)
 	{
 		// Rendering Sprites:
 		spriteRendererStorage.shader->Bind();

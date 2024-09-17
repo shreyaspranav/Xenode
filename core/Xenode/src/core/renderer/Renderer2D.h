@@ -110,7 +110,7 @@ namespace Xen {
 			ParticlesRenderer2D::EndScene();
 		}
 
-		static void RenderFrame(double timestep, const Ref<FrameBuffer> targetFrameBuffer = nullptr)
+		static void RenderFrame(float timestep, const Ref<FrameBuffer> targetFrameBuffer = nullptr)
 		{
 			if (targetFrameBuffer)
 			{

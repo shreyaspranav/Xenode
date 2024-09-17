@@ -13,7 +13,7 @@ namespace Xen {
 	public:
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate(double timestep) {}
+		virtual void OnUpdate(float timestep) {}
 		virtual void OnFixedUpdate() {}
 		virtual void OnRender() {}
 

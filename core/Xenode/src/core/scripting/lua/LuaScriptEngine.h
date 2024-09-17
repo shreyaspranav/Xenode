@@ -16,7 +16,7 @@ namespace Xen {
 		virtual ~LuaScriptEngine();
 
 		void OnStart(const Ref<Script>& script, Entity entity) override;
-		void OnUpdate(const Ref<Script>& script, Entity entity, double timestep) override;
+		void OnUpdate(const Ref<Script>& script, Entity entity, float timestep) override;
 		void OnFixedUpdate(const Ref<Script>& script, Entity entity) override;
 
 	private:

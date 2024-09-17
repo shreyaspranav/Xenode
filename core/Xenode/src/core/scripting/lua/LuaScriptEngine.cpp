@@ -49,7 +49,7 @@ namespace Xen {
 			lua_pcall(m_LuaVM, 0, 0, 0);
 	}
 
-	void LuaScriptEngine::OnUpdate(const Ref<Script>& script, Entity entity, double timestep)
+	void LuaScriptEngine::OnUpdate(const Ref<Script>& script, Entity entity, float timestep)
 	{
 		Ref<LuaScript> luaScript = std::dynamic_pointer_cast<LuaScript>(script);
 

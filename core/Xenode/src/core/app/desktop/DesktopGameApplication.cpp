@@ -193,8 +193,8 @@ namespace Xen
 		OnCreate();
 		OnStart();
 
-		double timestep = 0.0;
-		double lag = 0.0;
+		float timestep = 0.0;
+		float lag = 0.0;
 
 		while (m_IsGameRunning)
 		{
@@ -202,7 +202,7 @@ namespace Xen
 
 			Timer timer;
 
-			XEN_PROFILER_TAG("Timestep", (float)timestep);
+			XEN_PROFILER_TAG("Timestep", timestep);
 			lag += timestep;
 
 			while (lag >= FIXED_TIME_STEP)
@@ -223,7 +223,7 @@ namespace Xen
 			timer.Stop();
 
 			// time is in microseconds, convert to milliseconds
-			timestep = (float)timer.GetElapedTime() / 1000.0f;
+			timestep = timer.GetElapedTime() / 1000.0f;
 		}
 
 		m_GraphicsContext->DestroyContext();

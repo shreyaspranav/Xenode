@@ -8,12 +8,12 @@ namespace Xen {
 	class XEN_API ScenePhysics
 	{
 	public:
-		static void Initialize(double fixedTimeStep);
+		static void Initialize(float fixedTimeStep);
 		static void SetActiveScene(const Ref<Scene>& scene);
 
 		static void RuntimeStart(const Vec3& gravity);
 
-		static void Step(double timestep);
+		static void Step(float timestep);
 		static void FixedStepUpdate();
 
 		static void RuntimeEnd();

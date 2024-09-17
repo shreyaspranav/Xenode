@@ -127,7 +127,7 @@ namespace Xen
 	}
 #endif
 
-	void SceneRenderer::Update(double timestep, bool isRuntime)
+	void SceneRenderer::Update(float timestep, bool isRuntime)
 	{
 		sceneRendererState.timestep = timestep;
 		sceneRendererState.isRuntime = isRuntime;
@@ -182,12 +182,12 @@ namespace Xen
 
 	// Private Functions: ------------------------------------------------------------------------------------------------------------------------------
 
-	void SceneRenderer::Update3D(double timestep)
+	void SceneRenderer::Update3D(float timestep)
 	{
 		// 3D Update Logic
 	}
 
-	void SceneRenderer::Update2D(double timestep)
+	void SceneRenderer::Update2D(float timestep)
 	{
 		Renderer2D::BeginScene(sceneRendererState.sceneCamera);
 
@@ -278,7 +278,7 @@ namespace Xen
 	}
 
 #ifdef XEN_ENABLE_DEBUG_RENDERER
-	void SceneRenderer::UpdateDebugGraphics(double timestep)
+	void SceneRenderer::UpdateDebugGraphics(float timestep)
 	{
 		DebugRenderer::Begin(sceneRendererState.sceneCamera);
 

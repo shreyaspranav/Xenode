@@ -153,7 +153,7 @@ void LevelEditorLayer::OnDetach()
 	Xen::SceneRuntime::Finalize();
 }
 
-void LevelEditorLayer::OnUpdate(double timestep)
+void LevelEditorLayer::OnUpdate(float timestep)
 {
 	m_EditorCameraController.SetCameraType(m_EditorCameraType);
 

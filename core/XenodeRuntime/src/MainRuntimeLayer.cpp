@@ -44,7 +44,7 @@ void MainRuntimeLayer::OnDetach()
 	Xen::SceneRuntime::Finalize();
 }
 
-void MainRuntimeLayer::OnUpdate(double timestep)
+void MainRuntimeLayer::OnUpdate(float timestep)
 {
 	Xen::SceneSettings s;
 	s.renderSource = Xen::RenderSource::RuntimeCamera;

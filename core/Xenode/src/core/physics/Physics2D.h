@@ -40,10 +40,10 @@ namespace Xen {
 	class XEN_API Physics2D
 	{
 	public:
-		static void Init(const Vec2& gravity, double fixedTimeStep);
+		static void Init(const Vec2& gravity, float fixedTimeStep);
 		static void End();
 
-		static void Step(double timestep, uint32_t velocityIterations, uint32_t positionIterations);
+		static void Step(float timestep, uint32_t velocityIterations, uint32_t positionIterations);
 
 		// Create static bodies with one fixture
 		static PhysicsBody2D* CreateBoxBody(const Vec2& position, float rotation, const Vec2& scale, BodyType2D type, const PhysicsMaterial2D& physicsMaterial);

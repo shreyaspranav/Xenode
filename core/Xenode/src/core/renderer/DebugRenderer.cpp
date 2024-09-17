@@ -328,7 +328,7 @@ namespace Xen
 
 	}
 
-	void DebugRenderer::RenderFrame(double timestep)
+	void DebugRenderer::RenderFrame(float timestep)
 	{
 		debugRendererState.debugCameraData.debugViewProjectionMatrix = debugRendererState.debugSceneCamera->GetViewProjectionMatrix();
 

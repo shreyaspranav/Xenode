@@ -105,7 +105,7 @@ namespace Xen
 		}
 	}
 #ifdef XEN_GAME_FINAL_BUILD
-	void SceneRuntime::UpdateFinal(double timestep)
+	void SceneRuntime::UpdateFinal(float timestep)
 	{
 		if (!sceneRuntimeState.isRunning) 
 		{
@@ -119,7 +119,7 @@ namespace Xen
 		SceneRuntime::UpdateRenderer(timestep);
 	}
 #else
-	void SceneRuntime::Update(double timestep)
+	void SceneRuntime::Update(float timestep)
 	{
 		SceneRenderer::Update(timestep, sceneRuntimeState.isRunning);
 #ifdef XEN_ENABLE_DEBUG_RENDERER
@@ -127,7 +127,7 @@ namespace Xen
 #endif
 	}
 
-	void SceneRuntime::UpdateRuntime(double timestep, bool paused)
+	void SceneRuntime::UpdateRuntime(float timestep, bool paused)
 	{
 		sceneRuntimeState.paused = paused;
 

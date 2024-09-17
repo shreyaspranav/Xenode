@@ -15,14 +15,14 @@ namespace Xen {
 
 	struct PhysicsState
 	{
-		double fixedTimeStep;
+		float fixedTimeStep;
 
 		b2World* physicsWorld;
 		std::vector<PhysicsBody2D*> physicsBodies;
 
 	}physicsState;
 
-	void Physics2D::Init(const Vec2& gravity, double fixedTimeStep)
+	void Physics2D::Init(const Vec2& gravity, float fixedTimeStep)
 	{
 		physicsState.fixedTimeStep = fixedTimeStep;
 		physicsState.physicsWorld = new b2World({ gravity.x, gravity.y });
@@ -40,12 +40,12 @@ namespace Xen {
 		delete physicsState.physicsWorld;
 	}
 
-	void Physics2D::Step(double timestep, uint32_t velocityIterations, uint32_t positionIterations)
+	void Physics2D::Step(float timestep, uint32_t velocityIterations, uint32_t positionIterations)
 	{
 		// timestep *= 0.001; // Because the timestep is in milliseconds and box2d expects in seconds
 
 		// uint8_t stepIterationsMinusOne = (timestep / physicsState.fixedTimeStep);
-		// double lastIterationTimeStep = timestep - (physicsState.fixedTimeStep * stepIterationsMinusOne);
+		// float lastIterationTimeStep = timestep - (physicsState.fixedTimeStep * stepIterationsMinusOne);
 		// 
 		// for (int i = 0; i < stepIterationsMinusOne * 2; i++)
 		// 	physicsState.physicsWorld->Step(physicsState.fixedTimeStep, velocityIterations, positionIterations);
@@ -269,7 +269,7 @@ namespace Xen {
 namespace Xen {
 	void Physics2D::Init(const Vec2& gravity) {}
 	void Physics2D::End() {}
-	void Physics2D::Step(double timestep, uint32_t velocityIterations, uint32_t positionIterations) {}
+	void Physics2D::Step(float timestep, uint32_t velocityIterations, uint32_t positionIterations) {}
 	PhysicsBody2D* Physics2D::CreateBoxBody(const Vec2& position, float rotation, const Vec2& scale, BodyType2D type, const PhysicsMaterial2D& physicsMaterial) {}
 	PhysicsBody2D* Physics2D::CreateCircleBody(const Vec2& position, float rotation, float radius, BodyType2D type, const PhysicsMaterial2D& physicsMaterial) {}
 	void Physics2D::SetPhysicsMaterial(PhysicsBody2D* body, const PhysicsMaterial2D& material, const Vec2& scale) {}

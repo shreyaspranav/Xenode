@@ -23,7 +23,7 @@ namespace Xen {
 		static void SetSceneDebugSettings(const SceneDebugSettings& debugSettings);
 #endif
 
-		static void Update(double timestep, bool isRuntime);
+		static void Update(float timestep, bool isRuntime);
 		static void Render(bool renderToGameWindow = false);
 
 		static void End();
@@ -31,14 +31,14 @@ namespace Xen {
 		static void ResizeFrameBuffer(uint32_t width, uint32_t height);
 		static const Ref<FrameBuffer>& GetActiveFrameBuffer();
 	private:
-		static void Update2D(double timestep);
-		static void Update3D(double timsstep);
+		static void Update2D(float timestep);
+		static void Update3D(float timsstep);
 
 		static void Render2D();
 		static void Render3D();
 
 #ifdef XEN_ENABLE_DEBUG_RENDERER
-		static void UpdateDebugGraphics(double timestep);
+		static void UpdateDebugGraphics(float timestep);
 		static void RenderDebugGraphics();
 #endif
 	};
