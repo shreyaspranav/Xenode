@@ -42,15 +42,6 @@ namespace Xen {
 
 	void Physics2D::Step(float timestep, uint32_t velocityIterations, uint32_t positionIterations)
 	{
-		// timestep *= 0.001; // Because the timestep is in milliseconds and box2d expects in seconds
-
-		// uint8_t stepIterationsMinusOne = (timestep / physicsState.fixedTimeStep);
-		// float lastIterationTimeStep = timestep - (physicsState.fixedTimeStep * stepIterationsMinusOne);
-		// 
-		// for (int i = 0; i < stepIterationsMinusOne * 2; i++)
-		// 	physicsState.physicsWorld->Step(physicsState.fixedTimeStep, velocityIterations, positionIterations);
-		// 
-		// physicsState.physicsWorld->Step(lastIterationTimeStep, velocityIterations, positionIterations);
 		double timestepInSeconds = physicsState.fixedTimeStep / 1000.0f;
 		physicsState.physicsWorld->Step(timestepInSeconds, velocityIterations, positionIterations);
 
