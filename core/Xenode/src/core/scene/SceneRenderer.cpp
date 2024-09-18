@@ -314,7 +314,7 @@ namespace Xen
 					DebugRenderer::Draw2DCircle(
 						transform.position + Vec3(circleCollider2D.bodyOffset.x, circleCollider2D.bodyOffset.y, 0.0f),
 						transform.rotation.z,
-						{ transform.scale.x * circleCollider2D.radiusScale, transform.scale.y },
+						{ transform.scale.x * circleCollider2D.radiusScale, transform.scale.y * circleCollider2D.radiusScale },
 						sceneRendererState.debugSettings.physicsColliderColor, 2.0f
 					);
 				
