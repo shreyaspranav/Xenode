@@ -2,9 +2,8 @@
 
 Xenode is a cross platform game engine that works primarily works in Windows and Linux.
 
-![Xen Editor](Logo_Dark.png "Xenode Logo Light")
-![Xen Editor](Logo_Light.png "Xenode Logo Dark")
-![Xen Editor](XenEditor.PNG "Xen Editor")
+![Xen Editor](resources/logo/Logo_Dark.png "Xenode Logo Light")
+![Xen Editor](resources/screenshots/XenEditor.png "Xen Editor")
 
 ## Building Xenode
 Xenode has a lot of dependencies that needs to cloned properly for a successful build. Follow the instructions below to build Xenode. Xenode is officially tested for MSVC in Windows and GCC in Linux
