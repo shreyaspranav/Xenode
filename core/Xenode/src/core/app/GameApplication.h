@@ -27,7 +27,10 @@ namespace Xen
 		virtual inline GameType GetGameType() const = 0;
 		virtual inline GraphicsAPI GetGraphicsAPI() const = 0;
 		virtual inline ScriptLang GetScriptLang() const = 0;
+
+		virtual inline bool IsRuntime() const = 0;
 	};
 	
 	GameApplication* GetApplicationInstance();
+	static const bool IsRuntime;
 }

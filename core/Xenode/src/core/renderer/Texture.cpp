@@ -25,6 +25,15 @@ namespace Xen {
 		}
 		return nullptr;
 	}
+	Ref<Texture2D> Texture2D::CreateTexture2D(const Buffer& textureBuffer, TextureBufferType bufferType, TextureProperties properties)
+	{
+		switch (GetApplicationInstance()->GetGraphicsAPI())
+		{
+		case GraphicsAPI::XEN_OPENGL_API:
+			return std::make_shared<OpenGLTexture>(textureBuffer, bufferType, properties);
+		}
+		return nullptr;
+	}
 	void Texture2D::BindTexture(uint32_t id, uint8_t slot)
 	{
 		switch (GetApplicationInstance()->GetGraphicsAPI())

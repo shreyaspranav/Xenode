@@ -5,17 +5,15 @@
 
 #include "MainRuntimeLayer.h"
 
+// TODO: This is temporary, find a better solution
+#define RUNTIME false
+
 class XenodeRuntimeApplication : public Xen::DesktopGameApplication
 {
 public:
 	XenodeRuntimeApplication()
-	{
-
-	}
-	virtual ~XenodeRuntimeApplication()
-	{
-		
-	}
+		:Xen::DesktopGameApplication(RUNTIME) {}
+	virtual ~XenodeRuntimeApplication()       {}
 	
 	void OnCreate() override
 	{

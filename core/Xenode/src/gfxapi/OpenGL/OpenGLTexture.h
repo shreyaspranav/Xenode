@@ -1,13 +1,13 @@
 #include "core/renderer/Texture.h"
 
-namespace Xen {
-	typedef unsigned int GLenum;
-
+namespace Xen 
+{
 	class XEN_API OpenGLTexture : public Texture2D
 	{
 	public:
 		OpenGLTexture(const std::string& textureFilePath, bool flip_on_load);
 		OpenGLTexture(TextureProperties properties, void* data, uint32_t size);
+		OpenGLTexture(const Buffer& buffer, TextureBufferType bufferType, TextureProperties properties);
 		OpenGLTexture(uint32_t rendererID, TextureProperties properties);
 
 		virtual ~OpenGLTexture();

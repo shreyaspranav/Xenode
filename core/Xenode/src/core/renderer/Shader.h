@@ -1,12 +1,13 @@
 #pragma once
 
 #include <Core.h>
+#include <core/asset/Asset.h>
 
 #include "Structs.h"
 #include "Buffer.h"
 
 namespace Xen {
-	class XEN_API Shader
+	class XEN_API Shader : public Asset
 	{
 	public:
 		virtual void LoadShader(const Ref<TransformFeedback>& transformFeedbackBuffer) = 0;
@@ -33,9 +34,7 @@ namespace Xen {
 		static Ref<Shader> CreateShader(const std::string& filePath);
 		static Ref<Shader> CreateShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);
 
-	//protected:
-	//	inline void RegisterTransformFeedbackBuffer(const Ref<TransformFeedback>& transformFeedback, const Ref<Shader>& shader) 
-	//	{ transformFeedback->RegisterTransformFeedback(shader); }
+		DEFINE_ASSET_TYPE(AssetType::Shader);
 	};
 
 	class XEN_API ComputeShader

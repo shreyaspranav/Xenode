@@ -76,8 +76,8 @@ typedef size_t Size;
 
 #define XEN_BIND_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
-namespace Xen {
-
+namespace Xen 
+{
 	// Custom Data types:
 
 	// A 'Scope' Smart pointer
@@ -98,8 +98,19 @@ namespace Xen {
 
 	template<typename T, typename V>
 	using Map = std::map<T, V>;
+
+	// An arbitrary buffer of data
+	struct Buffer
+	{
+		void* buffer = nullptr;
+		Size size = 0;
+
+		// true if memory is allocated, false if memory is freed.
+		bool alloc = false;
+	};
 }
 
 
-// TEMP: 
+// TEMP: Make a switch in premake or some other better solution.
 #define XEN_ENABLE_DEBUG_RENDERER
+

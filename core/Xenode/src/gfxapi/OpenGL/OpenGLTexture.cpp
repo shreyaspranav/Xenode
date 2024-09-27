@@ -10,6 +10,22 @@
 
 namespace Xen {
 
+	static GLenum ToGLTextureBufferType(TextureBufferType bufferType)
+	{
+		switch (bufferType)
+		{
+		case Xen::TextureBufferType::UnsignedInt8:  return GL_UNSIGNED_BYTE;
+		case Xen::TextureBufferType::UnsignedInt16: return GL_UNSIGNED_SHORT;
+		case Xen::TextureBufferType::Float32:       return GL_FLOAT;
+		}
+
+		XEN_ENGINE_LOG_ERROR("Unknown TextureBufferType type!");
+		TRIGGER_BREAKPOINT;
+
+		return (GLenum)0;
+	}
+
+	// Maybe this doesn't make sense
 	static GLenum ToGLTextureType(TextureFormat format)
 	{
 		switch (format)
@@ -135,8 +151,10 @@ namespace Xen {
 		if (hasMipmaps)
 			glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 		else
+		{
 			glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, mode);
-		glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, mode);
+			glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, mode);
+		}
 	}
 
 	static void SetTexWrapMode(uint32_t textureID, GLenum mode)
@@ -213,6 +231,30 @@ namespace Xen {
 
 		//if (m_TextureProperties.mipLevels > 0)
 		//	glGenerateTextureMipmap(m_TextureID);
+	}
+
+	// This new constructor will replace the older constructors.
+	OpenGLTexture::OpenGLTexture(const Buffer& buffer, TextureBufferType bufferType, TextureProperties properties)
+		:m_TextureProperties(properties)
+	{
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
+
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
+		glTextureStorage2D(m_TextureID, 
+			m_TextureProperties.mipLevels == 0 ? 1 : m_TextureProperties.mipLevels, 
+			ToGLInternalTextureFormat(m_TextureProperties.format), 
+			m_TextureProperties.width, 
+			m_TextureProperties.height);
+
+		SetTexFilterMode(m_TextureID, ToGLFilterMode(m_T_FilterMode), m_TextureProperties.mipLevels > 0);
+		SetTexWrapMode(m_TextureID, ToGLWrapMode(m_T_WrapMode));
+
+		if (buffer.buffer != nullptr)
+			glTextureSubImage2D(m_TextureID, 0, 0, 0, m_TextureProperties.width, m_TextureProperties.height,
+				ToGLTextureFormat(m_TextureProperties.format),
+				ToGLTextureBufferType(bufferType), 
+				buffer.buffer);
+
 	}
 
 	OpenGLTexture::OpenGLTexture(uint32_t rendererID, TextureProperties proprties)

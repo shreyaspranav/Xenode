@@ -3,11 +3,16 @@
 
 #include "LevelEditorLayer.h"
 #include <project/ProjectManager.h>
+#include <core/asset/AssetManagerUtil.h>
+
+// TODO: This is temporary, find a better solution
+#define RUNTIME false
 
 class XenEditorApp : public Xen::DesktopGameApplication
 {
 public:
-	XenEditorApp() {}
+	XenEditorApp()
+		:Xen::DesktopGameApplication(RUNTIME) {}
 	~XenEditorApp() {}
 
 	void OnCreate() override

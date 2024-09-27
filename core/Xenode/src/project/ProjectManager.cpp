@@ -2,8 +2,13 @@
 #include "ProjectManager.h"
 
 #include "ProjectSerializer.h"
+#include <core/app/GameApplication.h>
 #include <core/scene/Scene.h>
 #include <core/scene/SceneSerializer.h>
+
+// TODO: decide how to include them
+#include <core/asset/EditorAssetManager.h>
+#include <core/asset/RuntimeAssetManager.h>
 
 namespace Xen 
 {
@@ -13,9 +18,11 @@ namespace Xen
 		Ref<Project> currentProject = nullptr;
 		std::filesystem::path currentProjectPath;
 
+		Ref<AssetManager> assetManager;
+
 	}projectManagerState;
 
-	Ref<Project> ProjectManager::CreateProject(const std::filesystem::path& rootPath, const ProjectProperties& properties)
+	Ref<Project> ProjectManager::CreateProjectOnDisk(const std::filesystem::path& rootPath, const ProjectProperties& properties)
 	{
 		std::filesystem::path projectPath = rootPath / properties.name;
 
@@ -71,11 +78,21 @@ namespace Xen
 		ProjectSerializer::Deserialize(project, pathToProjectFile);
 		projectManagerState.currentProject = project;
 
+		GameApplication* currentApp = GetApplicationInstance();
+		if (currentApp->IsRuntime())
+			projectManagerState.assetManager = std::make_shared<RuntimeAssetManager>();
+		else
+			projectManagerState.assetManager = std::make_shared<EditorAssetManager>();
+
 		return project;
 	}
 	const Ref<Project>& ProjectManager::GetCurrentProject()
 	{
 		return projectManagerState.currentProject;
+	}
+	const Ref<AssetManager>& ProjectManager::GetCurrentAssetManager()
+	{
+		return projectManagerState.assetManager;
 	}
 	const std::filesystem::path& ProjectManager::GetCurrentProjectPath()
 	{

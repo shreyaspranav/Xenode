@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core.h>
+#include <core/asset/Asset.h>
 
 namespace Xen {
 
@@ -24,6 +25,14 @@ namespace Xen {
 		RGBA8, RGBA16, RGBA16F, RGBA32F
 	};
 
+	// Determines the type of texture data decoded from file.
+	enum class TextureBufferType
+	{
+		UnsignedInt8,   // uint8_t
+		UnsignedInt16,  // uint16_t
+		Float32         // float
+	};
+
 	struct TextureProperties 
 	{
 		uint32_t width, height;
@@ -41,10 +50,9 @@ namespace Xen {
 		virtual void Bind(uint8_t slot) const = 0;
 	};
 
-	class Texture2D : public Texture
+	class Texture2D : public Texture, public Asset
 	{
 	public:
-		friend class OpenGLFrameBuffer;
 		virtual void LoadTexture() = 0;
 
 		virtual void SetTextureWrapMode(TextureWrapMode mode) = 0;
@@ -56,13 +64,16 @@ namespace Xen {
 		static Ref<Texture2D> CreateTexture2D(const std::string& filepath, bool flip_on_load);
 		static Ref<Texture2D> CreateTexture2D(TextureProperties properties, void* data, uint32_t size);
 
+		static Ref<Texture2D> CreateTexture2D(const Buffer& textureBuffer, TextureBufferType bufferType, TextureProperties properties);
+
 		static void BindTexture(uint32_t textureID, uint8_t slot);
 		static void BindToImageUnit(const Ref<Texture2D>& texture, uint8_t slot, uint8_t mipLevel = 0);
 		static void BindToImageUnit(uint32_t textureID, TextureFormat format, uint8_t slot, uint8_t mipLevel = 0);
 
 		virtual bool operator==(const Ref<Texture2D> texture) const = 0;
 
-	//private:
 		static Ref<Texture2D> CreateTexture2D(uint32_t rendererID, TextureProperties properties);
+
+		DEFINE_ASSET_TYPE(AssetType::Texture2D);
 	};
 }

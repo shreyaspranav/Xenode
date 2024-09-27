@@ -59,7 +59,7 @@ namespace Xen
 	class XEN_API DesktopGameApplication : public GameApplication
 	{
 	public:
-		DesktopGameApplication();
+		DesktopGameApplication(bool isRuntime = false);
 		virtual ~DesktopGameApplication();
 
 		// Functions related to adding/removing Layers: ------------------------------
@@ -101,6 +101,7 @@ namespace Xen
 		inline GameType GetGameType() const override			{ return gameProperties.gameType; };
 		inline GraphicsAPI GetGraphicsAPI() const override		{ return gameProperties.api; };
 		inline ScriptLang GetScriptLang() const override		{ return gameProperties.scriptLang; }
+		inline bool IsRuntime() const override;
 
 	protected:
 		DesktopGameProperties gameProperties;

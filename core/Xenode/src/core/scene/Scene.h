@@ -2,6 +2,7 @@
 
 #include <Core.h>
 #include <core/app/UUID.h>
+#include <core/asset/Asset.h>
 
 #include <entt.hpp>
 
@@ -13,7 +14,7 @@ namespace Xen
 	
 	class Entity;
 
-	class XEN_API Scene
+	class XEN_API Scene : public Asset
 	{
 	public:
 		Scene() {}
@@ -37,6 +38,8 @@ namespace Xen
 
 		// Returns the type of the scene.
 		SceneType GetSceneType() { return m_SceneType; }
+
+		DEFINE_ASSET_TYPE(AssetType::Scene);
 
 		// Friend classes declared so that these classes can access the entt::registry m_SceneRegistry
 		friend class SceneRuntime;

@@ -18,11 +18,16 @@ namespace Xen
 	// A Game should only have one instance of GameApplication, therefore the "only" current instance
 	static GameApplication* s_ApplicationInstance = nullptr;
 
+	// A variable that tells if the game is in rumtime, a game in "runtime" means the game is running outside of editor
+	static bool s_IsRuntime;
+
 	// Declared in GameApplication.h
 	GameApplication* GetApplicationInstance() { return s_ApplicationInstance; }
 
-	DesktopGameApplication::DesktopGameApplication()
+	DesktopGameApplication::DesktopGameApplication(bool isRuntime)
 	{
+		s_IsRuntime = isRuntime;
+
 		s_ApplicationInstance = this;
 		m_IsGameRunning = true;
 	}
@@ -233,6 +238,11 @@ namespace Xen
 
 		// TODO: Make sure that the date and time gets appended after the file name
 		XEN_SAVE_PROFILER_CAPTURE("logs/profiler_capture.opt")
+	}
+
+	inline bool DesktopGameApplication::IsRuntime() const
+	{
+		return s_IsRuntime;
 	}
 }
 
