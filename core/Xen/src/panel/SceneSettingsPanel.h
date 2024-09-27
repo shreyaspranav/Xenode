@@ -28,23 +28,23 @@ public:
 #ifdef XEN_ENABLE_DEBUG_RENDERER
 		Xen::SceneDebugSettings& debugSettings = m_SceneSettings->debugSettings;
 
-		bool enablePhysicsColliders			= static_cast<bool>(debugSettings.physicsCollider & Xen::DebugRenderTargetFlag::Editor);
-		bool enablePhysicsCollidersRuntime	= static_cast<bool>(debugSettings.physicsCollider & Xen::DebugRenderTargetFlag::Runtime);
+		bool enablePhysicsColliders			= static_cast<bool>(debugSettings.physicsColliderTargetFlag & Xen::DebugRenderTargetFlag::Editor);
+		bool enablePhysicsCollidersRuntime	= static_cast<bool>(debugSettings.physicsColliderTargetFlag & Xen::DebugRenderTargetFlag::Runtime);
 
 		ImGui::SeparatorText("Physics Settings");
 
 		if (ImGui::Checkbox("Show Physics Colliders", &enablePhysicsColliders))
 		{
 			enablePhysicsColliders ? 
-				debugSettings.physicsCollider |=  Xen::DebugRenderTargetFlag::Editor :
-				debugSettings.physicsCollider &= ~Xen::DebugRenderTargetFlag::Editor;
+				debugSettings.physicsColliderTargetFlag |=  Xen::DebugRenderTargetFlag::Editor :
+				debugSettings.physicsColliderTargetFlag &= ~Xen::DebugRenderTargetFlag::Editor;
 		}
 
 		if (ImGui::Checkbox("Show Physics Colliders At Runtime", &enablePhysicsCollidersRuntime))
 		{
 			enablePhysicsCollidersRuntime ?
-				debugSettings.physicsCollider |=  Xen::DebugRenderTargetFlag::Runtime :
-				debugSettings.physicsCollider &= ~Xen::DebugRenderTargetFlag::Runtime;
+				debugSettings.physicsColliderTargetFlag |=  Xen::DebugRenderTargetFlag::Runtime :
+				debugSettings.physicsColliderTargetFlag &= ~Xen::DebugRenderTargetFlag::Runtime;
 		}
 
 		float physicsColliderColor[] = 

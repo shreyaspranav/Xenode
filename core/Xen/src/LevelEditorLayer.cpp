@@ -4,6 +4,7 @@
 #include <core/app/Timer.h>
 #include <core/app/Utils.h>
 #include <core/renderer/RenderCommand.h>
+#include <core/renderer/DebugRenderer.h>
 #include <core/math/Math.h>
 
 #include <ImGuizmo.h>
@@ -76,8 +77,6 @@ void LevelEditorLayer::OnAttach()
 	//};
 	//quad_entity_1.AddComponent<Xen::Component::NativeScript>().Bind<CameraControlScript>(quad_entity_1);
 
-	m_HierarchyPanel = SceneHierarchyPanel(m_ActiveScene);
-	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
 
 	Xen::ProjectSettings settings = Xen::ProjectManager::GetCurrentProject()->GetProjectSettings();
 	Xen::ProjectProperties properties = Xen::ProjectManager::GetCurrentProject()->GetProjectProperties();
@@ -86,6 +85,8 @@ void LevelEditorLayer::OnAttach()
 	std::filesystem::path projectPath = Xen::ProjectManager::GetCurrentProjectPath();
 	m_ContentBrowserPanel = ContentBrowserPanel(projectPath / settings.relAssetDirectory);
 
+	m_HierarchyPanel = SceneHierarchyPanel(m_ActiveScene, &m_SceneSettings);
+	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
 	m_SceneSettingsPanel = SceneSettingsPanel(m_ActiveScene, &m_SceneSettings);
 
 	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
@@ -164,7 +165,6 @@ void LevelEditorLayer::OnUpdate(float timestep)
 
 	bool active = true;
 
-	Xen::RenderCommand::Clear();
 	m_Timestep = timestep;
 	
 	Xen::SceneRuntime::Begin(m_SceneSettings);
@@ -177,8 +177,6 @@ void LevelEditorLayer::OnUpdate(float timestep)
 
 	if (m_EditorState == EditorState::Edit)
 	{
-		// m_ActiveScene->SetMouseCoordinates(m_ViewportMousePos.x, m_ViewportMousePos.y);
-
 		m_EditorCameraController.Update(&active, m_ViewportFrameBufferHeight);
 		m_EditorCamera->SetPosition(m_EditorCameraController.GetCameraPosition());
 
@@ -212,29 +210,17 @@ void LevelEditorLayer::OnUpdate(float timestep)
 			Xen::SceneRuntime::UpdateRuntime(timestep, m_ScenePaused);
 	}
 
-
 	Xen::SceneRuntime::End();
-
-# if 0
-	// Line Rendering Test
-
-	Xen::RenderCommand::SetLineWidth(1.0f);
-	
-	for (int i = -5; i < 6; i++)
-	{
-		Xen::Renderer2D::DrawLine(Xen::Vec3(-5.0f, i, 0.0f), Xen::Vec3(5.0f, i, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
-		Xen::Renderer2D::DrawLine(Xen::Vec3(i, -5.0f, 0.0f), Xen::Vec3(i, 5.0f, 0.0f), Xen::Color(0.9f, 0.9f, 0.9f, 1.0f));
-	}
-#endif
-
 
 	if (Xen::MouseInput::IsMouseButtonPressed(Xen::MouseButtonCode::MOUSE_BUTTON_LEFT) && m_IsMouseHoveredOnViewport && m_IsMousePickingWorking)
 	{
 		Xen::SceneRuntime::GetActiveFrameBuffer()->Bind();
 
+		int enttID = Xen::SceneRuntime::GetActiveFrameBuffer()->ReadIntPixel(1, m_ViewportMousePos.x, m_ViewportFrameBufferHeight - m_ViewportMousePos.y);
+		m_SelectedEntity = Xen::Entity((entt::entity)enttID, m_ActiveScene.get());
+
 		// For some reason the red integer attachment is flipped!
-		int entt_id = Xen::SceneRuntime::GetActiveFrameBuffer()->ReadIntPixel(1, m_ViewportMousePos.x, m_ViewportFrameBufferHeight - m_ViewportMousePos.y);
-		m_HierarchyPanel.SetSelectedEntity(Xen::Entity((entt::entity)entt_id, m_ActiveScene.get()));
+		m_HierarchyPanel.SetSelectedEntity(m_SelectedEntity);
 
 		Xen::SceneRuntime::GetActiveFrameBuffer()->Unbind();
 	}

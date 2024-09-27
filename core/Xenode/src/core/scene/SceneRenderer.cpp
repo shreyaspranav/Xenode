@@ -16,7 +16,6 @@
 
 namespace Xen 
 {
-
 	// Global Settings: ------------------------------------------------------------------------------------------------------------------
 	constexpr float fpsUpdateSpeedMS = 500.0f;
 	constexpr float fpsLimit = 30.0f;
@@ -36,6 +35,7 @@ namespace Xen
 		// Renderer Specific stuff:
 		Ref<FrameBuffer> frameBuffer;
 		Ref<Camera> sceneCamera;
+		float viewportAspectRatio;
 
 		bool renderToGameWindow;
 		float elapsed = 0.0f;
@@ -94,6 +94,8 @@ namespace Xen
 		{
 			// Initialize the 3D Renderer
 		}
+
+		sceneRendererState.viewportAspectRatio = static_cast<float>(viewportWidth) / static_cast<float>(viewportHeight);
 	}
 
 	void SceneRenderer::SetActiveScene(const Ref<Scene>& scene)
@@ -173,6 +175,8 @@ namespace Xen
 
 		sceneRendererState.sceneCamera->OnViewportResize(width, height);
 		DebugRenderer::OnFrameBufferResize(width, height);
+
+		sceneRendererState.viewportAspectRatio = static_cast<float>(width) / static_cast<float>(height);
 	}
 
 	const Ref<FrameBuffer>& SceneRenderer::GetActiveFrameBuffer()
@@ -280,78 +284,125 @@ namespace Xen
 #ifdef XEN_ENABLE_DEBUG_RENDERER
 	void SceneRenderer::UpdateDebugGraphics(float timestep)
 	{
-		DebugRenderer::Begin(sceneRendererState.sceneCamera);
-
-		// Updating and Rendering 2D Box Colliders: -----------------------------------------------------------------------------------------------------
-
-		if (sceneRendererState.debugSettings.physicsCollider != DebugRenderTargetFlag::Disabled)
+		if (sceneRendererState.debugSettings.showDebugGraphics)
 		{
-			if ((static_cast<bool>(sceneRendererState.debugSettings.physicsCollider & DebugRenderTargetFlag::Runtime) && sceneRendererState.isRuntime) ||
-				(static_cast<bool>(sceneRendererState.debugSettings.physicsCollider & DebugRenderTargetFlag::Editor) && !sceneRendererState.isRuntime))
-			{
-				auto&& boxCollider2DView = sceneRendererState.currentScene->m_SceneRegistry.view<Component::BoxCollider2D>();
-				auto&& circleCollider2DView = sceneRendererState.currentScene->m_SceneRegistry.view<Component::CircleCollider2D>();
+			DebugRenderer::Begin(sceneRendererState.sceneCamera);
 
-				for (auto entt : boxCollider2DView)
+			// Updating and Rendering 2D Box Colliders: -----------------------------------------------------------------------------------------------------
+			if (sceneRendererState.debugSettings.physicsColliderTargetFlag != DebugRenderTargetFlag::Disabled)
+			{
+				if ((static_cast<bool>(sceneRendererState.debugSettings.physicsColliderTargetFlag & DebugRenderTargetFlag::Runtime) && sceneRendererState.isRuntime) ||
+					(static_cast<bool>(sceneRendererState.debugSettings.physicsColliderTargetFlag & DebugRenderTargetFlag::Editor) && !sceneRendererState.isRuntime))
 				{
-					Entity entity = Entity(entt, sceneRendererState.currentScene.get());
-					auto& transform = entity.GetComponent<Component::Transform>();
+					auto&& boxCollider2DView = sceneRendererState.currentScene->m_SceneRegistry.view<Component::BoxCollider2D>();
+					auto&& circleCollider2DView = sceneRendererState.currentScene->m_SceneRegistry.view<Component::CircleCollider2D>();
 
-					auto& boxCollider2D = entity.GetComponent<Component::BoxCollider2D>();
-					DebugRenderer::Draw2DQuad(
-						transform.position + Vec3(boxCollider2D.bodyOffset.x, boxCollider2D.bodyOffset.y, 0.0f),
-						transform.rotation.z,
-						{ transform.scale.x * boxCollider2D.sizeScale.x, transform.scale.y * boxCollider2D.sizeScale.y },
-						sceneRendererState.debugSettings.physicsColliderColor, 2.0f
-					);
-				}
-				for (auto entt : circleCollider2DView)
-				{	
-					Entity entity = Entity(entt, sceneRendererState.currentScene.get());
-					auto& transform = entity.GetComponent<Component::Transform>();
+					for (auto entt : boxCollider2DView)
+					{
+						Entity entity = Entity(entt, sceneRendererState.currentScene.get());
+						auto& transform = entity.GetComponent<Component::Transform>();
 
-					auto& circleCollider2D = entity.GetComponent<Component::CircleCollider2D>();
-					DebugRenderer::Draw2DCircle(
-						transform.position + Vec3(circleCollider2D.bodyOffset.x, circleCollider2D.bodyOffset.y, 0.0f),
-						transform.rotation.z,
-						{ transform.scale.x * circleCollider2D.radiusScale, transform.scale.y * circleCollider2D.radiusScale },
-						sceneRendererState.debugSettings.physicsColliderColor, 2.0f
-					);
-				
+						auto& boxCollider2D = entity.GetComponent<Component::BoxCollider2D>();
+						DebugRenderer::Draw2DQuad(
+							transform.position + Vec3(boxCollider2D.bodyOffset.x, boxCollider2D.bodyOffset.y, 0.0f),
+							transform.rotation.z,
+							{ transform.scale.x * boxCollider2D.sizeScale.x, transform.scale.y * boxCollider2D.sizeScale.y },
+							sceneRendererState.debugSettings.physicsColliderColor, 
+							2.0f
+						);
+					}
+					for (auto entt : circleCollider2DView)
+					{	
+						Entity entity = Entity(entt, sceneRendererState.currentScene.get());
+						auto& transform = entity.GetComponent<Component::Transform>();
+
+						auto& circleCollider2D = entity.GetComponent<Component::CircleCollider2D>();
+						DebugRenderer::Draw2DCircle(
+							transform.position + Vec3(circleCollider2D.bodyOffset.x, circleCollider2D.bodyOffset.y, 0.0f),
+							transform.rotation.z,
+							{ transform.scale.x * circleCollider2D.radiusScale, transform.scale.y * circleCollider2D.radiusScale },
+							sceneRendererState.debugSettings.physicsColliderColor, 
+							2.0f
+						);
+					
+					}
 				}
 			}
-		}
-		// ------------------------------------------------------------------------------------------------------------------------------------------------
-		// Show FPS: --------------------------------------------------------------------------------------------------------------------------------------
 
-		if (sceneRendererState.debugSettings.showFPSOverlay)
-		{
-			sceneRendererState.elapsed += timestep;
-
-			if (sceneRendererState.elapsed > fpsUpdateSpeedMS)
+			// Render Bounding boxes for display entities: ----------------------------------------------------------------------------------------------------------------
+			if (sceneRendererState.debugSettings.displayEntitiesTargetFlag != DebugRenderTargetFlag::Disabled)
 			{
-				sceneRendererState.fpsOverlay.str("");
-				sceneRendererState.fpsOverlay  << "FPS: " << 1000.0f / timestep << " " << "Frame Time: " << timestep << "ms";
-				sceneRendererState.elapsed = 0.0f;
+				if ((static_cast<bool>(sceneRendererState.debugSettings.displayEntitiesTargetFlag & DebugRenderTargetFlag::Runtime) && sceneRendererState.isRuntime) ||
+					(static_cast<bool>(sceneRendererState.debugSettings.displayEntitiesTargetFlag & DebugRenderTargetFlag::Editor) && !sceneRendererState.isRuntime))
+				{
+					for (Entity entity : sceneRendererState.debugSettings.displayEntities)
+					{
+						// Check if the entity is valid or not, just to be safe.
+						if (!entity.IsNull() && entity.IsValid())
+						{
+							auto& transform = entity.GetComponent<Component::Transform>();
 
-				if (1000.0f / timestep < fpsLimit)
-					sceneRendererState.fpsOverlayDisplayColor = { 1.0f, 0.0f, 0.0f, 1.0f }; // Display Red
-				else
-					sceneRendererState.fpsOverlayDisplayColor = { 1.0f, 1.0f, 1.0f, 1.0f }; // Display White
+							// If the entity is a camera entity, multiply the x scale by the aspect ratio of the viewport.
+							bool isCameraEntity = entity.HasAnyComponent<Component::CameraComp>();
+							Vec2 scale = 
+							{
+								isCameraEntity ? transform.scale.x * sceneRendererState.viewportAspectRatio : transform.scale.x,
+								transform.scale.y
+							};
+
+							if (isCameraEntity)
+							{
+								auto& cameraComp = entity.GetComponent<Component::CameraComp>();
+								Ref<Camera> camera = cameraComp.camera;
+
+								// Because the top is 1.0f, bottom is -1.0f, 
+								// multiplying with 2 gives the size that fits to the vireport
+								if(camera->GetProjectionType() == CameraType::Orthographic)
+									scale = scale * 2.0f;
+							}
+
+							DebugRenderer::Draw2DQuad(
+								transform.position,
+								transform.rotation.z,
+								scale,
+								sceneRendererState.debugSettings.displayEntitiesColor, 
+								3.0f
+							);
+						}
+					}
+				}
 			}
 
-			DebugRenderer::DrawString(
-				sceneRendererState.fpsOverlay.str(),
-				{ 1.0f, 19.0f, 0.0f },
-				sceneRendererState.fpsOverlayDisplayColor,
-				0.0f,
-				0.4f,
-				true
-			);
-		}
-		// ---------------------------------------------------------------------------------------------------------------------------------------------------
+			// Show FPS: --------------------------------------------------------------------------------------------------------------------------------------
+			if (sceneRendererState.debugSettings.showFPSOverlay)
+			{
+				sceneRendererState.elapsed += timestep;
 
-		DebugRenderer::End();
+				if (sceneRendererState.elapsed > fpsUpdateSpeedMS)
+				{
+					sceneRendererState.fpsOverlay.str("");
+					sceneRendererState.fpsOverlay  << "FPS: " << 1000.0f / timestep << " " << "Frame Time: " << timestep << "ms";
+					sceneRendererState.elapsed = 0.0f;
+
+					if (1000.0f / timestep < fpsLimit)
+						sceneRendererState.fpsOverlayDisplayColor = { 1.0f, 0.0f, 0.0f, 1.0f }; // Display Red
+					else
+						sceneRendererState.fpsOverlayDisplayColor = { 1.0f, 1.0f, 1.0f, 1.0f }; // Display White
+				}
+
+				DebugRenderer::DrawString(
+					sceneRendererState.fpsOverlay.str(),
+					{ 1.0f, 19.0f, 0.0f },
+					sceneRendererState.fpsOverlayDisplayColor,
+					0.0f,
+					0.4f,
+					true
+				);
+			}
+			// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+			DebugRenderer::End();
+		}
 	}
 
 	void SceneRenderer::RenderDebugGraphics()

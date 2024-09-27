@@ -126,4 +126,6 @@ private:
 	Xen::Ref<Xen::Texture2D> m_2DOr3DView;
 	bool m_EditMode = true;
 	bool m_FirstRuntimeIteration = false;
+
+	Xen::Entity m_SelectedEntity;
 };

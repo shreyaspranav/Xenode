@@ -11,8 +11,8 @@
 
 namespace Xen 
 {
-#ifdef XEN_ENABLE_DEBUG_RENDERER
 
+#ifdef XEN_ENABLE_DEBUG_RENDERER
 	enum class DebugRenderTargetFlag : uint8_t
 	{
 		Disabled	= 0, 
@@ -23,17 +23,17 @@ namespace Xen
 	// Operators for DebugRenderTargetFlag -------------------------------------------------------------------------------
 	inline DebugRenderTargetFlag operator&(DebugRenderTargetFlag lhs, DebugRenderTargetFlag rhs)
 	{
-		return static_cast<DebugRenderTargetFlag>(static_cast<int>(lhs) & static_cast<int>(rhs));
+		return static_cast<DebugRenderTargetFlag>(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
 	}
 
 	inline DebugRenderTargetFlag operator|(DebugRenderTargetFlag lhs, DebugRenderTargetFlag rhs)
 	{
-		return static_cast<DebugRenderTargetFlag>(static_cast<int>(lhs) | static_cast<int>(rhs));
+		return static_cast<DebugRenderTargetFlag>(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 	}
 
 	inline DebugRenderTargetFlag operator~(DebugRenderTargetFlag flag)
 	{
-		return static_cast<DebugRenderTargetFlag>(~(static_cast<int>(flag)));
+		return static_cast<DebugRenderTargetFlag>(~(static_cast<uint8_t>(flag)));
 	}
 
 	inline DebugRenderTargetFlag operator|=(DebugRenderTargetFlag& lhs, DebugRenderTargetFlag&& rhs)
@@ -49,17 +49,21 @@ namespace Xen
 
 	struct SceneDebugSettings
 	{
-		// Global Debug Rendering flag
-		DebugRenderTargetFlag global;
+		// Global debug rendering flag,
+		bool showDebugGraphics = true;
 
-		// Physics components debug rendering flag
-		DebugRenderTargetFlag physicsCollider = DebugRenderTargetFlag::Editor;
+		// Debug rendering flags for various features.
+		DebugRenderTargetFlag physicsColliderTargetFlag = DebugRenderTargetFlag::Editor;
+		DebugRenderTargetFlag displayEntitiesTargetFlag = DebugRenderTargetFlag::Editor;
 
 		// Color of various stuff
 		Color physicsColliderColor		= { 0.0f, 1.0f, 0.0f, 1.0f };
-		Color rigidBodyColor			= { 0.0f, 1.0f, 0.0f, 1.0f };
+		Color displayEntitiesColor		= { 1.0f, 0.7f, 0.2f, 1.0f };
 
 		bool showFPSOverlay = false;
+
+		// Display entities are those entities which its bounding box needs to be displayed.
+		Vector<Entity> displayEntities;
 	};
 #endif
 

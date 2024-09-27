@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "core/scene/Scene.h"
+#include "core/scene/SceneRuntime.h"
 #include "core/scene/Components.h"
 #include "imgui.h"
 
@@ -15,7 +16,17 @@ class SceneHierarchyPanel {
 
 public:
 	SceneHierarchyPanel() {}
-	SceneHierarchyPanel(const Xen::Ref<Xen::Scene>& scene) : m_Scene(scene) {}
+	SceneHierarchyPanel(const Xen::Ref<Xen::Scene>& scene, Xen::SceneSettings* settings) 
+		: m_Scene(scene), m_SceneSettings(settings) 
+	{
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+		// Allocate one element in the displayEntities vector.
+		settings->debugSettings.displayEntities.push_back(Xen::Entity());
+
+		// Store the index of the last element which is then used to set the selected entity.
+		m_DisplayEntityIndex = settings->debugSettings.displayEntities.size() - 1;
+#endif
+	}
 	~SceneHierarchyPanel() {}
 
 	inline void SetActiveScene(const Xen::Ref<Xen::Scene>& scene) { m_Scene = scene; }
@@ -48,12 +59,6 @@ public:
 			DrawNode(entity);
 		}
 
-		// m_Scene->m_Registry.([&](auto& entity) 
-		// 	{
-		// 		Xen::Entity entt = Xen::Entity(entity, m_Scene.get());  
-		// 		DrawNode(entt);
-		// 	});
-
 		if (ImGui::BeginPopup("DeleteEntity"))
 		{
 			if (ImGui::Selectable("Clone Entity"))
@@ -66,6 +71,11 @@ public:
 
 			ImGui::EndPopup();
 		}
+
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+		// Add the selected entity as element in displayEntities vector at displayEntityIndex.
+		m_SceneSettings->debugSettings.displayEntities[m_DisplayEntityIndex] = m_SelectedEntity;
+#endif
 
 		ImGui::End();
 	}
@@ -161,6 +171,12 @@ private:
 
 	Xen::Ref<Xen::Scene> m_Scene;
 	std::string m_PanelTitle = Xen::StringValues::PANEL_TITLE_SCENE_HIERARCHY;
+
+	Xen::SceneSettings* m_SceneSettings;
+#ifdef XEN_ENABLE_DEBUG_RENDERER
+	// Index of the selected entity in the displayEntities vector
+	uint32_t m_DisplayEntityIndex;
+#endif
 
 	bool m_DeleteEntityDisplayed = 0;
 };
