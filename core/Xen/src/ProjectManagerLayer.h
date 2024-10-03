@@ -9,7 +9,7 @@ public:
 
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
-	virtual void OnUpdate(double timestep) override;
+	virtual void OnUpdate(float timestep) override;
 	virtual void OnFixedUpdate() override;
 	virtual void OnRender() override;
 };
