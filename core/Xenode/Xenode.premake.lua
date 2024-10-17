@@ -3,7 +3,7 @@ project "Xenode"
 	kind "StaticLib"
 	language "C++"
 	pic "on"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/%{prj.name}")
@@ -130,10 +130,12 @@ project "Xenode"
 	filter "configurations:Debug"
 		defines {"XEN_DEBUG", "XEN_LOG_ON"}
 		symbols "On"
+		-- buildoptions "/MTd"
 
 	filter "configurations:Release_Debug"
 		defines {"XEN_RELEASE", "XEN_LOG_ON"}
 		optimize "On"
+		-- buildoptions "/MT"
 
 	filter "configurations:Production"
 		defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
@@ -161,13 +163,19 @@ project "Xenode"
 
 	filter { "system:windows", "configurations:Debug" }
 		links {
-			"%{Library.ShaderC_Debug}"
+			"%{Library.ShaderC_Debug}",
+			"%{Library.SpirVCrossCore_Debug}",
+			"%{Library.SpirVCrossGLSL_Debug}"
 		}
 	filter { "system:windows", "configurations:Release_Debug" }
 		links {
-			"%{Library.ShaderC_Release}"
+			"%{Library.ShaderC_Release}",
+			"%{Library.SpirVCrossCore_Release}",
+			"%{Library.SpirVCrossGLSL_Release}"
 		}
 	filter { "system:windows", "configurations:Production" }
 		links {
-			"%{Library.ShaderC_Release}"
+			"%{Library.ShaderC_Release}",
+			"%{Library.SpirVCrossCore_Release}",
+			"%{Library.SpirVCrossGLSL_Release}",
 		}

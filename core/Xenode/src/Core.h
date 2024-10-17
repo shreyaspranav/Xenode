@@ -99,6 +99,10 @@ namespace Xen
 	template<typename T, typename V>
 	using Map = std::map<T, V>;
 
+	// A pair data structure
+	template<typename A, typename B>
+	using Pair = std::pair<A, B>;
+
 	// An arbitrary buffer of data
 	struct Buffer
 	{
@@ -107,6 +111,15 @@ namespace Xen
 
 		// true if memory is allocated, false if memory is freed.
 		bool alloc = false;
+
+		void Free() 
+		{ 
+			delete[] buffer;
+			
+			buffer = nullptr;
+			alloc = false;
+			size = 0;
+		}
 	};
 }
 

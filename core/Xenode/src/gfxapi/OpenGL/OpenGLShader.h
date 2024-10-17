@@ -11,6 +11,9 @@ namespace Xen {
 		OpenGLShader(const std::string& filePath);
 		OpenGLShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);
 
+		// New constructor.
+		OpenGLShader(const UnorderedMap<ShaderType, Buffer>& shaders);
+
 		virtual ~OpenGLShader();
 
 		void LoadShader(const Ref<TransformFeedback>& transformFeedback) override;
@@ -33,7 +36,7 @@ namespace Xen {
 
 		inline void Bind() const override;
 		inline void Unbind() const override;
-
+		
 	private:
 		std::unordered_map<GLenum, std::string> PreprocessShaders(const std::vector<std::string>& shaderCode);
 

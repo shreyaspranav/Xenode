@@ -32,8 +32,11 @@ public:
 		Xen::DesktopGameApplication::OnStart();
 
 #ifndef XEN_PRODUCTION
-		// Load the default project in case of debug and release_debug builds:
-		Xen::Ref<Xen::Project> p = Xen::ProjectManager::LoadProject("../../resources/projects/default_project/default_project.xenproject");
+		// Load the default project in case  of debug and release_debug builds:
+		std::filesystem::path defaultProjectPath(PROJECTS);
+		defaultProjectPath = defaultProjectPath / "default_project" / "default_project.xenproject";
+		// In future, this has to be an ABSOLUTE PATH.
+		Xen::Ref<Xen::Project> p = Xen::ProjectManager::LoadProject(defaultProjectPath);
 #else
 		// TEMP: Implement project creation UI:
 		XEN_ENGINE_LOG_ERROR("Project Creation UI Not implemented!");

@@ -1,0 +1,373 @@
+AssetRegistry:
+  - AssetHandle: 510806874121740767
+    Metadata:
+      AssetType: Texture2D
+      Size: 11943936
+      RelativePath: textures\backgrounds\city 5\7.png
+      Dependencies: []
+  - AssetHandle: 1059997414520503967
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 1\4.png
+      Dependencies: []
+  - AssetHandle: 1061791283680174065
+    Metadata:
+      AssetType: Texture2D
+      Size: 1572864
+      RelativePath: textures\CheckerBoardTexture.png
+      Dependencies: []
+  - AssetHandle: 1593640049929932708
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 7\4.png
+      Dependencies: []
+  - AssetHandle: 1850694725490086697
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 2\6.png
+      Dependencies: []
+  - AssetHandle: 1863681889176676445
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 2\5.png
+      Dependencies: []
+  - AssetHandle: 2164675186219094069
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 5\5.png
+      Dependencies: []
+  - AssetHandle: 2265597699701587757
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 2\4.png
+      Dependencies: []
+  - AssetHandle: 2784169167906321746
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 4\4.png
+      Dependencies: []
+  - AssetHandle: 3434511729032286069
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 6\5.png
+      Dependencies: []
+  - AssetHandle: 3574042834806374064
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 6\2.png
+      Dependencies: []
+  - AssetHandle: 3591704262561922697
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 2\2.png
+      Dependencies: []
+  - AssetHandle: 4189159180694114779
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 2\7.png
+      Dependencies: []
+  - AssetHandle: 4216374770505353619
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 4\2.png
+      Dependencies: []
+  - AssetHandle: 4247539576168397871
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 5\1.png
+      Dependencies: []
+  - AssetHandle: 4247856613298663465
+    Metadata:
+      AssetType: Texture2D
+      Size: 2600000
+      RelativePath: textures\Vulkan.png
+      Dependencies: []
+  - AssetHandle: 4742520929683919285
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 8\6.png
+      Dependencies: []
+  - AssetHandle: 5303470545887034737
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 7\2.png
+      Dependencies: []
+  - AssetHandle: 5592372833166764097
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 4\7.png
+      Dependencies: []
+  - AssetHandle: 5851087838591615152
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 5\3.png
+      Dependencies: []
+  - AssetHandle: 6065348800753504090
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 2\3.png
+      Dependencies: []
+  - AssetHandle: 6172836453828974718
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 7\6.png
+      Dependencies: []
+  - AssetHandle: 6437154831624752175
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 5\6.png
+      Dependencies: []
+  - AssetHandle: 6473532296667173199
+    Metadata:
+      AssetType: Texture2D
+      Size: 11943936
+      RelativePath: textures\backgrounds\city 1\10.png
+      Dependencies: []
+  - AssetHandle: 6583612457442367071
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 6\1.png
+      Dependencies: []
+  - AssetHandle: 7217269191174526321
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 7\3.png
+      Dependencies: []
+  - AssetHandle: 7523556388593951063
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 3\5.png
+      Dependencies: []
+  - AssetHandle: 7782616086348940356
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 4\3.png
+      Dependencies: []
+  - AssetHandle: 8520688327191000648
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 5\4.png
+      Dependencies: []
+  - AssetHandle: 8560003182898043114
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 8\2.png
+      Dependencies: []
+  - AssetHandle: 8849038087289333169
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 1\6.png
+      Dependencies: []
+  - AssetHandle: 9198819590881937723
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 6\3.png
+      Dependencies: []
+  - AssetHandle: 9313188525798386560
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 3\1.png
+      Dependencies: []
+  - AssetHandle: 9354303670639191929
+    Metadata:
+      AssetType: Texture2D
+      Size: 11943936
+      RelativePath: textures\backgrounds\city 7\7.png
+      Dependencies: []
+  - AssetHandle: 9704471779884473935
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 8\5.png
+      Dependencies: []
+  - AssetHandle: 9716968476540397688
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 7\5.png
+      Dependencies: []
+  - AssetHandle: 9846615354673158630
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 3\6.png
+      Dependencies: []
+  - AssetHandle: 10118340177257184501
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 6\6.png
+      Dependencies: []
+  - AssetHandle: 10447256903961047687
+    Metadata:
+      AssetType: Texture2D
+      Size: 11943936
+      RelativePath: textures\backgrounds\city 8\7.png
+      Dependencies: []
+  - AssetHandle: 10500500888910060233
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 6\7.png
+      Dependencies: []
+  - AssetHandle: 10506470896733780629
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 6\4.png
+      Dependencies: []
+  - AssetHandle: 11057332492966919774
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 1\1.png
+      Dependencies: []
+  - AssetHandle: 11248415278384622781
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 1\3.png
+      Dependencies: []
+  - AssetHandle: 11360732074026961763
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 3\3.png
+      Dependencies: []
+  - AssetHandle: 11637022262952206862
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 7\1.png
+      Dependencies: []
+  - AssetHandle: 11964281868825742647
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 2\1.png
+      Dependencies: []
+  - AssetHandle: 12148342207991422487
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 5\2.png
+      Dependencies: []
+  - AssetHandle: 12243532394856597700
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 4\8.png
+      Dependencies: []
+  - AssetHandle: 13322702079435808182
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 3\2.png
+      Dependencies: []
+  - AssetHandle: 13626718675999024390
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 8\3.png
+      Dependencies: []
+  - AssetHandle: 13854675443640758414
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 4\1.png
+      Dependencies: []
+  - AssetHandle: 14610339695492071290
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 3\4.png
+      Dependencies: []
+  - AssetHandle: 15679875737422435863
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 1\5.png
+      Dependencies: []
+  - AssetHandle: 15730903884424150375
+    Metadata:
+      AssetType: Texture2D
+      Size: 11943936
+      RelativePath: textures\backgrounds\city 6\8.png
+      Dependencies: []
+  - AssetHandle: 16189177949830840793
+    Metadata:
+      AssetType: Texture2D
+      Size: 11943936
+      RelativePath: textures\backgrounds\city 2\10.png
+      Dependencies: []
+  - AssetHandle: 16193674902766524264
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 8\4.png
+      Dependencies: []
+  - AssetHandle: 16283029146324048970
+    Metadata:
+      AssetType: Texture2D
+      Size: 11943936
+      RelativePath: textures\backgrounds\city 4\9.png
+      Dependencies: []
+  - AssetHandle: 16713252219403182396
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 8\1.png
+      Dependencies: []
+  - AssetHandle: 17076507842546935094
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 4\5.png
+      Dependencies: []
+  - AssetHandle: 17289960651068582294
+    Metadata:
+      AssetType: Texture2D
+      Size: 746496
+      RelativePath: textures\backgrounds\city 1\2.png
+      Dependencies: []
+  - AssetHandle: 18362572313635680605
+    Metadata:
+      AssetType: Texture2D
+      Size: 2400000
+      RelativePath: textures\opengl.png
+      Dependencies: []
+  - AssetHandle: 18428085469440880505
+    Metadata:
+      AssetType: Texture2D
+      Size: 11943936
+      RelativePath: textures\backgrounds\city 3\7.png
+      Dependencies: []

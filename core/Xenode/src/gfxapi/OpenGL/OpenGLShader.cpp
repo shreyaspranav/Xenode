@@ -18,6 +18,23 @@ namespace Xen {
 	// Combine this with the asset pipeline or the project system
 	std::string cacheDirectory = std::string(COMMON_RESOURCES) + "/shaders/.cache/";
 
+	// New static method.
+	static GLenum ToGLShaderType(ShaderType type)
+	{
+		switch (type)
+		{
+		case ShaderType::Vertex:    return GL_VERTEX_SHADER;
+		case ShaderType::Fragment:  return GL_FRAGMENT_SHADER;
+		case ShaderType::Compute:   return GL_COMPUTE_SHADER;
+		case ShaderType::Geometry:  return GL_GEOMETRY_SHADER;
+		}
+
+		XEN_ENGINE_LOG_ERROR("Unknown Shadeype! ");
+		TRIGGER_BREAKPOINT;
+
+		return (GLenum)0;
+	}
+
 	static shaderc_shader_kind GLShaderToShaderC(GLenum shaderKind)
 	{
 		switch (shaderKind)
@@ -269,6 +286,21 @@ namespace Xen {
 			m_ShaderSrcSHADigest.insert({ shaderType, HashShaderCode(shaderCode) });
 
 		m_ShaderProgramID = glCreateProgram();
+	}
+
+	// New constructor: 
+	OpenGLShader::OpenGLShader(const UnorderedMap<ShaderType, Buffer>& shaders)
+	{
+		m_ShaderProgramID = glCreateProgram();
+		for (auto& [shaderType, binaryData] : shaders)
+		{
+			uint32_t shaderID = glCreateShader(ToGLShaderType(shaderType));
+
+			glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, binaryData.buffer, binaryData.size);
+			glAttachShader(m_ShaderProgramID, shaderID);
+		}
+		
+		glLinkProgram(m_ShaderProgramID);
 	}
 
 	OpenGLShader::~OpenGLShader()

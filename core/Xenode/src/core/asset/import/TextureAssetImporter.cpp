@@ -9,24 +9,27 @@
 
 namespace Xen
 {
-	Ref<Asset> TextureAssetImporter::ImportTextureAsset(const AssetMetadata& metadata)
+	Ref<Asset> TextureAssetImporter::ImportTextureAsset(AssetMetadata* metadata)
 	{
-		std::filesystem::path completePath = ProjectManager::GetCurrentProjectPath() / metadata.relPath;
+		Ref<Project> currentProject = ProjectManager::GetCurrentProject();
+		std::filesystem::path assetPath = ProjectManager::GetCurrentProjectPath() / currentProject->GetProjectSettings().relAssetDirectory;
+
+		assetPath /= metadata->relPath;
 
 		// TODO: Add more texture types if you want.
-		if (metadata.type == AssetType::Texture2D) 
-			return ImportTexture2D(metadata, completePath);
+		if (metadata->type == AssetType::Texture2D) 
+			return ImportTexture2D(metadata, assetPath);
 	}
 	
 	// Will load only for non floating point textures
-	Ref<Asset> TextureAssetImporter::ImportTexture2D(const AssetMetadata& metadata, const std::filesystem::path& completeFilePath)
+	Ref<Asset> TextureAssetImporter::ImportTexture2D(AssetMetadata* metadata, const std::filesystem::path& completeFilePath)
 	{
-		const char* filePath = completeFilePath.string().c_str();
+		std::string filePathString = completeFilePath.string();
 
 		// Check the type of data in the image file.
 		TextureBufferType dataType = TextureBufferType::UnsignedInt8;
 
-		if (stbi_is_16_bit(filePath))
+		if (stbi_is_16_bit(filePathString.c_str()))
 			dataType = TextureBufferType::UnsignedInt16;
 
 		int width, height, channels;
@@ -37,17 +40,17 @@ namespace Xen
 		{
 		case TextureBufferType::UnsignedInt8:
 			// TODO: Look into the 'desired channels' parameter, maybe extend some features based on it.
-			textureDataBuffer.buffer = stbi_load(filePath, &width, &height, &channels, 0);
+			textureDataBuffer.buffer = stbi_load(filePathString.c_str(), &width, &height, &channels, 0);
 			break;
 		case TextureBufferType::UnsignedInt16:
 			// TODO: Look into the 'desired channels' parameter, maybe extend some features based on it.
-			textureDataBuffer.buffer = stbi_load_16(filePath, &width, &height, &channels, 0);
+			textureDataBuffer.buffer = stbi_load_16(filePathString.c_str(), &width, &height, &channels, 0);
 			break;
 		}
 
 		if (!textureDataBuffer.buffer)
 		{
-			XEN_ENGINE_LOG_ERROR("Failed to import {0} as Texture2D", filePath);
+			XEN_ENGINE_LOG_ERROR("Failed to import {0} as Texture2D", filePathString);
 			return nullptr;
 		}
 
@@ -75,7 +78,13 @@ namespace Xen
 		case 4: textureProperties.format = dataType == TextureBufferType::UnsignedInt16 ? TextureFormat::RGBA16 : TextureFormat::RGBA8; break;
 		}
 
-		// return Texture2D::CreateTexture2D(textureDataBuffer, textureProperties);
-		return nullptr;
+		Ref<Texture2D> textureAsset = Texture2D::CreateTexture2D(textureDataBuffer, dataType, textureProperties);
+		
+		// Make sure the memory gets cleared.
+		metadata->size = textureDataBuffer.size;
+		stbi_image_free(textureDataBuffer.buffer);
+		textureDataBuffer.alloc = false;
+
+		return textureAsset;
 	}
 }

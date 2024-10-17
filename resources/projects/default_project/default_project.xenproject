@@ -2,7 +2,7 @@ Project:
   Name: default_project
   GameType: 2D
   ScriptingLanguage: Lua
-  AssetsPath: assets/
-  BuildPath: build/
-  CachePath: .projcache/
+  AssetsPath: assets
+  BuildPath: build
+  CachePath: .projcache
   StartScenePath: assets/2DPhysicsTest.xen

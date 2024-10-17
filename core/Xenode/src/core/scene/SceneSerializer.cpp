@@ -245,7 +245,7 @@ namespace Xen {
 		YAML::Emitter yamlEmitter;
 
 		yamlEmitter << YAML::BeginMap;
-		yamlEmitter << YAML::Key << "Scene" << YAML::Value << "Untitled"; // Scene name goes here
+		yamlEmitter << YAML::Key << "Scene" << YAML::Value << "Untitled"; // TODO: Scene name goes here
 
 		yamlEmitter << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 

@@ -24,9 +24,7 @@ namespace Xen
 	// If the game is in the runtime, the game can
 	//	-> Load assets only from so called "asset packs".
 	// 
-	// "Importing" an asset means to read the data from disk and store in CPU Memory.
-	// "Loading" an asset means to upload the data to the target so that the asset can be readily used.
-	//
+	// 
 	class XEN_API AssetManager
 	{
 	public:
@@ -38,7 +36,8 @@ namespace Xen
 		virtual bool IsAssetHandleValid(AssetHandle handle) const = 0;
 		virtual bool IsAssetLoaded(AssetHandle handle) const = 0;
 
-		// Importing assets from a asset pack should be common to all types of AssetManager's
+		// Load assets from a asset pack should be common to all types of AssetManagers
+		// Here we are loading assets because the data is optimized, meaning it requires no preprocessing.
 		virtual bool ImportAssetsFromPack(const std::filesystem::path& path) = 0;
 	};
 }

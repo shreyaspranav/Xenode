@@ -7,6 +7,8 @@
 #include <core/renderer/Texture.h>
 #include <core/app/GameApplication.h>
 
+#include <core/asset/AssetManagerUtil.h>
+
 #include "StringValues.h"
 
 class ContentBrowserPanel 
@@ -23,7 +25,6 @@ public:
 
 	void OnImGuiRender()
 	{
-
 		// Load Textures of the icons here:
 		if (!m_LoadedTextures)
 		{
@@ -74,6 +75,25 @@ public:
 
 		ImGui::Columns(column_count, "##FileColumns", false);
 
+		Xen::AssetPtrRegistry assetRegistry = Xen::AssetManagerUtil::GetEditorAssetManager()->GetLoadedAssetRegistry();
+
+		for (auto&& assetPair : assetRegistry)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+
+			Xen::Ref<Xen::Texture2D> texture = Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(assetPair.first);
+
+			ImGui::PushID(assetPair.first);
+			ImGui::ImageButton((ImTextureID)(texture->GetNativeTextureID()), { (float)m_IconSize, (float)m_IconSize });
+
+			ImGui::PopID();
+
+			ImGui::TextWrapped("%u", assetPair.first);
+			ImGui::PopStyleColor();
+			ImGui::NextColumn();
+		}
+
+#if 0
 		for (auto& p : std::filesystem::directory_iterator{ m_CurrentPath })
 		{
 			const auto& path = p.path();
@@ -117,6 +137,7 @@ public:
 			ImGui::NextColumn();
 
 		}
+#endif
 		ImGui::Columns(1);
 		ImGui::End();
 	}
@@ -136,9 +157,9 @@ private:
 	std::filesystem::path m_CurrentPath;
 
 	// Drag drop types:
-	std::string m_SceneLoadDropType = "XEN_CONTENT_BROWSER_SCENE_LOAD";
-	std::string m_TextureLoadDropType = "XEN_CONTENT_BROWSER_TEXTURE_LOAD";
-	std::string m_ScriptLoadDropType = "XEN_CONTENT_BROWSER_SCRIPT_LOAD";
+	std::string m_SceneLoadDropType    = "XEN_CONTENT_BROWSER_SCENE_LOAD";
+	std::string m_TextureLoadDropType  = "XEN_CONTENT_BROWSER_TEXTURE_LOAD";
+	std::string m_ScriptLoadDropType   = "XEN_CONTENT_BROWSER_SCRIPT_LOAD";
 
 	Xen::Ref<Xen::Texture2D> m_FolderTexture;
 	Xen::Ref<Xen::Texture2D> m_FileTexture;
