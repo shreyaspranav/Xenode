@@ -16,9 +16,11 @@ class ContentBrowserPanel
 public:
 	ContentBrowserPanel() {}
 	ContentBrowserPanel(const std::filesystem::path& assetsDirectory) 
-		:m_AssetsPath(assetsDirectory) 
+		// :m_AssetsPath(assetsDirectory) 
 	{
-		m_CurrentPath = m_AssetsPath;
+		// m_CurrentPath = m_AssetsPath;
+		m_DisplayAssetHandleFileTree = Xen::AssetManagerUtil::GetEditorAssetManager()->GetAssetHandleFileTree();
+
 	}
 
 	~ContentBrowserPanel() {}
@@ -42,14 +44,16 @@ public:
 		// The header part of the panel -------------------------------------
 		ImGui::Begin(m_PanelTitle.c_str());
 
-		bool up_button_disabled = false;
+		bool upButtonEnabled = true;
 
-		if (m_CurrentPath != m_AssetsPath)
-			up_button_disabled = true;
+		if (m_DisplayAssetHandleFileTree->parent)
+			upButtonEnabled = false;
 
-		ImGui::BeginDisabled(!up_button_disabled);
-		if(ImGui::Button(m_BackIcon.c_str()))
-			m_CurrentPath = m_CurrentPath.parent_path();
+		ImGui::BeginDisabled(upButtonEnabled);
+
+		if (ImGui::Button(m_BackIcon.c_str()))
+			m_DisplayAssetHandleFileTree = m_DisplayAssetHandleFileTree->parent;
+		
 		ImGui::EndDisabled();
 
 		ImGui::SameLine();
@@ -66,73 +70,62 @@ public:
 
 		ImGui::Separator();
 
-		uint32_t panel_width = ImGui::GetContentRegionAvail().x;
-		uint32_t cell_size = m_IconSize + m_IconPadding;
+		uint32_t panelWidth = ImGui::GetContentRegionAvail().x;
+		uint32_t cellSize = m_IconSize + m_IconPadding;
 
-		uint32_t column_count = (uint32_t)(panel_width / cell_size);
-		if (column_count < 1)
-			column_count = 1;
+		uint32_t columnCount = (uint32_t)(panelWidth / cellSize);
+		if (columnCount < 1)
+			columnCount = 1;
 
-		ImGui::Columns(column_count, "##FileColumns", false);
+		ImGui::Columns(columnCount, "##FileColumns", false);
 
-		Xen::AssetPtrRegistry assetRegistry = Xen::AssetManagerUtil::GetEditorAssetManager()->GetLoadedAssetRegistry();
+#if 1
+		Xen::AssetMetadataRegistry assetMetadataRegistry = Xen::AssetManagerUtil::GetEditorAssetManager()->GetAssetMetadataRegistry();
 
-		for (auto&& assetPair : assetRegistry)
+		for(int i = 0; i < m_DisplayAssetHandleFileTree->children.size(); i++)
 		{
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+			Xen::AssetHandleFileTreeNode* childrenNode = m_DisplayAssetHandleFileTree->children[i];
 
-			Xen::Ref<Xen::Texture2D> texture = Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(assetPair.first);
-
-			ImGui::PushID(assetPair.first);
-			ImGui::ImageButton((ImTextureID)(texture->GetNativeTextureID()), { (float)m_IconSize, (float)m_IconSize });
-
-			ImGui::PopID();
-
-			ImGui::TextWrapped("%u", assetPair.first);
-			ImGui::PopStyleColor();
-			ImGui::NextColumn();
-		}
-
-#if 0
-		for (auto& p : std::filesystem::directory_iterator{ m_CurrentPath })
-		{
-			const auto& path = p.path();
-			std::string pathString = p.path().string();
-			std::string fileName = p.path().filename().string();
-
-			Xen::Ref<Xen::Texture2D> icon_to_show = p.is_directory() ? m_FolderTexture : m_FileTexture;
-
-			// Temporary. Load the Texture and display that as the icon instead!
-			if (path.extension().string() == ".png")
-				icon_to_show = m_PngTexture;
+			// TODO: Not all assets are textures, make sure to retrieve the texture type and then display the appropriate thumbnail.
+			Xen::Ref<Xen::Texture2D> thumbnail =
+				childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder ? m_FolderTexture :
+				Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(childrenNode->handle);
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 
-			ImGui::PushID(pathString.c_str());
-			ImGui::ImageButton((ImTextureID)(icon_to_show->GetNativeTextureID()), { (float)m_IconSize, (float)m_IconSize });
+			childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder ? 
+				ImGui::PushID(childrenNode->folderName.c_str()) : ImGui::PushID((uint32_t)childrenNode->handle);
 
-			if (ImGui::BeginDragDropSource())
-			{
-				const char* payload_data = pathString.c_str();
-				if (path.extension().string() == ".xen")
-					ImGui::SetDragDropPayload(m_SceneLoadDropType.c_str(), payload_data, pathString.size() + 1);
+			ImGui::ImageButton((ImTextureID)(thumbnail->GetNativeTextureID()), { (float)m_IconSize, (float)m_IconSize });
 
-				else if (path.extension().string() == ".lua" && Xen::GetApplicationInstance()->GetScriptLang() == Xen::ScriptLang::Lua)
-					ImGui::SetDragDropPayload(m_ScriptLoadDropType.c_str(), payload_data, pathString.size() + 1);
 
-				// TODO: make sure to support all the texture formats:
-				else if (path.extension().string() == ".png")
-					ImGui::SetDragDropPayload(m_TextureLoadDropType.c_str(), payload_data, pathString.size() + 1);
-
-				ImGui::EndDragDropSource();
-			}
+			// if (ImGui::BeginDragDropSource())
+			// {
+			// 	const char* payload_data = pathString.c_str();
+			// 	if (path.extension().string() == ".xen")
+			// 		ImGui::SetDragDropPayload(m_SceneLoadDropType.c_str(), payload_data, pathString.size() + 1);
+			// 
+			// 	else if (path.extension().string() == ".lua" && Xen::GetApplicationInstance()->GetScriptLang() == Xen::ScriptLang::Lua)
+			// 		ImGui::SetDragDropPayload(m_ScriptLoadDropType.c_str(), payload_data, pathString.size() + 1);
+			// 
+			// 	// TODO: make sure to support all the texture formats:
+			// 	else if (path.extension().string() == ".png")
+			// 		ImGui::SetDragDropPayload(m_TextureLoadDropType.c_str(), payload_data, pathString.size() + 1);
+			// 
+			// 	ImGui::EndDragDropSource();
+			// }
 
 			ImGui::PopID();
 
-			if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && p.is_directory())
-				m_CurrentPath /= path.filename();
+			if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder)
+				m_DisplayAssetHandleFileTree = childrenNode;
 
-			ImGui::TextWrapped(fileName.c_str());
+			// ImGui::TextWrapped(fileName.c_str());
+
+			childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder ?
+				ImGui::TextWrapped(childrenNode->folderName.c_str()) : 
+				ImGui::TextWrapped(assetMetadataRegistry[childrenNode->handle].relPath.filename().string().c_str());
+
 			ImGui::PopStyleColor();
 			ImGui::NextColumn();
 
@@ -152,9 +145,6 @@ private:
 	std::string m_PanelTitle = Xen::StringValues::PANEL_TITLE_CONTENT_BROWSER;
 	std::string m_BackIcon = std::string(ICON_FA_ARROW_UP);
 	std::string m_SearchIcon = std::string(ICON_FA_MAGNIFYING_GLASS);
-	
-	std::filesystem::path m_AssetsPath;
-	std::filesystem::path m_CurrentPath;
 
 	// Drag drop types:
 	std::string m_SceneLoadDropType    = "XEN_CONTENT_BROWSER_SCENE_LOAD";
@@ -167,8 +157,11 @@ private:
 	// Temporary:
 	Xen::Ref<Xen::Texture2D> m_PngTexture;
 
-	uint32_t m_IconSize = 80;
+	uint32_t m_IconSize = 100;
 	uint32_t m_IconPadding = 25;
+
+	// TEMP: 
+	Xen::AssetHandleFileTreeNode* m_DisplayAssetHandleFileTree;
 
 	char m_SearchBuf[40] = "";
 

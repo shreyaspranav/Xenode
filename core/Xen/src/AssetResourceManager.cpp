@@ -8,7 +8,9 @@ struct AssetResourceManagerData
 	std::filesystem::path assetPath;
 	Xen::Ref<Xen::EditorAssetManager> assetManager;
 
-} assetDiscoveryManagerState;
+	// std::thread t;
+
+} assetResourceManagerState;
 
 // Implementation: ------------------------------------------------------------------------------------
 void AssetResourceManager::Init()
@@ -16,16 +18,20 @@ void AssetResourceManager::Init()
 	Xen::Ref<Xen::Project> currentProject = Xen::ProjectManager::GetCurrentProject();
 	std::filesystem::path currentProjectPath = Xen::ProjectManager::GetCurrentProjectPath();
 
-	assetDiscoveryManagerState.assetPath = currentProjectPath / currentProject->GetProjectSettings().relAssetDirectory;
+	assetResourceManagerState.assetPath = currentProjectPath / currentProject->GetProjectSettings().relAssetDirectory;
 
 	// This class is supposed to be used only in the editor.(not on the runtime)
-	assetDiscoveryManagerState.assetManager = Xen::AssetManagerUtil::GetEditorAssetManager();
+	assetResourceManagerState.assetManager = Xen::AssetManagerUtil::GetEditorAssetManager();
 }
 
 void AssetResourceManager::Load()
 {
 	// This function needs to be run in a different thread.
-	AssetResourceManager::LoadDirectory(std::filesystem::directory_entry(assetDiscoveryManagerState.assetPath));
+
+	// assetResourceManagerState.t = std::thread(&AssetResourceManager::LoadDirectory, std::filesystem::directory_entry(assetResourceManagerState.assetPath));
+	// assetResourceManagerState.t.join();
+
+	AssetResourceManager::LoadDirectory(std::filesystem::directory_entry(assetResourceManagerState.assetPath));
 }
 
 void AssetResourceManager::StartFileWatcher()
@@ -45,9 +51,9 @@ void AssetResourceManager::LoadDirectory(const std::filesystem::directory_entry&
 		if (directoryEntry.is_regular_file())
 		{
 			// Calculate the relative path from the project's asset directory.
-			std::filesystem::path relativePath = std::filesystem::relative(directoryEntry.path(), assetDiscoveryManagerState.assetPath);
+			std::filesystem::path relativePath = std::filesystem::relative(directoryEntry.path(), assetResourceManagerState.assetPath);
 			
-			bool loaded = assetDiscoveryManagerState.assetManager->ImportAssetFromFile(relativePath);
+			bool loaded = assetResourceManagerState.assetManager->ImportAssetFromFile(relativePath);
 
 			// TODO: Dispatch a AssetLoad Event or something.
 		}

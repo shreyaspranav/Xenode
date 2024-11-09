@@ -29,11 +29,11 @@ namespace Xen
 	// EditorAssetManager Implementation: -------------------------------------------------------------------------
 	EditorAssetManager::EditorAssetManager()
 	{
-
+		m_AssetFileTreeRoot = new AssetHandleFileTreeNode("assets");
 	}
 	EditorAssetManager::~EditorAssetManager()
 	{
-
+		
 	}
 	Ref<Asset> EditorAssetManager::GetAsset(AssetHandle handle) const
 	{
@@ -92,7 +92,8 @@ namespace Xen
 			m_PtrRegistry.insert({ handle, asset });
 			m_PtrRegistryLoaded.insert({ handle, asset }); // The asset is already loaded.
 
-			// Change the metadata's filepath relative to the assets directory
+			// Add the asset to the Asset File Tree.
+			AddAssetToFileTree(handle, filePath);
 
 			m_MetadataRegistry.insert({ handle, metadata });
 			return true;
@@ -100,8 +101,52 @@ namespace Xen
 	}
 	void EditorAssetManager::SerializeRegistry()
 	{
-		AssetRegistrySerializer::Serialize(m_MetadataRegistry, "test.asset_dir");
+		// AssetRegistrySerializer::Serialize(m_MetadataRegistry, "test.asset_dir");
 	}
+
+	// Private Methods: ----------------------------------------------------------------------------------------------------------
+	void EditorAssetManager::AddAssetToFileTree(AssetHandle handle, const std::filesystem::path& path)
+	{
+		std::string parentPathString = path.parent_path().string();
+
+		AssetHandleFileTreeNode* currentNode = m_AssetFileTreeRoot;
+
+		std::stringstream pathStream(parentPathString);
+		std::string currentFolder;
+		Vector<std::string> folders;
+
+		while (std::getline(pathStream, currentFolder, '\\'))
+		{
+			AssetHandleFileTreeNode* currentFolderNode = GetFolderPresentInChildren(currentNode, currentFolder);
+
+			// There is no child node named 'currentFolder', create a new node:
+			if (!currentFolderNode)
+			{
+				AssetHandleFileTreeNode* folderNode = new AssetHandleFileTreeNode(currentFolder);
+				
+				currentNode->children.push_back(folderNode);
+				folderNode->parent = currentNode;
+
+				currentNode = folderNode;
+			}
+			// There is a folder named 'currentFolder', use that.
+			else
+				currentNode = currentFolderNode;
+		}
+
+		AssetHandleFileTreeNode* assetNode = new AssetHandleFileTreeNode(handle);
+		currentNode->children.push_back(assetNode);
+	}
+
+	AssetHandleFileTreeNode* EditorAssetManager::GetFolderPresentInChildren(AssetHandleFileTreeNode* parentNode, const std::string& folderName)
+	{
+		for (AssetHandleFileTreeNode* childNode : parentNode->children)
+			if (childNode->type == AssetHandleFileTreeNodeType::Folder && childNode->folderName == folderName)
+				return childNode;
+
+		return nullptr;
+	}
+
 	// ---------------------------------------------------------------------------------------------------------------------------
 	// AssetRegistrySerializer Implementation: -----------------------------------------------------------------------------------
 
