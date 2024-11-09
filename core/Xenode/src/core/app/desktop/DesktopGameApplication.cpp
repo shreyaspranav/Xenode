@@ -13,6 +13,9 @@
 
 #include <core/renderer/RenderCommand.h>
 
+#include <core/asset/EditorAssetManager.h>
+#include <core/asset/AssetManagerUtil.h>
+
 namespace Xen 
 {
 	// A Game should only have one instance of GameApplication, therefore the "only" current instance

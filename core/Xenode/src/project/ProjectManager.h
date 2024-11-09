@@ -13,7 +13,7 @@ namespace Xen
 		// Creates a project on disk with the given properties.
 		static Ref<Project> CreateProjectOnDisk(const std::filesystem::path& rootPath, const ProjectProperties& properties);
 
-		// Loads the existing project and returns its instance.
+		// Loads the existing project and returns its instance. (Also initializes the asset manager instance)
 		static Ref<Project> LoadProject(const std::filesystem::path pathToProjectFile);
 
 		// Returns the instance of the current project

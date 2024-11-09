@@ -7,8 +7,8 @@ namespace Xen
 	class XEN_API TextureAssetImporter
 	{
 	public:
-		static Ref<Asset> ImportTextureAsset(const AssetMetadata& metadata);
+		static Ref<Asset> ImportTextureAsset(AssetMetadata* metadata);
 	private:
-		static Ref<Asset> ImportTexture2D(const AssetMetadata& metadata, const std::filesystem::path& completeFilePath);
+		static Ref<Asset> ImportTexture2D(AssetMetadata* metadata, const std::filesystem::path& completeFilePath);
 	};
 }

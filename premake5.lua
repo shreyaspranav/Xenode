@@ -8,12 +8,13 @@ workspace "Xenode"
 
 	--toolset "clang"
 
--- Vulkan SDK is used for shaderc
+-- Vulkan SDK is used for shaderc and spirv-cross
 VULKAN_SDK_PATH = os.getenv("VULKAN_SDK")
 
 -- Paths of various resources
-COMMON_RESOURCES_PATH = "%{wks.location}/resources/CommonResources"
-EDITOR_RESOURCES_PATH = "%{wks.location}/resources/EditorResources"
+COMMON_RESOURCES_PATH   = "%{wks.location}/resources/CommonResources"
+EDITOR_RESOURCES_PATH   = "%{wks.location}/resources/EditorResources"
+PROJECTS_PATH           = "%{wks.location}/resources/projects"
 
 -- Dependencies:
 group "Dependencies"
@@ -47,8 +48,15 @@ IncludeDir["VulkanSDK"] 	= "%{VULKAN_SDK_PATH}/Include"
 Library = {}
 
 -- Windows only for now.
-Library["ShaderC_Debug"] 	= "%{VULKAN_SDK_PATH}/Lib/shaderc_sharedd.lib"
-Library["ShaderC_Release"] 	= "%{VULKAN_SDK_PATH}/Lib/shaderc_shared.lib"
+-- ShaderC
+Library["ShaderC_Debug"] 			= "%{VULKAN_SDK_PATH}/Lib/shaderc_sharedd.lib"
+Library["ShaderC_Release"] 			= "%{VULKAN_SDK_PATH}/Lib/shaderc_shared.lib"
+
+-- SpirV Cross
+Library["SpirVCrossCore_Debug"] 	= "%{VULKAN_SDK_PATH}/Lib/spirv-cross-cored.lib"
+Library["SpirVCrossCore_Release"] 	= "%{VULKAN_SDK_PATH}/Lib/spirv-cross-core.lib"
+Library["SpirVCrossGLSL_Debug"] 	= "%{VULKAN_SDK_PATH}/Lib/spirv-cross-glsld.lib"
+Library["SpirVCrossGLSL_Release"] 	= "%{VULKAN_SDK_PATH}/Lib/spirv-cross-glsl.lib"
 
 newoption {
 	trigger = "enable-profiling", 

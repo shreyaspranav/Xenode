@@ -1,5 +1,6 @@
 #include "LevelEditorLayer.h"
 #include "core/scene/ScriptableEntity.h"
+#include "AssetResourceManager.h"
 
 #include <core/app/Timer.h>
 #include <core/app/Utils.h>
@@ -23,6 +24,8 @@
 #include <core/scene/SceneRuntime.h>
 #include <core/scene/Components.h>
 
+#include <core/asset/AssetManagerUtil.h>
+
 Xen::Vec2 mouseInitialPos;
 
 bool operator&(const KeyTransformOperation& o1, const KeyTransformOperation& o2) { return static_cast<uint16_t>(o1) & static_cast<uint16_t>(o2); }
@@ -39,9 +42,6 @@ LevelEditorLayer::~LevelEditorLayer()
 void LevelEditorLayer::OnAttach()
 {
 	m_GameMode = Xen::GetApplicationInstance()->GetGameType();
-
-	// input = Xen::Input::GetInputInterface();
-	// input->SetWindow(Xen::DesktopApplication::GetWindow());
 
 	m_EditorCamera = std::make_shared<Xen::Camera>(
 		m_EditorCameraType == Xen::EditorCameraType::_2D ? Xen::CameraType::Orthographic : Xen::CameraType::Perspective, 
@@ -147,6 +147,11 @@ void LevelEditorLayer::OnAttach()
 	Xen::SceneRuntime::SetAdditionalCamera(m_EditorCamera);
 
 	m_SceneSettings.renderSource = Xen::RenderSource::AdditionalCamera;
+
+	AssetResourceManager::Init();
+	AssetResourceManager::Load();
+
+	Xen::AssetManagerUtil::GetEditorAssetManager()->SerializeRegistry();
 }
 
 void LevelEditorLayer::OnDetach()

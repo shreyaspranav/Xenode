@@ -6,7 +6,18 @@
 #include "Structs.h"
 #include "Buffer.h"
 
-namespace Xen {
+namespace Xen 
+{
+	enum class ShaderType : uint8_t
+	{
+		None = 0,
+
+		Vertex, Fragment, Geometry, Compute,
+
+		// TODO: Rarely used/Maybe not used/Have no code to use: 
+		TessellationControl, TessellationEvaluate
+	};
+
 	class XEN_API Shader : public Asset
 	{
 	public:
@@ -30,6 +41,8 @@ namespace Xen {
 		virtual void SetInt4(const std::string& name, const Vec4& value) = 0;
 
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) = 0;
+
+		static Ref<Shader> CreateShader(const UnorderedMap<ShaderType, Buffer>& shaders);
 
 		static Ref<Shader> CreateShader(const std::string& filePath);
 		static Ref<Shader> CreateShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);

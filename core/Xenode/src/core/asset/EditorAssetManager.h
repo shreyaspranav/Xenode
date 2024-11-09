@@ -15,18 +15,29 @@ namespace Xen
 
 		virtual bool IsAssetHandleValid(AssetHandle handle) const override;
 		virtual bool IsAssetLoaded(AssetHandle handle) const override;
-		
+
+		// IMPORTANT: all the file paths are either relative to the current project's asset directory
+		// or absolute.
+
 		// Imports all assets from an "asset pack"
 		bool ImportAssetsFromPack(const std::filesystem::path& filePath) override;
+		bool ImportAssetFromFile(const std::filesystem::path& filePath);
 
-		// If a file, imports the file as an asset, If a directory, imports all the files in
-		// the directory as an assets.
-		bool ImportAssetsFromFiles(const std::filesystem::path& filePath);
+		void SerializeRegistry();
+
+		inline AssetPtrRegistry GetLoadedAssetRegistry() { return m_PtrRegistryLoaded; }
 
 	private:
 		AssetPtrRegistry m_PtrRegistry;
 		AssetPtrRegistry m_PtrRegistryLoaded;  // "Loaded" refers to if the asset is ready to use.
 
 		AssetMetadataRegistry m_MetadataRegistry;
+	};
+
+	class AssetRegistrySerializer
+	{
+	public:
+		static void Serialize(const AssetMetadataRegistry& registry, const std::filesystem::path& filePath);
+		static void Deserialize(AssetMetadataRegistry& registry, const std::filesystem::path& filePath);
 	};
 }

@@ -19,9 +19,9 @@ namespace Xen
 	// Struct to represent the project settings that can be changed after the creation of the project:
 	struct ProjectSettings
 	{
-		std::filesystem::path relCacheDirectory = ".projcache/";
-		std::filesystem::path relAssetDirectory = "assets/";
-		std::filesystem::path relBuildDirectory = "build/";
+		std::filesystem::path relCacheDirectory = ".projcache";
+		std::filesystem::path relAssetDirectory = "assets";
+		std::filesystem::path relBuildDirectory = "build";
 
 		std::filesystem::path relStartScenePath = "assets/Scene.xen";
 	};

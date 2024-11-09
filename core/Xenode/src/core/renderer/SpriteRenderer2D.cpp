@@ -346,6 +346,8 @@ namespace Xen
 
 	void SpriteRenderer2D::RenderFrame(float timestep)
 	{
+		RenderCommand::EnableDepthTest(true);
+
 		// Rendering Sprites:
 		spriteRendererStorage.shader->Bind();
 		spriteRendererStorage.cameraBuffer->Put(0, &spriteRendererStorage.cameraData, sizeof(CameraData));
