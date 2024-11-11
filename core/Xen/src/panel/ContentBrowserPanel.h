@@ -87,9 +87,19 @@ public:
 			Xen::AssetHandleFileTreeNode* childrenNode = m_DisplayAssetHandleFileTree->children[i];
 
 			// TODO: Not all assets are textures, make sure to retrieve the texture type and then display the appropriate thumbnail.
-			Xen::Ref<Xen::Texture2D> thumbnail =
-				childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder ? m_FolderTexture :
-				Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(childrenNode->handle);
+			// Xen::Ref<Xen::Texture2D> thumbnail =
+			// 	childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder ? m_FolderTexture :
+			// 	Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(childrenNode->handle);
+
+			Xen::Ref<Xen::Texture2D> thumbnail;
+			if (childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder)
+				thumbnail = m_FolderTexture;
+			else if (assetMetadataRegistry[childrenNode->handle].type == Xen::AssetType::Texture2D)
+				thumbnail = Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(childrenNode->handle);
+			else
+				// use the file texture for all the other types of assets.
+				// TODO: Improve this:
+				thumbnail = m_FileTexture;
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 

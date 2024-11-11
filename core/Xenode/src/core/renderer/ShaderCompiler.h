@@ -21,21 +21,21 @@ namespace Xen
 			ShaderType type);
 
 	private:
-		static Buffer CompileToVulkanSpirV(
+		static Vector<uint32_t> CompileToVulkanSpirV(
 			const std::string& shaderSource,
 			const std::string& fileName,
 			const Vector <Pair<std::string, std::string>>& defines,
 			ShaderType type);
 
 		static std::string GetAPISpecificSource(
-			Buffer spirv,
+			const Vector<uint32_t>& vulkanSpirV,
 			ShaderType type,
 			GraphicsAPI targetAPI,
 			const std::string& fileName
 		);
 
 		static std::string ReflectSpirVBinary(
-			Buffer spirv, 
+			const Vector<uint32_t>& vulkanSpirV,
 			ShaderType type, 
 			GraphicsAPI targetAPI, 
 			const std::string& fileName);

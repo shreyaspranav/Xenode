@@ -108,6 +108,9 @@ namespace Xen
 	void EditorAssetManager::AddAssetToFileTree(AssetHandle handle, const std::filesystem::path& path)
 	{
 		std::string parentPathString = path.parent_path().string();
+		
+		// Replace \ by / so that all paths are uniform across platforms
+		std::replace(parentPathString.begin(), parentPathString.end(), '\\', '/');
 
 		AssetHandleFileTreeNode* currentNode = m_AssetFileTreeRoot;
 
@@ -115,7 +118,8 @@ namespace Xen
 		std::string currentFolder;
 		Vector<std::string> folders;
 
-		while (std::getline(pathStream, currentFolder, '\\'))
+		// TODO: Make sure to somehow support '/' too.
+		while (std::getline(pathStream, currentFolder, '/'))
 		{
 			AssetHandleFileTreeNode* currentFolderNode = GetFolderPresentInChildren(currentNode, currentFolder);
 

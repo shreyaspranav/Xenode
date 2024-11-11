@@ -76,7 +76,7 @@ namespace Xen
 				continue;
 			}
 
-			shaderCodeEach << stringToken;
+			shaderCodeEach << stringToken << "\n";
 		}
 
 		if (!shaderCodeEach.str().empty()) 

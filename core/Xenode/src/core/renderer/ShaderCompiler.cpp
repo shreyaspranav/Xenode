@@ -92,23 +92,34 @@ namespace Xen
 	{
 		GraphicsAPI currentAPI = GetApplicationInstance()->GetGraphicsAPI();
 
-		Buffer vulkanSpirVBinary = CompileToVulkanSpirV(shaderSource, fileName, defines, type);
-		if (currentAPI == GraphicsAPI::XEN_VULKAN_API)
-			return vulkanSpirVBinary;
-		else
+		Buffer shaderBinary;
+		Vector<uint32_t> vulkanSpirVBinary = CompileToVulkanSpirV(shaderSource, fileName, defines, type);
+
+		if (!vulkanSpirVBinary.empty())
 		{
-			const std::string& apiSpecificShaderSource = GetAPISpecificSource(vulkanSpirVBinary, type, currentAPI, fileName);
-			ReflectSpirVBinary(vulkanSpirVBinary, type, currentAPI, fileName);
+			if (currentAPI == GraphicsAPI::XEN_VULKAN_API)
+			{
+				uint32_t* shaderBuffer = new uint32_t[vulkanSpirVBinary.size()];
+				memcpy(shaderBuffer, vulkanSpirVBinary.data(), vulkanSpirVBinary.size());
 
-			// Free the vulkan spirv once the shader is cross compiled.
-			vulkanSpirVBinary.Free();
+				shaderBinary.buffer = shaderBuffer;
+				shaderBinary.size = vulkanSpirVBinary.size();
+				shaderBinary.alloc = true;
+			}
+			else
+			{
+				const std::string& apiSpecificShaderSource = GetAPISpecificSource(vulkanSpirVBinary, type, currentAPI, fileName);
+				ReflectSpirVBinary(vulkanSpirVBinary, type, currentAPI, fileName);
 
-			return GetFinalShaderBinary(apiSpecificShaderSource, type, currentAPI, fileName);
+				return GetFinalShaderBinary(apiSpecificShaderSource, type, currentAPI, fileName);
+			}
 		}
+
+		return shaderBinary;
 	}
 
 	// Private methods: -------------------------------------------------------------------------
-	Buffer ShaderCompiler::CompileToVulkanSpirV(
+	Vector<uint32_t> ShaderCompiler::CompileToVulkanSpirV(
 		const std::string& shaderSource, 
 		const std::string& fileName,
 		const Vector<Pair<std::string, std::string>>& defines,
@@ -130,7 +141,6 @@ namespace Xen
 		for (auto& define : defines)
 			options.AddMacroDefinition(define.first, define.second);
 
-		Buffer vulkanSpirV;
 		shaderc::CompilationResult compilationResult =
 			compiler.CompileGlslToSpv(shaderSource, ToShaderCShaderKind(type), fileName.c_str());
 
@@ -153,27 +163,21 @@ namespace Xen
 				ToStringFromShaderType(type), 
 				compilationResult.GetNumWarnings()
 			);
-
-			Size compiledBinaryBufferSize = compilationResult.end() - compilationResult.begin();
-			uint32_t* binaryBuffer = new uint32_t[compiledBinaryBufferSize];
-
-			vulkanSpirV.buffer = binaryBuffer;
-			vulkanSpirV.size = compiledBinaryBufferSize;
-			vulkanSpirV.alloc = true;
 		}
+		std::vector<uint32_t> vulkanSpirV(compilationResult.begin(), compilationResult.end());
 
 		return vulkanSpirV;
 	}
 
 	std::string ShaderCompiler::GetAPISpecificSource(
-		Buffer spirv, 
+		const Vector<uint32_t>& vulkanSpirV,
 		ShaderType type, 
 		GraphicsAPI targetAPI, 
 		const std::string& fileName)
 	{
 		if (targetAPI == GraphicsAPI::XEN_OPENGL_API || targetAPI == GraphicsAPI::XEN_OPENGLES_API)
 		{
-			spirv_cross::CompilerGLSL glslCompiler(reinterpret_cast<uint32_t*>(spirv.buffer), spirv.size);
+			spirv_cross::CompilerGLSL glslCompiler(vulkanSpirV);
 			spirv_cross::CompilerGLSL::Options options;
 
 			// TODO: Look into more options.
@@ -207,12 +211,12 @@ namespace Xen
 	}
 
 	std::string ShaderCompiler::ReflectSpirVBinary(
-		Buffer spirv, 
+		const Vector<uint32_t>& vulkanSpirV, 
 		ShaderType type, 
 		GraphicsAPI targetAPI, 
 		const std::string& fileName)
 	{
-		spirv_cross::Compiler compiler(reinterpret_cast<uint32_t*>(spirv.buffer), spirv.size);
+		spirv_cross::Compiler compiler(vulkanSpirV);
 		spirv_cross::ShaderResources shaderResources = compiler.get_shader_resources();
 
 		XEN_ENGINE_LOG_INFO("Shader Reflection: {0}, Stage: {1}----------", fileName, ToStringFromShaderType(type));
@@ -281,6 +285,9 @@ namespace Xen
 			{
 				Size compiledBinaryBufferSize = compilationResult.end() - compilationResult.begin();
 				uint32_t* binaryBuffer = new uint32_t[compiledBinaryBufferSize];
+
+				for (int i = 0; i < compiledBinaryBufferSize; i++)
+					binaryBuffer[i] = *(compilationResult.begin() + i);
 
 				Buffer finalCompiledBinary;
 

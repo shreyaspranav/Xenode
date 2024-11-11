@@ -25,12 +25,19 @@ namespace Xen
 		}
 
 		template<typename AssetType>
+		static Ref<AssetType> GetSpecificAsset(const Ref<Asset>& asset)
+		{
+			return std::dynamic_pointer_cast<AssetType>(asset);
+		}
+
+		template<typename AssetType>
 		static Ref<AssetType> GetAsset(AssetHandle handle)
 		{
 			Ref<AssetManager> currentAssetManager = ProjectManager::GetCurrentAssetManager();
 			Ref<Asset> asset = currentAssetManager->GetAsset(handle);
 
-			return std::dynamic_pointer_cast<AssetType>(asset);
+			return GetSpecificAsset<AssetType>(asset);
 		}
+
 	};
 }
