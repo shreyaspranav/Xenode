@@ -60,11 +60,15 @@ namespace Xen {
 
 		virtual inline TextureProperties GetTextureProperties() const = 0;
 		virtual inline uint32_t GetNativeTextureID() const = 0;
+		virtual inline TextureWrapMode GetTextureWrapMode() const = 0;
+		virtual inline TextureFilterMode GetTextureFilterMode() const = 0;
 
 		static Ref<Texture2D> CreateTexture2D(const std::string& filepath, bool flip_on_load);
 		static Ref<Texture2D> CreateTexture2D(TextureProperties properties, void* data, uint32_t size);
 
 		static Ref<Texture2D> CreateTexture2D(const Buffer& textureBuffer, TextureBufferType bufferType, TextureProperties properties);
+
+		static Ref<Texture2D> CopyTexture2D(const Ref<Texture2D>& texture);
 
 		static void BindTexture(uint32_t textureID, uint8_t slot);
 		static void BindToImageUnit(const Ref<Texture2D>& texture, uint8_t slot, uint8_t mipLevel = 0);

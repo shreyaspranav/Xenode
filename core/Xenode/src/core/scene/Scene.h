@@ -7,6 +7,7 @@
 #include <entt.hpp>
 
 class SceneHierarchyPanel;
+class ThumbnailGenerator;
 
 namespace Xen 
 {
@@ -50,6 +51,7 @@ namespace Xen
 		friend class Entity;
 
 		friend class ::SceneHierarchyPanel;
+		friend class ::ThumbnailGenerator;
 
 	private:
 		entt::registry m_SceneRegistry;

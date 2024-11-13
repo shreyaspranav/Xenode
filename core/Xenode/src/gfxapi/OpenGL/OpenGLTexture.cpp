@@ -109,6 +109,31 @@ namespace Xen {
 		return (GLenum)0;
 	}
 
+	static Size PixelSize(TextureFormat format)
+	{
+		switch (format)
+		{
+		case Xen::TextureFormat::G8:           return 1;
+		case Xen::TextureFormat::G16:          return 2;
+		case Xen::TextureFormat::GA8:          return 2;
+		case Xen::TextureFormat::RGB8:         return 3;
+		case Xen::TextureFormat::GA16:         return 4;
+		case Xen::TextureFormat::R11G11B10F:   return 4;
+		case Xen::TextureFormat::RGBA8:        return 4;
+		case Xen::TextureFormat::RGB16:        return 6;
+		case Xen::TextureFormat::RGB16F:       return 6;
+		case Xen::TextureFormat::RGBA16:       return 8;
+		case Xen::TextureFormat::RGBA16F:      return 8;
+		case Xen::TextureFormat::RGB32F:       return 12;
+		case Xen::TextureFormat::RGBA32F:      return 16;
+		}
+
+		XEN_ENGINE_LOG_ERROR("Unknown TextureFormat type!");
+		TRIGGER_BREAKPOINT;
+
+		return 0;
+	}
+
 	static GLenum ToGLFilterMode(TextureFilterMode mode)
 	{
 		switch (mode)
@@ -321,5 +346,29 @@ namespace Xen {
 	{
 		glBindImageTexture(slot, textureID, mipLevel, GL_FALSE, 0,
 			GL_READ_WRITE, ToGLInternalTextureFormat(format));
+	}
+	Ref<Texture2D> OpenGLTexture::CopyTexture2D(const Ref<Texture2D>& texture)
+	{
+		TextureProperties textureProperties = texture->GetTextureProperties();
+
+		Ref<Texture2D> copiedTexture = Texture2D::CreateTexture2D(
+			textureProperties, 
+			nullptr, 
+			textureProperties.width * textureProperties.height * PixelSize(textureProperties.format));
+
+		copiedTexture->SetTextureWrapMode(texture->GetTextureWrapMode());
+		copiedTexture->SetTextureFilterMode(texture->GetTextureFilterMode());
+		
+		uint32_t sourceTextureID = texture->GetNativeTextureID();
+		uint32_t destinationTextureID = copiedTexture->GetNativeTextureID();
+		// Copying the texture using glCopyImageSubData
+
+		glCopyImageSubData(
+			sourceTextureID, GL_TEXTURE_2D, 0, 0, 0, 0,
+			destinationTextureID, GL_TEXTURE_2D, 0, 0, 0, 0,
+			textureProperties.width, textureProperties.height, 1
+		);
+
+		return copiedTexture;
 	}
 }

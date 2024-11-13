@@ -34,6 +34,15 @@ namespace Xen {
 		}
 		return nullptr;
 	}
+	Ref<Texture2D> Texture2D::CopyTexture2D(const Ref<Texture2D>& texture)
+	{
+		switch (GetApplicationInstance()->GetGraphicsAPI())
+		{
+		case GraphicsAPI::XEN_OPENGL_API:
+			return OpenGLTexture::CopyTexture2D(texture);
+		}
+		return nullptr;
+	}
 	void Texture2D::BindTexture(uint32_t id, uint8_t slot)
 	{
 		switch (GetApplicationInstance()->GetGraphicsAPI())

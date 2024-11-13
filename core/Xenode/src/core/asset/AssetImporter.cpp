@@ -3,6 +3,7 @@
 
 #include "import/TextureAssetImporter.h"
 #include "import/ShaderAssetImporter.h"
+#include "import/SceneAssetImporter.h"
 
 #include <core/app/Log.h>
 
@@ -15,7 +16,8 @@ namespace Xen
 	std::unordered_map<AssetType, AssetImportFn> importFns = 
 	{
 		{ AssetType::Texture2D, TextureAssetImporter::ImportTextureAsset },
-		{ AssetType::Shader,    ShaderAssetImporter::ImportShaderAsset }
+		{ AssetType::Shader,    ShaderAssetImporter::ImportShaderAsset },
+		{ AssetType::Scene,     SceneAssetImporter::ImportSceneAsset }
 	};
 
 	Ref<Asset> AssetImporter::ImportAsset(AssetMetadata* metadata)

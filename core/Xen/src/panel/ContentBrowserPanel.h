@@ -8,8 +8,10 @@
 #include <core/app/GameApplication.h>
 
 #include <core/asset/AssetManagerUtil.h>
+#include <core/asset/AssetUserData.h>
 
 #include "StringValues.h"
+#include "ThumbnailGenerator.h"
 
 class ContentBrowserPanel 
 {
@@ -30,9 +32,9 @@ public:
 		// Load Textures of the icons here:
 		if (!m_LoadedTextures)
 		{
-			m_FileTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/file.png", false);
-			m_FolderTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/folder.png", false);
-			m_PngTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/png.png", false);
+			m_FileTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/file.png", true);
+			m_FolderTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/folder.png", true);
+			m_PngTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/png.png", true);
 			
 			m_FileTexture->LoadTexture();
 			m_FolderTexture->LoadTexture();
@@ -79,6 +81,7 @@ public:
 
 		ImGui::Columns(columnCount, "##FileColumns", false);
 
+
 #if 1
 		Xen::AssetMetadataRegistry assetMetadataRegistry = Xen::AssetManagerUtil::GetEditorAssetManager()->GetAssetMetadataRegistry();
 
@@ -86,16 +89,26 @@ public:
 		{
 			Xen::AssetHandleFileTreeNode* childrenNode = m_DisplayAssetHandleFileTree->children[i];
 
-			// TODO: Not all assets are textures, make sure to retrieve the texture type and then display the appropriate thumbnail.
-			// Xen::Ref<Xen::Texture2D> thumbnail =
-			// 	childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder ? m_FolderTexture :
-			// 	Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(childrenNode->handle);
+			// To flip the thumbnails, toggle this.
+			// To flip selectively according to type of asset thumbnail, toggle individually in the if ... else if block below.
+			bool flipThumbnail = true;
 
 			Xen::Ref<Xen::Texture2D> thumbnail;
 			if (childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder)
 				thumbnail = m_FolderTexture;
 			else if (assetMetadataRegistry[childrenNode->handle].type == Xen::AssetType::Texture2D)
 				thumbnail = Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(childrenNode->handle);
+			else if (assetMetadataRegistry[childrenNode->handle].type == Xen::AssetType::Scene)
+			{
+				Xen::SceneAssetUserData* sceneAssetUserData = (Xen::SceneAssetUserData*)assetMetadataRegistry[childrenNode->handle].userData.buffer;
+
+				if (!sceneAssetUserData->thumbnail)
+				{
+					Xen::Ref<Xen::Scene> sceneAsset = Xen::AssetManagerUtil::GetAsset<Xen::Scene>(childrenNode->handle);
+					sceneAssetUserData->thumbnail = ThumbnailGenerator::GenerateSceneThumbnail(sceneAsset, sceneAssetUserData->editorCameraTransform, m_IconSize, m_IconSize);
+				}
+				thumbnail = sceneAssetUserData->thumbnail;
+			}
 			else
 				// use the file texture for all the other types of assets.
 				// TODO: Improve this:
@@ -106,7 +119,7 @@ public:
 			childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder ? 
 				ImGui::PushID(childrenNode->folderName.c_str()) : ImGui::PushID((uint32_t)childrenNode->handle);
 
-			ImGui::ImageButton((ImTextureID)(thumbnail->GetNativeTextureID()), { (float)m_IconSize, (float)m_IconSize });
+			ImGui::ImageButton((ImTextureID)(thumbnail->GetNativeTextureID()), { (float)m_IconSize, (float)m_IconSize }, ImVec2(0, flipThumbnail ? 1 : 0), ImVec2(1, flipThumbnail ? 0 : 1));
 
 
 			// if (ImGui::BeginDragDropSource())

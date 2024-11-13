@@ -66,11 +66,13 @@ namespace Xen
 	{
 		AssetType type;
 		Size size;
+		Vector<AssetHandle> dependencies;
 
+		// These things shouldn't be in runtime:
+		
 		// Relative path from the assets directory.
 		std::filesystem::path relPath;
-
-		Vector<AssetHandle> dependencies;
+		Buffer userData;
 	};
 
 	// Base class for all asset types.
