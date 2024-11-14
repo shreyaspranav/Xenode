@@ -5,6 +5,7 @@
 #include "GLFW_window.h"
 
 #include <core/app/Events.h>
+#include <core/app/Log.h>
 
 #include <GLFW/glfw3.h>
 
@@ -23,6 +24,10 @@ namespace Xen
 		case GLFW_PRESS:	return MouseButtonAction::Press;
 		case GLFW_RELEASE:	return MouseButtonAction::Release;
 		}
+
+		XEN_ENGINE_LOG_ERROR("GLFW: \'action\' id unknown: {0}", action);
+		TRIGGER_BREAKPOINT;
+		return MouseButtonAction::Release;
 	}
 
 	// Implementation: ------------------------------------------------------------------------------------------------------

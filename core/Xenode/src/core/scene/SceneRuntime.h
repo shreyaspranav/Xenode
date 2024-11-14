@@ -53,7 +53,7 @@ namespace Xen
 		bool showDebugGraphics = true;
 
 		// Debug rendering flags for various features.
-		DebugRenderTargetFlag physicsColliderTargetFlag = DebugRenderTargetFlag::Editor;
+		DebugRenderTargetFlag physicsColliderTargetFlag = DebugRenderTargetFlag::Disabled;
 		DebugRenderTargetFlag displayEntitiesTargetFlag = DebugRenderTargetFlag::Editor;
 
 		// Color of various stuff

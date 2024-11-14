@@ -32,6 +32,10 @@ namespace Xen
 		case ShaderType::TessellationControl:   return "Tessellation Control Shader";
 		case ShaderType::TessellationEvaluate:  return "Tessellation Evaluation Shader";
 		}
+
+		XEN_ENGINE_LOG_ERROR("Unknown shaderType!");
+		TRIGGER_BREAKPOINT;
+		return "";
 	}
 
 	shaderc_shader_kind ToShaderCShaderKind(ShaderType shaderType)
@@ -208,6 +212,7 @@ namespace Xen
 			XEN_ENGINE_LOG_ERROR("Not implemented for current Graphics API!");
 			TRIGGER_BREAKPOINT;
 		}
+		return "";
 	}
 
 	std::string ShaderCompiler::ReflectSpirVBinary(
@@ -261,6 +266,8 @@ namespace Xen
 		GraphicsAPI targetAPI, 
 		const std::string& fileName)
 	{
+		Buffer finalCompiledBinary;
+		
 		// Compile using ShaderC for OpenGL and Vulkan
 		// Do some research for Direct3D
 		if (targetAPI == GraphicsAPI::XEN_OPENGL_API || 
@@ -289,13 +296,9 @@ namespace Xen
 				for (int i = 0; i < compiledBinaryBufferSize; i++)
 					binaryBuffer[i] = *(compilationResult.begin() + i);
 
-				Buffer finalCompiledBinary;
-
 				finalCompiledBinary.buffer = binaryBuffer;
 				finalCompiledBinary.size = compiledBinaryBufferSize;
 				finalCompiledBinary.alloc = true;
-
-				return finalCompiledBinary;
 			}
 			else
 			{
@@ -303,11 +306,12 @@ namespace Xen
 				// before cross compiling to api specific source.
 				TRIGGER_BREAKPOINT;
 			}
-
 		}
 		else
 		{
 			// Look how to do it for other APIs(Metal and Direct3D)
 		}
+
+		return finalCompiledBinary;
 	}
 }

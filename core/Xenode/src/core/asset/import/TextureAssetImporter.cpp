@@ -19,6 +19,9 @@ namespace Xen
 		// TODO: Add more texture types if you want.
 		if (metadata->type == AssetType::Texture2D) 
 			return ImportTexture2D(metadata, assetPath);
+
+		XEN_ENGINE_LOG_ERROR("Unknown Texture Type: {0}", assetPath.string());
+		return nullptr;
 	}
 	
 	// Will load only for non floating point textures

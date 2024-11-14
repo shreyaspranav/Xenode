@@ -6,7 +6,13 @@
 
 #include "AssetImporter.h"
 
+#pragma warning(push)
+#pragma warning(disable : 4275)
+#pragma warning(disable : 4251)
+
 #include <yaml-cpp/yaml.h>
+
+#pragma warning(pop)
 
 namespace Xen
 {
@@ -33,7 +39,10 @@ namespace Xen
 	}
 	EditorAssetManager::~EditorAssetManager()
 	{
-		
+		// TODO: Write a custom memory allocator.
+		// Deallocate all the user data
+		for (auto&& metadataEntry : m_MetadataRegistry)
+			metadataEntry.second.userData.Free();
 	}
 	Ref<Asset> EditorAssetManager::GetAsset(AssetHandle handle) const
 	{
