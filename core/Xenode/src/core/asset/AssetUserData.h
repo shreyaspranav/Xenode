@@ -11,4 +11,9 @@ namespace Xen
 		Component::Transform editorCameraTransform;
 		Ref<Texture2D> thumbnail = nullptr;
 	};
+
+	struct TextureAssetUserData
+	{
+		Ref<Texture2D> thumbnail = nullptr;
+	};
 }

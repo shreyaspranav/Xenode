@@ -97,16 +97,13 @@ public:
 			if (childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder)
 				thumbnail = m_FolderTexture;
 			else if (assetMetadataRegistry[childrenNode->handle].type == Xen::AssetType::Texture2D)
-				thumbnail = Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(childrenNode->handle);
+			{
+				Xen::TextureAssetUserData* textureAssetUserData = (Xen::TextureAssetUserData*)assetMetadataRegistry[childrenNode->handle].userData.buffer;
+				thumbnail = textureAssetUserData->thumbnail;
+			}
 			else if (assetMetadataRegistry[childrenNode->handle].type == Xen::AssetType::Scene)
 			{
 				Xen::SceneAssetUserData* sceneAssetUserData = (Xen::SceneAssetUserData*)assetMetadataRegistry[childrenNode->handle].userData.buffer;
-
-				if (!sceneAssetUserData->thumbnail)
-				{
-					Xen::Ref<Xen::Scene> sceneAsset = Xen::AssetManagerUtil::GetAsset<Xen::Scene>(childrenNode->handle);
-					sceneAssetUserData->thumbnail = ThumbnailGenerator::GenerateSceneThumbnail(sceneAsset, sceneAssetUserData->editorCameraTransform, m_IconSize, m_IconSize);
-				}
 				thumbnail = sceneAssetUserData->thumbnail;
 			}
 			else
@@ -119,7 +116,17 @@ public:
 			childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder ? 
 				ImGui::PushID(childrenNode->folderName.c_str()) : ImGui::PushID((uint32_t)childrenNode->handle);
 
-			ImGui::ImageButton((ImTextureID)(thumbnail->GetNativeTextureID()), { (float)m_IconSize, (float)m_IconSize }, ImVec2(0, flipThumbnail ? 1 : 0), ImVec2(1, flipThumbnail ? 0 : 1));
+			{
+				Xen::TextureProperties thumbnailProperties = thumbnail->GetTextureProperties();
+				float thumbnailAspectRatio = static_cast<float>(thumbnailProperties.width) / static_cast<float>(thumbnailProperties.height);
+
+				// Calculate the UV coordinates according to the aspect ratio, adjust them when the thumbnail needs to be flipped.
+				ImVec2 uv0 = { 0.0f, flipThumbnail ? 0.5f + thumbnailAspectRatio / 2 : 0.5f - thumbnailAspectRatio / 2 };
+				ImVec2 uv1 = { 1.0f, flipThumbnail ? 0.5f - thumbnailAspectRatio / 2 : 0.5f + thumbnailAspectRatio / 2 };
+
+				// Display the thumbnail as a ImageButton
+				ImGui::ImageButton((ImTextureID)(thumbnail->GetNativeTextureID()), { static_cast<float>(m_IconSize), static_cast<float>(m_IconSize) }, uv0, uv1);
+			}
 
 
 			// if (ImGui::BeginDragDropSource())

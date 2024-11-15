@@ -126,6 +126,14 @@ namespace Xen {
 				targetFrameBuffer->Unbind();
 		}
 
+		// Special Function: takes in a texture and renders it into the specified framebuffer.
+		// Optionally takes in a custom shader to customize the rendering.
+		// 
+		// Use cases:
+		//     Passthrough a texture to another texture(with different texture formats),
+		//     Adding tonemapping + gamma correction to a texture
+		static void RenderTextureToFramebuffer(const Ref<Texture2D>& texture, const Ref<FrameBuffer>& frameBuffer, const Ref<Shader>& shader = nullptr);
+
 		// These functions do not draw, but adds them to a buffer and then renders them in RenderFrame()
 		// 
 		// Implemented in SpriteRenderer2D.cpp ---------------------------------------------------------

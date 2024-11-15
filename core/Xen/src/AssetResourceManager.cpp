@@ -2,6 +2,9 @@
 
 #include <project/ProjectManager.h>
 #include <core/asset/AssetManagerUtil.h>
+#include <core/asset/AssetUserData.h>
+
+#include "ThumbnailGenerator.h"
 
 struct AssetResourceManagerData
 {
@@ -32,6 +35,7 @@ void AssetResourceManager::Load()
 	// assetResourceManagerState.t.join();
 
 	AssetResourceManager::LoadDirectory(std::filesystem::directory_entry(assetResourceManagerState.assetPath));
+	AssetResourceManager::GenerateThumbnails();
 }
 
 void AssetResourceManager::StartFileWatcher()
@@ -56,6 +60,29 @@ void AssetResourceManager::LoadDirectory(const std::filesystem::directory_entry&
 			bool loaded = assetResourceManagerState.assetManager->ImportAssetFromFile(relativePath);
 
 			// TODO: Dispatch a AssetLoad Event or something.
+		}
+	}
+}
+
+void AssetResourceManager::GenerateThumbnails()
+{
+	// TODO: Determine the size of the thumbnails. 
+	for (auto&& assetMetadataEntry : assetResourceManagerState.assetManager->GetAssetMetadataRegistry())
+	{
+		Xen::AssetHandle handle = assetMetadataEntry.first;
+		Xen::AssetMetadata& metadata = assetMetadataEntry.second;
+
+		if (metadata.type == Xen::AssetType::Texture2D)
+		{
+			Xen::TextureAssetUserData* textureAssetUserData = (Xen::TextureAssetUserData*)metadata.userData.buffer;
+			Xen::Ref<Xen::Texture2D> textureAsset = Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(handle);
+			textureAssetUserData->thumbnail = ThumbnailGenerator::GenerateTextureThumbnail(textureAsset, 120); // 8x Downsample the original texture.
+		}
+		else if (metadata.type == Xen::AssetType::Scene)
+		{
+			Xen::SceneAssetUserData* sceneAssetUserData = (Xen::SceneAssetUserData*)metadata.userData.buffer;
+			Xen::Ref<Xen::Scene> sceneAsset = Xen::AssetManagerUtil::GetAsset<Xen::Scene>(handle);
+			sceneAssetUserData->thumbnail = ThumbnailGenerator::GenerateSceneThumbnail(sceneAsset, sceneAssetUserData->editorCameraTransform, 120, 120); // 120x120 thumbnail
 		}
 	}
 }

@@ -16,5 +16,7 @@ public:
 		const Xen::Component::Transform& editorCameraTransform,
 		uint32_t thumbnailWidth,
 		uint32_t thumbnailHeight);
+
+	static Xen::Ref<Xen::Texture2D> GenerateTextureThumbnail(const Xen::Ref<Xen::Texture2D>& texture, uint32_t textureHeight);
 };
 

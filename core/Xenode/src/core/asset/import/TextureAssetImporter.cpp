@@ -3,6 +3,9 @@
 
 #include <core/app/Timer.h>
 #include <core/renderer/Texture.h>
+
+#include <core/asset/AssetUserData.h>
+
 #include <project/ProjectManager.h>
 
 #include <stb_image.h>
@@ -87,6 +90,12 @@ namespace Xen
 		metadata->size = textureDataBuffer.size;
 		stbi_image_free(textureDataBuffer.buffer);
 		textureDataBuffer.alloc = false;
+
+		TextureAssetUserData* userData = new TextureAssetUserData();
+
+		metadata->userData.buffer = userData;
+		metadata->userData.size = sizeof(TextureAssetUserData);
+		metadata->userData.alloc = true;
 
 		return textureAsset;
 	}

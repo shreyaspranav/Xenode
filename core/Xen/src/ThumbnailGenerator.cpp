@@ -1,5 +1,8 @@
 #include "ThumbnailGenerator.h"
 
+#include <core/renderer/Shader.h>
+#include <core/renderer/BufferObjectBindings.h>
+
 Xen::Ref<Xen::Texture2D> ThumbnailGenerator::GenerateSceneThumbnail(
 	const Xen::Ref<Xen::Scene>& scene,
 	const Xen::Component::Transform& editorCameraTransform,
@@ -101,6 +104,41 @@ Xen::Ref<Xen::Texture2D> ThumbnailGenerator::GenerateSceneThumbnail(
 	props.height = thumbnailHeight;
 
 	sceneThumbnail = Xen::Texture2D::CopyTexture2D(Xen::Texture2D::CreateTexture2D(fb->GetColorAttachmentRendererID(0), props));
+	sceneThumbnail->SetTextureWrapMode(Xen::TextureWrapMode::ClampToBorder);
 
 	return sceneThumbnail;
+}
+
+Xen::Ref<Xen::Texture2D> ThumbnailGenerator::GenerateTextureThumbnail(const Xen::Ref<Xen::Texture2D>& texture, uint32_t textureHeight)
+{
+	Xen::Ref<Xen::Texture2D> textureThumbnail;
+
+	Xen::FrameBufferAttachmentSpec fbAttSpec;
+
+	fbAttSpec.clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	fbAttSpec.filtering = Xen::FrameBufferFiltering::Linear;
+	fbAttSpec.format = Xen::FrameBufferTextureFormat::RGB8;
+	fbAttSpec.resizable = false;
+
+	float aspectRatio = texture->GetTextureProperties().width / texture->GetTextureProperties().height;
+
+	Xen::FrameBufferSpec fbSpec;
+	fbSpec.width = static_cast<uint32_t>(textureHeight * aspectRatio);
+	fbSpec.height = textureHeight;
+	fbSpec.attachments.push_back(fbAttSpec);
+
+	Xen::Ref<Xen::FrameBuffer> fb = Xen::FrameBuffer::CreateFrameBuffer(fbSpec);
+
+	Xen::RenderCommand::OnWindowResize(fbSpec.width, fbSpec.height);
+	Xen::Renderer2D::RenderTextureToFramebuffer(texture, fb);
+
+	Xen::TextureProperties props;
+	props.format = Xen::TextureFormat::RGB8;
+	props.width = fbSpec.width;
+	props.height = fbSpec.height;
+
+	textureThumbnail = Xen::Texture2D::CopyTexture2D(Xen::Texture2D::CreateTexture2D(fb->GetColorAttachmentRendererID(0), props));
+	textureThumbnail->SetTextureWrapMode(Xen::TextureWrapMode::ClampToBorder);
+
+	return textureThumbnail;
 }

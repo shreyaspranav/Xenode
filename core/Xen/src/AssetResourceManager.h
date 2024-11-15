@@ -24,4 +24,5 @@ public:
 	static void StartFileWatcher();
 private:
 	static void LoadDirectory(const std::filesystem::directory_entry& directory);
+	static void GenerateThumbnails();
 };
