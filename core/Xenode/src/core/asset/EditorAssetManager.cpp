@@ -36,6 +36,14 @@ namespace Xen
 	EditorAssetManager::EditorAssetManager()
 	{
 		m_AssetFileTreeRoot = new AssetHandleFileTreeNode("assets");
+
+		if (std::filesystem::exists(GetAssetRegistryFilePath()))
+		{
+			AssetRegistrySerializer::Deserialize(m_MetadataRegistry, m_FileRegistry, GetAssetRegistryFilePath());
+			for (auto&& [handle, metadata] : m_MetadataRegistry)
+				ImportAssetFromFileBase(handle, metadata);
+		}
+
 	}
 	EditorAssetManager::~EditorAssetManager()
 	{
@@ -75,47 +83,69 @@ namespace Xen
 
 	bool EditorAssetManager::ImportAssetFromFile(const std::filesystem::path& filePath)
 	{
-		Timer t;
-
-		std::string fileExtension = filePath.extension().string();
-		
-		// Return false if the file has a unknown file extension
-		if (fileExtensions.find(fileExtension) == fileExtensions.end())
-			return false;
+		if (IsFileLoadedAsAsset(filePath))
+		{
+			XEN_ENGINE_LOG_WARN("The file {0} is already loaded as an asset!", filePath.string());
+			return true;
+		}
 
 		AssetMetadata metadata;
+
+		std::string fileExtension = filePath.extension().string();
 
 		metadata.relPath = filePath;
 		metadata.type = fileExtensions[fileExtension];
 
+		return ImportAssetFromFileBase(AssetHandle(), metadata); // Generate a new handle
+	}
+	bool EditorAssetManager::IsFileLoadedAsAsset(const std::filesystem::path& filePath)
+	{
+		return m_FileRegistry.find(filePath) != m_FileRegistry.end();
+	}
+	void EditorAssetManager::SerializeRegistry()
+	{
+		AssetRegistrySerializer::Serialize(m_MetadataRegistry, GetAssetRegistryFilePath());
+	}
+
+	bool EditorAssetManager::ImportAssetFromFileBase(AssetHandle handle, AssetMetadata& metadata)
+	{
+		Timer t;
+
+		std::string fileExtension = metadata.relPath.extension().string();
+
+		// Return false if the file has a unknown file extension
+		if (fileExtensions.find(fileExtension) == fileExtensions.end())
+			return false;
+
 		Ref<Asset> asset = AssetImporter::ImportAsset(&metadata);
 
 		t.Stop();
-		XEN_ENGINE_LOG_INFO("Asset '{0}' Imported From disk at {1}ms:", filePath.string(), t.GetElapedTime() / 1000.0f);
+		XEN_ENGINE_LOG_INFO("Asset '{0}' Imported From disk at {1}ms:", metadata.relPath.string(), t.GetElapedTime() / 1000.0f);
 
-		if(!asset)
+		if (!asset)
 			return false;
 		else
 		{
-			AssetHandle handle; // Generate a new handle
+			// If the handle or the filepath already exists, the following code does nothing.
 			m_PtrRegistry.insert({ handle, asset });
 			m_PtrRegistryLoaded.insert({ handle, asset }); // The asset is already loaded.
+			m_FileRegistry.insert({ metadata.relPath, handle });
 
 			// Add the asset to the Asset File Tree.
-			AddAssetToFileTree(handle, filePath);
+			AddAssetToFileTree(handle, metadata.relPath);
 
 			m_MetadataRegistry.insert({ handle, metadata });
 			return true;
 		}
 	}
-	void EditorAssetManager::SerializeRegistry()
-	{
-		// AssetRegistrySerializer::Serialize(m_MetadataRegistry, "test.asset_dir");
-	}
 
 	// Private Methods: ----------------------------------------------------------------------------------------------------------
 	void EditorAssetManager::AddAssetToFileTree(AssetHandle handle, const std::filesystem::path& path)
 	{
+		// Do nothing if the file exists in the tree.
+		// if (m_FileRegistry.find(path) != m_FileRegistry.end())
+		// 	return;
+
 		std::string parentPathString = path.parent_path().string();
 		
 		// Replace \ by / so that all paths are uniform across platforms
@@ -160,6 +190,14 @@ namespace Xen
 		return nullptr;
 	}
 
+	std::filesystem::path EditorAssetManager::GetAssetRegistryFilePath()
+	{
+		std::filesystem::path fileName = ProjectManager::GetCurrentProject()->GetProjectProperties().name + ".areg";
+		std::filesystem::path filePath = ProjectManager::GetCurrentProjectPath();
+
+		return filePath / fileName;
+	}
+
 	// ---------------------------------------------------------------------------------------------------------------------------
 	// AssetRegistrySerializer Implementation: -----------------------------------------------------------------------------------
 
@@ -170,7 +208,12 @@ namespace Xen
 
 		emitter << YAML::Key << "AssetType" << YAML::Value << AssetUtil::ToAssetTypeString(metadata.type);
 		emitter << YAML::Key << "Size" << YAML::Value << metadata.size;
-		emitter << YAML::Key << "RelativePath" << YAML::Value << metadata.relPath.string();
+
+		std::string relPath = metadata.relPath.string();
+#ifdef XEN_PLATFORM_WINDOWS
+		std::replace(relPath.begin(), relPath.end(), '\\', '/');
+#endif
+		emitter << YAML::Key << "RelativePath" << YAML::Value << relPath;
 		
 		emitter << YAML::Key << "Dependencies" << YAML::Value;
 		{
@@ -195,7 +238,12 @@ namespace Xen
 
 		metadata.type = AssetUtil::ToAssetTypeFromString(assetType);
 		metadata.size = metadataNode["Size"].as<Size>();
-		metadata.relPath = metadataNode["RelativePath"].as<std::string>();
+
+		std::string relPath = metadataNode["RelativePath"].as<std::string>();
+#ifdef XEN_PLATFORM_WINDOWS
+		std::replace(relPath.begin(), relPath.end(), '/', '\\');
+#endif
+		metadata.relPath = relPath;
 
 		for (auto&& assetHandle : metadataNode["Dependencies"])
 		{
@@ -229,7 +277,7 @@ namespace Xen
 		outputStream << yaml.c_str();
 		outputStream.close();
 	}
-	void AssetRegistrySerializer::Deserialize(AssetMetadataRegistry& registry, const std::filesystem::path& filePath)
+	void AssetRegistrySerializer::Deserialize(AssetMetadataRegistry& registry, AssetFileRegistry& fileRegistry, const std::filesystem::path& filePath)
 	{
 		std::ifstream inputStream(filePath);
 		if (!inputStream)

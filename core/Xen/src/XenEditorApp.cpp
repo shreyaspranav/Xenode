@@ -33,7 +33,11 @@ public:
 
 #ifndef XEN_PRODUCTION
 		// Load the default project in case  of debug and release_debug builds:
-		std::filesystem::path defaultProjectPath(PROJECTS);
+		std::string projectsPath(PROJECTS);
+#if XEN_PLATFORM_WINDOWS
+		std::replace(projectsPath.begin(), projectsPath.end(), '/', '\\');
+#endif
+		std::filesystem::path defaultProjectPath(projectsPath);
 		defaultProjectPath = defaultProjectPath / "default_project" / "default_project.xenproject";
 		// In future, this has to be an ABSOLUTE PATH.
 		Xen::Ref<Xen::Project> p = Xen::ProjectManager::LoadProject(defaultProjectPath);

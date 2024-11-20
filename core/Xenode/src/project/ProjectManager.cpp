@@ -84,6 +84,11 @@ namespace Xen
 		else
 			projectManagerState.assetManager = std::make_shared<EditorAssetManager>();
 
+		// Create the required directories:
+		std::filesystem::create_directories(projectManagerState.currentProjectPath / project->GetProjectSettings().relAssetDirectory);
+		std::filesystem::create_directories(projectManagerState.currentProjectPath / project->GetProjectSettings().relBuildDirectory);
+		std::filesystem::create_directories(projectManagerState.currentProjectPath / project->GetProjectSettings().relCacheDirectory);
+
 		return project;
 	}
 	const Ref<Project>& ProjectManager::GetCurrentProject()

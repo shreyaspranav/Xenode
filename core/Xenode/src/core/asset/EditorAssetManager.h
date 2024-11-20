@@ -7,6 +7,9 @@ namespace Xen
 {
 	enum class AssetHandleFileTreeNodeType { Folder, File };
 
+	// This is used to check if an file is loaded as an asset
+	using AssetFileRegistry = std::unordered_map<std::filesystem::path, AssetHandle>;
+
 	// A tree data structure is used to store the file structure of the assets in the assets directory.
 	struct AssetHandleFileTreeNode
 	{
@@ -54,6 +57,10 @@ namespace Xen
 		bool ImportAssetsFromPack(const std::filesystem::path& filePath) override;
 		bool ImportAssetFromFile(const std::filesystem::path& filePath);
 
+		bool IsFileLoadedAsAsset(const std::filesystem::path& filePath);
+
+		// Serializes the registry to the root of current project's directory.
+		// The file will be named '<project_name>.areg'[Short for Asset Registry]
 		void SerializeRegistry();
 
 		inline AssetPtrRegistry GetLoadedAssetRegistry()          { return m_PtrRegistryLoaded; }
@@ -62,23 +69,27 @@ namespace Xen
 		inline AssetHandleFileTreeNode* GetAssetHandleFileTree()  { return m_AssetFileTreeRoot; }
 
 	private:
+		// The base "import from file" function implementation 
+		bool ImportAssetFromFileBase(AssetHandle handle, AssetMetadata& metadata);
+
 		void AddAssetToFileTree(AssetHandle handle, const std::filesystem::path& path);
 		AssetHandleFileTreeNode* GetFolderPresentInChildren(AssetHandleFileTreeNode* parentNode, const std::string& folderName);
+		std::filesystem::path GetAssetRegistryFilePath();
 
 	private:
 		AssetPtrRegistry m_PtrRegistry;
 		AssetPtrRegistry m_PtrRegistryLoaded;         // "Loaded" refers to if the asset is ready to use.
 		AssetMetadataRegistry m_MetadataRegistry;
+
+		AssetFileRegistry m_FileRegistry;             // Contains the entries whose assets are imported from files. 
 		
 		AssetHandleFileTreeNode* m_AssetFileTreeRoot; // Asset File Tree: this tree contains assets stored as a tree according to their file structure.
-
-
 	};
 
 	class AssetRegistrySerializer
 	{
 	public:
 		static void Serialize(const AssetMetadataRegistry& registry, const std::filesystem::path& filePath);
-		static void Deserialize(AssetMetadataRegistry& registry, const std::filesystem::path& filePath);
+		static void Deserialize(AssetMetadataRegistry& registry, AssetFileRegistry& fileRegistry, const std::filesystem::path& filePath);
 	};
 }

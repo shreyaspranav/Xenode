@@ -36,6 +36,8 @@ void AssetResourceManager::Load()
 
 	AssetResourceManager::LoadDirectory(std::filesystem::directory_entry(assetResourceManagerState.assetPath));
 	AssetResourceManager::GenerateThumbnails();
+
+	assetResourceManagerState.assetManager->SerializeRegistry();
 }
 
 void AssetResourceManager::StartFileWatcher()
@@ -57,7 +59,8 @@ void AssetResourceManager::LoadDirectory(const std::filesystem::directory_entry&
 			// Calculate the relative path from the project's asset directory.
 			std::filesystem::path relativePath = std::filesystem::relative(directoryEntry.path(), assetResourceManagerState.assetPath);
 			
-			bool loaded = assetResourceManagerState.assetManager->ImportAssetFromFile(relativePath);
+			if(!assetResourceManagerState.assetManager->IsFileLoadedAsAsset(relativePath))
+				bool loaded = assetResourceManagerState.assetManager->ImportAssetFromFile(relativePath);
 
 			// TODO: Dispatch a AssetLoad Event or something.
 		}
