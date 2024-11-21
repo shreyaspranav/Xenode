@@ -13,7 +13,7 @@ Entities:
         OuterFade: 0.0189999994
       Color: [0.911504269, 0, 1, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
     RigidBody2D:
       FixedRotation: false
@@ -34,7 +34,7 @@ Entities:
       SpritePrimitive: 1
       Color: [0, 1, 0.761061907, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
     RigidBody2D:
       FixedRotation: false
@@ -55,7 +55,7 @@ Entities:
       SpritePrimitive: 1
       Color: [1, 1, 1, 1]
       Texture:
-        TextureFileRelPath: ../../resources/projects/default_project\assets/textures\CheckerBoardTexture.png
+        TextureHandle: 13232975049449682705
         TextureTilingFactor: 1
     RigidBody2D:
       FixedRotation: false
@@ -76,7 +76,7 @@ Entities:
       SpritePrimitive: 1
       Color: [0.831858397, 0, 0, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
     RigidBody2D:
       FixedRotation: false

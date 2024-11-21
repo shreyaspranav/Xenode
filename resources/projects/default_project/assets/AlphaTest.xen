@@ -13,7 +13,7 @@ Entities:
         OuterFade: 0.0299999993
       Color: [0, 0.0431372561, 1, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
   - Entity: [Camera, 13758586662865305732]
     Transform:
@@ -40,7 +40,7 @@ Entities:
         OuterFade: 0.0189999994
       Color: [1, 0, 0, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
   - Entity: [Green, 17228616923279644862]
     Transform:
@@ -55,7 +55,7 @@ Entities:
         OuterFade: 0.0260000005
       Color: [0, 1, 0, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
 Entity Count: 4
 EditorCameraTransform:

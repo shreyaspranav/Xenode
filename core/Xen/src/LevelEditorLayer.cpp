@@ -26,6 +26,8 @@
 
 #include <core/asset/AssetManagerUtil.h>
 
+#include "SpriteManager.h"
+
 Xen::Vec2 mouseInitialPos;
 
 bool operator&(const KeyTransformOperation& o1, const KeyTransformOperation& o2) { return static_cast<uint16_t>(o1) & static_cast<uint16_t>(o2); }
@@ -95,7 +97,7 @@ void LevelEditorLayer::OnAttach()
 	m_EditorCameraController = Xen::EditorCameraController(m_EditorCameraType);
 	
 	// Open the scene after initialising the editor camera controller because it uses the m_EditorCameraController object
-	OpenScene((projectPath / settings.relStartScenePath).string());
+	// OpenScene((projectPath / settings.relStartScenePath).string());
 
 	// Load all the resource textures:
 	m_ResourceTextures.insert({ "Play",   Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/play.png",     false) });
@@ -350,7 +352,7 @@ void LevelEditorLayer::ImGuiRenderMenuBar()
 
 				if (!filePath.empty())
 				{
-					OpenScene(filePath);
+					// OpenScene(filePath);
 					m_ActiveScene = m_EditorScene;
 
 					m_HierarchyPanel.SetActiveScene(m_ActiveScene);
@@ -441,16 +443,45 @@ void LevelEditorLayer::ImGuiRenderViewport()
 	{
 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(m_ContentBrowserPanel.GetSceneLoadDropType().c_str()))
 		{
-			if (m_EditorState != EditorState::Edit)
-				m_EditorState = EditorState::Edit;
+			// TODO: This is a temporary fix - Don't load any scene when the scene is in 'play' mode.
+			if (m_EditorState == EditorState::Edit)
+			{
+				Xen::AssetHandle handle = *(Xen::AssetHandle*)payload->Data;
+				OpenScene(handle);
 
-			std::string path = (const char*)payload->Data;
-			uint32_t size = path.size();
+				m_ActiveScene = m_EditorScene;
 
-			OpenScene(path);
-			m_ActiveScene = m_EditorScene;
+				m_HierarchyPanel.SetActiveScene(m_ActiveScene);
+			}
+		}
 
-			m_HierarchyPanel.SetActiveScene(m_ActiveScene);
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(m_ContentBrowserPanel.GetTextureLoadDropType().c_str()))
+		{
+			// TODO: This is a temporary fix - Don't load any texture when the scene is in 'play' mode.
+			// TODO: Should not work for 3D scenes or 3D view
+			if (m_EditorState == EditorState::Edit)
+			{
+				Xen::AssetHandle handle = *(Xen::AssetHandle*)payload->Data;
+
+				Xen::Vec3 cameraPosition = m_EditorCamera->GetPosition();
+				Xen::Vec3 cameraScale = m_EditorCamera->GetScale();
+
+				float aspectRatio = (float)m_ViewportFrameBufferWidth / (float)m_ViewportFrameBufferHeight;
+
+				Xen::Vec2 position =
+				{
+					(((float)m_ViewportMousePos.x / (float)m_ViewportFrameBufferWidth) * 2.0f - 1.0f) * aspectRatio,
+					(((float)m_ViewportMousePos.y / (float)m_ViewportFrameBufferHeight) * 2.0f - 1.0f) * -1.0f
+				};
+
+				Xen::Vec2 finalPosition =
+				{
+					cameraPosition.x + position.x * cameraScale.x,
+					cameraPosition.y + position.y * cameraScale.y
+				};
+
+				SpriteManager::AddSprite(handle, finalPosition, m_EditorScene);
+			}
 		}
 		ImGui::EndDragDropTarget();
 	}
@@ -736,13 +767,20 @@ void LevelEditorLayer::OnScenePause()
 	m_ScenePaused = true;
 }
 
-void LevelEditorLayer::OpenScene(const std::string& filePath)
+void LevelEditorLayer::OpenScene(Xen::AssetHandle handle)
 {
 	m_EditorScene->DestroyAllEntities();
-	Xen::Component::Transform editorCameraTransform = Xen::SceneSerializer::Deserialize(m_EditorScene, filePath);
+	// Xen::Component::Transform editorCameraTransform = Xen::SceneSerializer::Deserialize(m_EditorScene, filePath);
 
-	m_EditorCameraController.SetCameraPosition(editorCameraTransform.position);
-	m_EditorCameraController.SetZoom(editorCameraTransform.scale.x);
+	Xen::AssetMetadataRegistry assetMetadataRegistry = Xen::AssetManagerUtil::GetEditorAssetManager()->GetAssetMetadataRegistry();
+	Xen::SceneAssetUserData* sceneAssetUserData = (Xen::SceneAssetUserData*)assetMetadataRegistry[handle].userData.buffer;
+
+	Xen::Ref<Xen::Scene> sceneAsset = Xen::AssetManagerUtil::GetAsset<Xen::Scene>(handle);
+	// m_EditorScene = sceneAsset;
+	Xen::SceneUtils::CopyScene(m_EditorScene, sceneAsset);
+
+	m_EditorCameraController.SetCameraPosition(sceneAssetUserData->editorCameraTransform.position);
+	m_EditorCameraController.SetZoom(sceneAssetUserData->editorCameraTransform.scale.x);
 
 	m_EditorCamera->Update();
 }

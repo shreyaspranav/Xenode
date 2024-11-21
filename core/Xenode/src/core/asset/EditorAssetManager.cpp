@@ -62,7 +62,8 @@ namespace Xen
 		}
 		else
 		{
-			XEN_ENGINE_LOG_ERROR("Handle '{0}' is invalid!", handle);
+			if(handle) // Log only when non zero handles are requested
+				XEN_ENGINE_LOG_ERROR("Handle '{0}' is invalid!", handle);
 			return nullptr;
 		}
 		

@@ -13,7 +13,7 @@ Entities:
         OuterFade: 0.0359999985
       Color: [1, 0.123893797, 0.123893797, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
     CircleCollider2D:
       RadiusScale: 1
@@ -27,7 +27,7 @@ Entities:
       SpritePrimitive: 1
       Color: [1, 0.716814101, 0, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
     BoxCollider2D:
       SizeScale: [1, 1]
@@ -41,7 +41,7 @@ Entities:
       SpritePrimitive: 1
       Color: [1, 0.716814101, 0, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
     BoxCollider2D:
       SizeScale: [1, 1]
@@ -55,7 +55,7 @@ Entities:
       SpritePrimitive: 1
       Color: [0, 0.734513283, 1, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
     RigidBody2D:
       FixedRotation: false
@@ -76,7 +76,7 @@ Entities:
       SpritePrimitive: 1
       Color: [0, 0.734513283, 1, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
     RigidBody2D:
       FixedRotation: false
@@ -109,7 +109,7 @@ Entities:
       SpritePrimitive: 1
       Color: [1, 0.716814101, 0, 1]
       Texture:
-        TextureFileRelPath: "null"
+        TextureHandle: 0
         TextureTilingFactor: 1
     BoxCollider2D:
       SizeScale: [1, 1]

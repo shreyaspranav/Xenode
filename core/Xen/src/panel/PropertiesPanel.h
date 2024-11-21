@@ -4,6 +4,8 @@
 #include <core/scene/Components.h>
 #include <core/app/Log.h>
 
+#include <core/asset/AssetManagerUtil.h>
+
 #include <glm/gtc/type_ptr.hpp>
 
 #include <imgui.h>
@@ -142,7 +144,7 @@ public:
 					{
 
 						if (m_AvailableComponents[i].contains("Sprite Renderer"))
-							m_SelectedEntity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f), nullptr, 1.0f);
+							m_SelectedEntity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f), 0, 1.0f);
 
 						else if (m_AvailableComponents[i].contains("Camera"))
 							m_SelectedEntity.AddComponent<Xen::Component::CameraComp>(std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, 22, 22));
@@ -343,8 +345,8 @@ public:
 					float color[4] = { spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, spriteRenderer.color.a };
 					char* texture_file_path = (char*)"";
 					 
-					if(spriteRenderer.texture != nullptr)
-						texture_file_path = (char*)spriteRenderer.texture->GetFilePath().c_str();
+					// if(spriteRenderer.texture != nullptr)
+						// texture_file_path = (char*)spriteRenderer.texture->GetFilePath().c_str();
 
 					ImGui::Columns(2, "SpriteRenderer", false);
 					ImGui::SetColumnWidth(0, 120.0f);
@@ -465,34 +467,34 @@ public:
 					{
 						PaddedText("Texture", 0.0f, 3.0f);
 
+
+						ImGui::NextColumn();
+						ImGui::PushItemWidth(-0.1f);
+						if (spriteRenderer.textureHandle == NULL_ID)
+							PaddedText("Drag and drop texture here", 0.0, 3.0f);
+						else
+						{
+							Xen::Ref<Xen::Texture2D> texture = Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(spriteRenderer.textureHandle);
+
+							float aspectRatio = (float)texture->GetHeight() / (float)texture->GetWidth();
+
+							ImGui::Image((ImTextureID)texture->GetNativeTextureID(),
+								ImVec2(ImGui::GetColumnWidth(), ImGui::GetColumnWidth() * aspectRatio));
+
+						}
+
 						if (ImGui::BeginDragDropTarget())
 						{
 							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(m_TextureLoadDropType.c_str()))
 							{
-								std::string texture_path = (const char*)payload->Data;
-								Xen::Ref<Xen::Texture2D> texture_loaded = Xen::Texture2D::CreateTexture2D(texture_path, true);
-								texture_loaded->LoadTexture();
-
-								spriteRenderer.texture = texture_loaded;
+								Xen::AssetHandle handle = *(Xen::AssetHandle*)payload->Data;
+								spriteRenderer.textureHandle = handle;
 							}
 							ImGui::EndDragDropTarget();
 						}
-
-						ImGui::NextColumn();
-						ImGui::PushItemWidth(-0.1f);
-						if (spriteRenderer.texture == nullptr)
-							PaddedText("Drag and drop texture here", 0.0, 3.0f);
-						else
-						{
-							float texture_width = ImGui::GetColumnWidth() - 20.0f;
-
-							ImGui::Image((ImTextureID)spriteRenderer.texture->GetNativeTextureID(),
-								ImVec2(texture_width, (texture_width * spriteRenderer.texture->GetHeight()) / spriteRenderer.texture->GetHeight()), { 0, 1 }, { 1, 0 });
-
-						}
 						ImGui::PopItemWidth();
 
-						if (spriteRenderer.texture != nullptr)
+						if (spriteRenderer.textureHandle == NULL_ID)
 						{
 							ImGui::NextColumn();
 							PaddedText("Tile Factor", 0.0f, 3.0f);

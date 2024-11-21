@@ -7,6 +7,8 @@
 #include <core/renderer/DebugRenderer.h>
 #include <core/renderer/RenderCommand.h>
 
+#include <core/asset/AssetManagerUtil.h>
+
 #include "Components.h"
 #include "SceneRuntime.h"
 
@@ -70,7 +72,7 @@ namespace Xen
 			mainColorAttachment.format = FrameBufferTextureFormat::R11G11B10F; // For HDR Rendering
 			mainColorAttachment.filtering = FrameBufferFiltering::Linear;
 			mainColorAttachment.clearColor = { 0.1f, 0.1f, 0.1f, 1.0f }; // Slightly grey background color
-
+			
 			specifications.attachments.push_back(mainColorAttachment);
 
 #ifndef XEN_GAME_FINAL_BUILD
@@ -220,7 +222,12 @@ namespace Xen
 				quadSprite.useSingleColor = true;
 				quadSprite.color[0] = spriteRenderer.color; // Only the first element is checked if useSingleColor = true
 				quadSprite.id = entity;
-				quadSprite.texture = spriteRenderer.texture;
+				quadSprite.texture = AssetManagerUtil::GetAsset<Texture2D>(spriteRenderer.textureHandle);
+				
+				constexpr bool flipTextureVertically = false;
+				if (flipTextureVertically)
+					for (int i = 0; i < 4; i++)
+						quadSprite.textureCoords[i].y = 1.0f - quadSprite.textureCoords[i].y;
 
 				// Add the sprite to the renderer
 				Renderer2D::DrawQuadSprite(quadSprite);

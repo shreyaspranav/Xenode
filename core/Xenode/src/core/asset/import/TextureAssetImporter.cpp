@@ -41,7 +41,7 @@ namespace Xen
 		int width, height, channels;
 		Buffer textureDataBuffer;
 
-		constexpr bool flipTextureOnLoad = true;
+		constexpr bool flipTextureOnLoad = false;
 		stbi_set_flip_vertically_on_load(flipTextureOnLoad);
 
 		// Read the texture data

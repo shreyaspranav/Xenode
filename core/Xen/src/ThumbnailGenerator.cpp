@@ -2,6 +2,7 @@
 
 #include <core/renderer/Shader.h>
 #include <core/renderer/BufferObjectBindings.h>
+#include <core/asset/AssetManagerUtil.h>
 
 Xen::Ref<Xen::Texture2D> ThumbnailGenerator::GenerateSceneThumbnail(
 	const Xen::Ref<Xen::Scene>& scene,
@@ -64,7 +65,7 @@ Xen::Ref<Xen::Texture2D> ThumbnailGenerator::GenerateSceneThumbnail(
 			quadSprite.useSingleColor = true;
 			quadSprite.color[0] = spriteRenderer.color; // Only the first element is checked if useSingleColor = true
 			quadSprite.id = entity;
-			quadSprite.texture = spriteRenderer.texture;
+			quadSprite.texture = Xen::AssetManagerUtil::GetAsset<Xen::Texture2D>(spriteRenderer.textureHandle);
 
 			// Add the sprite to the renderer
 			Xen::Renderer2D::DrawQuadSprite(quadSprite);

@@ -32,9 +32,9 @@ public:
 		// Load Textures of the icons here:
 		if (!m_LoadedTextures)
 		{
-			m_FileTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/file.png", true);
-			m_FolderTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/folder.png", true);
-			m_PngTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/png.png", true);
+			m_FileTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/file.png", false);
+			m_FolderTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/folder.png", false);
+			m_PngTexture = Xen::Texture2D::CreateTexture2D(std::string(EDITOR_RESOURCES) + "/textures/png.png", false);
 			
 			m_FileTexture->LoadTexture();
 			m_FolderTexture->LoadTexture();
@@ -91,7 +91,7 @@ public:
 
 			// To flip the thumbnails, toggle this.
 			// To flip selectively according to type of asset thumbnail, toggle individually in the if ... else if block below.
-			bool flipThumbnail = true;
+			bool flipThumbnail = false;
 
 			Xen::Ref<Xen::Texture2D> thumbnail;
 			if (childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder)
@@ -105,6 +105,7 @@ public:
 			{
 				Xen::SceneAssetUserData* sceneAssetUserData = (Xen::SceneAssetUserData*)assetMetadataRegistry[childrenNode->handle].userData.buffer;
 				thumbnail = sceneAssetUserData->thumbnail;
+				flipThumbnail = true;
 			}
 			else
 				// use the file texture for all the other types of assets.
@@ -129,21 +130,18 @@ public:
 			}
 
 
-			// if (ImGui::BeginDragDropSource())
-			// {
-			// 	const char* payload_data = pathString.c_str();
-			// 	if (path.extension().string() == ".xen")
-			// 		ImGui::SetDragDropPayload(m_SceneLoadDropType.c_str(), payload_data, pathString.size() + 1);
-			// 
-			// 	else if (path.extension().string() == ".lua" && Xen::GetApplicationInstance()->GetScriptLang() == Xen::ScriptLang::Lua)
-			// 		ImGui::SetDragDropPayload(m_ScriptLoadDropType.c_str(), payload_data, pathString.size() + 1);
-			// 
-			// 	// TODO: make sure to support all the texture formats:
-			// 	else if (path.extension().string() == ".png")
-			// 		ImGui::SetDragDropPayload(m_TextureLoadDropType.c_str(), payload_data, pathString.size() + 1);
-			// 
-			// 	ImGui::EndDragDropSource();
-			// }
+			if (ImGui::BeginDragDropSource())
+			{
+				switch (assetMetadataRegistry[childrenNode->handle].type)
+				{
+				case Xen::AssetType::Scene:
+					ImGui::SetDragDropPayload(m_SceneLoadDropType.c_str(), &childrenNode->handle, sizeof(Xen::AssetHandle));
+					break;
+				case Xen::AssetType::Texture2D:
+					ImGui::SetDragDropPayload(m_TextureLoadDropType.c_str(), &childrenNode->handle, sizeof(Xen::AssetHandle));
+				}
+				ImGui::EndDragDropSource();
+			}
 
 			ImGui::PopID();
 

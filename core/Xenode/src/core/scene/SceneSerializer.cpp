@@ -122,11 +122,14 @@ namespace Xen {
 			yamlEmitter << YAML::Key << "Texture";
 			yamlEmitter << YAML::BeginMap; // Texture
 			
-			yamlEmitter << YAML::Key << "TextureFileRelPath";
-			if (spriteRenderer.texture == nullptr)
-				yamlEmitter << YAML::Value << "null";
-			else 
-				yamlEmitter << YAML::Value << spriteRenderer.texture->GetFilePath();
+			// yamlEmitter << YAML::Key << "TextureFileRelPath";
+			// if (spriteRenderer.texture == nullptr)
+			// 	yamlEmitter << YAML::Value << "null";
+			// else 
+			// 	yamlEmitter << YAML::Value << spriteRenderer.texture->GetFilePath();
+
+			yamlEmitter << YAML::Key << "TextureHandle" << YAML::Value << spriteRenderer.textureHandle; // calls operator uint64_t();
+
 			yamlEmitter << YAML::Key << "TextureTilingFactor" << YAML::Value << spriteRenderer.texture_tile_factor;
 			
 			yamlEmitter << YAML::EndMap;
@@ -371,12 +374,13 @@ namespace Xen {
 
 					Ref<Texture2D> texture = nullptr;
 
-					if (spriteRenderer_component["Texture"]["TextureFileRelPath"].as<std::string>() != "null")
-					{
-						texture = Texture2D::CreateTexture2D(spriteRenderer_component["Texture"]["TextureFileRelPath"].as<std::string>(), true);
-						texture->LoadTexture();
-					}
-					sprite.texture = texture;
+					// if (spriteRenderer_component["Texture"]["TextureHandle"].as<uint64_t>() != "null")
+					// {
+					// 	texture = Texture2D::CreateTexture2D(spriteRenderer_component["Texture"]["TextureFileRelPath"].as<std::string>(), true);
+					// 	texture->LoadTexture();
+					// }
+
+					sprite.textureHandle = spriteRenderer_component["Texture"]["TextureHandle"].as<uint64_t>();
 					sprite.texture_tile_factor = spriteRenderer_component["Texture"]["TextureTilingFactor"].as<float>();
 				}
 

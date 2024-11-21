@@ -1,8 +1,10 @@
 #pragma once
 #include <Core.h>
 
-namespace Xen {
-	class XEN_API UUID {
+namespace Xen
+{
+	class XEN_API UUID
+	{
 	public:
 		UUID();
 		UUID(uint64_t id);
@@ -13,14 +15,20 @@ namespace Xen {
 		bool operator==(UUID id) { return m_ID == id.m_ID; }
 		bool operator!=(UUID id) { return m_ID != id.m_ID; }
 
-		bool operator< (UUID id) { return m_ID <  id.m_ID; }
-		bool operator> (UUID id) { return m_ID >  id.m_ID; }
+		bool operator< (UUID id) { return m_ID < id.m_ID; }
+		bool operator> (UUID id) { return m_ID > id.m_ID; }
 		bool operator<=(UUID id) { return m_ID <= id.m_ID; }
 		bool operator>=(UUID id) { return m_ID >= id.m_ID; }
+
+		bool operator!()         { return !m_ID; }
+
 	private:
 		uint64_t m_ID;
 	};
+
 }
+// This is used to handle null id's
+#define NULL_ID Xen::UUID(0)
 
 // TODO: Learn hashing:
 namespace std {

@@ -7,6 +7,8 @@
 #include <core/scripting/Script.h>
 #include <core/renderer/ParticleSettings2D.h>
 
+#include <core/asset/Asset.h>
+
 #include "ScriptableEntity.h"
 #include <pch/pch>
 
@@ -67,7 +69,8 @@ namespace Xen {
 			CircleProperties circle_properties;
 			PolygonProperties polygon_properties;
 
-			Ref<Texture2D> texture;
+			// Ref<Texture2D> texture;
+			AssetHandle textureHandle;
 
 			float texture_tile_factor;
 
@@ -76,12 +79,12 @@ namespace Xen {
 
 			SpriteRenderer(const Color& color, Primitive primitive = Primitive::Quad) 
 				: color(color), 
-				texture(nullptr), 
+				textureHandle(0),
 				texture_tile_factor(1.0f),
 				primitive(primitive) {}
 
-			SpriteRenderer(const Color& color, Ref<Texture2D> texture, float tile_factor = 1.0f) 
-				: color(color), texture(texture), texture_tile_factor(tile_factor), primitive(Primitive::Quad) {}
+			SpriteRenderer(const Color& color, AssetHandle textureHandle, float tile_factor = 1.0f) 
+				: color(color), textureHandle(textureHandle), texture_tile_factor(tile_factor), primitive(Primitive::Quad) {}
 		};
 
 		// Component that represents renderable text

@@ -62,7 +62,7 @@ public:
 	void OnSceneStop();
 	void OnScenePause();
 
-	void OpenScene(const std::string& filePath);
+	void OpenScene(Xen::AssetHandle handle);
 	void SaveScene(const std::string& filePath);
 
 	void OnWindowResizeEvent(Xen::WindowResizeEvent& event);
