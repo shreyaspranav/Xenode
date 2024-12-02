@@ -18,8 +18,16 @@ namespace Xen
 		Ref<Scene> sceneAsset = std::make_shared<Scene>();
 		Component::Transform editorCameraTransform = SceneSerializer::Deserialize(sceneAsset, completePath.string());
 
+		// Calculate the size of the scene:
+		std::ifstream inputStream(completePath);
+		inputStream.seekg(0, std::ios::end);
+		Size s = inputStream.tellg();
+		inputStream.close();
+
 		SceneAssetUserData* sceneUserData = new SceneAssetUserData();
 		sceneUserData->editorCameraTransform = editorCameraTransform;
+
+		metadata->size = s;
 
 		metadata->userData.buffer = sceneUserData;
 		metadata->userData.alloc = true;

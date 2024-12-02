@@ -68,7 +68,7 @@ AssetRegistry:
   - AssetHandle: 3048784734394566197
     Metadata:
       AssetType: Scene
-      Size: 140717533474817
+      Size: 1685
       RelativePath: AlphaTest.xen
       Dependencies: []
   - AssetHandle: 3568040614960356937
@@ -104,7 +104,7 @@ AssetRegistry:
   - AssetHandle: 4822849615749702508
     Metadata:
       AssetType: Scene
-      Size: 140717533474817
+      Size: 2946
       RelativePath: 2DPhysicsTest.xen
       Dependencies: []
   - AssetHandle: 4928725778972504030
@@ -230,7 +230,7 @@ AssetRegistry:
   - AssetHandle: 12563297308654276384
     Metadata:
       AssetType: Scene
-      Size: 140717533474817
+      Size: 3404
       RelativePath: NewTestScene.xen
       Dependencies: []
   - AssetHandle: 12818742093218959900
