@@ -15,7 +15,45 @@
 
 #include "Components.h"
 
-namespace Xen {
+namespace Xen 
+{
+	struct BinSerializerData
+	{
+		const Size 
+			entityIdTransformPair        = sizeof(UUID) + sizeof(Component::Transform),
+			entityIdSpriteRendererPair   = sizeof(UUID) + sizeof(Component::SpriteRenderer),
+			entityIdCameraCompPair       = sizeof(UUID) + sizeof(CameraType) + sizeof(bool) + (3 * sizeof(Vec3)) + (3 * sizeof(float)),
+			entityIdRigidBody2dPair      = sizeof(UUID) + sizeof(BodyType2D) + sizeof(PhysicsMaterial2D),
+			entityIdBoxCollider2dPair    = sizeof(UUID) + (2 * sizeof(Vec2)),
+			entityIdCircleCollider2dPair = sizeof(UUID) + sizeof(Vec2) + sizeof(float);
+
+		// For CameraComp
+		const Size 
+			cameraTypeOffset             = 0,
+			isPrimaryCameraOffset        = cameraTypeOffset + sizeof(CameraType),
+			positionOffset               = isPrimaryCameraOffset + sizeof(bool),
+			rotationOffset               = positionOffset + sizeof(Vec3),
+			scaleOffset                  = rotationOffset + sizeof(Vec3),
+			fovAngleOffset               = scaleOffset + sizeof(Vec3),
+			zNearOffset                  = fovAngleOffset + sizeof(float),
+			zFarOffset                   = zNearOffset + sizeof(float);
+
+		// For RigidBody2D
+		const Size
+			bodyTypeOffset               = 0,
+			physicsMaterial2dOffset      = bodyTypeOffset + sizeof(BodyType2D);
+
+		// For BoxCollider2D
+		const Size
+			boxBodyOffsetOffset          = 0,
+			sizeScaleOffset              = boxBodyOffsetOffset + sizeof(Vec2);
+
+		// For RigidBody2D
+		const Size
+			circleBodyOffsetOffset       = 0,
+			radiusScaleOffset            = circleBodyOffsetOffset + sizeof(Vec2);
+	}binSerializerData;
+	 
 	static UUID GetUUID(Entity e)
 	{
 		if (e.HasAnyComponent<Component::ID>())
@@ -278,12 +316,6 @@ namespace Xen {
 		out_stream.close();
 	}
 
-	void SceneSerializer::SerializeBinary(const Ref<Scene>& scene, const std::string& filePath)
-	{
-		XEN_ENGINE_LOG_ERROR("Not Yet Implemented!");
-		TRIGGER_BREAKPOINT;
-	}
-
 	Component::Transform SceneSerializer::Deserialize(const Ref<Scene>& scene, const std::string& filePath)
 	{
 		std::ifstream file_stream(filePath);
@@ -312,7 +344,7 @@ namespace Xen {
 				std::string tag = entity["Entity"][0].as<std::string>();
 				uint64_t uuid = entity["Entity"][1].as<uint64_t>();
 
-				Entity entt = scene->AddNewEntity(tag);
+				Entity entt = scene->AddNewEntityWithID(tag, uuid);
 
 				// Transform Component------------------------------------------------------
 				const YAML::Node& transform_component = entity["Transform"];
@@ -539,9 +571,417 @@ namespace Xen {
 		Component::Transform transform = { position, rotation, scale };
 		return transform;
 	}
-	void SceneSerializer::DeserializeBinary(const Ref<Scene>& scene, const std::string& filePath)
+	void SceneSerializer::SerializeBinary(const Ref<Scene>& scene, Buffer& buffer)
 	{
-		XEN_ENGINE_LOG_ERROR("Not Yet Implemented!");
-		TRIGGER_BREAKPOINT;
+		// TODO: Look into unnecessary copies being done on data and optimize it.
+		Vector<uint8_t> binaryData;
+
+		// Lambda function to add binary data:
+		auto&& appendToBuffer =
+		[&](const void* data, Size size)
+		{
+			const uint8_t* dataInBytes = reinterpret_cast<const uint8_t*>(data);
+
+			for (int i = 0; i < size; i++)
+				binaryData.push_back(dataInBytes[i]);
+		};
+
+		// TODO: Look for little endian/big endian portability:
+		// Firstly, add "XenScene" string in the beginning to indicate its a scene:
+		const std::string headerEntry = "XenScene";
+		appendToBuffer(headerEntry.c_str(), headerEntry.size() + 1); // Account the null termination character.
+
+		// Serialize the no. of entities:
+		Size entityCount = scene->m_SceneRegistry.size();
+		appendToBuffer(&entityCount, sizeof(Size));
+
+		// Serialize the entities UUID, and its Transform component (The tag doesn't make sense in the runtime anyway)
+		scene->m_SceneRegistry.each(
+		[&](auto&& entt)
+		{
+			Entity e = Entity(entt, scene.get());
+
+			// ID, Transform
+			const Component::ID& IdComponent = e.GetComponent<Component::ID>();
+			const Component::Transform& transformComponent = e.GetComponent<Component::Transform>();
+
+			uint64_t id = IdComponent.id; // Call operator uint64_t()
+			appendToBuffer(&id, sizeof(uint64_t));
+
+			appendToBuffer(&transformComponent.position, sizeof(Vec3));
+			appendToBuffer(&transformComponent.rotation, sizeof(Vec3));
+			appendToBuffer(&transformComponent.scale, sizeof(Vec3));
+		});
+
+		// As of the time writing this, I've implemented serializing 
+		//	SpriteRenderer, CameraComp, RigidBody2D, BoxCollider2D, CircleCollider2D
+		auto&& spriteView = scene->m_SceneRegistry.view<Component::SpriteRenderer>();
+		
+		// Serialize the no. of entities in this view:
+		Size entityCountView = spriteView.size();
+		if(entityCountView != 0)
+			appendToBuffer(&entityCountView, sizeof(Size));
+
+		for (auto&& entt : spriteView)
+		{
+			Entity e = Entity(entt, scene.get());
+
+			// ID, SpriteRenderer
+			const Component::ID& IdComponent = e.GetComponent<Component::ID>();
+			const Component::SpriteRenderer& spriteRenderer = e.GetComponent<Component::SpriteRenderer>();
+
+			uint64_t id = IdComponent.id; // Call operator uint64_t()
+			appendToBuffer(&id, sizeof(uint64_t));
+
+			appendToBuffer(&spriteRenderer, sizeof(Component::SpriteRenderer));
+		}
+
+		auto&& cameraView = scene->m_SceneRegistry.view<Component::CameraComp>();
+
+		// Serialize the no. of entities in this view:
+		entityCountView = cameraView.size();
+		if (entityCountView != 0)
+			appendToBuffer(&entityCountView, sizeof(Size));
+
+		for (auto&& entt : cameraView)
+		{
+			Entity e = Entity(entt, scene.get());
+
+			// ID, CameraComp
+			const Component::ID& IdComponent = e.GetComponent<Component::ID>();
+			const Component::CameraComp& cameraComp = e.GetComponent<Component::CameraComp>();
+
+			uint64_t id = IdComponent.id; // Call operator uint64_t()
+			appendToBuffer(&id, sizeof(uint64_t));
+
+			// TODO: look into keeping only the camera transform and other properties instead of the camera pointer
+			// Order would be: CameraType, isPrimaryCamera, Position, Rotation, Scale, (fovAngle, zNear, zFar if CameraType is Perspective)
+			CameraType type = cameraComp.camera->GetProjectionType();
+			appendToBuffer(&type, sizeof(CameraType));
+
+			appendToBuffer(&cameraComp.is_primary_camera, sizeof(bool));
+
+			Vec3 position = cameraComp.camera->GetPosition();
+			Vec3 rotation = cameraComp.camera->GetRotation();
+			Vec3 scale = cameraComp.camera->GetScale();
+
+			appendToBuffer(&position, sizeof(Vec3));
+			appendToBuffer(&rotation, sizeof(Vec3));
+			appendToBuffer(&scale, sizeof(Vec3));
+
+			// TODO: Serialize event the unnecessary stuff, later optimize to reduce size:
+			// if (type == CameraType::Perspective)
+			{
+				float fov = cameraComp.camera->GetFovAngle();
+				float zNear = cameraComp.camera->GetNearPoint();
+				float zFar = cameraComp.camera->GetFarPoint();
+
+				appendToBuffer(&fov, sizeof(float));
+				appendToBuffer(&zNear, sizeof(float));
+				appendToBuffer(&zFar, sizeof(float));
+			}
+		}
+
+		auto&& rigidBody2DView = scene->m_SceneRegistry.view<Component::RigidBody2D>();
+
+		// Serialize the no. of entities in this view:
+		entityCountView = rigidBody2DView.size();
+		if (entityCountView != 0)
+			appendToBuffer(&entityCountView, sizeof(Size));
+
+		for (auto&& entt : rigidBody2DView)
+		{
+			Entity e = Entity(entt, scene.get());
+
+			// ID, RigidBody2D
+			const Component::ID& IdComponent = e.GetComponent<Component::ID>();
+			const Component::RigidBody2D& rigidBody2D = e.GetComponent<Component::RigidBody2D>();
+
+			uint64_t id = IdComponent.id; // Call operator uint64_t()
+			appendToBuffer(&id, sizeof(uint64_t));
+
+			appendToBuffer(&rigidBody2D.bodyType, sizeof(BodyType2D));
+			appendToBuffer(&rigidBody2D.physicsMaterial, sizeof(PhysicsMaterial2D));
+		}
+
+		auto&& boxCollider2DView = scene->m_SceneRegistry.view<Component::BoxCollider2D>();
+
+		// Serialize the no. of entities in this view:
+		entityCountView = boxCollider2DView.size();
+		if (entityCountView != 0)
+			appendToBuffer(&entityCountView, sizeof(Size));
+
+		for (auto&& entt : boxCollider2DView)
+		{
+			Entity e = Entity(entt, scene.get());
+
+			// ID, RigidBody2D
+			const Component::ID& IdComponent = e.GetComponent<Component::ID>();
+			const Component::BoxCollider2D& boxCollider2D = e.GetComponent<Component::BoxCollider2D>();
+
+			uint64_t id = IdComponent.id; // Call operator uint64_t()
+			appendToBuffer(&id, sizeof(uint64_t));
+
+			appendToBuffer(&boxCollider2D.bodyOffset, sizeof(Vec2));
+			appendToBuffer(&boxCollider2D.sizeScale, sizeof(Vec2));
+		}
+		
+		auto&& circleCollider2DView = scene->m_SceneRegistry.view<Component::CircleCollider2D>();
+
+		// Serialize the no. of entities in this view:
+		entityCountView = circleCollider2DView.size();
+		if (entityCountView != 0)
+			appendToBuffer(&entityCountView, sizeof(Size));
+		
+		for (auto&& entt : circleCollider2DView)
+		{
+			Entity e = Entity(entt, scene.get());
+
+			// ID, RigidBody2D
+			const Component::ID& IdComponent = e.GetComponent<Component::ID>();
+			const Component::CircleCollider2D& circleCollider2D = e.GetComponent<Component::CircleCollider2D>();
+
+			uint64_t id = IdComponent.id; // Call operator uint64_t()
+			appendToBuffer(&id, sizeof(uint64_t));
+
+			appendToBuffer(&circleCollider2D.bodyOffset, sizeof(Vec2));
+			appendToBuffer(&circleCollider2D.radiusScale, sizeof(float));
+		}
+
+		// Add 69(nice) to the end of the buffer to indicate that the buffer came to an end.
+		uint8_t endTag = 69;
+		appendToBuffer(&endTag, sizeof(uint8_t));
+
+		// In the end, copy the data to the buffer
+		uint8_t* buf = new uint8_t[binaryData.size()];
+		memcpy(buf, binaryData.data(), binaryData.size());
+
+		buffer.size = binaryData.size();
+		buffer.buffer = buf;
+		buffer.alloc = true;
+	}
+	void SceneSerializer::DeserializeBinary(const Ref<Scene>& scene, Buffer& buffer)
+	{
+		uint8_t* bufferBase = reinterpret_cast<uint8_t*>(buffer.buffer);
+		uint8_t* bufferPtr = bufferBase;
+		Size bufferSize = buffer.size;
+
+		bufferPtr += 9; // Increment 9 bytes to skip past the "XenScene" header.
+
+		Size entityCount;
+		memcpy(&entityCount, bufferPtr, sizeof(Size));
+
+		if (entityCount == 0)
+		{
+			XEN_ENGINE_LOG_WARN("Serializing Empty scene!");
+			return;
+		}
+
+		bufferPtr += sizeof(Size);
+
+		UnorderedMap<UUID, Entity> entityMap;
+		
+		for (int i = 0; i < entityCount; i++)
+		{
+			UUID entityID = 0;
+			Component::Transform transform;
+
+			memcpy(&entityID, bufferPtr, sizeof(UUID));
+			
+			Entity currentEntity = scene->AddNewEntityWithID(std::string("XenodeTag"), entityID);
+			Component::Transform& currentEntityTransform = currentEntity.GetComponent<Component::Transform>();
+
+			memcpy(&transform, bufferPtr + sizeof(UUID), sizeof(Component::Transform));
+
+			currentEntityTransform.position = transform.position;
+			currentEntityTransform.rotation = transform.rotation;
+			currentEntityTransform.scale = transform.scale;
+
+			// For later easy access
+			entityMap.insert({ entityID, currentEntity });
+
+			bufferPtr += binSerializerData.entityIdTransformPair;
+		}
+
+		// Order of components to read: SpriteRenderer, CameraComp, RigidBody2D, BoxCollider2D, CircleCollider2D
+
+		// Check for buffer overflows
+		if (bufferPtr - bufferBase >= bufferSize - 1) return;
+
+		Size spriteRendererCount;
+		memcpy(&spriteRendererCount, bufferPtr, sizeof(Size));
+
+		bufferPtr += sizeof(Size);
+
+		for (int i = 0; i < spriteRendererCount; i++)
+		{
+			UUID currentID = 0;
+			Component::SpriteRenderer spriteRenderer;
+
+			memcpy(&currentID, bufferPtr, sizeof(UUID));
+			memcpy(&spriteRenderer, bufferPtr + sizeof(UUID), sizeof(Component::SpriteRenderer));
+
+			// Add the component to the required entity
+			entityMap[currentID].AddComponent<Component::SpriteRenderer>(spriteRenderer); // Use the copy constructor
+
+			bufferPtr += binSerializerData.entityIdSpriteRendererPair;
+		}
+
+		// Check for buffer overflows
+		if (bufferPtr - bufferBase >= bufferSize - 1) return;
+
+		Size cameraCompCount;
+		memcpy(&cameraCompCount, bufferPtr, sizeof(Size));
+
+		bufferPtr += sizeof(Size);
+
+		for (int i = 0; i < cameraCompCount; i++)
+		{
+			UUID currentID = 0;
+			Component::CameraComp cameraComp;
+		
+			memcpy(&currentID, bufferPtr, sizeof(UUID));
+			bufferPtr += sizeof(UUID);
+		
+			CameraType cameraType;
+			bool isPrimaryCamera;
+			Vec3 position, rotation, scale;
+			float fovAngle, zNear, zFar;
+		
+			memcpy(&cameraType, bufferPtr, sizeof(CameraType));    bufferPtr += sizeof(CameraType);
+			memcpy(&isPrimaryCamera, bufferPtr, sizeof(bool));     bufferPtr += sizeof(bool);
+			memcpy(&position, bufferPtr, sizeof(Vec3));            bufferPtr += sizeof(Vec3);
+			memcpy(&rotation, bufferPtr, sizeof(Vec3));            bufferPtr += sizeof(Vec3);
+			memcpy(&scale, bufferPtr, sizeof(Vec3));               bufferPtr += sizeof(Vec3);
+			memcpy(&fovAngle, bufferPtr, sizeof(float));           bufferPtr += sizeof(float);
+			memcpy(&zNear, bufferPtr, sizeof(float));              bufferPtr += sizeof(float);
+			memcpy(&zFar, bufferPtr, sizeof(float));               bufferPtr += sizeof(float);
+
+			cameraComp.camera = std::make_shared<Camera>(cameraType, 1, 1);
+
+			cameraComp.is_primary_camera = isPrimaryCamera;
+			cameraComp.camera->SetPosition(position);
+			cameraComp.camera->SetRotation(rotation);
+			cameraComp.camera->SetScale(scale);
+			cameraComp.camera->SetFovAngle(fovAngle);
+			cameraComp.camera->SetNearPoint(zNear);
+			cameraComp.camera->SetFarPoint(zFar);
+		
+			// Add the component to the required entity
+			entityMap[currentID].AddComponent<Component::CameraComp>(cameraComp); // Use the copy constructor
+		}
+
+		// Check for buffer overflows
+		if (bufferPtr - bufferBase >= bufferSize - 1) return;
+
+		Size rigidBody2dCount;
+		memcpy(&rigidBody2dCount, bufferPtr, sizeof(Size));
+
+		bufferPtr += sizeof(Size);
+
+		for (int i = 0; i < rigidBody2dCount; i++)
+		{
+			UUID currentID = 0;
+			Component::RigidBody2D rigidBody;
+
+			memcpy(&currentID, bufferPtr, sizeof(UUID));
+
+			memcpy(&rigidBody.bodyType, bufferPtr + sizeof(UUID) + binSerializerData.bodyTypeOffset, sizeof(BodyType2D));
+			memcpy(&rigidBody.physicsMaterial, bufferPtr + sizeof(UUID) + binSerializerData.physicsMaterial2dOffset, sizeof(PhysicsMaterial2D));
+
+			// Add the component to the required entity
+			entityMap[currentID].AddComponent<Component::RigidBody2D>(rigidBody); // Use the copy constructor
+
+			bufferPtr += binSerializerData.entityIdRigidBody2dPair;
+		}
+
+		// Check for buffer overflows
+		if (bufferPtr - bufferBase >= bufferSize - 1) return;
+
+		Size boxCollider2dCount;
+		memcpy(&boxCollider2dCount, bufferPtr, sizeof(Size));
+
+		bufferPtr += sizeof(Size);
+
+		for (int i = 0; i < boxCollider2dCount; i++)
+		{
+			UUID currentID = 0;
+			Component::BoxCollider2D boxCollider;
+
+			memcpy(&currentID, bufferPtr, sizeof(UUID));
+
+			memcpy(&boxCollider.bodyOffset, bufferPtr + sizeof(UUID) + binSerializerData.boxBodyOffsetOffset, sizeof(Vec2));
+			memcpy(&boxCollider.sizeScale, bufferPtr + sizeof(UUID) + binSerializerData.sizeScaleOffset, sizeof(Vec2));
+
+			// Add the component to the required entity
+			entityMap[currentID].AddComponent<Component::BoxCollider2D>(boxCollider); // Use the copy constructor
+
+			bufferPtr += binSerializerData.entityIdBoxCollider2dPair;
+		}
+
+		// Check for buffer overflows
+		if (bufferPtr - bufferBase >= bufferSize - 1) return;
+
+		Size circleCollider2dCount;
+		memcpy(&circleCollider2dCount, bufferPtr, sizeof(Size));
+
+		bufferPtr += sizeof(Size);
+
+		for (int i = 0; i < circleCollider2dCount; i++)
+		{
+			UUID currentID = 0;
+			Component::CircleCollider2D circleCollider;
+
+			memcpy(&currentID, bufferPtr, sizeof(UUID));
+
+			memcpy(&circleCollider.bodyOffset, bufferPtr + sizeof(UUID) + binSerializerData.boxBodyOffsetOffset, sizeof(Vec2));
+			memcpy(&circleCollider.radiusScale, bufferPtr + sizeof(UUID) + binSerializerData.sizeScaleOffset, sizeof(float));
+
+			// Add the component to the required entity
+			entityMap[currentID].AddComponent<Component::CircleCollider2D>(circleCollider); // Use the copy constructor
+
+			bufferPtr += binSerializerData.entityIdCircleCollider2dPair;
+		}
+
+	}
+	void SceneSerializer::SerializeBinaryToFile(const Ref<Scene>& scene, const std::string& filePath)
+	{
+		Buffer b;
+
+		// This function will also allocate the buffer.
+		SerializeBinary(scene, b);
+
+		std::ofstream outputStream(filePath, std::ios::binary);
+		outputStream.write((const char*)b.buffer, b.size);
+		outputStream.close();
+	}
+
+	void SceneSerializer::DeserializeBinaryFromFile(const Ref<Scene>& scene, const std::string& filePath)
+	{
+		std::ifstream inputStream(filePath, std::ios::binary);
+
+		// Check if the binary file is valid or not:
+		{
+			const char* sceneBinHeader = "XenScene";
+			char fileHeader[9] = { 0 };
+
+			inputStream.read(fileHeader, 9);
+
+			if (strcmp(sceneBinHeader, fileHeader) != 0) return;
+		}
+		
+		inputStream.seekg(0, std::ios::end);
+		Size s = inputStream.tellg();
+		inputStream.seekg(0, std::ios::beg);
+
+		Buffer b;
+		b.buffer = malloc(s);
+		b.size = s;
+		b.alloc = true;
+
+		inputStream.read(reinterpret_cast<char*>(b.buffer), s);
+		inputStream.close();
+
+		DeserializeBinary(scene, b);
 	}
 }

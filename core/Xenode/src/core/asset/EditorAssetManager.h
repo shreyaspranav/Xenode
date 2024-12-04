@@ -51,7 +51,7 @@ namespace Xen
 		virtual bool IsAssetHandleValid(AssetHandle handle) const override;
 		virtual bool IsAssetLoaded(AssetHandle handle) const override;
 
-		// IMPORTANT: all the file paths are either relative to the current project's asset directory
+		// IMPORTANT: all the file paths are relative to the current project's asset directory
 
 		// Imports all assets from an "asset pack"
 		bool ImportAssetsFromPack(const std::filesystem::path& filePath) override;

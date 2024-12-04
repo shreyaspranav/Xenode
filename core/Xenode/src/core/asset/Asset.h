@@ -69,7 +69,7 @@ namespace Xen
 		Vector<AssetHandle> dependencies;
 
 		// These things shouldn't be in runtime:
-		
+
 		// Relative path from the assets directory.
 		std::filesystem::path relPath;
 		Buffer userData;
