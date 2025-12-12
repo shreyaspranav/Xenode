@@ -45,7 +45,11 @@ namespace Xen
 
 			// Serialize the Start Scene:
 			Component::Transform editorCameraTransform;
-			SceneSerializer::Serialize(std::make_shared<Scene>(), editorCameraTransform, (projectPath / settings.relStartScenePath).string());
+			std::string yaml = SceneSerializer::SerializeYAML(std::make_shared<Scene>(), editorCameraTransform);
+			
+			std::ofstream fstream(projectPath / settings.relStartScenePath);
+			fstream << yaml.c_str();
+			fstream.close();
 
 			return project;
 		}

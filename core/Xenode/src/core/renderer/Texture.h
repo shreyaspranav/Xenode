@@ -66,7 +66,7 @@ namespace Xen {
 		static Ref<Texture2D> CreateTexture2D(const std::string& filepath, bool flip_on_load);
 		static Ref<Texture2D> CreateTexture2D(TextureProperties properties, void* data, uint32_t size);
 
-		static Ref<Texture2D> CreateTexture2D(const Buffer& textureBuffer, TextureBufferType bufferType, TextureProperties properties);
+		static Ref<Texture2D> CreateTexture2D(const Vector<std::byte>& textureBuffer, TextureBufferType bufferType, TextureProperties properties);
 
 		static Ref<Texture2D> CopyTexture2D(const Ref<Texture2D>& texture);
 

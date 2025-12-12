@@ -9,7 +9,8 @@ namespace Xen
 	// There are two types of asset packs, a "Runtime" asset pack and A "Editor" pack
 	//
 	// Runtime Asset pack:
-	//	-> This type of pack contains one "metadata" file (.assetmetadata) and 'n' "chunks" of files (1.assetpack, 2.assetpack, ...) 
+	//	-> This type of pack contains one "metadata" file (<project_name>.xam) and 1 file that constains the binary data of all assets
+	//	   In the future, this could be divided into many files if the size of that file is too huge.
 	//	-> All the required assets are divided into 'n' "chunks" of files. The division is based on 
 	//	   file size and no single asset needs to be divided into 2 or more files.
 	//	-> The "chunks" just contain tightly packed binary data.
@@ -24,19 +25,21 @@ namespace Xen
 	{
 		AssetType type;
 
+		// fileIndex starts from 1. If 0, there is only one asset file.
 		uint32_t fileIndex;
 		Size offset, size;
 	};
 
 #ifdef XEN_PRODUCTION
-	using AssetPackRegistry = std::unordered_map<AssetHandle, AssetPackEntry>;
+	using AssetPackRegistry = UnorderedMap<AssetHandle, AssetPackEntry>;
 #else
-	using AssetPackRegistry = std::map<AssetHandle, AssetPackEntry>;
+	using AssetPackRegistry = Map<AssetHandle, AssetPackEntry>;
 #endif
 
 	class XEN_API AssetPackManager
 	{
 	public:
-		static void CreateAssetPack(const AssetMetadataRegistry& metadataRegistry);
+		// Creates the asset pack in the current project's build directory
+		// static void CreateAssetPack(const AssetMetadataRegistry& metadataRegistry);
 	};
 }

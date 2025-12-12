@@ -121,7 +121,7 @@ Xen::Ref<Xen::Texture2D> ThumbnailGenerator::GenerateTextureThumbnail(const Xen:
 	fbAttSpec.format = Xen::FrameBufferTextureFormat::RGB8;
 	fbAttSpec.resizable = false;
 
-	float aspectRatio = texture->GetTextureProperties().width / texture->GetTextureProperties().height;
+	float aspectRatio = (float)texture->GetTextureProperties().width / texture->GetTextureProperties().height;
 
 	Xen::FrameBufferSpec fbSpec;
 	fbSpec.width = static_cast<uint32_t>(textureHeight * aspectRatio);

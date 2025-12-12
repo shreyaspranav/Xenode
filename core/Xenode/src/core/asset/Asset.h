@@ -8,6 +8,7 @@ namespace Xen
 {
 	using AssetHandle = UUID;
 
+	// Asset Types. These will grow over time as new types are added.
 	enum class AssetType : uint8_t
 	{
 		None = 0,
@@ -20,6 +21,7 @@ namespace Xen
 		Script
 	};
 
+	// Utilitarian functions for conversion string to enum and vice versa.
 	class AssetUtil
 	{
 	public:
@@ -61,6 +63,7 @@ namespace Xen
 			}
 		}
 	};
+#if 0
 
 	struct AssetMetadata
 	{
@@ -74,6 +77,7 @@ namespace Xen
 		std::filesystem::path relPath;
 		Buffer userData;
 	};
+#endif
 
 	// Base class for all asset types.
 	class XEN_API Asset

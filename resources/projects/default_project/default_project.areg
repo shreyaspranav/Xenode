@@ -272,7 +272,7 @@ AssetRegistry:
   - AssetHandle: 14364800768714107318
     Metadata:
       AssetType: Shader
-      Size: 140717533474817
+      Size: 1416
       RelativePath: Test.shader
       Dependencies: []
   - AssetHandle: 14382606787752366944

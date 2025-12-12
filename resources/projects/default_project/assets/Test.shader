@@ -16,7 +16,6 @@ void main() {
 }
 
 #shadertype: fragment
-
 #version 450
 
 layout(location = 0) in vec3 fragColor; // Color passed from vertex shader

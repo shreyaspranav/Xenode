@@ -7,8 +7,14 @@ namespace Xen
 {
 	enum class AssetHandleFileTreeNodeType { Folder, File };
 
+	// Editor specific metadata registry
+	using AssetMetadataRegistry    = Map<AssetHandle, EditorAssetMetadata>;
+
 	// This is used to check if an file is loaded as an asset
-	using AssetFileRegistry = std::unordered_map<std::filesystem::path, AssetHandle>;
+	using AssetFileRegistry        = UnorderedMap<std::filesystem::path, AssetHandle>;
+
+	// Used to keep track of the raw asset data on the CPU memory.
+	using AssetBinaryPtrRegistry   = UnorderedMap<AssetHandle, Vector<std::byte>>;
 
 	// A tree data structure is used to store the file structure of the assets in the assets directory.
 	struct AssetHandleFileTreeNode
@@ -63,14 +69,14 @@ namespace Xen
 		// The file will be named '<project_name>.areg'[Short for Asset Registry]
 		void SerializeRegistry();
 
-		inline AssetPtrRegistry GetLoadedAssetRegistry()          { return m_PtrRegistryLoaded; }
-		inline AssetMetadataRegistry GetAssetMetadataRegistry()   { return m_MetadataRegistry;  }
+		inline AssetPtrRegistry& GetLoadedAssetRegistry()          { return m_PtrRegistry; }
+		inline AssetMetadataRegistry& GetAssetMetadataRegistry()   { return m_MetadataRegistry;  }
 
 		inline AssetHandleFileTreeNode* GetAssetHandleFileTree()  { return m_AssetFileTreeRoot; }
 
 	private:
 		// The base "import from file" function implementation 
-		bool ImportAssetFromFileBase(AssetHandle handle, AssetMetadata& metadata);
+		bool ImportAssetFromFileBase(AssetHandle handle, EditorAssetMetadata& metadata);
 
 		void AddAssetToFileTree(AssetHandle handle, const std::filesystem::path& path);
 		AssetHandleFileTreeNode* GetFolderPresentInChildren(AssetHandleFileTreeNode* parentNode, const std::string& folderName);
@@ -78,8 +84,8 @@ namespace Xen
 
 	private:
 		AssetPtrRegistry m_PtrRegistry;
-		AssetPtrRegistry m_PtrRegistryLoaded;         // "Loaded" refers to if the asset is ready to use.
 		AssetMetadataRegistry m_MetadataRegistry;
+		AssetBinaryPtrRegistry m_BinaryPtrRegistry;
 
 		AssetFileRegistry m_FileRegistry;             // Contains the entries whose assets are imported from files. 
 		

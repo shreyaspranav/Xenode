@@ -259,7 +259,7 @@ namespace Xen {
 	}
 
 	// This new constructor will replace the older constructors.
-	OpenGLTexture::OpenGLTexture(const Buffer& buffer, TextureBufferType bufferType, TextureProperties properties)
+	OpenGLTexture::OpenGLTexture(const Vector<std::byte>& buffer, TextureBufferType bufferType, TextureProperties properties)
 		:m_TextureProperties(properties)
 	{
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
@@ -268,17 +268,17 @@ namespace Xen {
 		glTextureStorage2D(m_TextureID, 
 			m_TextureProperties.mipLevels == 0 ? 1 : m_TextureProperties.mipLevels, 
 			ToGLInternalTextureFormat(m_TextureProperties.format), 
-			m_TextureProperties.width, 
+			m_TextureProperties.width,
 			m_TextureProperties.height);
 
 		SetTexFilterMode(m_TextureID, ToGLFilterMode(m_T_FilterMode), m_TextureProperties.mipLevels > 0);
 		SetTexWrapMode(m_TextureID, ToGLWrapMode(m_T_WrapMode));
 
-		if (buffer.buffer != nullptr)
+		if (!buffer.empty())
 			glTextureSubImage2D(m_TextureID, 0, 0, 0, m_TextureProperties.width, m_TextureProperties.height,
 				ToGLTextureFormat(m_TextureProperties.format),
 				ToGLTextureBufferType(bufferType), 
-				buffer.buffer);
+				buffer.data());
 
 	}
 

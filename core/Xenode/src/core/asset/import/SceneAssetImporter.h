@@ -1,14 +1,15 @@
 #pragma once
 
 #include <Core.h>
-#include <core/asset/Asset.h>
+#include <core/asset/AssetMetadata.h>
 
 namespace Xen
 {
 	class XEN_API SceneAssetImporter
 	{
 	public:
-		static Ref<Asset> ImportSceneAsset(AssetMetadata* metadata);
+		static Vector<std::byte> ImportSceneAsset(AssetMetadata* metadata);
+		static Ref<Asset> LoadSceneAsset(const Vector<std::byte>& buffer, AssetMetadata* metadata);
 	};
 }
 

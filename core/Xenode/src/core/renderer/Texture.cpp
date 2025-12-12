@@ -25,7 +25,7 @@ namespace Xen {
 		}
 		return nullptr;
 	}
-	Ref<Texture2D> Texture2D::CreateTexture2D(const Buffer& textureBuffer, TextureBufferType bufferType, TextureProperties properties)
+	Ref<Texture2D> Texture2D::CreateTexture2D(const Vector<std::byte>& textureBuffer, TextureBufferType bufferType, TextureProperties properties)
 	{
 		switch (GetApplicationInstance()->GetGraphicsAPI())
 		{

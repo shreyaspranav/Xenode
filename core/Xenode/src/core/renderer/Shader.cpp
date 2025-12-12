@@ -6,7 +6,7 @@
 #include <gfxapi/OpenGL/OpenGLShader.h>
 
 namespace Xen {
-	Ref<Shader> Shader::CreateShader(const UnorderedMap<ShaderType, Buffer>& shaders)
+	Ref<Shader> Shader::CreateShader(const UnorderedMap<ShaderType, Vector<std::byte>>& shaders)
 	{
 		switch (GetApplicationInstance()->GetGraphicsAPI())
 		{

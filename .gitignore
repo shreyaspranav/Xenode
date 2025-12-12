@@ -7,6 +7,7 @@ Makefile
 **/Makefile
 
 *.sln
+*.slnx
 *.vcxproj
 *.user
 *.filters

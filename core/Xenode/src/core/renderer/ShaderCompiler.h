@@ -14,7 +14,7 @@ namespace Xen
 	class ShaderCompiler
 	{
 	public:
-		static Buffer CompileShader(
+		static Vector<std::byte> CompileShader(
 			const std::string& shaderSource,
 			const std::string& fileName,
 			const Vector <Pair<std::string, std::string>>& defines,
@@ -40,7 +40,7 @@ namespace Xen
 			GraphicsAPI targetAPI, 
 			const std::string& fileName);
 
-		static Buffer GetFinalShaderBinary(
+		static Vector<std::byte> GetFinalShaderBinary(
 			const std::string& source, 
 			ShaderType type, 
 			GraphicsAPI targetAPI, 

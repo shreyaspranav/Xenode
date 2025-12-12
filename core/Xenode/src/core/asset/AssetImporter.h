@@ -1,7 +1,7 @@
 #pragma once
 #include <Core.h>
 
-#include "Asset.h"
+#include "AssetMetadata.h"
 
 namespace Xen
 {
@@ -9,6 +9,9 @@ namespace Xen
 	{
 	public:
 		// Import asset from a file and returns a buffer of preprocessed data.
-		static Ref<Asset> ImportAsset(AssetMetadata* metadata);
+		static Vector<std::byte> ImportAsset(AssetMetadata* metadata);
+
+		// Take a buffer of data and return the corresponding asset.
+		static Ref<Asset> LoadAsset(const Vector<std::byte>& buffer, AssetMetadata* metadata);
 	};
 }

@@ -3,36 +3,40 @@
 
 #include <project/ProjectManager.h>
 #include <core/scene/SceneSerializer.h>
-#include <core/asset/AssetUserData.h>
 
 namespace Xen
 {
-	Ref<Asset> SceneAssetImporter::ImportSceneAsset(AssetMetadata* metadata)
+	Vector<std::byte> SceneAssetImporter::ImportSceneAsset(AssetMetadata* metadata)
 	{
+		// This shouldn't happen in runtime!
+		EditorAssetMetadata* editorAssetMetadata = (EditorAssetMetadata*)metadata;
+
 		Ref<Project> currentProject = ProjectManager::GetCurrentProject();
 		std::filesystem::path assetPath = currentProject->GetProjectSettings().relAssetDirectory;
 
-		std::filesystem::path completePath = ProjectManager::GetCurrentProjectPath() / assetPath / metadata->relPath;
-
-		// TODO: Implement serialization of scene type to the scene
-		Ref<Scene> sceneAsset = std::make_shared<Scene>();
-		Component::Transform editorCameraTransform = SceneSerializer::Deserialize(sceneAsset, completePath.string());
+		std::filesystem::path completePath = ProjectManager::GetCurrentProjectPath() / assetPath / editorAssetMetadata->relPath;
 
 		// Calculate the size of the scene:
 		std::ifstream inputStream(completePath);
 		inputStream.seekg(0, std::ios::end);
 		Size s = inputStream.tellg();
+		inputStream.seekg(0, std::ios::beg);
+
+		Vector<std::byte> buffer(s);
+		inputStream.read(reinterpret_cast<char*>(buffer.data()), s);
 		inputStream.close();
 
-		SceneAssetUserData* sceneUserData = new SceneAssetUserData();
-		sceneUserData->editorCameraTransform = editorCameraTransform;
+		Component::Transform editorCameraTransform = SceneSerializer::GetEditorCameraTransform(std::string(reinterpret_cast<char*>(buffer.data())));
 
-		metadata->size = s;
+		editorAssetMetadata->editorSpecific = EditorSceneMetadata(editorCameraTransform);
+		editorAssetMetadata->size = s;
 
-		metadata->userData.buffer = sceneUserData;
-		metadata->userData.alloc = true;
-		metadata->userData.size = sizeof(SceneAssetUserData);
-
+		return buffer;
+	}
+	Ref<Asset> SceneAssetImporter::LoadSceneAsset(const Vector<std::byte>& buffer, AssetMetadata* metadata)
+	{
+		Ref<Scene> sceneAsset = std::make_shared<Scene>();
+		SceneSerializer::DeserializeYAML(sceneAsset, std::string(reinterpret_cast<const char*>(buffer.data())));
 		return sceneAsset;
 	}
 }

@@ -78,8 +78,6 @@ typedef size_t Size;
 
 namespace Xen 
 {
-	// Custom Data types:
-
 	// A 'Scope' Smart pointer
 	template<typename T>
 	using Scope = std::unique_ptr<T>;
@@ -103,24 +101,10 @@ namespace Xen
 	template<typename A, typename B>
 	using Pair = std::pair<A, B>;
 
-	// An arbitrary buffer of data
-	struct Buffer
-	{
-		void* buffer = nullptr;
-		Size size = 0;
+	using Byte = std::byte;
 
-		// true if memory is allocated, false if memory is freed.
-		bool alloc = false;
-
-		void Free() 
-		{ 
-			delete[] buffer;
-			
-			buffer = nullptr;
-			alloc = false;
-			size = 0;
-		}
-	};
+	// Struct to define offset and size.
+	struct Span { Size offset, size; };
 }
 
 

@@ -4,32 +4,44 @@
 #include <core/app/Timer.h>
 #include <core/renderer/Texture.h>
 
-#include <core/asset/AssetUserData.h>
-
 #include <project/ProjectManager.h>
 
 #include <stb_image.h>
 
 namespace Xen
 {
-	Ref<Asset> TextureAssetImporter::ImportTextureAsset(AssetMetadata* metadata)
+	Vector<std::byte> TextureAssetImporter::ImportTextureAsset(AssetMetadata* metadata)
 	{
+		// This shouldn't happen in runtime!
+		EditorAssetMetadata* editorAssetMetadata = (EditorAssetMetadata*)metadata;
+
 		Ref<Project> currentProject = ProjectManager::GetCurrentProject();
 		std::filesystem::path assetPath = ProjectManager::GetCurrentProjectPath() / currentProject->GetProjectSettings().relAssetDirectory;
 
-		assetPath /= metadata->relPath;
+		assetPath /= editorAssetMetadata->relPath;
 
 		// TODO: Add more texture types if you want.
 		if (metadata->type == AssetType::Texture2D) 
 			return ImportTexture2D(metadata, assetPath);
 
 		XEN_ENGINE_LOG_ERROR("Unknown Texture Type: {0}", assetPath.string());
-		return nullptr;
+		return Vector<std::byte>();
+	}
+
+	Ref<Asset> TextureAssetImporter::LoadTextureAsset(const Vector<std::byte>& buffer, AssetMetadata* metadata)
+	{
+		TextureMetadata& textureMetadata = std::get<TextureMetadata>(metadata->specific);
+		Ref<Texture2D> textureAsset = Texture2D::CreateTexture2D(buffer, textureMetadata.bufferType, textureMetadata.properties);
+
+		return textureAsset;
 	}
 	
 	// Will load only for non floating point textures
-	Ref<Asset> TextureAssetImporter::ImportTexture2D(AssetMetadata* metadata, const std::filesystem::path& completeFilePath)
+	Vector<std::byte> TextureAssetImporter::ImportTexture2D(AssetMetadata* metadata, const std::filesystem::path& completeFilePath)
 	{
+		// This shouldn't happen in runtime!
+		EditorAssetMetadata* editorAssetMetadata = (EditorAssetMetadata*)metadata;
+
 		std::string filePathString = completeFilePath.string();
 
 		// Check the type of data in the image file.
@@ -38,8 +50,9 @@ namespace Xen
 		if (stbi_is_16_bit(filePathString.c_str()))
 			dataType = TextureBufferType::UnsignedInt16;
 
-		int width, height, channels;
-		Buffer textureDataBuffer;
+		int width = 0, height = 0, channels = 0;
+		Vector<std::byte> textureDataBuffer;
+		std::byte* data = nullptr;
 
 		constexpr bool flipTextureOnLoad = false;
 		stbi_set_flip_vertically_on_load(flipTextureOnLoad);
@@ -47,33 +60,30 @@ namespace Xen
 		// Read the texture data
 		switch (dataType)
 		{
+		// TODO: Look into the 'desired channels' parameter, maybe extend some features based on it.
 		case TextureBufferType::UnsignedInt8:
-			// TODO: Look into the 'desired channels' parameter, maybe extend some features based on it.
-			textureDataBuffer.buffer = stbi_load(filePathString.c_str(), &width, &height, &channels, 0);
+			data = (std::byte*)stbi_load(filePathString.c_str(), &width, &height, &channels, 0);
+			if (!data) break;
+			
+			textureDataBuffer.resize(width * height * channels * sizeof(uint8_t));
+			std::memcpy(textureDataBuffer.data(), data, textureDataBuffer.size());
+			
 			break;
 		case TextureBufferType::UnsignedInt16:
-			// TODO: Look into the 'desired channels' parameter, maybe extend some features based on it.
-			textureDataBuffer.buffer = stbi_load_16(filePathString.c_str(), &width, &height, &channels, 0);
+			data = (std::byte*)stbi_load_16(filePathString.c_str(), &width, &height, &channels, 0);
+			if (!data) break;
+
+			textureDataBuffer.resize(width * height * channels * sizeof(uint16_t));
+			std::memcpy(textureDataBuffer.data(), data, textureDataBuffer.size());
+			
 			break;
 		}
 
-		if (!textureDataBuffer.buffer)
+		if (textureDataBuffer.empty())
 		{
 			XEN_ENGINE_LOG_ERROR("Failed to import {0} as Texture2D", filePathString);
-			return nullptr;
+			return Vector<std::byte>();
 		}
-
-		switch (dataType)
-		{
-		case TextureBufferType::UnsignedInt8:
-			textureDataBuffer.size = width * height * channels * sizeof(uint8_t);
-			break;
-		case TextureBufferType::UnsignedInt16:
-			textureDataBuffer.size = width * height * channels * sizeof(uint16_t);
-			break;
-		}
-
-		textureDataBuffer.alloc = true;
 
 		TextureProperties textureProperties;
 		textureProperties.width = width;
@@ -87,19 +97,7 @@ namespace Xen
 		case 4: textureProperties.format = dataType == TextureBufferType::UnsignedInt16 ? TextureFormat::RGBA16 : TextureFormat::RGBA8; break;
 		}
 
-		Ref<Texture2D> textureAsset = Texture2D::CreateTexture2D(textureDataBuffer, dataType, textureProperties);
-		
-		// Make sure the memory gets cleared.
-		metadata->size = textureDataBuffer.size;
-		stbi_image_free(textureDataBuffer.buffer);
-		textureDataBuffer.alloc = false;
-
-		TextureAssetUserData* userData = new TextureAssetUserData();
-
-		metadata->userData.buffer = userData;
-		metadata->userData.size = sizeof(TextureAssetUserData);
-		metadata->userData.alloc = true;
-
-		return textureAsset;
+		editorAssetMetadata->specific = TextureMetadata{ textureProperties, dataType };
+		return textureDataBuffer;
 	}
 }

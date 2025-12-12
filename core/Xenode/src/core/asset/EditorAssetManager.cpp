@@ -47,10 +47,7 @@ namespace Xen
 	}
 	EditorAssetManager::~EditorAssetManager()
 	{
-		// TODO: Write a custom memory allocator.
-		// Deallocate all the user data
-		for (auto&& metadataEntry : m_MetadataRegistry)
-			metadataEntry.second.userData.Free();
+
 	}
 	Ref<Asset> EditorAssetManager::GetAsset(AssetHandle handle) const
 	{
@@ -74,7 +71,7 @@ namespace Xen
 	}
 	bool EditorAssetManager::IsAssetLoaded(AssetHandle handle) const
 	{
-		return m_PtrRegistryLoaded.find(handle) != m_PtrRegistryLoaded.end();
+		return m_PtrRegistry.find(handle) != m_PtrRegistry.end();
 	}
 	bool EditorAssetManager::ImportAssetsFromPack(const std::filesystem::path& filePath)
 	{
@@ -90,7 +87,7 @@ namespace Xen
 			return true;
 		}
 
-		AssetMetadata metadata;
+		EditorAssetMetadata metadata;
 
 		std::string fileExtension = filePath.extension().string();
 
@@ -108,7 +105,7 @@ namespace Xen
 		AssetRegistrySerializer::Serialize(m_MetadataRegistry, GetAssetRegistryFilePath());
 	}
 
-	bool EditorAssetManager::ImportAssetFromFileBase(AssetHandle handle, AssetMetadata& metadata)
+	bool EditorAssetManager::ImportAssetFromFileBase(AssetHandle handle, EditorAssetMetadata& metadata)
 	{
 		Timer t;
 
@@ -118,18 +115,19 @@ namespace Xen
 		if (fileExtensions.find(fileExtension) == fileExtensions.end())
 			return false;
 
-		Ref<Asset> asset = AssetImporter::ImportAsset(&metadata);
+		Vector<std::byte> data = AssetImporter::ImportAsset(&metadata);
+		Ref<Asset> asset = AssetImporter::LoadAsset(data, &metadata);
 
 		t.Stop();
 		XEN_ENGINE_LOG_INFO("Asset '{0}' Imported From disk at {1}ms:", metadata.relPath.string(), t.GetElapedTime() / 1000.0f);
 
-		if (!asset)
+		if (data.empty())
 			return false;
 		else
 		{
 			// If the handle or the filepath already exists, the following code does nothing.
 			m_PtrRegistry.insert({ handle, asset });
-			m_PtrRegistryLoaded.insert({ handle, asset }); // The asset is already loaded.
+			m_BinaryPtrRegistry.insert({ handle, data });
 			m_FileRegistry.insert({ metadata.relPath, handle });
 
 			// Add the asset to the Asset File Tree.
@@ -138,6 +136,8 @@ namespace Xen
 			m_MetadataRegistry.insert({ handle, metadata });
 			return true;
 		}
+
+		return false;
 	}
 
 	// Private Methods: ----------------------------------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ namespace Xen
 	// AssetRegistrySerializer Implementation: -----------------------------------------------------------------------------------
 
 	// operator<< for AssetMetadata
-	YAML::Emitter& operator<<(YAML::Emitter& emitter, const AssetMetadata& metadata)
+	YAML::Emitter& operator<<(YAML::Emitter& emitter, const EditorAssetMetadata& metadata)
 	{
 		emitter << YAML::BeginMap;
 
@@ -231,7 +231,7 @@ namespace Xen
 		return emitter;
 	}
 
-	static void GetAssetMetadata(const YAML::Node& node, AssetMetadata& metadata)
+	static void GetAssetMetadata(const YAML::Node& node, EditorAssetMetadata& metadata)
 	{
 		auto&& metadataNode = node["Metadata"];
 
@@ -293,7 +293,7 @@ namespace Xen
 			for (auto&& asset : rootNode["AssetRegistry"])
 			{
 				AssetHandle handle = asset["AssetHandle"].as<uint64_t>();
-				AssetMetadata metadata;
+				EditorAssetMetadata metadata;
 
 				GetAssetMetadata(asset, metadata);
 				registry.insert({ handle, metadata });

@@ -7,7 +7,7 @@ namespace Xen
 	public:
 		OpenGLTexture(const std::string& textureFilePath, bool flip_on_load);
 		OpenGLTexture(TextureProperties properties, void* data, uint32_t size);
-		OpenGLTexture(const Buffer& buffer, TextureBufferType bufferType, TextureProperties properties);
+		OpenGLTexture(const Vector<std::byte>& buffer, TextureBufferType bufferType, TextureProperties properties);
 		OpenGLTexture(uint32_t rendererID, TextureProperties properties);
 
 		virtual ~OpenGLTexture();

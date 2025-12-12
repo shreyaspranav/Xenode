@@ -281,7 +281,7 @@ namespace Xen
 		yamlEmitter << YAML::EndMap; // Entity
 	}
 
-	void SceneSerializer::Serialize(const Ref<Scene>& scene, const Component::Transform& editorCameraTransform, const std::string& filePath)
+	std::string SceneSerializer::SerializeYAML(const Ref<Scene>& scene, const Component::Transform& editorCameraTransform)
 	{
 		YAML::Emitter yamlEmitter;
 
@@ -311,18 +311,38 @@ namespace Xen
 
 		yamlEmitter << YAML::EndMap;
 
-		std::ofstream out_stream(filePath);
-		out_stream << yamlEmitter.c_str();
-		out_stream.close();
+		return std::string(yamlEmitter.c_str());
 	}
 
-	Component::Transform SceneSerializer::Deserialize(const Ref<Scene>& scene, const std::string& filePath)
+	Component::Transform SceneSerializer::GetEditorCameraTransform(const std::string& yaml)
 	{
-		std::ifstream file_stream(filePath);
-		std::stringstream scene_string_data;
-		scene_string_data << file_stream.rdbuf();
+		YAML::Node scene_data = YAML::Load(yaml);
 
-		YAML::Node scene_data = YAML::Load(scene_string_data);
+		Vec3 position = {
+			 scene_data["EditorCameraTransform"]["Position"][0].as<float>(),
+			 scene_data["EditorCameraTransform"]["Position"][1].as<float>(),
+			 scene_data["EditorCameraTransform"]["Position"][2].as<float>(),
+		};
+
+		Vec3 rotation = {
+			scene_data["EditorCameraTransform"]["Rotation"][0].as<float>(),
+			scene_data["EditorCameraTransform"]["Rotation"][1].as<float>(),
+			scene_data["EditorCameraTransform"]["Rotation"][2].as<float>(),
+		};
+
+		Vec3 scale = {
+			scene_data["EditorCameraTransform"]["Scale"][0].as<float>(),
+			scene_data["EditorCameraTransform"]["Scale"][1].as<float>(),
+			scene_data["EditorCameraTransform"]["Scale"][2].as<float>(),
+		};
+
+		Component::Transform transform = { position, rotation, scale };
+		return transform;
+	}
+
+	void SceneSerializer::DeserializeYAML(const Ref<Scene>&scene, const std::string & yaml)
+	{
+		YAML::Node scene_data = YAML::Load(yaml);
 
 		if (!scene_data["Scene"])
 		{
@@ -548,39 +568,17 @@ namespace Xen
 				}
 			}
 		}
-		// Getting the Editor Camera Transform:
-
-		Vec3 position = {
-			scene_data["EditorCameraTransform"]["Position"][0].as<float>(),
-			scene_data["EditorCameraTransform"]["Position"][1].as<float>(),
-			scene_data["EditorCameraTransform"]["Position"][2].as<float>(),
-		};
-
-		Vec3 rotation = {
-			scene_data["EditorCameraTransform"]["Rotation"][0].as<float>(),
-			scene_data["EditorCameraTransform"]["Rotation"][1].as<float>(),
-			scene_data["EditorCameraTransform"]["Rotation"][2].as<float>(),
-		};
-
-		Vec3 scale = {
-			scene_data["EditorCameraTransform"]["Scale"][0].as<float>(),
-			scene_data["EditorCameraTransform"]["Scale"][1].as<float>(),
-			scene_data["EditorCameraTransform"]["Scale"][2].as<float>(),
-		};
-
-		Component::Transform transform = { position, rotation, scale };
-		return transform;
 	}
-	void SceneSerializer::SerializeBinary(const Ref<Scene>& scene, Buffer& buffer)
+	Vector<std::byte> SceneSerializer::SerializeBinary(const Ref<Scene>& scene)
 	{
 		// TODO: Look into unnecessary copies being done on data and optimize it.
-		Vector<uint8_t> binaryData;
+		Vector<std::byte> binaryData;
 
 		// Lambda function to add binary data:
 		auto&& appendToBuffer =
 		[&](const void* data, Size size)
 		{
-			const uint8_t* dataInBytes = reinterpret_cast<const uint8_t*>(data);
+			const std::byte* dataInBytes = reinterpret_cast<const std::byte*>(data);
 
 			for (int i = 0; i < size; i++)
 				binaryData.push_back(dataInBytes[i]);
@@ -752,21 +750,15 @@ namespace Xen
 		uint8_t endTag = 69;
 		appendToBuffer(&endTag, sizeof(uint8_t));
 
-		// In the end, copy the data to the buffer
-		uint8_t* buf = new uint8_t[binaryData.size()];
-		memcpy(buf, binaryData.data(), binaryData.size());
-
-		buffer.size = binaryData.size();
-		buffer.buffer = buf;
-		buffer.alloc = true;
+		return binaryData;
 	}
-	void SceneSerializer::DeserializeBinary(const Ref<Scene>& scene, Buffer& buffer)
+	void SceneSerializer::DeserializeBinary(const Ref<Scene>& scene, const Vector<std::byte>& buffer)
 	{
-		uint8_t* bufferBase = reinterpret_cast<uint8_t*>(buffer.buffer);
-		uint8_t* bufferPtr = bufferBase;
-		Size bufferSize = buffer.size;
+		const std::byte* bufferBase = buffer.data();
+		std::byte* bufferPtr = (std::byte*)bufferBase;
+		Size bufferSize = buffer.size();
 
-		bufferPtr += 9; // Increment 9 bytes to skip past the "XenScene" header.
+		bufferPtr += 9 * sizeof(std::byte); // Increment 9 bytes to skip past the "XenScene" header.
 
 		Size entityCount;
 		memcpy(&entityCount, bufferPtr, sizeof(Size));
@@ -944,19 +936,16 @@ namespace Xen
 		}
 
 	}
-	void SceneSerializer::SerializeBinaryToFile(const Ref<Scene>& scene, const std::string& filePath)
+	void SceneSerializer::SerializeBinaryToFile(const Ref<Scene>& scene, const std::filesystem::path& filePath)
 	{
-		Buffer b;
-
-		// This function will also allocate the buffer.
-		SerializeBinary(scene, b);
+		Vector<std::byte> buffer = SerializeBinary(scene);
 
 		std::ofstream outputStream(filePath, std::ios::binary);
-		outputStream.write((const char*)b.buffer, b.size);
+		outputStream.write((const char*)buffer.data(), buffer.size());
 		outputStream.close();
 	}
 
-	void SceneSerializer::DeserializeBinaryFromFile(const Ref<Scene>& scene, const std::string& filePath)
+	void SceneSerializer::DeserializeBinaryFromFile(const Ref<Scene>& scene, const std::filesystem::path& filePath)
 	{
 		std::ifstream inputStream(filePath, std::ios::binary);
 
@@ -974,14 +963,11 @@ namespace Xen
 		Size s = inputStream.tellg();
 		inputStream.seekg(0, std::ios::beg);
 
-		Buffer b;
-		b.buffer = malloc(s);
-		b.size = s;
-		b.alloc = true;
+		Vector<std::byte> buffer(s);
 
-		inputStream.read(reinterpret_cast<char*>(b.buffer), s);
+		inputStream.read(reinterpret_cast<char*>(buffer.data()), s);
 		inputStream.close();
 
-		DeserializeBinary(scene, b);
+		DeserializeBinary(scene, buffer);
 	}
 }

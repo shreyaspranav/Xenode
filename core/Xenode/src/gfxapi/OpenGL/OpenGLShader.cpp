@@ -289,15 +289,17 @@ namespace Xen {
 	}
 
 	// New constructor: 
-	OpenGLShader::OpenGLShader(const UnorderedMap<ShaderType, Buffer>& shaders)
+	OpenGLShader::OpenGLShader(const UnorderedMap<ShaderType, Vector<std::byte>>& shaders)
 	{
 		m_ShaderProgramID = glCreateProgram();
-		for (auto& [shaderType, binaryData] : shaders)
+		for (auto& [shaderType, binary] : shaders)
 		{
 			uint32_t shaderID = glCreateShader(ToGLShaderType(shaderType));
 
-			glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, binaryData.buffer, binaryData.size);
+			glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, binary.data(), binary.size());
+			glSpecializeShader(shaderID, "main", 0, nullptr, nullptr);
 			glAttachShader(m_ShaderProgramID, shaderID);
+			// glSpecializeShader()
 		}
 		
 		glLinkProgram(m_ShaderProgramID);

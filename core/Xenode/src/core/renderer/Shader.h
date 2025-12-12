@@ -42,7 +42,7 @@ namespace Xen
 
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) = 0;
 
-		static Ref<Shader> CreateShader(const UnorderedMap<ShaderType, Buffer>& shaders);
+		static Ref<Shader> CreateShader(const UnorderedMap<ShaderType, Vector<std::byte>>& shaders);
 
 		static Ref<Shader> CreateShader(const std::string& filePath);
 		static Ref<Shader> CreateShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);

@@ -12,7 +12,7 @@ namespace Xen {
 		OpenGLShader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);
 
 		// New constructor.
-		OpenGLShader(const UnorderedMap<ShaderType, Buffer>& shaders);
+		OpenGLShader(const UnorderedMap<ShaderType, Vector<std::byte>>& shaders);
 
 		virtual ~OpenGLShader();
 

@@ -773,14 +773,14 @@ void LevelEditorLayer::OpenScene(Xen::AssetHandle handle)
 	// Xen::Component::Transform editorCameraTransform = Xen::SceneSerializer::Deserialize(m_EditorScene, filePath);
 
 	Xen::AssetMetadataRegistry assetMetadataRegistry = Xen::AssetManagerUtil::GetEditorAssetManager()->GetAssetMetadataRegistry();
-	Xen::SceneAssetUserData* sceneAssetUserData = (Xen::SceneAssetUserData*)assetMetadataRegistry[handle].userData.buffer;
+	Xen::EditorSceneMetadata* editorSceneMetadata = std::get_if<Xen::EditorSceneMetadata>(&assetMetadataRegistry[handle].editorSpecific);
 
 	Xen::Ref<Xen::Scene> sceneAsset = Xen::AssetManagerUtil::GetAsset<Xen::Scene>(handle);
 	// m_EditorScene = sceneAsset;
 	Xen::SceneUtils::CopyScene(m_EditorScene, sceneAsset);
 
-	m_EditorCameraController.SetCameraPosition(sceneAssetUserData->editorCameraTransform.position);
-	m_EditorCameraController.SetZoom(sceneAssetUserData->editorCameraTransform.scale.x);
+	m_EditorCameraController.SetCameraPosition(editorSceneMetadata->editorCameraTransform.position);
+	m_EditorCameraController.SetZoom(editorSceneMetadata->editorCameraTransform.scale.x);
 
 	m_EditorCamera->Update();
 }
@@ -792,7 +792,11 @@ void LevelEditorLayer::SaveScene(const std::string& filePath)
 	editorCameraTransform.rotation = m_EditorCamera->GetRotation();
 	editorCameraTransform.scale = m_EditorCamera->GetScale();
 
-	Xen::SceneSerializer::Serialize(m_EditorScene, editorCameraTransform, filePath);
+	std::string yaml = Xen::SceneSerializer::SerializeYAML(std::make_shared<Xen::Scene>(), editorCameraTransform);
+
+	std::ofstream fstream(filePath);
+	fstream << yaml.c_str();
+	fstream.close();
 }
 
 void LevelEditorLayer::OnWindowResizeEvent(Xen::WindowResizeEvent& event)

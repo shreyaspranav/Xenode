@@ -13,24 +13,46 @@ namespace Xen
 	// --------------------------------------------------------------------------------------------------------------------------------
 
 	// Implementation: ----------------------------------------------------------------------------------------------------------------
-	Ref<Asset> ShaderAssetImporter::ImportShaderAsset(AssetMetadata* metadata)
+	Vector<std::byte> ShaderAssetImporter::ImportShaderAsset(AssetMetadata* metadata)
 	{
 		Ref<Project> currentProject = ProjectManager::GetCurrentProject();
 		std::filesystem::path assetPath = currentProject->GetProjectSettings().relAssetDirectory;
 
-		std::filesystem::path completePath = ProjectManager::GetCurrentProjectPath() / assetPath / metadata->relPath;
+		// This shouldn't happen in runtime!
+		EditorAssetMetadata* editorAssetMetadata = (EditorAssetMetadata*)metadata;
+
+		std::filesystem::path completePath = ProjectManager::GetCurrentProjectPath() / assetPath / editorAssetMetadata->relPath;
 
 		XEN_ENGINE_LOG_WARN("Shader file {0} ------------------------------------------------------", completePath.string());
 		Vector<std::string> completeShaderCode = ShaderAssetImporter::ReadShaderCode(completePath);
 		auto&& shaderSources = ShaderAssetImporter::PreprocessShader(completeShaderCode);
 
-		return ShaderAssetImporter::CompileAndCreateShaderAsset(shaderSources, completePath.filename().string());
+		return ShaderAssetImporter::CompileShaderAsset(shaderSources, completePath.filename().string(), editorAssetMetadata);
+	}
+
+	Ref<Asset> ShaderAssetImporter::LoadShaderAsset(const Vector<std::byte>& buffer, AssetMetadata* metadata)
+	{
+		ShaderMetadata& shaderMetadata = std::get<ShaderMetadata>(metadata->specific);
+		
+		UnorderedMap<ShaderType, Vector<std::byte>> shaders;
+		for (auto&& [shaderType, span] : shaderMetadata)
+		{
+			auto&& start = span.offset;
+			auto&& end = span.offset + span.size;
+
+			Vector<std::byte> bin(span.size);
+			std::memcpy(bin.data(), buffer.data() + span.offset, span.size);
+
+			shaders.insert({ shaderType, bin });
+		}
+
+		Ref<Shader> shaderAsset = Shader::CreateShader(shaders);
+		return shaderAsset;
 	}
 
 	// Private functions: -------------------------------------------------------------------------------------------------------------
 	Vector<std::string> ShaderAssetImporter::ReadShaderCode(const std::filesystem::path& completePath)
 	{
-		// TODO: Measure the performance of this code:
 		Timer t;
 
 		std::ifstream inputStream(completePath);
@@ -89,20 +111,23 @@ namespace Xen
 		return shaders;
 	}
 
-	Ref<Asset> ShaderAssetImporter::CompileAndCreateShaderAsset(const UnorderedMap<ShaderType, std::string>& shaderSources, const std::string& fileName)
+	Vector<std::byte> ShaderAssetImporter::CompileShaderAsset(const UnorderedMap<ShaderType, std::string>& shaderSources, const std::string& fileName, AssetMetadata* metadata)
 	{
-		UnorderedMap<ShaderType, Buffer> shaderBinaries;
+		Vector<std::byte> buffer;
+		ShaderMetadata shaderMetadata = ShaderMetadata();
 
 		for (auto& [shaderType, source] : shaderSources)
 		{
-			Buffer shaderBinary = ShaderCompiler::CompileShader(source, fileName, {}, shaderType);
-			shaderBinaries.insert({ shaderType, shaderBinary });
+			Size offset = buffer.size();
+
+			Vector<std::byte> shaderBinary = ShaderCompiler::CompileShader(source, fileName, {}, shaderType);
+			buffer.insert(buffer.end(), shaderBinary.begin(), shaderBinary.end());
+
+			shaderMetadata.insert({ shaderType, { offset, shaderBinary.size() }});
 		}
+		metadata->size = buffer.size();
+		metadata->specific = shaderMetadata;
 
-		Ref<Shader> shaderAsset = Shader::CreateShader(shaderBinaries);
-		for (auto& [shaderType, binary] : shaderBinaries)
-			binary.Free();
-
-		return shaderAsset;
+		return buffer;
 	}
 }

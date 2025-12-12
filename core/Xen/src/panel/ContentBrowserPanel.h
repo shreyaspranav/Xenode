@@ -8,7 +8,6 @@
 #include <core/app/GameApplication.h>
 
 #include <core/asset/AssetManagerUtil.h>
-#include <core/asset/AssetUserData.h>
 
 #include "StringValues.h"
 #include "ThumbnailGenerator.h"
@@ -97,14 +96,10 @@ public:
 			if (childrenNode->type == Xen::AssetHandleFileTreeNodeType::Folder)
 				thumbnail = m_FolderTexture;
 			else if (assetMetadataRegistry[childrenNode->handle].type == Xen::AssetType::Texture2D)
-			{
-				Xen::TextureAssetUserData* textureAssetUserData = (Xen::TextureAssetUserData*)assetMetadataRegistry[childrenNode->handle].userData.buffer;
-				thumbnail = textureAssetUserData->thumbnail;
-			}
+				thumbnail = assetMetadataRegistry[childrenNode->handle].thumbnail;
 			else if (assetMetadataRegistry[childrenNode->handle].type == Xen::AssetType::Scene)
 			{
-				Xen::SceneAssetUserData* sceneAssetUserData = (Xen::SceneAssetUserData*)assetMetadataRegistry[childrenNode->handle].userData.buffer;
-				thumbnail = sceneAssetUserData->thumbnail;
+				thumbnail = assetMetadataRegistry[childrenNode->handle].thumbnail;
 				flipThumbnail = true;
 			}
 			else

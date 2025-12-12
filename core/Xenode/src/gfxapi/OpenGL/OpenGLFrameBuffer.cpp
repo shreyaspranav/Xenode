@@ -172,6 +172,7 @@ namespace Xen {
 					GL_RGB32F,
 					m_Spec.attachments[i].filtering,
 					m_Spec.samples);
+				break;
 			case FrameBufferTextureFormat::R11G11B10F:
 				SetupTexture(m_ColorAttachments[color_att_index], m_Spec.attachments[i].mipmaps,
 					m_Spec.width, m_Spec.height,

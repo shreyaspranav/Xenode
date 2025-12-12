@@ -2,19 +2,18 @@
 
 #include <Core.h>
 #include "Asset.h"
+#include "AssetMetadata.h"
 
 namespace Xen
 {
-	// In Production, maybe use unordered map for better average case performance. (And we don't care about the order anyway)
-#ifdef XEN_PRODUCTION
-	using AssetPtrRegistry       = UnorderedMap<AssetHandle, Ref<Asset>>;
-	using AssetMetadataRegistry  = UnorderedMap<AssetHandle, AssetMetadata>;
-#else
-	using AssetPtrRegistry       = Map<AssetHandle, Ref<Asset>>;
-	using AssetMetadataRegistry  = Map<AssetHandle, AssetMetadata>;
-#endif
+	// Asset Pointer Registry Type. Common to both runtime and in the editor
+	using AssetPtrRegistry = UnorderedMap<AssetHandle, Ref<Asset>>;
+
 	// The base asset manager. 
 	// Depending if the game is in runtime or in the editor, separate implementations of the AssetManager in used.
+	// 
+	// "Importing" an asset means to load the asset from disk.
+	// "Loading" an asset means to load the loaded asset data to the target(e.g. the GPU)
 	//
 	// If the game is in editor, the game can 
 	//	-> Load assets from disk
@@ -24,7 +23,7 @@ namespace Xen
 	// If the game is in the runtime, the game can
 	//	-> Load assets only from so called "asset packs".
 	// 
-	// 
+	//
 	class XEN_API AssetManager
 	{
 	public:

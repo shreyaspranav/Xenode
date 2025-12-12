@@ -88,7 +88,7 @@ namespace Xen
 
 	// Implementation: ---------------------------------------------------------------------------------------------------
 	// -------------------------------------------------------------------------------------------------------------------
-	Buffer ShaderCompiler::CompileShader(
+	Vector<std::byte> ShaderCompiler::CompileShader(
 		const std::string& shaderSource, 
 		const std::string& fileName,
 		const Vector<Pair<std::string, std::string>>& defines, 
@@ -96,19 +96,15 @@ namespace Xen
 	{
 		GraphicsAPI currentAPI = GetApplicationInstance()->GetGraphicsAPI();
 
-		Buffer shaderBinary;
+		Vector<std::byte> shaderBinary;
 		Vector<uint32_t> vulkanSpirVBinary = CompileToVulkanSpirV(shaderSource, fileName, defines, type);
 
 		if (!vulkanSpirVBinary.empty())
 		{
 			if (currentAPI == GraphicsAPI::XEN_VULKAN_API)
 			{
-				uint32_t* shaderBuffer = new uint32_t[vulkanSpirVBinary.size()];
-				memcpy(shaderBuffer, vulkanSpirVBinary.data(), vulkanSpirVBinary.size());
-
-				shaderBinary.buffer = shaderBuffer;
-				shaderBinary.size = vulkanSpirVBinary.size();
-				shaderBinary.alloc = true;
+				shaderBinary.resize(vulkanSpirVBinary.size() * sizeof(uint32_t));
+				std::memcpy(shaderBinary.data(), vulkanSpirVBinary.data(), shaderBinary.size());
 			}
 			else
 			{
@@ -146,7 +142,7 @@ namespace Xen
 			options.AddMacroDefinition(define.first, define.second);
 
 		shaderc::CompilationResult compilationResult =
-			compiler.CompileGlslToSpv(shaderSource, ToShaderCShaderKind(type), fileName.c_str());
+			compiler.CompileGlslToSpv(shaderSource, ToShaderCShaderKind(type), fileName.c_str(), options);
 
 		// Check for any errors and warnings:
 		if (compilationResult.GetCompilationStatus() != shaderc_compilation_status_success)
@@ -260,13 +256,13 @@ namespace Xen
 		return "";
 	}
 
-	Buffer ShaderCompiler::GetFinalShaderBinary(
+	Vector<std::byte> ShaderCompiler::GetFinalShaderBinary(
 		const std::string& source, 
 		ShaderType type, 
 		GraphicsAPI targetAPI, 
 		const std::string& fileName)
 	{
-		Buffer finalCompiledBinary;
+		Vector<std::byte> finalCompiledBinary;
 		
 		// Compile using ShaderC for OpenGL and Vulkan
 		// Do some research for Direct3D
@@ -286,19 +282,14 @@ namespace Xen
 			options.SetSourceLanguage(shaderc_source_language_glsl);
 			options.SetTargetEnvironment(ToShaderCTargetEnv(targetAPI), ToShaderCTargetEnvVersion(targetAPI));
 
-			shaderc::CompilationResult compilationResult = compiler.CompileGlslToSpv(source, ToShaderCShaderKind(type), "DummyFileName");
+			shaderc::CompilationResult compilationResult = compiler.CompileGlslToSpv(source, ToShaderCShaderKind(type), "DummyFileName", options);
 			
 			if (compilationResult.GetCompilationStatus() == shaderc_compilation_status_success)
 			{
 				Size compiledBinaryBufferSize = compilationResult.end() - compilationResult.begin();
-				uint32_t* binaryBuffer = new uint32_t[compiledBinaryBufferSize];
+				finalCompiledBinary.resize(compiledBinaryBufferSize * sizeof(uint32_t));
 
-				for (int i = 0; i < compiledBinaryBufferSize; i++)
-					binaryBuffer[i] = *(compilationResult.begin() + i);
-
-				finalCompiledBinary.buffer = binaryBuffer;
-				finalCompiledBinary.size = compiledBinaryBufferSize;
-				finalCompiledBinary.alloc = true;
+				std::memcpy(finalCompiledBinary.data(), compilationResult.cbegin(), finalCompiledBinary.size());
 			}
 			else
 			{
