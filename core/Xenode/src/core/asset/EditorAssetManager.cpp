@@ -40,8 +40,22 @@ namespace Xen
 		if (std::filesystem::exists(GetAssetRegistryFilePath()))
 		{
 			AssetRegistrySerializer::Deserialize(m_MetadataRegistry, m_FileRegistry, GetAssetRegistryFilePath());
+
+			Vector<AssetHandle> failedAssets; // Assets failed to load
 			for (auto&& [handle, metadata] : m_MetadataRegistry)
-				ImportAssetFromFileBase(handle, metadata);
+				if (!ImportAssetFromFileBase(handle, metadata))
+					failedAssets.push_back(handle);
+
+			if (!failedAssets.empty())
+			{
+				// Remove assets in the metadata registry that have failed to load
+				for (AssetHandle handle : failedAssets)
+					m_MetadataRegistry.erase(handle);
+
+				// Serialize the asset registry back
+				SerializeRegistry();
+			}
+
 		}
 
 	}
@@ -109,6 +123,9 @@ namespace Xen
 	{
 		Timer t;
 
+		if (!std::filesystem::exists(GetAssetsPath() / metadata.relPath))
+			return false;
+
 		std::string fileExtension = metadata.relPath.extension().string();
 
 		// Return false if the file has a unknown file extension
@@ -119,12 +136,16 @@ namespace Xen
 		Ref<Asset> asset = AssetImporter::LoadAsset(data, &metadata);
 
 		t.Stop();
-		XEN_ENGINE_LOG_INFO("Asset '{0}' Imported From disk at {1}ms:", metadata.relPath.string(), t.GetElapedTime() / 1000.0f);
 
-		if (data.empty())
+		if (data.empty() || !asset)
+		{
+			XEN_ENGINE_LOG_ERROR("Asset '{0}' FAILED to import From disk:", metadata.relPath.string());
 			return false;
+		}
 		else
 		{
+			XEN_ENGINE_LOG_INFO("Asset '{0}' Imported From disk at {1}ms:", metadata.relPath.string(), t.GetElapedTime() / 1000.0f);
+			
 			// If the handle or the filepath already exists, the following code does nothing.
 			m_PtrRegistry.insert({ handle, asset });
 			m_BinaryPtrRegistry.insert({ handle, data });
@@ -197,6 +218,11 @@ namespace Xen
 		std::filesystem::path filePath = ProjectManager::GetCurrentProjectPath();
 
 		return filePath / fileName;
+	}
+
+	std::filesystem::path EditorAssetManager::GetAssetsPath()
+	{
+		return ProjectManager::GetCurrentProjectPath() / ProjectManager::GetCurrentProject()->GetProjectSettings().relAssetDirectory;
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------------------

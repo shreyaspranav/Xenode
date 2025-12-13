@@ -28,8 +28,8 @@ namespace Xen
 
 		Component::Transform editorCameraTransform = SceneSerializer::GetEditorCameraTransform(std::string(reinterpret_cast<char*>(buffer.data())));
 
-		editorAssetMetadata->editorSpecific = EditorSceneMetadata(editorCameraTransform);
 		editorAssetMetadata->size = s;
+		editorAssetMetadata->editorSpecific = EditorSceneMetadata(editorCameraTransform);
 
 		return buffer;
 	}

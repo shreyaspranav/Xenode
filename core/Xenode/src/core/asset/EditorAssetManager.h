@@ -80,7 +80,9 @@ namespace Xen
 
 		void AddAssetToFileTree(AssetHandle handle, const std::filesystem::path& path);
 		AssetHandleFileTreeNode* GetFolderPresentInChildren(AssetHandleFileTreeNode* parentNode, const std::string& folderName);
-		std::filesystem::path GetAssetRegistryFilePath();
+
+		inline std::filesystem::path GetAssetRegistryFilePath();
+		inline std::filesystem::path GetAssetsPath();
 
 	private:
 		AssetPtrRegistry m_PtrRegistry;

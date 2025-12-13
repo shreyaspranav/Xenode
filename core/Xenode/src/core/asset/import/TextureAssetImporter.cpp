@@ -97,6 +97,7 @@ namespace Xen
 		case 4: textureProperties.format = dataType == TextureBufferType::UnsignedInt16 ? TextureFormat::RGBA16 : TextureFormat::RGBA8; break;
 		}
 
+		editorAssetMetadata->size = textureDataBuffer.size();
 		editorAssetMetadata->specific = TextureMetadata{ textureProperties, dataType };
 		return textureDataBuffer;
 	}

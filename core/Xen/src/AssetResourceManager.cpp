@@ -33,18 +33,6 @@ void AssetResourceManager::Load()
 	AssetResourceManager::GenerateThumbnails();
 
 	assetResourceManagerState.assetManager->SerializeRegistry();
-
-
-	//assetResourceManagerState.assetLoadThread =
-	//	std::thread(
-	//		[]()
-	//		{
-	//			AssetResourceManager::LoadDirectory(std::filesystem::directory_entry(assetResourceManagerState.assetPath));
-	//			AssetResourceManager::GenerateThumbnails();
-
-	//			assetResourceManagerState.assetManager->SerializeRegistry();
-	//		}
-	//	);
 }
 
 void AssetResourceManager::StartFileWatcher()
