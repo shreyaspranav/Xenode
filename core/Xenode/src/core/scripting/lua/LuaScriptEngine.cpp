@@ -114,6 +114,12 @@ namespace Xen {
 		lua_register(m_LuaVM, "GetCurrentTransform", LuaFunctions::lua_GetCurrentTransform);
 		lua_register(m_LuaVM, "SetCurrentTransform", LuaFunctions::lua_SetCurrentTransform);
 
+		// Functions related to audio: ----------------------------------------------------------
+		lua_register(m_LuaVM, "PlaySound", LuaFunctions::lua_PlaySound);
+		lua_register(m_LuaVM, "StopSound", LuaFunctions::lua_StopSound);
+		lua_register(m_LuaVM, "SetSoundVolume", LuaFunctions::lua_SetSoundVolume);
+		lua_register(m_LuaVM, "IsSoundPlaying", LuaFunctions::lua_IsSoundPlaying);
+
 		// Logging functions: -------------------------------------------------------------------
 		lua_register(m_LuaVM, "LogErrorSevere", LuaFunctions::lua_LogErrorSevere);
 		lua_register(m_LuaVM, "LogError", LuaFunctions::lua_LogError);

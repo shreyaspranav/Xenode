@@ -48,6 +48,10 @@
 // This header is used to calculate time on a piece of code
 #include <core/app/Timer.h>
 
+// Audio system headers
+#include <core/audio/AudioEngine.h>
+#include <core/audio/AudioClip.h>
+
 // TODO: For now, ImGui Rendering only supports desktop platforms,
 // Implement mobile implementations as well
 #ifdef XEN_DEVICE_DESKTOP

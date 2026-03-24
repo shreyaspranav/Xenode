@@ -9,6 +9,7 @@
 
 #include <core/scene/Components.h>
 #include <core/physics/Physics2D.h>
+#include <core/audio/AudioClip.h>
 
 namespace Xen {
 
@@ -241,6 +242,65 @@ namespace Xen {
 		}
 
 		return 0;
+	}
+
+	int LuaFunctions::lua_PlaySound(lua_State* L)
+	{
+		if (currentEntity.HasAnyComponent<Component::AudioSource>())
+		{
+			Component::AudioSource& audioSource = currentEntity.GetComponent<Component::AudioSource>();
+			if (audioSource.runtimeSound)
+			{
+				AudioClip* clip = static_cast<AudioClip*>(audioSource.runtimeSound);
+				clip->Play();
+			}
+		}
+		return 0;
+	}
+
+	int LuaFunctions::lua_StopSound(lua_State* L)
+	{
+		if (currentEntity.HasAnyComponent<Component::AudioSource>())
+		{
+			Component::AudioSource& audioSource = currentEntity.GetComponent<Component::AudioSource>();
+			if (audioSource.runtimeSound)
+			{
+				AudioClip* clip = static_cast<AudioClip*>(audioSource.runtimeSound);
+				clip->Stop();
+			}
+		}
+		return 0;
+	}
+
+	int LuaFunctions::lua_SetSoundVolume(lua_State* L)
+	{
+		if (currentEntity.HasAnyComponent<Component::AudioSource>())
+		{
+			float volume = lua_tonumber(L, 1);
+			Component::AudioSource& audioSource = currentEntity.GetComponent<Component::AudioSource>();
+			if (audioSource.runtimeSound)
+			{
+				AudioClip* clip = static_cast<AudioClip*>(audioSource.runtimeSound);
+				clip->SetVolume(volume);
+			}
+		}
+		return 0;
+	}
+
+	int LuaFunctions::lua_IsSoundPlaying(lua_State* L)
+	{
+		if (currentEntity.HasAnyComponent<Component::AudioSource>())
+		{
+			Component::AudioSource& audioSource = currentEntity.GetComponent<Component::AudioSource>();
+			if (audioSource.runtimeSound)
+			{
+				AudioClip* clip = static_cast<AudioClip*>(audioSource.runtimeSound);
+				lua_pushboolean(L, clip->IsPlaying());
+				return 1;
+			}
+		}
+		lua_pushboolean(L, false);
+		return 1;
 	}
 
 	int LuaFunctions::lua_LogErrorSevere(lua_State* L)

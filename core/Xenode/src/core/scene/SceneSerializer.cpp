@@ -237,6 +237,24 @@ namespace Xen {
 		}
 		// ----------------------------------------------------------------------------------------------------
 
+		// Audio Components:------------------------------------------------------------------------------------
+		if (entity.HasAnyComponent<Component::AudioSource>())
+		{
+			Component::AudioSource& audioSource = entity.GetComponent<Component::AudioSource>();
+
+			yamlEmitter << YAML::Key << "AudioSource" << YAML::BeginMap;
+
+			yamlEmitter << YAML::Key << "AudioFilePath" << YAML::Value << audioSource.audioFilePath;
+			yamlEmitter << YAML::Key << "Volume" << YAML::Value << audioSource.volume;
+			yamlEmitter << YAML::Key << "Pitch" << YAML::Value << audioSource.pitch;
+			yamlEmitter << YAML::Key << "Loop" << YAML::Value << audioSource.loop;
+			yamlEmitter << YAML::Key << "PlayOnStart" << YAML::Value << audioSource.playOnStart;
+			yamlEmitter << YAML::Key << "Spatial" << YAML::Value << audioSource.spatial;
+
+			yamlEmitter << YAML::EndMap;
+		}
+		// ----------------------------------------------------------------------------------------------------
+
 		yamlEmitter << YAML::EndMap; // Entity
 	}
 
@@ -509,6 +527,20 @@ namespace Xen {
 					circleColliderComp.radiusScale = radiusScale;
 					circleColliderComp.bodyOffset = offset;
 
+				}
+
+				// AudioSource:---------------------------------------------------------------------------
+				const YAML::Node& audioSourceComponent = entity["AudioSource"];
+				if (audioSourceComponent)
+				{
+					Component::AudioSource& audioSource = entt.AddComponent<Component::AudioSource>();
+
+					audioSource.audioFilePath = audioSourceComponent["AudioFilePath"].as<std::string>();
+					audioSource.volume = audioSourceComponent["Volume"].as<float>();
+					audioSource.pitch = audioSourceComponent["Pitch"].as<float>();
+					audioSource.loop = audioSourceComponent["Loop"].as<bool>();
+					audioSource.playOnStart = audioSourceComponent["PlayOnStart"].as<bool>();
+					audioSource.spatial = audioSourceComponent["Spatial"].as<bool>();
 				}
 			}
 		}

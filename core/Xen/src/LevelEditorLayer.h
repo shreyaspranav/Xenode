@@ -10,6 +10,7 @@
 #include <core/scene/EditorCameraController.h>
 
 #include <core/scene/SceneRuntime.h>
+#include <core/scene/UndoRedoHistory.h>
 
 enum KeyTransformOperation : uint16_t
 {
@@ -72,6 +73,10 @@ public:
 	void OnMouseButtonEvent(Xen::MouseButtonEvent& event);
 	
 	void OnKeyboardEvent(Xen::KeyboardEvent& event);
+
+	void Undo();
+	void Redo();
+	void PushUndoState();
 private:
 	// The OnImGuiUpdate function is broken down into smaller functions:
 	void ImGuiSetupDockSpace();
@@ -128,4 +133,6 @@ private:
 	bool m_FirstRuntimeIteration = false;
 
 	Xen::Entity m_SelectedEntity;
+
+	Xen::UndoRedoHistory m_UndoRedoHistory;
 };

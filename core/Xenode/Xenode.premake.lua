@@ -71,6 +71,7 @@ project "Xenode"
 		"%{IncludeDir.Optick}",
 		"%{IncludeDir.Lua}",
 		"%{IncludeDir.SHA256}",
+		"%{IncludeDir.miniaudio}",
 		"%{IncludeDir.VulkanSDK}",
 	}
 
@@ -125,7 +126,7 @@ project "Xenode"
 
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_LIB", "XEN_DEVICE_DESKTOP" }
 
-		links { "pthread", "dl" } -- IMP: GLFW fails to link without these
+		links { "pthread", "dl", "m" } -- IMP: GLFW fails to link without these, miniaudio needs libm
 
 	filter "configurations:Debug"
 		defines {"XEN_DEBUG", "XEN_LOG_ON"}

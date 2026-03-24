@@ -11,6 +11,7 @@
 #include "StringValues.h"
 
 #include <core/scene/SceneUtils.h>
+#include <functional>
 
 class SceneHierarchyPanel {
 
@@ -35,13 +36,17 @@ public:
 	inline const std::string& GetPanelTitle() { return m_PanelTitle; }
 	inline const Xen::Entity& GetSelectedEntity() { return m_SelectedEntity; }
 	inline const void SetSelectedEntity(const Xen::Entity& entity) { m_SelectedEntity = entity; }
+	inline void SetOnBeforeAction(const std::function<void()>& callback) { m_OnBeforeAction = callback; }
 
 	void OnImGuiRender()
 	{
 		ImGui::Begin(m_PanelTitle.c_str());
 
 		if (ImGui::Button(ICON_FA_CIRCLE_PLUS))
+		{
+			if (m_OnBeforeAction) m_OnBeforeAction();
 			m_Scene->AddNewEntity("Unnamed");
+		}
 		ImGui::SameLine();
 
 		ImGui::PushItemWidth(-30.0f);
@@ -62,12 +67,18 @@ public:
 		if (ImGui::BeginPopup("DeleteEntity"))
 		{
 			if (ImGui::Selectable("Clone Entity"))
+			{
+				if (m_OnBeforeAction) m_OnBeforeAction();
 				Xen::SceneUtils::CopyEntity(m_CurrentRightClickedEntity);
+			}
 
 			ImGui::Separator();
 
 			if (ImGui::Selectable("Delete"))
+			{
+				if (m_OnBeforeAction) m_OnBeforeAction();
 				m_Scene->DestroyEntity(m_CurrentRightClickedEntity);
+			}
 
 			ImGui::EndPopup();
 		}
@@ -179,4 +190,6 @@ private:
 #endif
 
 	bool m_DeleteEntityDisplayed = 0;
+
+	std::function<void()> m_OnBeforeAction;
 };

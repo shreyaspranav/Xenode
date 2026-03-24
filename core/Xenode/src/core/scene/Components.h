@@ -251,13 +251,31 @@ namespace Xen {
 				:particleInstance(particleInstance) {}
 		};
 
+		// Audio Components: ----------------------------------------------------------------------------------------------------------------------------------
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------
+		struct AudioSource
+		{
+			std::string audioFilePath = "";
+			float volume = 1.0f;
+			float pitch = 1.0f;
+			bool loop = false;
+			bool playOnStart = false;
+			bool spatial = false;
+
+			// Runtime-only (not serialized)
+			void* runtimeSound = nullptr;
+
+			AudioSource() = default;
+			AudioSource(const AudioSource&) = default;
+		};
+
 		template<typename... T>
 		struct Group{};
 
 		// Here All refers to all components except ID and Transform Component.
 		using All =
-			Group<Transform, SpriteRenderer, TextRenderer, CameraComp, 
-				NativeScript, ScriptComp, PointLight, AmbientLight, RigidBody2D, BoxCollider2D, 
-				CircleCollider2D, ParticleSystem2DComp>;
+			Group<Transform, SpriteRenderer, TextRenderer, CameraComp,
+				NativeScript, ScriptComp, PointLight, AmbientLight, RigidBody2D, BoxCollider2D,
+				CircleCollider2D, ParticleSystem2DComp, AudioSource>;
 	}
 }

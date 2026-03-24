@@ -39,6 +39,7 @@ namespace Xen
 		CopyComponentAllEntities<Component::PointLight>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::AmbientLight>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 		CopyComponentAllEntities<Component::ParticleSystem2DComp>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
+		CopyComponentAllEntities<Component::AudioSource>(srcSceneRegistry, dstSceneRegistry, uuidEntityMap);
 	}
 
 	Entity SceneUtils::CopyEntity(Entity entity)

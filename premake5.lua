@@ -41,6 +41,7 @@ IncludeDir["Optick"] 		= "%{wks.location}/deps/optick/include"
 IncludeDir["Box2D"] 		= "%{wks.location}/deps/box2d/include"
 IncludeDir["Lua"] 			= "%{wks.location}/deps/lua/include"
 IncludeDir["SHA256"] 		= "%{wks.location}/deps/SHA256/include"
+IncludeDir["miniaudio"] 	= "%{wks.location}/deps/miniaudio"
 
 
 IncludeDir["VulkanSDK"] 	= "%{VULKAN_SDK_PATH}/Include"

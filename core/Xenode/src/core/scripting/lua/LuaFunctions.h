@@ -30,6 +30,12 @@ namespace Xen {
 		static int lua_SetLinearVelocity2D(lua_State* L);
 		static int lua_SetAngularVelocity2D(lua_State* L);
 
+		// Functions related to audio:
+		static int lua_PlaySound(lua_State* L);
+		static int lua_StopSound(lua_State* L);
+		static int lua_SetSoundVolume(lua_State* L);
+		static int lua_IsSoundPlaying(lua_State* L);
+
 		// Logging Functions:
 		static int lua_LogErrorSevere(lua_State* L);
 		static int lua_LogError(lua_State* L);

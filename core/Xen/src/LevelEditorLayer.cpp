@@ -89,6 +89,9 @@ void LevelEditorLayer::OnAttach()
 	m_PropertiesPanel = PropertiesPanel(m_HierarchyPanel.GetSelectedEntity());
 	m_SceneSettingsPanel = SceneSettingsPanel(m_ActiveScene, &m_SceneSettings);
 
+	m_HierarchyPanel.SetOnBeforeAction([this]() { PushUndoState(); });
+	m_PropertiesPanel.SetOnBeforeAction([this]() { PushUndoState(); });
+
 	m_PropertiesPanel.SetTextureLoadDropType(m_ContentBrowserPanel.GetTextureLoadDropType());
 	m_PropertiesPanel.SetScriptLoadDropType(m_ContentBrowserPanel.GetScriptLoadDropType());
 
@@ -381,7 +384,14 @@ void LevelEditorLayer::ImGuiRenderMenuBar()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Edit")) { ImGui::EndMenu(); }
+		if (ImGui::BeginMenu("Edit"))
+		{
+			if (ImGui::MenuItem("Undo", "Ctrl+Z", false, m_UndoRedoHistory.CanUndo()))
+				Undo();
+			if (ImGui::MenuItem("Redo", "Ctrl+Y", false, m_UndoRedoHistory.CanRedo()))
+				Redo();
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("Project")) { ImGui::EndMenu(); }
 		if (ImGui::BeginMenu("View")) { ImGui::EndMenu(); }
 		if (ImGui::BeginMenu("Build")) { ImGui::EndMenu(); }
@@ -613,6 +623,20 @@ void LevelEditorLayer::ImGuiRenderToolbar()
 
 	ImGui::SameLine();
 
+	ImGui::BeginDisabled(!m_UndoRedoHistory.CanUndo());
+	if (ImGui::Button(ICON_FA_ARROW_ROTATE_LEFT))
+		Undo();
+	ImGui::EndDisabled();
+
+	ImGui::SameLine();
+
+	ImGui::BeginDisabled(!m_UndoRedoHistory.CanRedo());
+	if (ImGui::Button(ICON_FA_ARROW_ROTATE_RIGHT))
+		Redo();
+	ImGui::EndDisabled();
+
+	ImGui::SameLine();
+
 	ImGuiStyle& style = ImGui::GetStyle();
 	float width = 0.0f;
 	width += 25.0f;			// Play/Pause Button
@@ -738,6 +762,7 @@ void LevelEditorLayer::OnScenePause()
 
 void LevelEditorLayer::OpenScene(const std::string& filePath)
 {
+	m_UndoRedoHistory.Clear();
 	m_EditorScene->DestroyAllEntities();
 	Xen::Component::Transform editorCameraTransform = Xen::SceneSerializer::Deserialize(m_EditorScene, filePath);
 
@@ -780,6 +805,19 @@ void LevelEditorLayer::OnMouseButtonEvent(Xen::MouseButtonEvent& event)
 
 void LevelEditorLayer::OnKeyboardEvent(Xen::KeyboardEvent& event)
 {
+	if (Xen::KeyboardInput::IsKeyPressed(Xen::KeyboardKeyCode::KEY_LEFT_CONTROL))
+	{
+		switch (event.GetKey())
+		{
+		case Xen::KeyboardKeyCode::KEY_Z:
+			Undo();
+			return;
+		case Xen::KeyboardKeyCode::KEY_Y:
+			Redo();
+			return;
+		}
+	}
+
 	if (m_IsMouseHoveredOnViewport)
 	{
 		switch (event.GetKey())
@@ -824,5 +862,40 @@ void LevelEditorLayer::OnKeyboardEvent(Xen::KeyboardEvent& event)
 		case Xen::KeyboardKeyCode::KEY_Z:
 			break;
 		}
-	}	
+	}
+}
+
+void LevelEditorLayer::PushUndoState()
+{
+	m_UndoRedoHistory.PushState(m_EditorScene);
+}
+
+void LevelEditorLayer::Undo()
+{
+	if (m_EditorState != EditorState::Edit)
+		return;
+
+	if (m_UndoRedoHistory.Undo(m_EditorScene))
+	{
+		m_ActiveScene = m_EditorScene;
+		m_HierarchyPanel.SetActiveScene(m_EditorScene);
+		m_PropertiesPanel.SetActiveEntity(Xen::Entity());
+		Xen::SceneRuntime::SetActiveScene(m_EditorScene);
+		m_SelectedEntity = Xen::Entity();
+	}
+}
+
+void LevelEditorLayer::Redo()
+{
+	if (m_EditorState != EditorState::Edit)
+		return;
+
+	if (m_UndoRedoHistory.Redo(m_EditorScene))
+	{
+		m_ActiveScene = m_EditorScene;
+		m_HierarchyPanel.SetActiveScene(m_EditorScene);
+		m_PropertiesPanel.SetActiveEntity(Xen::Entity());
+		Xen::SceneRuntime::SetActiveScene(m_EditorScene);
+		m_SelectedEntity = Xen::Entity();
+	}
 }

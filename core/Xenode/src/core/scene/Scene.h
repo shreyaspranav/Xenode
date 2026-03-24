@@ -45,6 +45,7 @@ namespace Xen
 		friend class SceneRuntime;
 		friend class SceneRenderer;
 		friend class ScenePhysics;
+		friend class SceneAudio;
 		friend class SceneUtils;
 		friend class SceneSerializer;
 		friend class Entity;

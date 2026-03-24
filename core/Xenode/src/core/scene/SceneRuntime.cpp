@@ -9,6 +9,8 @@
 #include <core/app/Log.h>
 
 #include <core/scripting/ScriptEngine.h>
+#include <core/audio/SceneAudio.h>
+#include <core/audio/AudioEngine.h>
 
 
 namespace Xen 
@@ -44,6 +46,7 @@ namespace Xen
 	{
 		SceneRenderer::Initialize(viewportWidth, viewportHeight);
 		ScenePhysics::Initialize(GameApplication::FIXED_TIME_STEP);
+		SceneAudio::Initialize();
 	}
 
 	void SceneRuntime::SetActiveScene(const Ref<Scene>& scene)
@@ -51,6 +54,7 @@ namespace Xen
 		sceneRuntimeState.currentScene = scene;
 		SceneRenderer::SetActiveScene(scene);
 		ScenePhysics::SetActiveScene(scene);
+		SceneAudio::SetActiveScene(scene);
 	}
 
 	void SceneRuntime::SetAdditionalCamera(const Ref<Camera>& camera)
@@ -80,6 +84,7 @@ namespace Xen
 	{
 		sceneRuntimeState.isRunning = true;
 		ScenePhysics::RuntimeStart(sceneRuntimeState.sceneSettings.gravity);
+		SceneAudio::RuntimeStart();
 
 		// Initialize the script runtime and call OnStart on all scripts
 		SceneRuntime::InitScripts();
@@ -115,7 +120,7 @@ namespace Xen
 
 		SceneRuntime::UpdatePhysics(timestep);
 		SceneRuntime::UpdateScripts(timestep);
-		SceneRuntime::UpdateSounds(timestep);
+		SceneAudio::RuntimeUpdate();
 		SceneRuntime::UpdateRenderer(timestep);
 	}
 #else
@@ -142,6 +147,8 @@ namespace Xen
 
 		if (!paused)
 		{
+			SceneAudio::RuntimeUpdate();
+
 			// Call "OnUpdate" functions on all the scripts:
 			{
 				auto scriptView = sceneRuntimeState.currentScene->m_SceneRegistry.view<Component::ScriptComp>();
@@ -199,12 +206,14 @@ namespace Xen
 	{
 		sceneRuntimeState.isRunning = false;
 
+		SceneAudio::RuntimeEnd();
 		delete sceneRuntimeState.scriptEngine;
 		ScenePhysics::RuntimeEnd();
 	}
 
 	void SceneRuntime::End()
 	{
+		AudioEngine::Shutdown();
 		SceneRenderer::End();
 	}
 

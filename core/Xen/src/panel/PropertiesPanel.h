@@ -10,6 +10,7 @@
 #include <ImGradientHDR.h>
 
 #include "StringValues.h"
+#include <functional>
 
 class PropertiesPanel {
 
@@ -22,6 +23,7 @@ public:
 	inline void SetPanelTitle(const std::string& title)									{ m_PanelTitle = title; }
 	inline void SetTextureLoadDropType(const std::string& texture_load_drop_type)		{ m_TextureLoadDropType = texture_load_drop_type; }
 	inline void SetScriptLoadDropType(const std::string& script_load_drop_type)			{ m_ScriptLoadDropType = script_load_drop_type;  }
+	inline void SetOnBeforeAction(const std::function<void()>& callback) { m_OnBeforeAction = callback; }
 
 	inline const std::string& GetPanelTitle() { return m_PanelTitle; }
 	inline const Xen::Entity& GetSelectedEntity() { return m_SelectedEntity; }
@@ -136,10 +138,17 @@ public:
 					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
 				}
 
+				if (m_SelectedEntity.HasAnyComponent<Xen::Component::AudioSource>())
+				{
+					std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), Xen::StringValues::COMPONENT_AUDIO_SOURCE);
+					m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
+				}
+
 				for (int i = 0; i < m_AvailableComponents.size(); i++)
 				{
 					if (ImGui::Selectable(m_AvailableComponents[i].c_str()))
 					{
+						if (m_OnBeforeAction) m_OnBeforeAction();
 
 						if (m_AvailableComponents[i].contains("Sprite Renderer"))
 							m_SelectedEntity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f), nullptr, 1.0f);
@@ -170,6 +179,9 @@ public:
 
 						else if (m_AvailableComponents[i].contains("Particle System 2D"))
 							m_SelectedEntity.AddComponent<Xen::Component::ParticleSystem2DComp>();
+
+						else if (m_AvailableComponents[i].contains("Audio Source"))
+							m_SelectedEntity.AddComponent<Xen::Component::AudioSource>();
 
 						std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), m_AvailableComponents[i]);
 						m_AvailableComponents.resize(m_AvailableComponents.size() - 1);
@@ -206,7 +218,7 @@ public:
 					{
 						if (ImGui::Selectable("Delete Component: Camera"))
 						{
-							m_SelectedEntity.DeleteComponent<Xen::Component::CameraComp>();
+\1if (m_OnBeforeAction) m_OnBeforeAction();\n\1m_SelectedEntity.DeleteComponent<Xen::Component::CameraComp>();
 							ImGui::EndPopup();
 							goto backOC;
 						}
@@ -1138,6 +1150,77 @@ public:
 
 					ImGui::Separator();
 				}
+
+				// AudioSource Component --------------------------------------------------------------------
+				if (m_SelectedEntity.HasAnyComponent<Xen::Component::AudioSource>())
+				{
+					if (ImGui::CollapsingHeader(Xen::StringValues::COMPONENT_AUDIO_SOURCE.c_str(), tree_flags))
+					{
+						if (ImGui::BeginPopupContextItem())
+						{
+							if (ImGui::Selectable("Delete Component"))
+								m_SelectedEntity.DeleteComponent<Xen::Component::AudioSource>();
+							ImGui::EndPopup();
+						}
+
+						Xen::Component::AudioSource& audioSource = m_SelectedEntity.GetComponent<Xen::Component::AudioSource>();
+
+						ImGui::Columns(2, "##AudioSource", false);
+						ImGui::SetColumnWidth(0, 120.0f);
+
+						PaddedText("Audio File", 0.0f, 3.0f);
+						ImGui::NextColumn();
+
+						char audioPathBuf[256];
+						strncpy(audioPathBuf, audioSource.audioFilePath.c_str(), sizeof(audioPathBuf) - 1);
+						audioPathBuf[sizeof(audioPathBuf) - 1] = '\0';
+
+						ImGui::PushItemWidth(-0.1f);
+						if (ImGui::InputText("##AudioFilePath", audioPathBuf, sizeof(audioPathBuf)))
+							audioSource.audioFilePath = audioPathBuf;
+						ImGui::PopItemWidth();
+
+						ImGui::NextColumn();
+
+						PaddedText("Volume", 0.0f, 3.0f);
+						ImGui::NextColumn();
+
+						ImGui::PushItemWidth(-0.1f);
+						ImGui::DragFloat("##AudioVolume", &audioSource.volume, 0.01f, 0.0f, 1.0f);
+						ImGui::PopItemWidth();
+
+						ImGui::NextColumn();
+
+						PaddedText("Pitch", 0.0f, 3.0f);
+						ImGui::NextColumn();
+
+						ImGui::PushItemWidth(-0.1f);
+						ImGui::DragFloat("##AudioPitch", &audioSource.pitch, 0.01f, 0.1f, 3.0f);
+						ImGui::PopItemWidth();
+
+						ImGui::NextColumn();
+
+						PaddedText("Loop", 0.0f, 3.0f);
+						ImGui::NextColumn();
+						ImGui::Checkbox("##AudioLoop", &audioSource.loop);
+
+						ImGui::NextColumn();
+
+						PaddedText("Play On Start", 0.0f, 3.0f);
+						ImGui::NextColumn();
+						ImGui::Checkbox("##AudioPlayOnStart", &audioSource.playOnStart);
+
+						ImGui::NextColumn();
+
+						PaddedText("Spatial", 0.0f, 3.0f);
+						ImGui::NextColumn();
+						ImGui::Checkbox("##AudioSpatial", &audioSource.spatial);
+
+						ImGui::Columns(1);
+					}
+
+					ImGui::Separator();
+				}
 			}
 		}
 
@@ -1145,7 +1228,7 @@ public:
 	}
 
 private:
-	
+
 	void PaddedText(const std::string& text, float padding_x, float padding_y)
 	{
 		ImVec2 sz = ImGui::CalcTextSize(text.c_str());
@@ -1295,7 +1378,8 @@ private:
 		Xen::StringValues::COMPONENT_RIGID_BODY_2D,
 		Xen::StringValues::COMPONENT_BOX_COLLIDER_2D,
 		Xen::StringValues::COMPONENT_CIRCLE_COLLIDER_2D,
-		Xen::StringValues::COMPONENT_PARTICLE_SYSTEM_2D
+		Xen::StringValues::COMPONENT_PARTICLE_SYSTEM_2D,
+		Xen::StringValues::COMPONENT_AUDIO_SOURCE
 	};
 
 	std::vector<std::string> m_AvailableComponents = m_Components;
@@ -1312,4 +1396,6 @@ private:
 
 	float p = 0.0f;
 	float f = 200.0f;
+
+	std::function<void()> m_OnBeforeAction;
 };
