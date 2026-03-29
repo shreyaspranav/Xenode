@@ -66,7 +66,9 @@ namespace Xen
 		virtual ~Event() {}
 		
 		virtual EventType GetEventType() const = 0;
+#ifndef XEN_PRODUCTION
 		virtual std::string ToString() const = 0;
+#endif
 	};
 
 	//---------------------- Window Events:-------------------------------------------------------------------------------------------------------------

@@ -1,12 +1,14 @@
+require "deps/export-compile-commands"
+
 workspace "Xenode"
 	configurations { "Debug", "Release_Debug", "Production" }
 	architecture "x64"
 
-	bin_folder = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+	bin_folder = "%{cfg.buildcfg}-%{cfg.system}"
 
 	startproject "Xen"
 
-	--toolset "clang"
+	-- toolset "clang"
 
 -- Vulkan SDK is used for shaderc and spirv-cross
 VULKAN_SDK_PATH = os.getenv("VULKAN_SDK")

@@ -452,4 +452,7 @@ FodyWeavers.xsd
 # Generated Android gradle project
 SandboxAppAndroid/SandboxApk
 
+# Generated compile_commands.json files
+compile_commands/
+
 © 2021 GitHub, Inc.

@@ -1,10 +1,13 @@
 project "XenodeRuntime"
 	kind "ConsoleApp"
 	language "C++"
-	staticruntime "on"
+	staticruntime "off"
+	multiprocessorcompile "On"
+	cppdialect "C++23"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/%{prj.name}")
+
 
 	files {
 		"src/**.cpp",
@@ -27,7 +30,7 @@ project "XenodeRuntime"
 
 	links { "Xenode", "yaml-cpp", "GLFW", "ImGui", "Box2D" }
 
-	pic "on"
+	pic "On"
 
 	postbuildcommands {
 		"{COPYFILE} %{wks.location}/bin/" .. bin_folder .. "/bin/yaml-cpp/yaml-cpp.dll %{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}"
@@ -69,8 +72,7 @@ project "XenodeRuntime"
         optimize "On"
 
 	filter "action:vs*"
-		buildoptions "/std:c++latest"
-		flags { "MultiProcessorCompile" }
+		-- buildoptions "/std:c++latest"
 
 		-- Disable warnings that I don't care:
 		disablewarnings {

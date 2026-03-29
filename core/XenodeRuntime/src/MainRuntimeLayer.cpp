@@ -30,7 +30,7 @@ void MainRuntimeLayer::OnAttach()
 
 	m_CurrentScene = std::make_shared<Xen::Scene>(Xen::SceneType::_2D);
 
-	Xen::SceneSerializer::Deserialize(m_CurrentScene, relScenePath.string());
+	Xen::SceneSerializer::DeserializeYAML(m_CurrentScene, relScenePath.string());
 	Xen::SceneRuntime::SetActiveScene(m_CurrentScene);
 	Xen::SceneRuntime::RuntimeBegin();
 

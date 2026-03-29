@@ -2,10 +2,14 @@ project "Xen"
 
 	kind "ConsoleApp"
 	language "C++"
+	multiprocessorcompile "On"
 	staticruntime "off"
+	cppdialect "C++23"
+	pic "On"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/%{prj.name}")
+
 
 	files {
 		"src/**.cpp",
@@ -34,8 +38,6 @@ project "Xen"
 
 	links { "Xenode", "yaml-cpp", "GLFW", "ImGui", "Box2D", "Lua" }
 
-	pic "on"
-
 	postbuildcommands {
 		"{COPYFILE} %{wks.location}/bin/" .. bin_folder .. "/bin/yaml-cpp/yaml-cpp.dll %{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}"
 	}
@@ -46,7 +48,7 @@ project "Xen"
 	}
 
 	filter "files:deps/ImGuizmo/*.cpp"
-		flags { "NoPCH" }
+		enablepch "Off"
 
 	filter "system:windows"
 
@@ -86,8 +88,7 @@ project "Xen"
         optimize "On"
 
 	filter "action:vs*"
-		buildoptions "/std:c++latest"
-		flags { "MultiProcessorCompile" }
+		-- buildoptions "/std:c++latest"
 
 		-- Disable warnings that I don't care:
 		disablewarnings {

@@ -2,11 +2,14 @@ project "Xenode"
 
 	kind "StaticLib"
 	language "C++"
-	pic "on"
+	pic "On"
+	cppdialect "C++23"
 	staticruntime "off"
+	multiprocessorcompile "On"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/%{prj.name}")
+
 
 	files {
 		-- Main project source files:
@@ -95,13 +98,13 @@ project "Xenode"
 		}
 
 	filter "files:../../deps/ImGradientHDR/**.cpp"
-		flags { "NoPCH" }
+		enablepch "Off"
 	filter "files:../../deps/ImGuizmo/**.cpp"
-		flags { "NoPCH" }
+		enablepch "Off"
 	filter "files:../../deps/optick/**.cpp"
-		flags { "NoPCH" }
+		enablepch "Off"
 	filter "files:../../deps/SHA256/**.cpp"
-		flags { "NoPCH" }
+		enablepch "Off"
 
 	filter "system:windows"
 
@@ -145,8 +148,7 @@ project "Xenode"
 		pchheader "pch"
 		pchsource "src/pch/pch.cpp"
 
-		buildoptions "/std:c++latest"	
-		flags { "MultiProcessorCompile" }
+		-- buildoptions "/std:c++latest"	
 
 		-- Disable warnings that I don't care:
 		disablewarnings {

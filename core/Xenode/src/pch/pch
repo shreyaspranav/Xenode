@@ -23,6 +23,7 @@
 #include <memory>
 #include <random>
 #include <variant>
+#include <thread>
 
 #ifdef XEN_PLATFORM_WINDOWS
 	#include <Windows.h>
