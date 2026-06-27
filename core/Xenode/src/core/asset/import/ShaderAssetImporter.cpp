@@ -81,7 +81,7 @@ namespace Xen
 
 		for (auto& stringToken : completeShaderCode)
 		{
-			if (stringToken.contains("#shadertype"))
+			if (stringToken.find("#shadertype") != std::string::npos)
 			{
 				if (!shaderCodeEach.str().empty()) 
 				{
@@ -91,9 +91,9 @@ namespace Xen
 				}
 
 				// Add more types in the future:
-				if (stringToken.contains("vertex"))         shaderType = ShaderType::Vertex;
-				else if (stringToken.contains("fragment"))  shaderType = ShaderType::Fragment;
-				else if (stringToken.contains("geometry"))  shaderType = ShaderType::Geometry;
+				if (stringToken.find("vertex") != std::string::npos)         shaderType = ShaderType::Vertex;
+				else if (stringToken.find("fragment") != std::string::npos)  shaderType = ShaderType::Fragment;
+				else if (stringToken.find("geometry") != std::string::npos)  shaderType = ShaderType::Geometry;
 				
 				continue;
 			}

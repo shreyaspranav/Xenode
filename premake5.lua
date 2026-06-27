@@ -1,5 +1,3 @@
-require "deps/export-compile-commands"
-
 workspace "Xenode"
 	configurations { "Debug", "Release_Debug", "Production" }
 	architecture "x64"
@@ -8,6 +6,7 @@ workspace "Xenode"
 
 	startproject "Xen"
 
+	-- Uncomment to use clang-cl 
 	-- toolset "clang"
 
 -- Vulkan SDK is used for shaderc and spirv-cross
@@ -20,10 +19,10 @@ PROJECTS_PATH           = "%{wks.location}/resources/projects"
 
 -- Dependencies:
 group "Dependencies"
-	include "deps/glfw"
-	include "deps/imgui"
-	include "deps/yaml-cpp"
-	include "deps/box2d"
+	include "depbuildscripts/GLFW.premake.lua"
+	include "depbuildscripts/ImGui.premake.lua"
+	include "depbuildscripts/yaml-cpp.premake.lua"
+	include "depbuildscripts/Box2D.premake.lua"
 	include "deps/lua"
 group ""
 
@@ -37,7 +36,7 @@ IncludeDir["ImGui"]			= "%{wks.location}/deps/imgui"
 IncludeDir["Taskflow"] 		= "%{wks.location}/deps/taskflow"
 IncludeDir["entt"] 			= "%{wks.location}/deps/entt/include"
 IncludeDir["yaml_cpp"] 		= "%{wks.location}/deps/yaml-cpp/include"
-IncludeDir["ImGuizmo"] 		= "%{wks.location}/deps/ImGuizmo"
+IncludeDir["ImGuizmo"] 		= "%{wks.location}/deps/ImGuizmo/src"
 IncludeDir["ImGradientHDR"] = "%{wks.location}/deps/ImGradientHDR"
 IncludeDir["Optick"] 		= "%{wks.location}/deps/optick/include"
 IncludeDir["Box2D"] 		= "%{wks.location}/deps/box2d/include"
@@ -64,6 +63,9 @@ newoption {
 	trigger = "enable-profiling", 
 	description = "Enables profiling support to the build."
 }
+
+include "scripts/premake/vscode.lua"
+include "scripts/premake/clean.lua"
 
 -- Main projects:
 group "Core"

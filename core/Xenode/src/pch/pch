@@ -24,6 +24,7 @@
 #include <random>
 #include <variant>
 #include <thread>
+#include <cstdint>
 
 #ifdef XEN_PLATFORM_WINDOWS
 	#include <Windows.h>

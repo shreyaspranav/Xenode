@@ -2,8 +2,7 @@ project "Lua"
 
 	kind "StaticLib"
 	language "C"
-	pic "on"
-	staticruntime "on"
+	-- staticruntime "on"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/%{prj.name}")
@@ -60,8 +59,7 @@ project "LuaI"
 
 	kind "ConsoleApp"
 	language "C"
-	pic "on"
-	staticruntime "on"
+	-- staticruntime "on"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/%{prj.name}")
@@ -89,8 +87,7 @@ project "LuaC"
 
 	kind "ConsoleApp"
 	language "C"
-	pic "on"
-	staticruntime "on"
+	-- staticruntime "on"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/%{prj.name}")

@@ -121,7 +121,7 @@ public:
 				ImVec2 uv1 = { 1.0f, flipThumbnail ? 0.5f - thumbnailAspectRatio / 2 : 0.5f + thumbnailAspectRatio / 2 };
 
 				// Display the thumbnail as a ImageButton
-				ImGui::ImageButton((ImTextureID)(thumbnail->GetNativeTextureID()), { static_cast<float>(m_IconSize), static_cast<float>(m_IconSize) }, uv0, uv1);
+				ImGui::ImageButton(childrenNode->folderName.c_str(), (ImTextureID)(thumbnail->GetNativeTextureID()), { static_cast<float>(m_IconSize), static_cast<float>(m_IconSize) }, uv0, uv1);
 			}
 
 

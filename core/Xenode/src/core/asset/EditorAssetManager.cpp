@@ -2,6 +2,7 @@
 #include "EditorAssetManager.h"
 
 #include <core/app/Timer.h>
+#include <cstdint>
 #include <project/ProjectManager.h>
 
 #include "AssetImporter.h"
@@ -74,7 +75,7 @@ namespace Xen
 		else
 		{
 			if(handle) // Log only when non zero handles are requested
-				XEN_ENGINE_LOG_ERROR("Handle '{0}' is invalid!", handle);
+				XEN_ENGINE_LOG_ERROR("Handle '{0}' is invalid!", (uint64_t)handle);
 			return nullptr;
 		}
 		

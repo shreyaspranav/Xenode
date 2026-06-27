@@ -3,9 +3,8 @@ project "Xen"
 	kind "ConsoleApp"
 	language "C++"
 	multiprocessorcompile "On"
-	staticruntime "off"
-	cppdialect "C++23"
-	pic "On"
+	-- -- staticruntime "off"
+	cppdialect "C++20"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/%{prj.name}")
@@ -16,8 +15,8 @@ project "Xen"
 		"src/**.h",
 
 		--ImGuizmo source files
-		"../../deps/ImGuizmo/*.cpp",
-		"../../deps/ImGuizmo/*.h"
+		"../../deps/ImGuizmo/src/*.cpp",
+		"../../deps/ImGuizmo/src/*.h"
 	}
 
 	includedirs {
@@ -37,10 +36,6 @@ project "Xen"
 	}
 
 	links { "Xenode", "yaml-cpp", "GLFW", "ImGui", "Box2D", "Lua" }
-
-	postbuildcommands {
-		"{COPYFILE} %{wks.location}/bin/" .. bin_folder .. "/bin/yaml-cpp/yaml-cpp.dll %{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}"
-	}
 
 	defines {
 		"EDITOR_RESOURCES=\"%{EDITOR_RESOURCES_PATH}\"",
@@ -73,22 +68,27 @@ project "Xen"
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXE", "XEN_DEVICE_DESKTOP" }
 
 	filter "configurations:Debug"
+		linkoptions "--verbose"
+		runtime "Debug"
         defines {"XEN_DEBUG", "XEN_LOG_ON"}
         symbols "On"
 		-- buildoptions "/MTd"
 
     filter "configurations:Release_Debug"
+		runtime "Release"
         defines {"XEN_RELEASE", "XEN_LOG_ON"}
         optimize "On"
 		-- buildoptions "/MT"
 
     filter "configurations:Production"
+		runtime "Release"
 		kind "WindowedApp"
         defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
         optimize "On"
 
 	filter "action:vs*"
 		-- buildoptions "/std:c++latest"
+		buildoptions "/utf-8" -- Apparantly spdlog requires it
 
 		-- Disable warnings that I don't care:
 		disablewarnings {

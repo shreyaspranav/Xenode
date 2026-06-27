@@ -32,5 +32,5 @@ namespace Xen
 	};
 	
 	GameApplication* GetApplicationInstance();
-	static const bool IsRuntime;
+	static const bool IsRuntime = false;
 }

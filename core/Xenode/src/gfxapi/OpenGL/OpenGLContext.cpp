@@ -72,10 +72,15 @@ namespace Xen {
 
 		XEN_ENGINE_LOG_INFO("Loaded OpenGL {0}.{1}", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
-		XEN_ENGINE_LOG_INFO("Vendor: {0}", glGetString(GL_VENDOR));
-		XEN_ENGINE_LOG_INFO("Renderer: {0}", glGetString(GL_RENDERER));
-		XEN_ENGINE_LOG_INFO("OpenGL: {0}", glGetString(GL_VERSION));
-		XEN_ENGINE_LOG_INFO("GLSL: {0}", glGetString(GL_SHADING_LANGUAGE_VERSION));
+		const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+		const char* renderer = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+		const char* openGLVersion = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+		const char* shadingLangVersion = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+
+		XEN_ENGINE_LOG_INFO("Vendor: {0}", vendor);
+		XEN_ENGINE_LOG_INFO("Renderer: {0}", renderer);
+		XEN_ENGINE_LOG_INFO("OpenGL: {0}", openGLVersion);
+		XEN_ENGINE_LOG_INFO("GLSL: {0}", shadingLangVersion);
 
 		if (GLAD_VERSION_MAJOR(version) < 4 && GLAD_VERSION_MINOR(version) < 5)
 		{

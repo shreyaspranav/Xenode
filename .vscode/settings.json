@@ -1,0 +1,6 @@
+{
+  // We are using clangd for intellisense anyway. 
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "C_Cpp.autocomplete": "disabled",
+  "C_Cpp.errorSquiggles": "disabled",
+}

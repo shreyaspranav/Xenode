@@ -1,9 +1,9 @@
 project "XenodeRuntime"
 	kind "ConsoleApp"
 	language "C++"
-	staticruntime "off"
+	-- staticruntime "off"
 	multiprocessorcompile "On"
-	cppdialect "C++23"
+	cppdialect "C++20"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
 	objdir ("%{wks.location}/bin/" .. bin_folder .. "/obj/%{prj.name}")
@@ -30,11 +30,6 @@ project "XenodeRuntime"
 
 	links { "Xenode", "yaml-cpp", "GLFW", "ImGui", "Box2D" }
 
-	pic "On"
-
-	postbuildcommands {
-		"{COPYFILE} %{wks.location}/bin/" .. bin_folder .. "/bin/yaml-cpp/yaml-cpp.dll %{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}"
-	}
 
 	filter "system:windows"
 
@@ -59,20 +54,24 @@ project "XenodeRuntime"
 		defines { "XEN_PLATFORM_LINUX", "XEN_BUILD_EXEC", "XEN_DEVICE_DESKTOP" }
 
 	filter "configurations:Debug"
+		runtime "Debug"
         defines {"XEN_DEBUG", "XEN_LOG_ON"}
         symbols "On"
 
     filter "configurations:Release_Debug"
+		runtime "Release"
         defines {"XEN_RELEASE", "XEN_LOG_ON"}
         optimize "On"
 
     filter "configurations:Production"
+		runtime "Release"
 		kind "WindowedApp"
         defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
         optimize "On"
 
 	filter "action:vs*"
 		-- buildoptions "/std:c++latest"
+		buildoptions "/utf-8" -- Apparantly spdlog requires it
 
 		-- Disable warnings that I don't care:
 		disablewarnings {

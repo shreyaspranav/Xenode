@@ -2,9 +2,8 @@ project "Xenode"
 
 	kind "StaticLib"
 	language "C++"
-	pic "On"
-	cppdialect "C++23"
-	staticruntime "off"
+	cppdialect "C++20"
+	-- staticruntime "off"
 	multiprocessorcompile "On"
 
 	targetdir ("%{wks.location}/bin/" .. bin_folder .. "/bin/%{prj.name}")
@@ -33,8 +32,8 @@ project "Xenode"
 		-- Extra ImGui Files:
 
 		-- ImGuizmo: 
-		"../../deps/ImGuizmo/*.cpp",
-		"../../deps/ImGuizmo/*.h",
+		"../../deps/ImGuizmo/src/*.cpp",
+		"../../deps/ImGuizmo/src/*.h",
 		-- ImGradientHDR:
 		"../../deps/ImGradientHDR/*.cpp",
 		"../../deps/ImGradientHDR/*.h",
@@ -82,7 +81,8 @@ project "Xenode"
 		"_CRT_SECURE_NO_WARNINGS",
 		
 		"COMMON_RESOURCES=\"%{COMMON_RESOURCES_PATH}\"",
-		"EDITOR_RESOURCES=\"%{EDITOR_RESOURCES_PATH}\""
+		"EDITOR_RESOURCES=\"%{EDITOR_RESOURCES_PATH}\"",
+		"YAML_CPP_STATIC_DEFINE"
 	}
 
 	filter { "options:enable-profiling"}
@@ -118,7 +118,6 @@ project "Xenode"
 		defines { "XEN_PLATFORM_WINDOWS", "XEN_BUILD_LIB", "XEN_DEVICE_DESKTOP" }
 
 	filter "system:linux"
-
 		systemversion "latest"
 
 		files {
@@ -131,22 +130,27 @@ project "Xenode"
 		links { "pthread", "dl" } -- IMP: GLFW fails to link without these
 
 	filter "configurations:Debug"
+		runtime "Debug"
 		defines {"XEN_DEBUG", "XEN_LOG_ON"}
 		symbols "On"
 		-- buildoptions "/MTd"
 
 	filter "configurations:Release_Debug"
+		runtime "Release"
 		defines {"XEN_RELEASE", "XEN_LOG_ON"}
 		optimize "On"
 		-- buildoptions "/MT"
 
 	filter "configurations:Production"
+		runtime "Release"
 		defines {"XEN_PRODUCTION", "XEN_LOG_OFF"}
 		optimize "On"
 
 	filter "action:vs*"
 		pchheader "pch"
 		pchsource "src/pch/pch.cpp"
+
+		buildoptions "/utf-8" -- Apparantly spdlog requires it
 
 		-- buildoptions "/std:c++latest"	
 

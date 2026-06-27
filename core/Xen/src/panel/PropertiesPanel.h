@@ -12,6 +12,7 @@
 #include <ImGradientHDR.h>
 
 #include "StringValues.h"
+#include "imgui_internal.h"
 
 class PropertiesPanel {
 
@@ -143,34 +144,34 @@ public:
 					if (ImGui::Selectable(m_AvailableComponents[i].c_str()))
 					{
 
-						if (m_AvailableComponents[i].contains("Sprite Renderer"))
+						if (m_AvailableComponents[i].find("Sprite Renderer") != std::string::npos)
 							m_SelectedEntity.AddComponent<Xen::Component::SpriteRenderer>(Xen::Color(1.0f), 0, 1.0f);
 
-						else if (m_AvailableComponents[i].contains("Camera"))
+						else if (m_AvailableComponents[i].find("Camera") != std::string::npos)
 							m_SelectedEntity.AddComponent<Xen::Component::CameraComp>(std::make_shared<Xen::Camera>(Xen::CameraType::Orthographic, 22, 22));
 
-						else if (m_AvailableComponents[i].contains("Point Light"))
+						else if (m_AvailableComponents[i].find("Point Light") != std::string::npos)
 							m_SelectedEntity.AddComponent<Xen::Component::PointLight>();
 
-						else if (m_AvailableComponents[i].contains("Ambient Light"))
+						else if (m_AvailableComponents[i].find("Ambient Light") != std::string::npos)
 							m_SelectedEntity.AddComponent<Xen::Component::AmbientLight>();
 
-						else if (m_AvailableComponents[i].contains("Native Script"))
+						else if (m_AvailableComponents[i].find("Native Script") != std::string::npos)
 							m_SelectedEntity.AddComponent<Xen::Component::NativeScript>();
 
-						else if (m_AvailableComponents[i].contains(" Script"))
+						else if (m_AvailableComponents[i].find(" Script") != std::string::npos)
 							m_SelectedEntity.AddComponent<Xen::Component::ScriptComp>();
 
-						else if (m_AvailableComponents[i].contains("Rigid Body 2D"))
+						else if (m_AvailableComponents[i].find("Rigid Body 2D") != std::string::npos)
 							m_SelectedEntity.AddComponent<Xen::Component::RigidBody2D>();
 
-						else if (m_AvailableComponents[i].contains("Box Collider 2D"))
+						else if (m_AvailableComponents[i].find("Box Collider 2D") != std::string::npos)
 							m_SelectedEntity.AddComponent<Xen::Component::BoxCollider2D>();
 
-						else if (m_AvailableComponents[i].contains("Circle Collider 2D"))
+						else if (m_AvailableComponents[i].find("Circle Collider 2D") != std::string::npos)
 							m_SelectedEntity.AddComponent<Xen::Component::CircleCollider2D>();
 
-						else if (m_AvailableComponents[i].contains("Particle System 2D"))
+						else if (m_AvailableComponents[i].find("Particle System 2D") != std::string::npos)
 							m_SelectedEntity.AddComponent<Xen::Component::ParticleSystem2DComp>();
 
 						std::remove(m_AvailableComponents.begin(), m_AvailableComponents.end(), m_AvailableComponents[i]);
@@ -1173,7 +1174,7 @@ private:
 		ImGui::PushMultiItemsWidths(3, ImGui::GetContentRegionAvail().x - 60.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
-		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+		float lineHeight = ImGui::GetFontSize() + GImGui->Style.FramePadding.y * 2.0f;
 		ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
@@ -1232,7 +1233,7 @@ private:
 		ImGui::PushMultiItemsWidths(2, ImGui::GetContentRegionAvail().x - 40.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
-		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+		float lineHeight = ImGui::GetFontSize() + GImGui->Style.FramePadding.y * 2.0f;
 		ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });

@@ -323,7 +323,7 @@ namespace Xen {
 
 		for (auto& stringToken : shaderCode) 
 		{
-			if (stringToken.contains("#shadertype")) 
+			if (stringToken.find("#shadertype") != std::string::npos) 
 			{
 				if (!shaderCodeEach.str().empty()) {
 					shaders.insert({ shaderType, shaderCodeEach.str() });
@@ -331,11 +331,11 @@ namespace Xen {
 					shaderCodeEachEmpty = true;
 				}
 
-				if (stringToken.contains("vertex"))
+				if (stringToken.find("vertex") != std::string::npos)
 					shaderType = GL_VERTEX_SHADER;
-				else if (stringToken.contains("fragment"))
+				else if (stringToken.find("fragment") != std::string::npos)
 					shaderType = GL_FRAGMENT_SHADER;
-				else if (stringToken.contains("geometry"))
+				else if (stringToken.find("geometry") != std::string::npos)
 					shaderType = GL_GEOMETRY_SHADER;
 				continue;
 			}

@@ -1,0 +1,6 @@
+{
+  "recommendations": [
+    "llvm-vs-code-extensions.vscode-clangd",    // For intellisense
+    "ms-vscode.cpptools",                       // For using the MSVC debugger
+  ]
+}

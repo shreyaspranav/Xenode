@@ -625,7 +625,7 @@ void LevelEditorLayer::ImGuiRenderToolbar()
 
 	float avail = ImGui::GetContentRegionAvail().x;
 
-	if (ImGui::ImageButton((ImTextureID)m_2DOr3DView->GetNativeTextureID(), { 25.0f, 25.0f }))
+	if (ImGui::ImageButton("2DOr3DView", (ImTextureID)m_2DOr3DView->GetNativeTextureID(), { 25.0f, 25.0f }))
 	{
 		if (m_2DOr3DView == m_ResourceTextures["2D"])
 		{
@@ -657,7 +657,7 @@ void LevelEditorLayer::ImGuiRenderToolbar()
 	if (off > 0.0f)
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
 
-	if (ImGui::ImageButton((ImTextureID)m_PlayOrPause->GetNativeTextureID(), { 25.0f, 25.0f }))
+	if (ImGui::ImageButton("PlayOrPause", (ImTextureID)m_PlayOrPause->GetNativeTextureID(), { 25.0f, 25.0f }))
 	{
 		if (m_PlayOrPause == m_ResourceTextures["Play"])
 		{
@@ -678,7 +678,7 @@ void LevelEditorLayer::ImGuiRenderToolbar()
 
 	ImGui::BeginDisabled(m_EditMode); 
 
-	if (ImGui::ImageButton((ImTextureID)m_ResourceTextures["Stop"]->GetNativeTextureID(), { 25.0f, 25.0f }))
+	if (ImGui::ImageButton("EditorState", (ImTextureID)m_ResourceTextures["Stop"]->GetNativeTextureID(), { 25.0f, 25.0f }))
 	{
 		m_EditorState = EditorState::Edit;
 		m_EditMode = true;
@@ -690,7 +690,7 @@ void LevelEditorLayer::ImGuiRenderToolbar()
 	ImGui::SameLine();
 
 	ImGui::BeginDisabled(m_EditorState != EditorState::Pause);
-	if (ImGui::ImageButton((ImTextureID)m_ResourceTextures["Step"]->GetNativeTextureID(), { 25.0f, 25.0f }))
+	if (ImGui::ImageButton("Step", (ImTextureID)m_ResourceTextures["Step"]->GetNativeTextureID(), { 25.0f, 25.0f }))
 	{
 		m_SceneStepped = true;
 	}
